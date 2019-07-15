@@ -1,0 +1,14 @@
+.fill-screen-vertical {
+    min-height: 100%; /* compatibility */
+    min-height: 100vh;
+}
+
+.vertical-centering {
+    display: flex;
+    align-items: center;
+}
+
+.horizontal-centering {
+    display: flex;
+    justify-content: center;
+}

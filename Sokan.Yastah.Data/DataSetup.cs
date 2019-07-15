@@ -1,0 +1,14 @@
+﻿using System.Reflection;
+
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Sokan.Yastah.Data
+{
+    public static class DataSetup
+    {
+        public static IServiceCollection AddYastahData(this IServiceCollection services, IConfiguration configuration)
+            => services.AddAssembly(Assembly.GetExecutingAssembly(), configuration);
+    }
+}

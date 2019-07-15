@@ -1,0 +1,16 @@
+<header>
+    <nav>
+        <h4>Yastah Game Portal</h4>
+        <hr />
+        <div *ngIf="isAuthenticated" class="menu-item-container">
+            <img src="{{avatarUri}}" width="32" height="32" />
+            <h5>{{userName}}</h5>
+            <h6><a href="{{signoutUri}}">(Logout)</a></h6>
+        </div>
+        <hr *ngIf="isAuthenticated"/>
+        <div *ngIf="hasHome" class="menu-item-container">
+            <span class="material-icons">home</span>
+            <h5><a [routerLink]="['/']">Home</a></h5>
+        </div>
+    </nav>
+</header>
