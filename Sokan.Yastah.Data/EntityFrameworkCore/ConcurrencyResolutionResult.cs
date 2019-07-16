@@ -1,4 +1,6 @@
-﻿namespace Microsoft.EntityFrameworkCore
+﻿using System;
+
+namespace Microsoft.EntityFrameworkCore
 {
     public struct ConcurrencyResolutionResult
         : IEquatable<ConcurrencyResolutionResult>
