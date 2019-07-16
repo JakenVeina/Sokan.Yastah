@@ -11,8 +11,9 @@ using Sokan.Yastah.Api;
 using Sokan.Yastah.Business;
 using Sokan.Yastah.Common;
 using Sokan.Yastah.Data;
+using Sokan.Yastah.Web;
 
-namespace Sokan.Yastah.Web
+namespace Sokan.Yastah.Host
 {
     public class Startup
         : IStartup

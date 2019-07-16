@@ -32,8 +32,8 @@ namespace Sokan.Yastah.Web
 
             applicationBuilder.UseSpa(spaBuilder =>
             {
-                spaBuilder.Options.SourcePath = "ClientApp";
-
+                // TODO: Is there a better way to configure this path?
+                spaBuilder.Options.SourcePath = @"D:\Projects\Sokan.Yastah\Sokan.Yastah.Web\ClientApp";
                 if (hostingEnvironment.IsDevelopment())
                     spaBuilder.UseAngularCliServer(npmScript: "start");
             });

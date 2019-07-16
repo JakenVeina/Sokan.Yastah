@@ -9,9 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sokan.Yastah.Common", "Soka
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sokan.Yastah.Web", "Sokan.Yastah.Web\Sokan.Yastah.Web.csproj", "{642E0795-07C2-4CB9-AB70-C8795F0C61A4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sokan.Yastah.Api", "Sokan.Yastah.Api\Sokan.Yastah.Api.csproj", "{4F943085-1ED8-450F-A0F8-E4816D536165}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sokan.Yastah.Api", "Sokan.Yastah.Api\Sokan.Yastah.Api.csproj", "{4F943085-1ED8-450F-A0F8-E4816D536165}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sokan.Yastah.Business", "Sokan.Yastah.Business\Sokan.Yastah.Business.csproj", "{DF632ADB-8965-483F-BAD2-98D055FDEC11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sokan.Yastah.Business", "Sokan.Yastah.Business\Sokan.Yastah.Business.csproj", "{DF632ADB-8965-483F-BAD2-98D055FDEC11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sokan.Yastah.Host", "Sokan.Yastah.Host\Sokan.Yastah.Host.csproj", "{A67ADB02-FA47-462E-A8CA-25426FC4FAF2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{DF632ADB-8965-483F-BAD2-98D055FDEC11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF632ADB-8965-483F-BAD2-98D055FDEC11}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF632ADB-8965-483F-BAD2-98D055FDEC11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A67ADB02-FA47-462E-A8CA-25426FC4FAF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A67ADB02-FA47-462E-A8CA-25426FC4FAF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A67ADB02-FA47-462E-A8CA-25426FC4FAF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A67ADB02-FA47-462E-A8CA-25426FC4FAF2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
