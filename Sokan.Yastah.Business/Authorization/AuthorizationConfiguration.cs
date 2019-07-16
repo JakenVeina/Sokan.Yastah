@@ -3,11 +3,11 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Sokan.Yastah.Business.Authorization
 {
     public class AuthorizationConfiguration
-        : AutoValidatableObject
     {
         [Required]
         public ulong[] AdminUserIds { get; set; }
@@ -17,7 +17,9 @@ namespace Sokan.Yastah.Business.Authorization
 
         [OnConfigureServices]
         public static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
-            => services
-                .AddValidatedConfigurationOptions<AuthorizationConfiguration>(configuration.GetSection("Authorization"));
+            => services.AddOptions<AuthorizationConfiguration>()
+                .Bind(configuration.GetSection("Authorization"))
+                .ValidateDataAnnotations()
+                .ValidateOnStartup();
     }
 }

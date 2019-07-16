@@ -9,9 +9,9 @@ namespace Sokan.Yastah.Api.Authentication
         : IPostConfigureOptions<ApiAuthenticationOptions>
     {
         public ApiAuthenticationOptionsConfigurator(
-            AuthenticationConfiguration authenticationConfiguration)
+            IOptions<AuthenticationConfiguration> authenticationConfiguration)
         {
-            _authenticationConfiguration = authenticationConfiguration;
+            _authenticationConfiguration = authenticationConfiguration.Value;
         }
 
         public void PostConfigure(string name, ApiAuthenticationOptions options)

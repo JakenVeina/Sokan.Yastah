@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 using Sokan.Yastah.Data.Authorization;
 using Sokan.Yastah.Data.Users;
@@ -24,11 +25,11 @@ namespace Sokan.Yastah.Business.Authorization
         : IAuthorizationService
     {
         public AuthorizationService(
-            AuthorizationConfiguration authorizationConfiguration,
+            IOptions<AuthorizationConfiguration> authorizationConfiguration,
             IPermissionRepository permissionRepository,
             IUserRepository userRepository)
         {
-            _authorizationConfiguration = authorizationConfiguration;
+            _authorizationConfiguration = authorizationConfiguration.Value;
             _permissionRepository = permissionRepository;
             _userRepository = userRepository;
         }

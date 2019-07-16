@@ -3,11 +3,11 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Sokan.Yastah.Business
 {
     public class DiscordClientConfiguration
-        : AutoValidatableObject
     {
         [Required]
         public ulong ClientId { get; set; }
@@ -17,7 +17,9 @@ namespace Sokan.Yastah.Business
 
         [OnConfigureServices]
         public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
-            => services
-                .AddValidatedConfigurationOptions<DiscordClientConfiguration>(configuration.GetSection("Discord"));
+            => services.AddOptions<DiscordClientConfiguration>()
+                .Bind(configuration.GetSection("Discord"))
+                .ValidateDataAnnotations()
+                .ValidateOnStartup();
     }
 }

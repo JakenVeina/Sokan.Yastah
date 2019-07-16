@@ -4,11 +4,11 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Sokan.Yastah.Api.Authentication
 {
     public class AuthenticationConfiguration
-        : AutoValidatableObject
     {
         public TimeSpan? TokenLifetime { get; set; }
 
@@ -17,7 +17,9 @@ namespace Sokan.Yastah.Api.Authentication
 
         [OnConfigureServices]
         public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
-            => services
-                .AddValidatedConfigurationOptions<AuthenticationConfiguration>(configuration.GetSection("Authentication"));
+            => services.AddOptions<AuthenticationConfiguration>()
+                .Bind(configuration.GetSection("Authentication"))
+                .ValidateDataAnnotations()
+                .ValidateOnStartup();
     }
 }

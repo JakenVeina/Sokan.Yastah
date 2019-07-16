@@ -13,9 +13,9 @@ namespace Sokan.Yastah.Api.Authentication
         : IPostConfigureOptions<DiscordAuthenticationOptions>
     {
         public DiscordAuthenticationOptionsConfigurator(
-            DiscordClientConfiguration discordClientConfiguration)
+            IOptions<DiscordClientConfiguration> discordClientConfiguration)
         {
-            _discordClientConfiguration = discordClientConfiguration;
+            _discordClientConfiguration = discordClientConfiguration.Value;
         }
 
         public void PostConfigure(string name, DiscordAuthenticationOptions options)
