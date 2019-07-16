@@ -30,15 +30,14 @@ namespace Sokan.Yastah.Data.Users
         public ulong? DeletedById { get; set; }
 
         public UserEntity DeletedBy { get; set; }
-    }
 
-    [ModelCreatingHandler]
-    public class UserRoleDefaultMappingEntityModelCreatingHandler
-        : IModelCreatingHandler<YastahDbContext>
-    {
-        public void OnModelCreating(ModelBuilder modelBuilder)
+        [OnModelCreating]
+        public static void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<UserRoleDefaultMappingEntity>(entityBuilder =>
             {
+                entityBuilder
+                    .ToTable("UserRoleDefaultMappings");
+
                 entityBuilder
                     .Property(x => x.CreatedById)
                     .HasConversion<long>();

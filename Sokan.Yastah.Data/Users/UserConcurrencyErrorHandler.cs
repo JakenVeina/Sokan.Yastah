@@ -1,10 +1,11 @@
 ﻿using System;
 
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
+using Sokan.Yastah.Data.Concurrency;
 
 namespace Sokan.Yastah.Data.Users
 {

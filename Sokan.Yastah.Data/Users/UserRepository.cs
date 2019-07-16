@@ -11,6 +11,8 @@ using Microsoft.Extensions.Internal;
 
 using Sokan.Yastah.Common.Messaging;
 using Sokan.Yastah.Data.Authorization;
+using Sokan.Yastah.Data.Concurrency;
+using Sokan.Yastah.Data.Roles;
 
 namespace Sokan.Yastah.Data.Users
 {
@@ -81,7 +83,7 @@ namespace Sokan.Yastah.Data.Users
                 });
 
             await _yastahDbContext
-                .UserPermissionMappings
+                .Set<UserPermissionMappingEntity>()
                 .AddRangeAsync(entities);
 
             await _yastahDbContext
@@ -108,7 +110,7 @@ namespace Sokan.Yastah.Data.Users
                 });
 
             await _yastahDbContext
-                .UserRoleMappings
+                .Set<UserRoleMappingEntity>()
                 .AddRangeAsync(entities);
 
             await _yastahDbContext
@@ -122,7 +124,7 @@ namespace Sokan.Yastah.Data.Users
         public async Task<IReadOnlyList<long>> GetDefaultRoleIdsAsync(
                 CancellationToken cancellationToken)
             => await _yastahDbContext
-                .UserRoleDefaultMappings
+                .Set<UserRoleDefaultMappingEntity>()
                 .Where(x => x.DeletedById == null)
                 .Select(x => x.RoleId)
                 .ToArrayAsync(cancellationToken);
@@ -130,7 +132,7 @@ namespace Sokan.Yastah.Data.Users
         public async Task<IReadOnlyList<long>> GetDefaultPermissionIdsAsync(
                 CancellationToken cancellationToken)
             => await _yastahDbContext
-                .UserPermissionDefaultMappings
+                .Set<UserPermissionDefaultMappingEntity>()
                 .Where(x => x.DeletedById == null)
                 .Select(x => x.PermissionId)
                 .ToArrayAsync(cancellationToken);
@@ -139,24 +141,24 @@ namespace Sokan.Yastah.Data.Users
                 ulong userId,
                 CancellationToken cancellationToken)
             => await _yastahDbContext
-                .Permissions
+                .Set<PermissionEntity>()
                 .Where(p => _yastahDbContext
-                        .UserPermissionMappings
+                        .Set<UserPermissionMappingEntity>()
                         .Where(upm => upm.UserId == userId)
                         .Where(upm => !upm.IsDenied)
                         .Where(upm => upm.DeletedById == null)
                         .Any(upm => upm.PermissionId == p.PermissionId)
                     || _yastahDbContext
-                        .RolePermissionMappings
+                        .Set<RolePermissionMappingEntity>()
                         .Where(rpm => _yastahDbContext
-                            .UserRoleMappings
+                            .Set<UserRoleMappingEntity>()
                             .Where(urm => urm.DeletedById == null)
                             .Where(urm => urm.UserId == userId)
                             .Any(urm => urm.RoleId == rpm.RoleId))
                         .Where(x => x.DeletedById == null)
                         .Any(rpm => rpm.PermissionId == p.PermissionId))
                 .Where(p => !_yastahDbContext
-                    .UserPermissionMappings
+                    .Set<UserPermissionMappingEntity>()
                     .Where(upm => upm.UserId == userId)
                     .Where(upm => !upm.IsDenied)
                     .Where(upm => upm.DeletedById == null)
@@ -174,7 +176,7 @@ namespace Sokan.Yastah.Data.Users
             var result = MergeResult.SingleUpdate;
 
             var entity = await _yastahDbContext
-                .Users
+                .Set<UserEntity>()
                 .FindAsync(new object[] { id }, cancellationToken);
 
             var now = _systemClock.UtcNow;
@@ -190,7 +192,7 @@ namespace Sokan.Yastah.Data.Users
                 };
 
                 await _yastahDbContext
-                    .Users
+                    .Set<UserEntity>()
                     .AddAsync(entity);
             }
 

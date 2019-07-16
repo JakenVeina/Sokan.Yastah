@@ -23,15 +23,14 @@ namespace Sokan.Yastah.Data.Authorization
 
         [Required]
         public string Description { get; set; }
-    }
 
-    [ModelCreatingHandler]
-    public class PermissionEntityModelCreatingHandler
-        : IModelCreatingHandler<YastahDbContext>
-    {
-        public void OnModelCreating(ModelBuilder modelBuilder)
+        [OnModelCreating]
+        public static void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<PermissionEntity>(entityBuilder =>
             {
+                entityBuilder
+                    .ToTable("Permissions");
+
                 entityBuilder
                     .HasIndex(x => new { x.CategoryId, x.Name })
                     .IsUnique();

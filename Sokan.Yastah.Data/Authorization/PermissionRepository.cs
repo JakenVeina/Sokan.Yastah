@@ -28,7 +28,7 @@ namespace Sokan.Yastah.Data.Authorization
         public async Task<IReadOnlyCollection<PermissionIdentity>> GetAllPermissionIdentitiesAsync(
                 CancellationToken cancellationToken)
             => await _yastahDbContext
-                .Permissions
+                .Set<PermissionEntity>()
                 .Select(PermissionIdentity.FromEntityProjection)
                 .ToArrayAsync(cancellationToken);
 

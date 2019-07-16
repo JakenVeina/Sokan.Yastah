@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Sokan.Yastah.Data.Concurrency
 {
     public struct ConcurrencyResolutionResult
         : IEquatable<ConcurrencyResolutionResult>

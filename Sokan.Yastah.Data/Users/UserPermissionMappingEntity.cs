@@ -37,15 +37,14 @@ namespace Sokan.Yastah.Data.Users
         public ulong? DeletedById { get; set; }
 
         public UserEntity DeletedBy { get; set; }
-    }
 
-    [ModelCreatingHandler]
-    public class UserPermissionMappingEntityModelCreatingHandler
-        : IModelCreatingHandler<YastahDbContext>
-    {
-        public void OnModelCreating(ModelBuilder modelBuilder)
+        [OnModelCreating]
+        public static void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<UserPermissionMappingEntity>(entityBuilder =>
             {
+                entityBuilder
+                    .ToTable("UserPermissionMappings");
+
                 entityBuilder
                     .Property(x => x.UserId)
                     .HasConversion<long>();

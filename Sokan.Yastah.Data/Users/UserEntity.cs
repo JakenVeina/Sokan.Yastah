@@ -21,15 +21,14 @@ namespace Sokan.Yastah.Data.Users
         public DateTimeOffset FirstSeen { get; set; }
 
         public DateTimeOffset LastSeen { get; set; }
-    }
 
-    [ModelCreatingHandler]
-    public class UserEntityModelCreatingHandler
-        : IModelCreatingHandler<YastahDbContext>
-    {
-        public void OnModelCreating(ModelBuilder modelBuilder)
+        [OnModelCreating]
+        public static void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<UserEntity>(entityBuilder =>
             {
+                entityBuilder
+                    .ToTable("Users");
+
                 entityBuilder
                     .Property(x => x.Id)
                     .HasConversion<long>();

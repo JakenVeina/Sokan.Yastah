@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Sokan.Yastah.Data.Concurrency
 {
     public interface IConcurrencyErrorHandler<TEntity>
     {

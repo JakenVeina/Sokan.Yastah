@@ -36,15 +36,14 @@ namespace Sokan.Yastah.Data.Roles
         public ulong? DeletedById { get; set; }
 
         public UserEntity DeletedBy { get; set; }
-    }
 
-    [ModelCreatingHandler]
-    public class RolePermissionMappingEntityModelCreatingHandler
-        : IModelCreatingHandler<YastahDbContext>
-    {
-        public void OnModelCreating(ModelBuilder modelBuilder)
+        [OnModelCreating]
+        public static void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<RolePermissionMappingEntity>(entityBuilder =>
             {
+                entityBuilder
+                    .ToTable("RolePermissionMappings");
+
                 entityBuilder
                     .Property(x => x.CreatedById)
                     .HasConversion<long>();
