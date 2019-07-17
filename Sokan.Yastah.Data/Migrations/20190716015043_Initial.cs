@@ -12,8 +12,7 @@ namespace Sokan.Yastah.Data.Migrations
                 name: "PermissionCategories",
                 columns: table => new
                 {
-                    Id = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    Id = table.Column<long>(nullable: false),
                     Name = table.Column<string>(nullable: false),
                     DisplayName = table.Column<string>(nullable: false),
                     Description = table.Column<string>(nullable: false)
@@ -43,8 +42,7 @@ namespace Sokan.Yastah.Data.Migrations
                 name: "Permissions",
                 columns: table => new
                 {
-                    PermissionId = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    PermissionId = table.Column<long>(nullable: false),
                     CategoryId = table.Column<long>(nullable: false),
                     Name = table.Column<string>(nullable: false),
                     DisplayName = table.Column<string>(nullable: false),

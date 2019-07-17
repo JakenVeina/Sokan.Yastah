@@ -23,8 +23,7 @@ namespace Sokan.Yastah.Data.Migrations
 
             modelBuilder.Entity("Sokan.Yastah.Data.Authorization.PermissionCategoryEntity", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd();
+                    b.Property<long>("Id");
 
                     b.Property<string>("Description")
                         .IsRequired();
@@ -45,8 +44,7 @@ namespace Sokan.Yastah.Data.Migrations
 
             modelBuilder.Entity("Sokan.Yastah.Data.Authorization.PermissionEntity", b =>
                 {
-                    b.Property<long>("PermissionId")
-                        .ValueGeneratedOnAdd();
+                    b.Property<long>("PermissionId");
 
                     b.Property<long>("CategoryId");
 
