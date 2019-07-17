@@ -8,6 +8,7 @@ using Sokan.Yastah.Data.Authorization;
 
 namespace Sokan.Yastah.Data.Users
 {
+    [Table("UserPermissionDefaultMappings")]
     internal class UserPermissionDefaultMappingEntity
     {
         [Key]
@@ -35,9 +36,6 @@ namespace Sokan.Yastah.Data.Users
         public static void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<UserPermissionDefaultMappingEntity>(entityBuilder =>
             {
-                entityBuilder
-                    .ToTable("UserPermissionDefaultMappings");
-
                 entityBuilder
                     .Property(x => x.CreatedById)
                     .HasConversion<long>();

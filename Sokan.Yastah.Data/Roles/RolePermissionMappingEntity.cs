@@ -9,6 +9,7 @@ using Sokan.Yastah.Data.Users;
 
 namespace Sokan.Yastah.Data.Roles
 {
+    [Table("RolePermissionMappings")]
     internal class RolePermissionMappingEntity
     {
         [Key]
@@ -41,9 +42,6 @@ namespace Sokan.Yastah.Data.Roles
         public static void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<RolePermissionMappingEntity>(entityBuilder =>
             {
-                entityBuilder
-                    .ToTable("RolePermissionMappings");
-
                 entityBuilder
                     .Property(x => x.CreatedById)
                     .HasConversion<long>();

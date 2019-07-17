@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Sokan.Yastah.Data.Authorization
 {
+    [Table("Permissions")]
     internal class PermissionEntity
     {
         [Key]
@@ -28,9 +29,6 @@ namespace Sokan.Yastah.Data.Authorization
         public static void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<PermissionEntity>(entityBuilder =>
             {
-                entityBuilder
-                    .ToTable("Permissions");
-
                 entityBuilder
                     .HasIndex(x => new { x.CategoryId, x.Name })
                     .IsUnique();

@@ -8,6 +8,7 @@ using Sokan.Yastah.Data.Roles;
 
 namespace Sokan.Yastah.Data.Users
 {
+    [Table("UserRoleMappings")]
     internal class UserRoleMappingEntity
     {
         [Key]
@@ -40,9 +41,6 @@ namespace Sokan.Yastah.Data.Users
         public static void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<UserRoleMappingEntity>(entityBuilder =>
             {
-                entityBuilder
-                    .ToTable("UserRoleMappings");
-
                 entityBuilder
                     .Property(x => x.UserId)
                     .HasConversion<long>();

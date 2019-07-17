@@ -1,10 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace Sokan.Yastah.Data.Users
 {
+    [Table("Users")]
     internal class UserEntity
     {
         [Key]
@@ -26,9 +28,6 @@ namespace Sokan.Yastah.Data.Users
         public static void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<UserEntity>(entityBuilder =>
             {
-                entityBuilder
-                    .ToTable("Users");
-
                 entityBuilder
                     .Property(x => x.Id)
                     .HasConversion<long>();
