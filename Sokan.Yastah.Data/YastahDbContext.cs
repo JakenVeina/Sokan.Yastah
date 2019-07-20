@@ -19,10 +19,7 @@ namespace Sokan.Yastah.Data
 
         [OnConfigureServices]
         public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddDbContext<YastahDbContext>(options =>
-                options
-                    .UseNpgsql(configuration.GetConnectionString("Sokan.Yastah.Data")));
-        }
+            => services.AddDbContext<YastahDbContext>(options =>
+                options.UseNpgsql(configuration.GetConnectionString("Sokan.Yastah.Data")));
     }
 }

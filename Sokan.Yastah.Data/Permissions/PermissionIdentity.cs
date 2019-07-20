@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Sokan.Yastah.Data.Authorization
+namespace Sokan.Yastah.Data.Permissions
 {
     public class PermissionIdentity
     {
-        public long CategoryId { get; internal set; }
+        public int CategoryId { get; internal set; }
 
-        public long PermissionId { get; internal set; }
+        public int PermissionId { get; internal set; }
 
         public string CategoryName { get; internal set; }
 

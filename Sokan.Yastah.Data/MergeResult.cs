@@ -3,7 +3,6 @@
 namespace Sokan.Yastah.Data
 {
     public struct MergeResult
-        : IEquatable<MergeResult>
     {
         public static readonly MergeResult SingleInsert
             = new MergeResult(1, 0);
@@ -27,32 +26,6 @@ namespace Sokan.Yastah.Data
 
         public int RowsUpdated
             => _rowsUpdated;
-
-        public bool Equals(MergeResult result)
-            => _rowsInserted == result._rowsInserted
-                && _rowsUpdated == result._rowsUpdated;
-
-        public override bool Equals(object obj)
-            => (obj is MergeResult result)
-                ? Equals(result)
-                : false;
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hash = (int)2166136261;
-                hash = hash * 16777619 + _rowsInserted;
-                hash = hash * 16777619 + _rowsUpdated;
-                return hash;
-            }
-        }
-
-        public static bool operator ==(MergeResult x, MergeResult y)
-            => x.Equals(y);
-
-        public static bool operator !=(MergeResult x, MergeResult y)
-            => !x.Equals(y);
 
         private readonly int _rowsInserted;
 

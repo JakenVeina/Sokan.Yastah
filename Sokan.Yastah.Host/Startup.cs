@@ -18,9 +18,12 @@ namespace Sokan.Yastah.Host
     public class Startup
         : IStartup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(
+            IConfiguration configuration,
+            IHostingEnvironment hostingEnvironment)
         {
             _configuration = configuration;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
@@ -35,10 +38,7 @@ namespace Sokan.Yastah.Host
 
         public void Configure(IApplicationBuilder applicationBuilder)
         {
-            var hostingEnvironment = applicationBuilder.ApplicationServices
-                .GetRequiredService<IHostingEnvironment>();
-
-            if (!hostingEnvironment.IsDevelopment())
+            if (!_hostingEnvironment.IsDevelopment())
                 applicationBuilder
                     .UseHsts();
 
@@ -57,5 +57,6 @@ namespace Sokan.Yastah.Host
             => !IsApiPath(context);
 
         private readonly IConfiguration _configuration;
+        private readonly IHostingEnvironment _hostingEnvironment;
     }
 }

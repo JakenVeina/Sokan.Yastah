@@ -1,4 +1,4 @@
-﻿namespace Sokan.Yastah.Data.Authorization
+﻿namespace Sokan.Yastah.Data.Permissions
 {
     public enum PermissionMappingType
     {

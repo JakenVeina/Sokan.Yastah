@@ -22,7 +22,6 @@ namespace Sokan.Yastah.Data.Users
 
         [OnConfigureServices]
         public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
-            => services
-                .AddScoped<IConcurrencyErrorHandler<UserEntity>, UserConcurrencyErrorHandler>();
+            => services.AddScoped<IConcurrencyErrorHandler<UserEntity>, UserConcurrencyErrorHandler>();
     }
 }

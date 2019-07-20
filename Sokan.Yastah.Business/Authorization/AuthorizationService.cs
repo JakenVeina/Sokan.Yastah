@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-using Sokan.Yastah.Data.Authorization;
+using Sokan.Yastah.Data.Permissions;
 using Sokan.Yastah.Data.Users;
 
 namespace Sokan.Yastah.Business.Authorization

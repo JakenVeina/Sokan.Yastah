@@ -23,7 +23,6 @@ namespace Sokan.Yastah.Data
 
         [OnConfigureServices]
         public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
-            => services
-                .AddTransient<IStartupHandler, StartupAutoMigrationBehavior>();
+            => services.AddTransient<IStartupHandler, StartupAutoMigrationBehavior>();
     }
 }

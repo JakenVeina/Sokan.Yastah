@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Sokan.Yastah.Data.Authorization
+namespace Sokan.Yastah.Data.Permissions
 {
     public interface IPermissionRepository
     {
@@ -20,23 +20,23 @@ namespace Sokan.Yastah.Data.Authorization
         : IPermissionRepository
     {
         public PermissionRepository(
-            YastahDbContext yastahDbContext)
+            YastahDbContext context)
         {
-            _yastahDbContext = yastahDbContext;
+            _context = context;
         }
 
         public async Task<IReadOnlyCollection<PermissionIdentity>> GetAllPermissionIdentitiesAsync(
                 CancellationToken cancellationToken)
-            => await _yastahDbContext
+            => await _context
                 .Set<PermissionEntity>()
+                .AsNoTracking()
                 .Select(PermissionIdentity.FromEntityProjection)
                 .ToArrayAsync(cancellationToken);
 
-        private readonly YastahDbContext _yastahDbContext;
+        private readonly YastahDbContext _context;
 
         [OnConfigureServices]
         public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
-            => services
-                .AddScoped<IPermissionRepository, PermissionRepository>();
+            => services.AddScoped<IPermissionRepository, PermissionRepository>();
     }
 }

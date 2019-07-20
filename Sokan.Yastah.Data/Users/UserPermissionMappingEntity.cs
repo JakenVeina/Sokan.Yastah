@@ -1,14 +1,14 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
 
-using Sokan.Yastah.Data.Authorization;
+using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Permissions;
 
 namespace Sokan.Yastah.Data.Users
 {
-    [Table("UserPermissionMappings")]
+    [Table("UserPermissionMappings", Schema = "Users")]
     internal class UserPermissionMappingEntity
     {
         [Key]
@@ -21,23 +21,21 @@ namespace Sokan.Yastah.Data.Users
         public UserEntity User { get; set; }
 
         [ForeignKey(nameof(Permission))]
-        public long PermissionId { get; set; }
+        public int PermissionId { get; set; }
 
         public PermissionEntity Permission { get; set; }
 
         public bool IsDenied { get; set; }
 
-        public DateTimeOffset Created { get; set; }
+        [ForeignKey(nameof(Creation))]
+        public long CreationId { get; set; }
 
-        [ForeignKey(nameof(CreatedBy))]
-        public ulong CreatedById { get; set; }
+        public AdministrationActionEntity Creation { get; set; }
 
-        public UserEntity CreatedBy { get; set; }
+        [ForeignKey(nameof(Deletion))]
+        public long? DeletionId { get; set; }
 
-        [ForeignKey(nameof(DeletedBy))]
-        public ulong? DeletedById { get; set; }
-
-        public UserEntity DeletedBy { get; set; }
+        public AdministrationActionEntity Deletion { get; set; }
 
         [OnModelCreating]
         public static void OnModelCreating(ModelBuilder modelBuilder)
@@ -46,14 +44,6 @@ namespace Sokan.Yastah.Data.Users
                 entityBuilder
                     .Property(x => x.UserId)
                     .HasConversion<long>();
-
-                entityBuilder
-                    .Property(x => x.CreatedById)
-                    .HasConversion<long>();
-
-                entityBuilder
-                    .Property(x => x.DeletedById)
-                    .HasConversion<long?>();
             });
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Sokan.Yastah.Data.Users
 {
-    [Table("Users")]
+    [Table("Users", Schema = "Users")]
     internal class UserEntity
     {
         [Key]

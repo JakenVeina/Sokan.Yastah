@@ -3,16 +3,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace Sokan.Yastah.Data.Authorization
+namespace Sokan.Yastah.Data.Permissions
 {
-    [Table("Permissions")]
+    [Table("Permissions", Schema = "Permissions")]
     internal class PermissionEntity
     {
         [Key]
-        public long PermissionId { get; set; }
+        public int PermissionId { get; set; }
 
         [ForeignKey(nameof(Category))]
-        public long CategoryId { get; set; }
+        public int CategoryId { get; set; }
 
         public PermissionCategoryEntity Category { get; set; }
 

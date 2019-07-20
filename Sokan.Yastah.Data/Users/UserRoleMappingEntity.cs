@@ -1,14 +1,14 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
 
+using Sokan.Yastah.Data.Administration;
 using Sokan.Yastah.Data.Roles;
 
 namespace Sokan.Yastah.Data.Users
 {
-    [Table("UserRoleMappings")]
+    [Table("UserRoleMappings", Schema = "Users")]
     internal class UserRoleMappingEntity
     {
         [Key]
@@ -25,17 +25,15 @@ namespace Sokan.Yastah.Data.Users
 
         public RoleEntity Role { get; set; }
 
-        public DateTimeOffset Created { get; set; }
+        [ForeignKey(nameof(Creation))]
+        public long CreationId { get; set; }
 
-        [ForeignKey(nameof(CreatedBy))]
-        public ulong CreatedById { get; set; }
+        public AdministrationActionEntity Creation { get; set; }
 
-        public UserEntity CreatedBy { get; set; }
+        [ForeignKey(nameof(Deletion))]
+        public long? DeletionId { get; set; }
 
-        [ForeignKey(nameof(DeletedBy))]
-        public ulong? DeletedById { get; set; }
-
-        public UserEntity DeletedBy { get; set; }
+        public AdministrationActionEntity Deletion { get; set; }
 
         [OnModelCreating]
         public static void OnModelCreating(ModelBuilder modelBuilder)
@@ -44,14 +42,6 @@ namespace Sokan.Yastah.Data.Users
                 entityBuilder
                     .Property(x => x.UserId)
                     .HasConversion<long>();
-
-                entityBuilder
-                    .Property(x => x.CreatedById)
-                    .HasConversion<long>();
-
-                entityBuilder
-                    .Property(x => x.DeletedById)
-                    .HasConversion<long?>();
             });
     }
 }

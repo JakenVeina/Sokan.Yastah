@@ -6,19 +6,14 @@ using Microsoft.EntityFrameworkCore;
 using Sokan.Yastah.Data.Administration;
 using Sokan.Yastah.Data.Permissions;
 
-namespace Sokan.Yastah.Data.Roles
+namespace Sokan.Yastah.Data.Users
 {
-    [Table("RolePermissionMappings", Schema = "Roles")]
-    internal class RolePermissionMappingEntity
+    [Table("DefaultPermissionMappings", Schema = "Users")]
+    internal class DefaultPermissionMappingEntity
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
-
-        [ForeignKey(nameof(Role))]
-        public long RoleId { get; set; }
-
-        public RoleEntity Role { get; set; }
 
         [ForeignKey(nameof(Permission))]
         public int PermissionId { get; set; }
@@ -37,6 +32,6 @@ namespace Sokan.Yastah.Data.Roles
 
         [OnModelCreating]
         public static void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<RolePermissionMappingEntity>();
+            => modelBuilder.Entity<DefaultPermissionMappingEntity>();
     }
 }
