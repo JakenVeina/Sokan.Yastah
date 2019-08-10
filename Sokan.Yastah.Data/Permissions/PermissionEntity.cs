@@ -20,9 +20,6 @@ namespace Sokan.Yastah.Data.Permissions
         public string Name { get; set; }
 
         [Required]
-        public string DisplayName { get; set; }
-
-        [Required]
         public string Description { get; set; }
 
         [OnModelCreating]

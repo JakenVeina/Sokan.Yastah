@@ -12,3 +12,12 @@
     display: flex;
     justify-content: center;
 }
+
+
+form.ng-invalid button:disabled {
+    background-color: mistyrose;
+}
+
+input.ng-invalid {
+    background-color: mistyrose;
+}

@@ -5,24 +5,15 @@ namespace Sokan.Yastah.Data.Permissions
 {
     public class PermissionIdentity
     {
-        public int CategoryId { get; internal set; }
+        public int Id { get; internal set; }
 
-        public int PermissionId { get; internal set; }
-
-        public string CategoryName { get; internal set; }
-
-        public string PermissionName { get; internal set; }
-
-        public string Name
-            => $"{CategoryName}.{PermissionName}";
+        public string Name { get; internal set; }
 
         internal static readonly Expression<Func<PermissionEntity, PermissionIdentity>> FromEntityProjection
             = entity => new PermissionIdentity()
             {
-                CategoryId = entity.Category.Id,
-                PermissionId = entity.PermissionId,
-                CategoryName = entity.Category.Name,
-                PermissionName = entity.Name
+                Id = entity.PermissionId,
+                Name = entity.Category.Name + "." + entity.Name
             };
     }
 }

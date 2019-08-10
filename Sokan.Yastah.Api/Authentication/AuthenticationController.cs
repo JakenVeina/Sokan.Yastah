@@ -4,11 +4,10 @@ using Microsoft.Net.Http.Headers;
 
 namespace Sokan.Yastah.Api.Authentication
 {
-    [Route("authentication")]
     public class AuthenticationController
         : ApiControllerBase
     {
-        [HttpGet("/api/authentication/challenge")]
+        [HttpGet(DefaultActionRouteTemplate)]
         new public IActionResult Challenge()
         {
             var properties = new AuthenticationProperties();
@@ -18,7 +17,7 @@ namespace Sokan.Yastah.Api.Authentication
             return Challenge(properties, ApiAuthenticationDefaults.AuthenticationScheme);
         }
 
-        [HttpGet("/api/authentication/signout")]
+        [HttpGet(DefaultActionRouteTemplate)]
         public IActionResult SignOut()
         {
             var properties = new AuthenticationProperties();

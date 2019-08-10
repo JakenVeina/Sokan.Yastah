@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 
 using AspNet.Security.OAuth.Discord;
 
@@ -18,10 +19,23 @@ namespace Sokan.Yastah.Api.Authentication
                 .AddAuthentication(ApiAuthenticationDefaults.AuthenticationScheme)
                 .AddScheme<ApiAuthenticationOptions, ApiAuthenticationHandler>(ApiAuthenticationDefaults.AuthenticationScheme, null)
                 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidateActor = false,
+                        ValidateAudience = false,
+                        ValidateIssuer = false,
+                        ValidateIssuerSigningKey = true,
+                        ValidateLifetime = true,
+                        ValidateTokenReplay = false
+                    };
+
                     options.Events = new JwtBearerEvents()
                     {
+                        OnTokenValidated = AuthenticationEventHandlers.OnTokenValidated,
                         OnMessageReceived = AuthenticationEventHandlers.OnMessageReceived
-                    })
+                    };
+                })
                 .AddOAuth<DiscordAuthenticationOptions, DiscordAuthenticationHandler>(DiscordAuthenticationDefaults.AuthenticationScheme, options =>
                 {
                     options.Events = new OAuthEvents()
@@ -31,8 +45,8 @@ namespace Sokan.Yastah.Api.Authentication
 
                     options.CallbackPath = "/api/authentication/signin";
 
-                    options.ClaimActions.MapJsonKey("avtr", "avatar");
-                    options.ClaimActions.MapJsonKey("dscm", "discriminator");
+                    options.ClaimActions.MapJsonKey(ApiAuthenticationDefaults.AvatarHashClaimType, "avatar");
+                    options.ClaimActions.MapJsonKey(ApiAuthenticationDefaults.DiscriminatorClaimType, "discriminator");
 
                     options.Scope.Add("guilds");
                 });

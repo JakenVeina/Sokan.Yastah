@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -17,14 +16,11 @@ namespace Sokan.Yastah.Data.Administration
         public static void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<AdministrationActionCategoryEntity>(entityBuilder =>
             {
-                var types = Enum.GetValues(typeof(AdministrationActionCategory))
-                    .Cast<AdministrationActionCategory>();
-
-                foreach (var type in types)
+                foreach (var category in EnumEx.EnumerateValues<AdministrationActionCategory>())
                     entityBuilder.HasData(new AdministrationActionCategoryEntity()
                     {
-                        Id = (int)type,
-                        Name = type.ToString()
+                        Id = (int)category,
+                        Name = category.ToString()
                     });
             });
     }

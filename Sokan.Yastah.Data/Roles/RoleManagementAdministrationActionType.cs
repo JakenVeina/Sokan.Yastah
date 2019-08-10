@@ -12,8 +12,7 @@ namespace Sokan.Yastah.Data.Roles
         RoleCreated = 1,
         RoleModified = 2,
         RoleDeleted = 3,
-        RoleRestored = 4,
-        PermissionsChanged = 5
+        RoleRestored = 4
     }
 
     public static class RoleManagementAdministrationActionTypeModelBuilder

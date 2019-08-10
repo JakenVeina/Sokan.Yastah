@@ -1,0 +1,16 @@
+<div class="root">
+    <div class="menu-container">
+        <nav-menu-view></nav-menu-view>
+    </div>
+    <div class="body-container">
+        <div *ngIf="showLogin"
+             class="fill-screen-vertical horizontal-centering vertical-centering">
+            <h1><a href="{{signinUri}}">Login</a></h1>
+        </div>
+        <div *ngIf="!showPortal"
+             class="fill-screen-vertical horizontal-centering vertical-centering">
+            <h1>You are not a member of the Sokan Discord guild.</h1>
+        </div>
+        <router-outlet *ngIf="showPortal"></router-outlet>
+    </div>
+</div>

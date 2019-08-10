@@ -32,10 +32,39 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\app\admin\actions.ts" />
+    <None Remove="ClientApp\src\app\admin\guards.ts" />
+    <None Remove="ClientApp\src\app\admin\module.ts" />
+    <None Remove="ClientApp\src\app\admin\permissions\actions.ts" />
+    <None Remove="ClientApp\src\app\admin\permissions\effects.ts" />
+    <None Remove="ClientApp\src\app\admin\permissions\models.ts" />
+    <None Remove="ClientApp\src\app\admin\permissions\reducers.ts" />
+    <None Remove="ClientApp\src\app\admin\permissions\service.ts" />
+    <None Remove="ClientApp\src\app\admin\permissions\state.ts" />
+    <None Remove="ClientApp\src\app\admin\permissions\utils.ts" />
+    <None Remove="ClientApp\src\app\admin\reducers.ts" />
+    <None Remove="ClientApp\src\app\admin\role-detail.ts" />
+    <None Remove="ClientApp\src\app\admin\roles.component.ts" />
+    <None Remove="ClientApp\src\app\admin\roles\actions.ts" />
+    <None Remove="ClientApp\src\app\admin\roles\effects.ts" />
+    <None Remove="ClientApp\src\app\admin\roles\models.ts" />
+    <None Remove="ClientApp\src\app\admin\roles\reducers.ts" />
+    <None Remove="ClientApp\src\app\admin\roles\role-creation-form.ts" />
+    <None Remove="ClientApp\src\app\admin\roles\role-update-form.ts" />
+    <None Remove="ClientApp\src\app\admin\roles\service.ts" />
+    <None Remove="ClientApp\src\app\admin\roles\state.ts" />
+    <None Remove="ClientApp\src\app\admin\roles\utils.ts" />
+    <None Remove="ClientApp\src\app\admin\routes.ts" />
+    <None Remove="ClientApp\src\app\admin\state.ts" />
+    <None Remove="ClientApp\src\app\admin\users\models.ts" />
+    <None Remove="ClientApp\src\app\api-service.ts" />
+    <None Remove="ClientApp\src\app\api\api-operation-error.ts" />
     <None Remove="ClientApp\src\app\authentication\authentication-service.ts" />
-    <None Remove="ClientApp\src\app\authentication\authentication-ticket.ts" />
-    <None Remove="ClientApp\src\app\authentication\raw-authentication-ticket.ts" />
+    <None Remove="ClientApp\src\app\authentication\models.ts" />
     <None Remove="ClientApp\src\app\authorization\authorization-service.ts" />
+    <None Remove="ClientApp\src\app\guards.ts" />
+    <None Remove="ClientApp\src\app\routes.ts" />
+    <None Remove="ClientApp\src\app\state.ts" />
     <None Remove="ClientApp\src\tsconfig.app.json" />
     <None Remove="ClientApp\src\tsconfig.server.json" />
     <None Remove="ClientApp\src\tsconfig.spec.json" />
@@ -58,10 +87,38 @@
   </ItemGroup>
 
   <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\app\admin\actions.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\guards.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\permissions\actions.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\permissions\effects.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\permissions\models.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\permissions\reducers.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\permissions\state.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\permissions\utils.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\reducers.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\role-creation-form.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\role-update-form.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\utils.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\routes.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\module.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\permissions\service.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\effects.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\actions.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\models.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\service.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\state.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\reducers.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\roles-view.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\state.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\admin\users\models.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\api\api-client.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\api\api-operation-error.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\authentication\models.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\guards.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\routes.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\authentication\authentication-service.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\authentication\authentication-ticket.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\authentication\raw-authentication-ticket.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\authorization\authorization-service.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\state.ts" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

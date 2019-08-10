@@ -27,8 +27,10 @@ namespace Sokan.Yastah.Common.OperationModel
                 ? _value
                 : throw new InvalidOperationException($"Cannot retrieve {nameof(Value)} from an unspecified {nameof(Optional<T>)}");
 
-        private readonly bool _isSpecified;
+        public static implicit operator Optional<T>(T value)
+            => FromValue(value);
 
+        private readonly bool _isSpecified;
         private readonly T _value;
     }
 }

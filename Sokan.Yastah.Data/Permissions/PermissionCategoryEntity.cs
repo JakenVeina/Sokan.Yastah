@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
@@ -15,10 +16,9 @@ namespace Sokan.Yastah.Data.Permissions
         public string Name { get; set; }
 
         [Required]
-        public string DisplayName { get; set; }
-
-        [Required]
         public string Description { get; set; }
+
+        public ICollection<PermissionEntity> Permissions { get; set; }
 
         [OnModelCreating]
         public static void OnModelCreating(ModelBuilder modelBuilder)

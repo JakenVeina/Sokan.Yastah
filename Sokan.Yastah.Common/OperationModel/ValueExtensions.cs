@@ -2,6 +2,9 @@
 {
     public static class ValueExtensions
     {
+        public static OperationResult ToError(this IOperationError error)
+            => OperationResult.FromError(error);
+
         public static OperationResult<T> ToError<T>(this IOperationError error)
             => OperationResult<T>.FromError(error);
 

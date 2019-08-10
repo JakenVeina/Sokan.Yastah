@@ -10,9 +10,24 @@ export class AuthorizationService {
         this._authenticationService = authenticationService;
     }
 
-    public get canUsePortal(): boolean {
+    public get hasAdmin(): boolean {
+        return this.hasAdminManagePermissions
+            || this.hasAdminManageRoles;
+    }
+
+    public get hasAdminManagePermissions(): boolean {
         return this._authenticationService.isAuthenticated
-            && this._authenticationService.ticket.hasAnyPermissions;
+            && Object.values(this._authenticationService.currentTicket.grantedPermissions).some(x => x === "Administration.ManagePermissions");
+    }
+
+    public get hasAdminManageRoles(): boolean {
+        return this._authenticationService.isAuthenticated
+            && Object.values(this._authenticationService.currentTicket.grantedPermissions).some(x => x === "Administration.ManageRoles");
+    }
+
+    public get hasAnyPermissions(): boolean {
+        return this._authenticationService.isAuthenticated
+            && (Object.keys(this._authenticationService.currentTicket.grantedPermissions).length > 0);
     }
 
     private readonly _authenticationService: AuthenticationService;

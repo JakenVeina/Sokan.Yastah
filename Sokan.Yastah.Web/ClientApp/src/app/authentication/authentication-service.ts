@@ -1,7 +1,7 @@
 ﻿import { Injectable } from "@angular/core";
 import * as JwtDecode from "jwt-decode";
-import { AuthenticationTicket } from "./authentication-ticket";
-import { RawAuthenticationTicket } from "./raw-authentication-ticket";
+
+import { IAuthenticationTicket, IRawAuthenticationTicket } from "./models";
 
 @Injectable({
     providedIn: "root"
@@ -18,7 +18,7 @@ export class AuthenticationService {
     }
 
     public get isAuthenticated(): boolean {
-        return this._ticket != null;
+        return this._currentTicket != null;
     }
 
     public get signinUri(): string {
@@ -29,8 +29,8 @@ export class AuthenticationService {
         return `${AuthenticationService._authenticationEndpoint}/signout`;
     }
 
-    public get ticket(): AuthenticationTicket | null {
-        return this._ticket;
+    public get currentTicket(): IAuthenticationTicket | null {
+        return this._currentTicket;
     }
 
     public updateTicket(): void {
@@ -42,14 +42,20 @@ export class AuthenticationService {
             let headerAndPayload = headerAndPayloadCookie
                 .split("=")[1];
 
-            this._ticket = new AuthenticationTicket(
-                JwtDecode<RawAuthenticationTicket>(
-                    headerAndPayload));
+            let rawTicket = JwtDecode<IRawAuthenticationTicket>(headerAndPayload);
+
+            this._currentTicket = {
+                userId: rawTicket.nameid,
+                username: rawTicket.unique_name,
+                discriminator: rawTicket.dscm,
+                avatarHash: rawTicket.avtr,
+                grantedPermissions: rawTicket.prms
+            };
         }
         else {
-            this._ticket = null;
+            this._currentTicket = null;
         }
     }
 
-    private _ticket: AuthenticationTicket | null;
+    private _currentTicket: IAuthenticationTicket | null;
 }

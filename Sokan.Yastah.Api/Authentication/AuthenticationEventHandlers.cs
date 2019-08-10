@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Linq;
@@ -10,7 +12,9 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 using Sokan.Yastah.Business.Authentication;
 
@@ -20,9 +24,9 @@ namespace Sokan.Yastah.Api.Authentication
     {
         public static async Task OnCreatingTicket(OAuthCreatingTicketContext context)
         {
-            var permissions = await context.HttpContext.RequestServices
+            var permissions = (await context.HttpContext.RequestServices
                 .GetRequiredService<IAuthenticationService>()
-                .OnUserAuthenticatedAsync(
+                .OnSignInAsync(
                     userId: ulong.Parse(context.Identity.Claims
                         .First(x => x.Type == ClaimTypes.NameIdentifier)
                         .Value),
@@ -30,16 +34,19 @@ namespace Sokan.Yastah.Api.Authentication
                         .First(x => x.Type == ClaimTypes.Name)
                         .Value,
                     discriminator: context.Identity.Claims
-                        .First(x => x.Type == "dscm")
+                        .First(x => x.Type == ApiAuthenticationDefaults.DiscriminatorClaimType)
                         .Value,
                     avatarHash: context.Identity.Claims
-                        .First(x => x.Type == "avtr")
+                        .First(x => x.Type == ApiAuthenticationDefaults.AvatarHashClaimType)
                         .Value,
                     getGuildIdsDelegate: () => GetGuildIds(context), 
-                    context.HttpContext.RequestAborted);
+                    context.HttpContext.RequestAborted))
+                .ToDictionary(x => x.Id, x => x.Name);
 
-            foreach (var permission in permissions)
-                context.Identity.AddClaim(new Claim("prms", $"{permission.CategoryName}.{permission.PermissionName}"));
+            context.Identity.AddClaim(new Claim(
+                ApiAuthenticationDefaults.PermissionsClaimType,
+                JsonConvert.SerializeObject(permissions, _jsonSerializerSettings),
+                JsonClaimValueTypes.Json));
         }
 
         public static Task OnMessageReceived(MessageReceivedContext context)
@@ -50,6 +57,26 @@ namespace Sokan.Yastah.Api.Authentication
             if(cookies.TryGetValue(options.TokenHeaderAndPayloadCookieKey, out var tokenHeaderAndPayload)
                     && cookies.TryGetValue(options.TokenSignatureCookieKey, out var tokenSignature))
                 context.Token = $"{tokenHeaderAndPayload}.{tokenSignature}";
+
+            return Task.CompletedTask;
+        }
+
+        public static Task OnTokenValidated(TokenValidatedContext context)
+        {
+            var jwtSecurityToken = (JwtSecurityToken)context.SecurityToken;
+
+            var ticket = new AuthenticationTicket(
+                userId: ((string)jwtSecurityToken.Payload["nameid"])
+                    .ParseUInt64(),
+                username: (string)jwtSecurityToken.Payload["unique_name"],
+                discriminator: (string)jwtSecurityToken.Payload[ApiAuthenticationDefaults.DiscriminatorClaimType],
+                avatarHash: (string)jwtSecurityToken.Payload[ApiAuthenticationDefaults.AvatarHashClaimType],
+                grantedPermissions: ((JObject)jwtSecurityToken.Payload[ApiAuthenticationDefaults.PermissionsClaimType])
+                    .ToObject<Dictionary<int, string>>());
+
+            context.HttpContext.RequestServices
+                .GetRequiredService<IAuthenticationService>()
+                .OnAuthenticated(ticket);
 
             return Task.CompletedTask;
         }
@@ -70,5 +97,11 @@ namespace Sokan.Yastah.Api.Authentication
                 .Select(guild => ulong.Parse((guild as JObject)
                     .Property("id").Value.ToString()));
         }
+
+        private static JsonSerializerSettings _jsonSerializerSettings
+            = new JsonSerializerSettings()
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            };
     }
 }

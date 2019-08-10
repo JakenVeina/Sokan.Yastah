@@ -18,5 +18,14 @@ namespace Sokan.Yastah.Api.Authentication
 
         public static readonly TimeSpan TokenLifetime
             = TimeSpan.FromDays(1);
+
+        public const string DiscriminatorClaimType
+            = "dscm";
+
+        public const string AvatarHashClaimType
+            = "avtr";
+
+        public const string PermissionsClaimType
+            = "prms";
     }
 }

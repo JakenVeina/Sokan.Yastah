@@ -1,0 +1,19 @@
+.root {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+}
+
+.menu-container {
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.body-container {
+    flex-grow: 1;
+    width: 100%;
+    overflow-y: scroll;
+}

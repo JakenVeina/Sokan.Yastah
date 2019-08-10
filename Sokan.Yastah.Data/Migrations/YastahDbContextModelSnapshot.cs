@@ -130,9 +130,6 @@ namespace Sokan.Yastah.Data.Migrations
                     b.Property<string>("Description")
                         .IsRequired();
 
-                    b.Property<string>("DisplayName")
-                        .IsRequired();
-
                     b.Property<string>("Name")
                         .IsRequired();
 
@@ -142,6 +139,14 @@ namespace Sokan.Yastah.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("PermissionCategories","Permissions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Permissions related to administration of the application",
+                            Name = "Administration"
+                        });
                 });
 
             modelBuilder.Entity("Sokan.Yastah.Data.Permissions.PermissionEntity", b =>
@@ -153,9 +158,6 @@ namespace Sokan.Yastah.Data.Migrations
                     b.Property<string>("Description")
                         .IsRequired();
 
-                    b.Property<string>("DisplayName")
-                        .IsRequired();
-
                     b.Property<string>("Name")
                         .IsRequired();
 
@@ -165,6 +167,22 @@ namespace Sokan.Yastah.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Permissions","Permissions");
+
+                    b.HasData(
+                        new
+                        {
+                            PermissionId = 1,
+                            CategoryId = 1,
+                            Description = "Allows management of application permissions",
+                            Name = "ManagePermissions"
+                        },
+                        new
+                        {
+                            PermissionId = 2,
+                            CategoryId = 1,
+                            Description = "Allows management of application roles",
+                            Name = "ManageRoles"
+                        });
                 });
 
             modelBuilder.Entity("Sokan.Yastah.Data.Roles.RoleEntity", b =>
@@ -228,7 +246,8 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasIndex("NextVersionId")
                         .IsUnique();
 
-                    b.HasIndex("PreviousVersionId");
+                    b.HasIndex("PreviousVersionId")
+                        .IsUnique();
 
                     b.HasIndex("RoleId");
 
@@ -378,7 +397,7 @@ namespace Sokan.Yastah.Data.Migrations
             modelBuilder.Entity("Sokan.Yastah.Data.Permissions.PermissionEntity", b =>
                 {
                     b.HasOne("Sokan.Yastah.Data.Permissions.PermissionCategoryEntity", "Category")
-                        .WithMany()
+                        .WithMany("Permissions")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
@@ -417,8 +436,8 @@ namespace Sokan.Yastah.Data.Migrations
                         .HasForeignKey("Sokan.Yastah.Data.Roles.RoleVersionEntity", "NextVersionId");
 
                     b.HasOne("Sokan.Yastah.Data.Roles.RoleVersionEntity", "PreviousVersion")
-                        .WithMany()
-                        .HasForeignKey("PreviousVersionId");
+                        .WithOne()
+                        .HasForeignKey("Sokan.Yastah.Data.Roles.RoleVersionEntity", "PreviousVersionId");
 
                     b.HasOne("Sokan.Yastah.Data.Roles.RoleEntity", "Role")
                         .WithMany()

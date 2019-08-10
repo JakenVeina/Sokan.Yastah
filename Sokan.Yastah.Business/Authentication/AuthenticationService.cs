@@ -3,23 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Transactions;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Options;
 
 using Sokan.Yastah.Business.Authorization;
+using Sokan.Yastah.Business.Users;
 using Sokan.Yastah.Data.Permissions;
-using Sokan.Yastah.Data.Users;
 
 namespace Sokan.Yastah.Business.Authentication
 {
     public interface IAuthenticationService
     {
-        Task<IReadOnlyCollection<PermissionIdentity>> OnUserAuthenticatedAsync(
+        AuthenticationTicket CurrentTicket { get; }
+
+        void OnAuthenticated(
+            AuthenticationTicket authenticationTicket);
+
+        Task<IReadOnlyCollection<PermissionIdentity>> OnSignInAsync(
             ulong userId,
             string username,
             string discriminator,
@@ -33,19 +36,20 @@ namespace Sokan.Yastah.Business.Authentication
     {
         public AuthenticationService(
             IOptions<AuthorizationConfiguration> authorizationConfiguration,
-            IAuthorizationService authorizationService,
-            ISystemClock systemClock,
-            ITransactionScopeFactory transactionScopeFactory,
-            IUserRepository userRepository)
+            IUsersService usersService)
         {
             _authorizationConfiguration = authorizationConfiguration.Value;
-            _authorizationService = authorizationService;
-            _systemClock = systemClock;
-            _transactionScopeFactory = transactionScopeFactory;
-            _userRepository = userRepository;
+            _usersService = usersService;
         }
 
-        public async Task<IReadOnlyCollection<PermissionIdentity>> OnUserAuthenticatedAsync(
+        public AuthenticationTicket CurrentTicket
+            => _currentTicket;
+
+        public void OnAuthenticated(
+                AuthenticationTicket authenticationTicket)
+            => _currentTicket = authenticationTicket;
+
+        public async Task<IReadOnlyCollection<PermissionIdentity>> OnSignInAsync(
             ulong userId,
             string username,
             string discriminator,
@@ -53,31 +57,22 @@ namespace Sokan.Yastah.Business.Authentication
             Func<Task<IEnumerable<ulong>>> getGuildIdsDelegate,
             CancellationToken cancellationToken = default)
         {
-            using (var transactionScope = _transactionScopeFactory.CreateScope())
-            {
+            // Don't bother tracking or retrieving permissions for users we don't care about.
+            var isAdmin = _authorizationConfiguration.AdminUserIds.Contains(userId);
+            if (!isAdmin && !(await IsMemberAsync(getGuildIdsDelegate)))
+                return Array.Empty<PermissionIdentity>();
 
-                // Don't bother tracking or retrieving permissions for users we don't care about.
-                var isAdmin = _authorizationConfiguration.AdminUserIds.Contains(userId);
-                if (!isAdmin && !(await IsMemberAsync(getGuildIdsDelegate)))
-                    return Array.Empty<PermissionIdentity>();
-
-                var now = _systemClock.UtcNow;
-
-                await _userRepository.MergeAsync(
-                    userId,
-                    username,
-                    discriminator,
-                    avatarHash,
-                    firstSeen: now,
-                    lastSeen: now,
-                    cancellationToken);
-
-                transactionScope.Complete();
-            }
-
-            return await _authorizationService.GetUserGrantedPermissionsAsync(
+            await _usersService.TrackUserAsync(
                 userId,
+                username,
+                discriminator,
+                avatarHash,
                 cancellationToken);
+
+            return (await _usersService.GetGrantedPermissionsAsync(
+                    userId,
+                    cancellationToken))
+                .Value;
         }
 
         private async Task<bool> IsMemberAsync(Func<Task<IEnumerable<ulong>>> getGuildIdsDelegate)
@@ -86,18 +81,12 @@ namespace Sokan.Yastah.Business.Authentication
                 .Any();
 
         private readonly AuthorizationConfiguration _authorizationConfiguration;
+        private readonly IUsersService _usersService;
 
-        private readonly IAuthorizationService _authorizationService;
-
-        private readonly ISystemClock _systemClock;
-
-        private readonly ITransactionScopeFactory _transactionScopeFactory;
-
-        private readonly IUserRepository _userRepository;
+        private AuthenticationTicket _currentTicket;
 
         [OnConfigureServices]
         public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
-            => services
-                .AddScoped<IAuthenticationService, AuthenticationService>();
+            => services.AddScoped<IAuthenticationService, AuthenticationService>();
     }
 }
