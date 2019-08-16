@@ -16,8 +16,7 @@ export class PermissionsService {
     }
 
     public getDescriptions(): Observable<IPermissionCategoryDescriptionViewModel[]> {
-        return this._apiClient
-            .get<IPermissionCategoryDescriptionViewModel[]>("admin/permissions/descriptions");
+        return this._apiClient.get<IPermissionCategoryDescriptionViewModel[]>("admin/permissions/descriptions");
     }
 
     private readonly _apiClient: ApiClient;

@@ -4,20 +4,18 @@ import { RolesView } from "./roles/roles-view";
 import { RoleCreationForm } from "./roles/role-creation-form";
 import { RoleUpdateForm } from "./roles/role-update-form";
 
-import { AdminGuard, RolesGuard } from "./guards";
+import { UsersView } from "./users/users-view";
+
+import { AdminGuard, RolesGuard, UsersGuard } from "./guards";
 
 export const AdminRoutes: Routes = [
     {
         path: "admin",
-        canActivate: [
-            AdminGuard
-        ],
+        canActivate: [AdminGuard],
         children: [
             {
                 path: "roles",
-                canActivate: [
-                    RolesGuard
-                ],
+                canActivate: [RolesGuard],
                 component: RolesView,
                 children: [
                     {
@@ -29,6 +27,11 @@ export const AdminRoutes: Routes = [
                         component: RoleUpdateForm
                     }
                 ]
+            },
+            {
+                path: "users",
+                canActivate: [UsersGuard],
+                component: UsersView
             }
         ]
     }

@@ -36,17 +36,6 @@ namespace Sokan.Yastah.Data.Users
             long actionId,
             CancellationToken cancellationToken);
 
-        // TODO: try combining GetDefaultRoleIds and GetDefaultPermissionIds into one query
-        Task<IReadOnlyList<long>> GetDefaultRoleIdsAsync(
-            CancellationToken cancellationToken);
-
-        Task<IReadOnlyList<int>> GetDefaultPermissionIdsAsync(
-            CancellationToken cancellationToken);
-
-        Task<IReadOnlyCollection<PermissionIdentity>> GetGrantedPermissionIdentitiesAsync(
-            ulong userId,
-            CancellationToken cancellationToken);
-
         Task<MergeResult> MergeAsync(
             ulong userId,
             string username,
@@ -54,6 +43,44 @@ namespace Sokan.Yastah.Data.Users
             string avatarHash,
             DateTimeOffset firstSeen,
             DateTimeOffset lastSeen,
+            CancellationToken cancellationToken);
+
+        // TODO: try combining GetDefaultRoleIds and GetDefaultPermissionIds into one query
+        Task<IReadOnlyList<long>> ReadDefaultRoleIdsAsync(
+            CancellationToken cancellationToken);
+
+        Task<IReadOnlyList<int>> ReadDefaultPermissionIdsAsync(
+            CancellationToken cancellationToken);
+
+        Task<OperationResult<UserDetailViewModel>> ReadDetailAsync(
+            ulong userId,
+            CancellationToken cancellationToken);
+
+        Task<IReadOnlyCollection<PermissionIdentity>> ReadGrantedPermissionIdentitiesAsync(
+            ulong userId,
+            CancellationToken cancellationToken);
+
+        Task<IReadOnlyCollection<UserOverviewViewModel>> ReadOverviewsAsync(
+            CancellationToken cancellationToken);
+
+        Task<IReadOnlyCollection<UserPermissionMappingIdentity>> ReadPermissionMappingIdentitiesAsync(
+            CancellationToken cancellationToken,
+            ulong userId,
+            Optional<bool> isDeleted = default);
+
+        Task<IReadOnlyCollection<UserRoleMappingIdentity>> ReadRoleMappingIdentitiesAsync(
+            CancellationToken cancellationToken,
+            ulong userId,
+            Optional<bool> isDeleted = default);
+
+        Task UpdatePermissionMappingsAsync(
+            IEnumerable<long> mappingIds,
+            long deletionId,
+            CancellationToken cancellationToken);
+
+        Task UpdateRoleMappingsAsync(
+            IEnumerable<long> mappingIds,
+            long deletionId,
             CancellationToken cancellationToken);
     }
 
@@ -129,54 +156,6 @@ namespace Sokan.Yastah.Data.Users
                 .ToArray();
         }
 
-        public async Task<IReadOnlyList<long>> GetDefaultRoleIdsAsync(
-                CancellationToken cancellationToken)
-            => await _context
-                .Set<DefaultRoleMappingEntity>()
-                .AsNoTracking()
-                .Where(x => x.DeletionId == null)
-                .Select(x => x.RoleId)
-                .ToArrayAsync(cancellationToken);
-
-        public async Task<IReadOnlyList<int>> GetDefaultPermissionIdsAsync(
-                CancellationToken cancellationToken)
-            => await _context
-                .Set<DefaultPermissionMappingEntity>()
-                .AsNoTracking()
-                .Where(x => x.DeletionId == null)
-                .Select(x => x.PermissionId)
-                .ToArrayAsync(cancellationToken);
-
-        public async Task<IReadOnlyCollection<PermissionIdentity>> GetGrantedPermissionIdentitiesAsync(
-                ulong userId,
-                CancellationToken cancellationToken)
-            => await _context
-                .Set<PermissionEntity>()
-                .AsNoTracking()
-                .Where(p => _context
-                        .Set<UserPermissionMappingEntity>()
-                        .Where(upm => upm.UserId == userId)
-                        .Where(upm => !upm.IsDenied)
-                        .Where(upm => upm.DeletionId == null)
-                        .Any(upm => upm.PermissionId == p.PermissionId)
-                    || _context
-                        .Set<RolePermissionMappingEntity>()
-                        .Where(rpm => _context
-                            .Set<UserRoleMappingEntity>()
-                            .Where(urm => urm.DeletionId == null)
-                            .Where(urm => urm.UserId == userId)
-                            .Any(urm => urm.RoleId == rpm.RoleId))
-                        .Where(x => x.DeletionId == null)
-                        .Any(rpm => rpm.PermissionId == p.PermissionId))
-                .Where(p => !_context
-                    .Set<UserPermissionMappingEntity>()
-                    .Where(upm => upm.UserId == userId)
-                    .Where(upm => !upm.IsDenied)
-                    .Where(upm => upm.DeletionId == null)
-                    .Any(upm => upm.PermissionId == p.PermissionId))
-                .Select(PermissionIdentity.FromEntityProjection)
-                .ToArrayAsync();
-
         public async Task<MergeResult> MergeAsync(
             ulong id,
             string username,
@@ -220,6 +199,151 @@ namespace Sokan.Yastah.Data.Users
                 transactionScope.Complete();
 
                 return result;
+            }
+        }
+
+        public async Task<IReadOnlyList<long>> ReadDefaultRoleIdsAsync(
+                CancellationToken cancellationToken)
+            => await _context
+                .Set<DefaultRoleMappingEntity>()
+                .Where(x => x.DeletionId == null)
+                .Select(x => x.RoleId)
+                .ToArrayAsync(cancellationToken);
+
+        public async Task<IReadOnlyList<int>> ReadDefaultPermissionIdsAsync(
+                CancellationToken cancellationToken)
+            => await _context
+                .Set<DefaultPermissionMappingEntity>()
+                .Where(x => x.DeletionId == null)
+                .Select(x => x.PermissionId)
+                .ToArrayAsync(cancellationToken);
+
+        public async Task<OperationResult<UserDetailViewModel>> ReadDetailAsync(
+            ulong userId,
+            CancellationToken cancellationToken)
+        {
+            var result = await _context.Set<UserEntity>()
+                .Where(x => x.Id == userId)
+                .Select(UserDetailViewModel.FromEntityProjection)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            return (result is null)
+                ? new DataNotFoundError($"User ID {userId}").ToError<UserDetailViewModel>()
+                : result.ToSuccess();
+        }
+
+        public async Task<IReadOnlyCollection<PermissionIdentity>> ReadGrantedPermissionIdentitiesAsync(
+                ulong userId,
+                CancellationToken cancellationToken)
+            => await _context
+                .Set<PermissionEntity>()
+                .Where(p => _context
+                        .Set<UserPermissionMappingEntity>()
+                        .Where(upm => upm.UserId == userId)
+                        .Where(upm => !upm.IsDenied)
+                        .Where(upm => upm.DeletionId == null)
+                        .Any(upm => upm.PermissionId == p.PermissionId)
+                    || _context
+                        .Set<RolePermissionMappingEntity>()
+                        .Where(rpm => _context
+                            .Set<UserRoleMappingEntity>()
+                            .Where(urm => urm.DeletionId == null)
+                            .Where(urm => urm.UserId == userId)
+                            .Any(urm => urm.RoleId == rpm.RoleId))
+                        .Where(x => x.DeletionId == null)
+                        .Any(rpm => rpm.PermissionId == p.PermissionId))
+                .Where(p => !_context
+                    .Set<UserPermissionMappingEntity>()
+                    .Where(upm => upm.UserId == userId)
+                    .Where(upm => !upm.IsDenied)
+                    .Where(upm => upm.DeletionId == null)
+                    .Any(upm => upm.PermissionId == p.PermissionId))
+                .Select(PermissionIdentity.FromEntityProjection)
+                .ToArrayAsync();
+
+        public async Task<IReadOnlyCollection<UserOverviewViewModel>> ReadOverviewsAsync(
+                CancellationToken cancellationToken)
+            => await _context.Set<UserEntity>()
+                .Select(UserOverviewViewModel.FromEntityProjection)
+                .ToArrayAsync(cancellationToken);
+
+        public async Task<IReadOnlyCollection<UserPermissionMappingIdentity>> ReadPermissionMappingIdentitiesAsync(
+            CancellationToken cancellationToken,
+            ulong userId,
+            Optional<bool> isDeleted = default)
+        {
+            var query = _context.Set<UserPermissionMappingEntity>()
+                .Where(x => x.UserId == userId);
+
+            if (isDeleted.IsSpecified)
+                query = isDeleted.Value
+                    ? query.Where(x => x.DeletionId != null)
+                    : query.Where(x => x.DeletionId == null);
+
+            return await query
+                .Select(UserPermissionMappingIdentity.FromEntityProjection)
+                .ToArrayAsync();
+        }
+
+        public async Task<IReadOnlyCollection<UserRoleMappingIdentity>> ReadRoleMappingIdentitiesAsync(
+            CancellationToken cancellationToken,
+            ulong userId,
+            Optional<bool> isDeleted = default)
+        {
+            var query = _context.Set<UserRoleMappingEntity>()
+                .Where(x => x.UserId == userId);
+
+            if (isDeleted.IsSpecified)
+                query = isDeleted.Value
+                    ? query.Where(x => x.DeletionId != null)
+                    : query.Where(x => x.DeletionId == null);
+
+            return await query
+                .Select(UserRoleMappingIdentity.FromEntityProjection)
+                .ToArrayAsync();
+        }
+
+        public async Task UpdatePermissionMappingsAsync(
+            IEnumerable<long> mappingIds,
+            long deletionId,
+            CancellationToken cancellationToken)
+        {
+            using (var transactionScope = _transactionScopeFactory.CreateScope())
+            {
+                var findKeys = new object[1];
+                foreach (var mappingId in mappingIds)
+                {
+                    findKeys[0] = mappingId;
+                    var mapping = await _context.FindAsync<UserPermissionMappingEntity>(findKeys, cancellationToken);
+
+                    mapping.DeletionId = deletionId;
+                }
+
+                await _context.SaveChangesAsync(cancellationToken);
+
+                transactionScope.Complete();
+            }
+        }
+
+        public async Task UpdateRoleMappingsAsync(
+            IEnumerable<long> mappingIds,
+            long deletionId,
+            CancellationToken cancellationToken)
+        {
+            using (var transactionScope = _transactionScopeFactory.CreateScope())
+            {
+                var findKeys = new object[1];
+                foreach (var mappingId in mappingIds)
+                {
+                    findKeys[0] = mappingId;
+                    var mapping = await _context.FindAsync<UserRoleMappingEntity>(findKeys, cancellationToken);
+
+                    mapping.DeletionId = deletionId;
+                }
+
+                await _context.SaveChangesAsync(cancellationToken);
+
+                transactionScope.Complete();
             }
         }
 

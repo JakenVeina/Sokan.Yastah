@@ -1,0 +1,48 @@
+﻿<form [formGroup]="form" (ngSubmit)="save()">
+    <dl>
+        <dt>Permissions</dt>
+        <dd>
+            <ul formGroupName="permissionMappings">
+                <li *ngFor="let category of permissionDescriptions">
+                    <dl>
+                        <dt [title]="category.description">{{category.name}}</dt>
+                        <dd>
+                            <ul>
+                                <li *ngFor="let permission of category.permissions">
+                                    <label class="mapping-type-option">
+                                        <input type="radio" [formControlName]="permission.id.toString()" value="granted" />
+                                        Granted
+                                    </label>
+                                    <label class="mapping-type-option">
+                                        <input type="radio" [formControlName]="permission.id.toString()" value="unmapped" />
+                                        Unmapped
+                                    </label>
+                                    <label class="mapping-type-option">
+                                        <input type="radio" [formControlName]="permission.id.toString()" value="denied" />
+                                        Denied
+                                    </label>
+                                    <span class="permission-identifier" [title]="permission.description">{{permission.name}}</span>
+                                </li>
+                            </ul>
+                        </dd>
+                    </dl>
+                </li>
+            </ul>
+        </dd>
+        <dt>Roles</dt>
+        <dd>
+            <ul formGroupName="roleMappings">
+                <li *ngFor="let role of roleIdentities">
+                    <label>
+                        <input type="checkbox" [formControlName]="role.id.toString()" />
+                        <span class="role-identifier">{{role.name}}</span>
+                    </label>
+                </li>
+            </ul>
+        </dd>
+    </dl>
+    <button type="button" (click)="reset()" [disabled]="!canReset">Reset</button>
+    <button type="submit" [disabled]="!canSave">Save</button>
+    <div *ngIf="saveError != null">An error occurred while saving changes: {{saveError.message}}</div>
+    <div *ngIf="hasSaved">Changes saved successfully</div>
+</form>

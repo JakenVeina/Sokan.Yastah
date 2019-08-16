@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -23,6 +24,10 @@ namespace Sokan.Yastah.Data.Users
         public DateTimeOffset FirstSeen { get; set; }
 
         public DateTimeOffset LastSeen { get; set; }
+
+        public ICollection<UserPermissionMappingEntity> PermissionMappings { get; set; }
+
+        public ICollection<UserRoleMappingEntity> RoleMappings { get; set; }
 
         [OnModelCreating]
         public static void OnModelCreating(ModelBuilder modelBuilder)

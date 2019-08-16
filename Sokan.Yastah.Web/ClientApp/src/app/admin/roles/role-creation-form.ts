@@ -53,7 +53,7 @@ export class RoleCreationForm
             .pipe(takeUntil(this._destroying))
             .subscribe(x => {
                 this._permissionDescriptions = x;
-                buildPermissionMappingControls(x, this.form.controls.permissionMappings as FormGroup, formBuilder);
+                buildPermissionMappingControls(x, this.form.controls.permissionMappings as FormGroup, formBuilder, false);
             });
 
         this._appState.dispatch(new LoadDescriptionsAction());

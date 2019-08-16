@@ -114,12 +114,6 @@ namespace Sokan.Yastah.Data.Migrations
                             Id = 4,
                             CategoryId = 1,
                             Name = "RoleRestored"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            CategoryId = 1,
-                            Name = "PermissionsChanged"
                         });
                 });
 
@@ -182,6 +176,13 @@ namespace Sokan.Yastah.Data.Migrations
                             CategoryId = 1,
                             Description = "Allows management of application roles",
                             Name = "ManageRoles"
+                        },
+                        new
+                        {
+                            PermissionId = 3,
+                            CategoryId = 1,
+                            Description = "Allows management of application users",
+                            Name = "ManageUsers"
                         });
                 });
 
@@ -419,7 +420,7 @@ namespace Sokan.Yastah.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Sokan.Yastah.Data.Roles.RoleEntity", "Role")
-                        .WithMany()
+                        .WithMany("PermissionMappings")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
@@ -496,7 +497,7 @@ namespace Sokan.Yastah.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Sokan.Yastah.Data.Users.UserEntity", "User")
-                        .WithMany()
+                        .WithMany("PermissionMappings")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
@@ -518,7 +519,7 @@ namespace Sokan.Yastah.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Sokan.Yastah.Data.Users.UserEntity", "User")
-                        .WithMany()
+                        .WithMany("RoleMappings")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });

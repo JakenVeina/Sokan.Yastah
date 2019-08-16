@@ -1,18 +1,35 @@
-﻿import { AsyncValidatorFn, FormGroup, AbstractControl } from "@angular/forms";
+﻿import { AbstractControl, AsyncValidatorFn, FormBuilder, FormGroup } from "@angular/forms";
 import { Store } from "@ngrx/store";
 import { Observable } from "rxjs";
 import { map, take } from "rxjs/operators";
 
 import { IAppState } from "../../state";
 
-import { IRoleCreationFormModel, IRoleCreationModel, IRoleDetailViewModel, IRoleUpdateFormModel, IRoleUpdateModel } from "./models";
+import { IRoleCreationFormModel, IRoleCreationModel, IRoleDetailViewModel, IRoleIdentityViewModel, IRoleUpdateFormModel, IRoleUpdateModel } from "./models";
 
-export function buildRoleUpdateForm(detail: IRoleDetailViewModel): IRoleUpdateFormModel {
+export function buildRoleMappingControls(
+    identities: IRoleIdentityViewModel[],
+    roleMappings: FormGroup,
+    formBuilder: FormBuilder,
+    initialValue: any) {
+    Object.keys(roleMappings.value)
+        .forEach(x => roleMappings.removeControl(x));
+
+    identities
+        .forEach(x => roleMappings.addControl(x.id.toString(), formBuilder.control(initialValue)));
+}
+
+export function buildRoleUpdateForm(
+            detail: IRoleDetailViewModel,
+            permissionIds: number[]):
+        IRoleUpdateFormModel {
     return {
         id: detail.id,
         name: detail.name,
-        permissionMappings: Object.assign({}, ...detail.grantedPermissionIds
-            .map(id => ({ [id]: true })))
+        permissionMappings: Object.assign({}, ...permissionIds
+            .map(id => ({
+                [id]: detail.grantedPermissionIds.includes(id)
+            })))
     };
 }
 

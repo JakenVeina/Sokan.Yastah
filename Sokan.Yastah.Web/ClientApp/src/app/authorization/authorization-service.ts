@@ -25,6 +25,11 @@ export class AuthorizationService {
             && Object.values(this._authenticationService.currentTicket.grantedPermissions).some(x => x === "Administration.ManageRoles");
     }
 
+    public get hasAdminManageUsers(): boolean {
+        return this._authenticationService.isAuthenticated
+            && Object.values(this._authenticationService.currentTicket.grantedPermissions).some(x => x === "Administration.ManageUsers");
+    }
+
     public get hasAnyPermissions(): boolean {
         return this._authenticationService.isAuthenticated
             && (Object.keys(this._authenticationService.currentTicket.grantedPermissions).length > 0);

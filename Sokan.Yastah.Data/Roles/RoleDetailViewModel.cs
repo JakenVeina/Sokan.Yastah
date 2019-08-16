@@ -6,11 +6,8 @@ using System.Linq.Expressions;
 namespace Sokan.Yastah.Data.Roles
 {
     public class RoleDetailViewModel
+        : RoleIdentityViewModel
     {
-        public long Id { get; internal set; }
-
-        public string Name { get; internal set; }
-
         public IReadOnlyList<int> GrantedPermissionIds { get; internal set; }
 
         internal static Expression<Func<RoleVersionEntity, RoleDetailViewModel>> FromVersionEntityExpression

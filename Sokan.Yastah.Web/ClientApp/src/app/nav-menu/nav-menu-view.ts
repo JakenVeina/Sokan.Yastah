@@ -33,6 +33,10 @@ export class NavMenuView {
         return this._authorizationService.hasAdminManageRoles;
     }
 
+    public get hasAdminUsers(): boolean {
+        return this._authorizationService.hasAdminManageUsers;
+    }
+
     public get hasHome(): boolean {
         return this._authorizationService.hasAnyPermissions;
     }
@@ -46,6 +50,5 @@ export class NavMenuView {
     }
 
     private readonly _authenticationService: AuthenticationService;
-
     private readonly _authorizationService: AuthorizationService;
 }

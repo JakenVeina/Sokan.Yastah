@@ -36,3 +36,20 @@ export class RolesGuard
 
     private readonly _authorizationService: AuthorizationService;
 }
+
+@Injectable({
+    providedIn: "root"
+})
+export class UsersGuard
+        implements CanActivate {
+    public constructor(
+            authorizationService: AuthorizationService) {
+        this._authorizationService = authorizationService;
+    }
+
+    public canActivate(): boolean {
+        return this._authorizationService.hasAdminManageUsers;
+    }
+
+    private readonly _authorizationService: AuthorizationService;
+}

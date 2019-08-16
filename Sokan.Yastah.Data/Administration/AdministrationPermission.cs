@@ -13,7 +13,10 @@ namespace Sokan.Yastah.Data.Administration
         ManagePermissions = 1,
 
         [Description("Allows management of application roles")]
-        ManageRoles = 2
+        ManageRoles = 2,
+
+        [Description("Allows management of application users")]
+        ManageUsers = 3
     }
 
     public static class AdministrationPermissionModelBuilder

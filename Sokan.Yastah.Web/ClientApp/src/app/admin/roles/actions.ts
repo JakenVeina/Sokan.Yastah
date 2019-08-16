@@ -3,8 +3,19 @@
 import { IRoleIdentityViewModel } from "./models";
 
 export enum RolesActionType {
+    LoadIdentities = "[Roles] LoadIdentities",
     ReloadIdentities = "[Roles] ReloadIdentities",
     StoreIdentities = "[Roles] StoreIdentities"
+}
+
+export class LoadIdentitiesAction
+    implements Action {
+
+    public constructor() {
+        this.type = RolesActionType.LoadIdentities;
+    }
+
+    public readonly type: string;
 }
 
 export class ReloadIdentitiesAction

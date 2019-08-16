@@ -8,9 +8,13 @@ import { StoreModule } from "@ngrx/store";
 
 import { PermissionsEffects } from "./permissions/effects";
 import { RoleCreationForm } from "./roles/role-creation-form";
+import { RolesEffects } from "./roles/effects";
 import { RoleUpdateForm } from "./roles/role-update-form";
 import { RolesView } from "./roles/roles-view";
-import { RolesEffects } from "./roles/effects";
+
+import { UserUpdateForm } from "./users/user-update-form";
+import { UsersEffects } from "./users/effects";
+import { UsersView } from "./users/users-view";
 
 import { adminStateReducers } from "./reducers";
 import { AdminRoutes } from "./routes";
@@ -18,7 +22,11 @@ import { AdminRoutes } from "./routes";
 @NgModule({
     imports: [
         CommonModule,
-        EffectsModule.forFeature([PermissionsEffects, RolesEffects]),
+        EffectsModule.forFeature([
+            PermissionsEffects,
+            RolesEffects,
+            UsersEffects
+        ]),
         FormsModule,
         HttpClientModule,
         ReactiveFormsModule,
@@ -28,7 +36,9 @@ import { AdminRoutes } from "./routes";
     declarations: [
         RoleCreationForm,
         RoleUpdateForm,
-        RolesView
+        RolesView,
+        UserUpdateForm,
+        UsersView
     ]
 })
 export class AdminModule { }

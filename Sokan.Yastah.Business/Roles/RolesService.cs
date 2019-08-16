@@ -173,42 +173,79 @@ namespace Sokan.Yastah.Business.Roles
                 if (updateResult.IsFailure && !(updateResult.Error is NoChangesGivenError))
                     return updateResult;
 
+                var anyChanges = false;
+
                 var permissionMappings = await _rolesRepository.ReadPermissionMappingIdentitiesAsync(
                     roleId: roleId,
                     isDeleted: false,
                     cancellationToken: cancellationToken);
 
-                var addedPermissionIds = updateModel.GrantedPermissionIds
-                    .Except(permissionMappings.Select(x => x.PermissionId));
-                var anyAddedPermissionIds = addedPermissionIds.Any();
-                if(anyAddedPermissionIds)
-                    await _rolesRepository.CreatePermissionMappingsAsync(
-                        roleId,
-                        addedPermissionIds,
-                        actionId,
-                        cancellationToken);
+                anyChanges |= await HandleRemovedPermissionMappings(
+                    permissionMappings,
+                    updateModel.GrantedPermissionIds,
+                    actionId,
+                    cancellationToken);
 
-                var removedPermissionMappingIds = permissionMappings
-                    .Where(x => !updateModel.GrantedPermissionIds.Contains(x.PermissionId))
-                    .Select(x => x.Id);
-                var anyRemovedPermissionMappingIds = removedPermissionMappingIds.Any();
-                if(anyRemovedPermissionMappingIds)
-                    await _rolesRepository.UpdatePermissionMappingsAsync(
-                        removedPermissionMappingIds,
-                        deletionId: actionId,
-                        cancellationToken);
+                anyChanges |= await HandleAddedPermissions(
+                    permissionMappings,
+                    updateModel.GrantedPermissionIds,
+                    roleId,
+                    actionId,
+                    cancellationToken);
 
-                if (updateResult.IsSuccess
-                        || !(updateResult.Error is NoChangesGivenError)
-                        || anyAddedPermissionIds
-                        || anyRemovedPermissionMappingIds)
-                {
-                    transactionScope.Complete();
-                    _memoryCache.Remove(_getCurrentIdentitiesCacheKey);
-                }
+                if (!anyChanges)
+                    return new NoChangesGivenError($"Role ID {roleId}")
+                        .ToError();
+
+                transactionScope.Complete();
+
+                _memoryCache.Remove(_getCurrentIdentitiesCacheKey);
 
                 return OperationResult.Success;
             }
+        }
+
+        private async Task<bool> HandleAddedPermissions(
+            IEnumerable<RolePermissionMappingIdentity> permissionMappings,
+            IEnumerable<int> grantedPermissionIds,
+            long roleId,
+            long actionId,
+            CancellationToken cancellationToken)
+        {
+            var addedPermissionIds = grantedPermissionIds
+                .Except(permissionMappings.Select(x => x.PermissionId));
+
+            if (!addedPermissionIds.Any())
+                return false;
+
+            await _rolesRepository.CreatePermissionMappingsAsync(
+                roleId,
+                addedPermissionIds,
+                actionId,
+                cancellationToken);
+
+            return true;
+        }
+
+        private async Task<bool> HandleRemovedPermissionMappings(
+            IEnumerable<RolePermissionMappingIdentity> permissionMappings,
+            IEnumerable<int> grantedPermissionIds,
+            long actionId,
+            CancellationToken cancellationToken)
+        {
+            var removedPermissionMappingIds = permissionMappings
+                .Where(x => !grantedPermissionIds.Contains(x.PermissionId))
+                .Select(x => x.Id);
+
+            if (!removedPermissionMappingIds.Any())
+                return false;
+
+            await _rolesRepository.UpdatePermissionMappingsAsync(
+                removedPermissionMappingIds,
+                deletionId: actionId,
+                cancellationToken);
+
+            return true;
         }
 
         private async Task<OperationResult> ValidateNameAsync(

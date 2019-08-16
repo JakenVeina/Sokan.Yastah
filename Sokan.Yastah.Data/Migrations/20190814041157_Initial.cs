@@ -433,7 +433,6 @@ namespace Sokan.Yastah.Data.Migrations
                     { 2, 1, "RoleModified" },
                     { 3, 1, "RoleDeleted" },
                     { 4, 1, "RoleRestored" },
-                    { 5, 1, "PermissionsChanged" },
                     { 20, 2, "UserInitialization" }
                 });
 
@@ -444,7 +443,8 @@ namespace Sokan.Yastah.Data.Migrations
                 values: new object[,]
                 {
                     { 1, 1, "Allows management of application permissions", "ManagePermissions" },
-                    { 2, 1, "Allows management of application roles", "ManageRoles" }
+                    { 2, 1, "Allows management of application roles", "ManageRoles" },
+                    { 3, 1, "Allows management of application users", "ManageUsers" }
                 });
 
             migrationBuilder.CreateIndex(

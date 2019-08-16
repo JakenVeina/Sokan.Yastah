@@ -56,7 +56,7 @@ export class RoleUpdateForm
         appState.select(x => x.admin.permissions.descriptions)
             .pipe(takeUntil(this._destroying))
             .subscribe(x => {
-                buildPermissionMappingControls(x, this.form.controls.permissionMappings as FormGroup, formBuilder);
+                buildPermissionMappingControls(x, this.form.controls.permissionMappings as FormGroup, formBuilder, false);
                 this._permissionDescriptions = x;
             });
 
@@ -64,7 +64,10 @@ export class RoleUpdateForm
             .pipe(
                 map(([x]) => Number(x.get("id"))),
                 switchMap(id => this._rolesService.getDetail(id).pipe(
-                    map(x => buildRoleUpdateForm(x)),
+                    map(d => buildRoleUpdateForm(
+                        d,
+                        Object.keys(this._form.controls.permissionMappings.value)
+                            .map(id => Number(id)))),
                     startWith(null))),
                 takeUntil(this._destroying))
             .subscribe(x => {

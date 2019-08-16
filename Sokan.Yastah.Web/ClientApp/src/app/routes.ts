@@ -7,9 +7,7 @@ import { PortalGuard } from "./guards";
 export const AppRoutes: Routes = [
     {
         path: "home",
-        canActivate: [
-            PortalGuard
-        ],
+        canActivate: [PortalGuard],
         component: HomeView
     },
     {
