@@ -2,7 +2,7 @@
 import { Location } from "@angular/common";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { tap } from "rxjs/operators";
+import { finalize } from "rxjs/operators";
 
 import { AuthenticationService } from "../authentication/authentication-service";
 
@@ -22,30 +22,26 @@ export class ApiClient {
 
     public delete<T>(url: string): Observable<T> {
         return this._httpClient.delete<T>(this.buildUrl(url))
-            .pipe(tap(this.updateAuthenticationTicket.bind(this)));
+            .pipe(finalize(() => this._authenticationService.updateTicket()));
     }
 
     public get<T>(url: string): Observable<T> {
         return this._httpClient.get<T>(this.buildUrl(url))
-            .pipe(tap(this.updateAuthenticationTicket.bind(this)));
+            .pipe(finalize(() => this._authenticationService.updateTicket()));
     }
 
     public post<T>(url: string, body: any | null): Observable<T> {
         return this._httpClient.post<T>(this.buildUrl(url), body)
-            .pipe(tap(this.updateAuthenticationTicket.bind(this)));
+            .pipe(finalize(() => this._authenticationService.updateTicket()));
     }
 
     public put<T>(url: string, body: any | null): Observable<T> {
         return this._httpClient.put<T>(this.buildUrl(url), body)
-            .pipe(tap(this.updateAuthenticationTicket.bind(this)));
+            .pipe(finalize(() => this._authenticationService.updateTicket()));
     }
 
     private buildUrl(url: string): string {
         return Location.joinWithSlash(ApiClient._apiRoot, url);
-    }
-
-    private updateAuthenticationTicket(): void {
-        this._authenticationService.updateTicket();
     }
 
     private readonly _authenticationService: AuthenticationService;

@@ -18,12 +18,15 @@ namespace Sokan.Yastah.Api.Authentication
             ForwardForbid = JwtBearerDefaults.AuthenticationScheme;
             TokenHeaderAndPayloadCookieKey = ApiAuthenticationDefaults.TokenHeaderAndPayloadCookieKey;
             TokenLifetime = ApiAuthenticationDefaults.TokenLifetime;
+            TokenRefreshInterval = ApiAuthenticationDefaults.TokenRefreshInterval;
             TokenSignatureCookieKey = ApiAuthenticationDefaults.TokenSignatureCookieKey;
         }
 
         public string TokenHeaderAndPayloadCookieKey { get; set; }
 
         public TimeSpan TokenLifetime { get; set; }
+
+        public TimeSpan TokenRefreshInterval { get; set; }
 
         public string TokenSecret { get; set; }
 

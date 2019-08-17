@@ -38,21 +38,29 @@ export class AuthenticationService {
             .split(";")
             .find(cookie => cookie.startsWith(`${AuthenticationService._tokenHeaderAndPayloadCookieKey}=`));
 
-        this._currentTicket = null;
 
         if (headerAndPayloadCookie == null) {
+            this._currentHeaderAndPayload = null;
+            this._currentTicket = null;
             return;
         }
 
         let headerAndPayload = headerAndPayloadCookie
             .split("=")[1];
 
-        let rawTicket = JwtDecode<IRawAuthenticationTicket>(headerAndPayload);
-
-        if (rawTicket.exp < (new Date().valueOf() / 1000)) {
+        if (headerAndPayload === this._currentHeaderAndPayload) {
             return;
         }
 
+        let rawTicket = JwtDecode<IRawAuthenticationTicket>(headerAndPayload);
+
+        if (rawTicket.exp < (new Date().valueOf() / 1000)) {
+            this._currentHeaderAndPayload = null;
+            this._currentTicket = null;
+            return;
+        }
+
+        this._currentHeaderAndPayload = headerAndPayload;
         this._currentTicket = {
             userId: rawTicket.nameid,
             username: rawTicket.unique_name,
@@ -62,5 +70,6 @@ export class AuthenticationService {
         };
     }
 
+    private _currentHeaderAndPayload: string | null;
     private _currentTicket: IAuthenticationTicket | null;
 }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +17,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
-using Sokan.Yastah.Business.Authentication;
+using AuthenticationTicket = Sokan.Yastah.Business.Authentication.AuthenticationTicket;
+using IAuthenticationService = Sokan.Yastah.Business.Authentication.IAuthenticationService;
 
 namespace Sokan.Yastah.Api.Authentication
 {
@@ -88,7 +90,11 @@ namespace Sokan.Yastah.Api.Authentication
                 .GetRequiredService<IAuthenticationService>()
                 .OnAuthenticated(ticket);
 
-            return Task.CompletedTask;
+            var options = context.HttpContext.RequestServices.GetRequiredService<IOptions<ApiAuthenticationOptions>>().Value;
+            var now = context.HttpContext.RequestServices.GetRequiredService<ISystemClock>().UtcNow;
+            return ((now - jwtSecurityToken.ValidFrom) > options.TokenRefreshInterval)
+                ? context.HttpContext.SignInAsync(ApiAuthenticationDefaults.AuthenticationScheme, context.Principal)
+                : Task.CompletedTask;
         }
 
         private static async Task<IEnumerable<ulong>> GetGuildIds(OAuthCreatingTicketContext context)

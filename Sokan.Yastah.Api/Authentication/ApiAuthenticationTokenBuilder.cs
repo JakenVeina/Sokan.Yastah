@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,8 +19,12 @@ namespace Sokan.Yastah.Api.Authentication
         : IApiAuthenticationTokenBuilder
     {
         public ApiAuthenticationTokenBuilder(
-            IOptions<ApiAuthenticationOptions> options)
+            IOptions<ApiAuthenticationOptions> options,
+            ISystemClock systemClock)
         {
+            _options = options;
+            _systemClock = systemClock;
+
             _tokenHandler = new JwtSecurityTokenHandler();
             _signingCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(
@@ -29,15 +34,21 @@ namespace Sokan.Yastah.Api.Authentication
         }
 
         public JwtSecurityToken BuildToken(ClaimsIdentity identity)
-            => _tokenHandler.CreateJwtSecurityToken(new SecurityTokenDescriptor()
+        {
+            var descriptor = new SecurityTokenDescriptor()
             {
                 Subject = identity,
-                SigningCredentials = _signingCredentials
-            });
+                SigningCredentials = _signingCredentials,
+                Expires = _systemClock.UtcNow.UtcDateTime + _options.Value.TokenLifetime
+            };
+
+            return _tokenHandler.CreateJwtSecurityToken(descriptor);
+        }
 
         private readonly JwtSecurityTokenHandler _tokenHandler;
-
+        private readonly IOptions<ApiAuthenticationOptions> _options;
         private readonly SigningCredentials _signingCredentials;
+        private readonly ISystemClock _systemClock;
 
         [OnConfigureServices]
         public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)

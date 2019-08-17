@@ -17,7 +17,10 @@ namespace Sokan.Yastah.Api.Authentication
             = "Yastah.Api.Token.Signature";
 
         public static readonly TimeSpan TokenLifetime
-            = TimeSpan.FromDays(1);
+            = TimeSpan.FromMinutes(2);
+
+        public static readonly TimeSpan TokenRefreshInterval
+            = TimeSpan.FromMinutes(1);
 
         public const string DiscriminatorClaimType
             = "dscm";
