@@ -32,6 +32,7 @@ namespace Sokan.Yastah.Api.Authentication
 
                     options.Events = new JwtBearerEvents()
                     {
+                        OnAuthenticationFailed = AuthenticationEventHandlers.OnAuthenticationFailed,
                         OnTokenValidated = AuthenticationEventHandlers.OnTokenValidated,
                         OnMessageReceived = AuthenticationEventHandlers.OnMessageReceived
                     };

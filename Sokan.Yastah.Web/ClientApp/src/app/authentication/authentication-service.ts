@@ -38,23 +38,28 @@ export class AuthenticationService {
             .split(";")
             .find(cookie => cookie.startsWith(`${AuthenticationService._tokenHeaderAndPayloadCookieKey}=`));
 
-        if (headerAndPayloadCookie != null) {
-            let headerAndPayload = headerAndPayloadCookie
-                .split("=")[1];
+        this._currentTicket = null;
 
-            let rawTicket = JwtDecode<IRawAuthenticationTicket>(headerAndPayload);
+        if (headerAndPayloadCookie == null) {
+            return;
+        }
 
-            this._currentTicket = {
-                userId: rawTicket.nameid,
-                username: rawTicket.unique_name,
-                discriminator: rawTicket.dscm,
-                avatarHash: rawTicket.avtr,
-                grantedPermissions: rawTicket.prms
-            };
+        let headerAndPayload = headerAndPayloadCookie
+            .split("=")[1];
+
+        let rawTicket = JwtDecode<IRawAuthenticationTicket>(headerAndPayload);
+
+        if (rawTicket.exp < (new Date().valueOf() / 1000)) {
+            return;
         }
-        else {
-            this._currentTicket = null;
-        }
+
+        this._currentTicket = {
+            userId: rawTicket.nameid,
+            username: rawTicket.unique_name,
+            discriminator: rawTicket.dscm,
+            avatarHash: rawTicket.avtr,
+            grantedPermissions: rawTicket.prms
+        };
     }
 
     private _currentTicket: IAuthenticationTicket | null;

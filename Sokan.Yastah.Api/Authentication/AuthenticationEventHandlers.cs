@@ -22,6 +22,16 @@ namespace Sokan.Yastah.Api.Authentication
 {
     public static class AuthenticationEventHandlers
     {
+        public static Task OnAuthenticationFailed(AuthenticationFailedContext context)
+        {
+            var options = context.HttpContext.RequestServices.GetRequiredService<IOptions<ApiAuthenticationOptions>>().Value;
+
+            context.Response.Cookies.Delete(options.TokenHeaderAndPayloadCookieKey);
+            context.Response.Cookies.Delete(options.TokenSignatureCookieKey);
+
+            return Task.CompletedTask;
+        }
+
         public static async Task OnCreatingTicket(OAuthCreatingTicketContext context)
         {
             var permissions = (await context.HttpContext.RequestServices
