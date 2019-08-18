@@ -11,10 +11,10 @@ namespace Sokan.Yastah.Api.Authentication
             = "Yastah.Api";
 
         public const string TokenHeaderAndPayloadCookieKey
-            = "Yastah.Api.Token.HeaderAndPayload";
+            = "Yastah.Api.Authentication.Ticket.HeaderAndPayload";
 
         public const string TokenSignatureCookieKey
-            = "Yastah.Api.Token.Signature";
+            = "Yastah.Api.Authentication.Ticket.Signature";
 
         public static readonly TimeSpan TokenLifetime
             = TimeSpan.FromMinutes(2);

@@ -1,4 +1,4 @@
-import { HttpClientModule } from "@angular/common/http";
+import { HttpClientModule, HttpClientXsrfModule } from "@angular/common/http";
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
@@ -17,6 +17,10 @@ import { EffectsModule } from "@ngrx/effects";
         BrowserModule.withServerTransition({ appId: "ng-cli-universal" }),
         EffectsModule.forRoot([]),
         HttpClientModule,
+        HttpClientXsrfModule.withOptions({
+            cookieName: "Yastah.Api.Antiforgery.RequestToken",
+            headerName: "Yastah.Api.Antiforgery.RequestToken"
+        }),
         RouterModule.forRoot(AppRoutes),
         StoreModule.forRoot({}),
 

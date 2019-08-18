@@ -8,7 +8,7 @@ import { IAuthenticationTicket, IRawAuthenticationTicket } from "./models";
 })
 export class AuthenticationService {
     private static readonly _tokenHeaderAndPayloadCookieKey: string
-        = "Yastah.Api.Token.HeaderAndPayload";
+        = "Yastah.Api.Authentication.Ticket.HeaderAndPayload";
 
     private static readonly _authenticationEndpoint: string
         = "/api/authentication";
@@ -36,8 +36,8 @@ export class AuthenticationService {
     public updateTicket(): void {
         let headerAndPayloadCookie = document.cookie
             .split(";")
+            .map(cookie => cookie.trim())
             .find(cookie => cookie.startsWith(`${AuthenticationService._tokenHeaderAndPayloadCookieKey}=`));
-
 
         if (headerAndPayloadCookie == null) {
             this._currentHeaderAndPayload = null;

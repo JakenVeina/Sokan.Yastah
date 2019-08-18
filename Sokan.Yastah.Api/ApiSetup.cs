@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
+using Sokan.Yastah.Api.Antiforgery;
+
 namespace Sokan.Yastah.Api
 {
     public static class ApiSetup
@@ -24,6 +26,7 @@ namespace Sokan.Yastah.Api
         public static IApplicationBuilder UseYastahApi(this IApplicationBuilder applicationBuilder)
             => applicationBuilder
                 .UseAuthentication()
+                .UseAntiforgery()
                 .UseMvc();
     }
 }
