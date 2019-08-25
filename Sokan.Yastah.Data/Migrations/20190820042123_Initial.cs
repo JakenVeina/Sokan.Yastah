@@ -12,6 +12,9 @@ namespace Sokan.Yastah.Data.Migrations
                 name: "Administration");
 
             migrationBuilder.EnsureSchema(
+                name: "Authentication");
+
+            migrationBuilder.EnsureSchema(
                 name: "Permissions");
 
             migrationBuilder.EnsureSchema(
@@ -146,6 +149,43 @@ namespace Sokan.Yastah.Data.Migrations
                         column: x => x.TypeId,
                         principalSchema: "Administration",
                         principalTable: "AdministrationActionTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AuthenticationTickets",
+                schema: "Authentication",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    UserId = table.Column<long>(nullable: false),
+                    CreationId = table.Column<long>(nullable: false),
+                    DeletionId = table.Column<long>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AuthenticationTickets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AuthenticationTickets_AdministrationActions_CreationId",
+                        column: x => x.CreationId,
+                        principalSchema: "Administration",
+                        principalTable: "AdministrationActions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AuthenticationTickets_AdministrationActions_DeletionId",
+                        column: x => x.DeletionId,
+                        principalSchema: "Administration",
+                        principalTable: "AdministrationActions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AuthenticationTickets_Users_UserId",
+                        column: x => x.UserId,
+                        principalSchema: "Users",
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -480,6 +520,24 @@ namespace Sokan.Yastah.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_AuthenticationTickets_CreationId",
+                schema: "Authentication",
+                table: "AuthenticationTickets",
+                column: "CreationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuthenticationTickets_DeletionId",
+                schema: "Authentication",
+                table: "AuthenticationTickets",
+                column: "DeletionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuthenticationTickets_UserId",
+                schema: "Authentication",
+                table: "AuthenticationTickets",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PermissionCategories_Name",
                 schema: "Permissions",
                 table: "PermissionCategories",
@@ -630,6 +688,10 @@ namespace Sokan.Yastah.Data.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "AuthenticationTickets",
+                schema: "Authentication");
+
             migrationBuilder.DropTable(
                 name: "RolePermissionMappings",
                 schema: "Roles");

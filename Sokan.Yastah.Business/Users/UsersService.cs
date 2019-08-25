@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Options;
 
 using Sokan.Yastah.Business.Authorization;
 using Sokan.Yastah.Business.Permissions;
+using Sokan.Yastah.Common.Messaging;
 using Sokan.Yastah.Common.OperationModel;
 using Sokan.Yastah.Data;
 using Sokan.Yastah.Data.Administration;
@@ -24,6 +26,10 @@ namespace Sokan.Yastah.Business.Users
     {
         Task<OperationResult<IReadOnlyCollection<PermissionIdentity>>> GetGrantedPermissionsAsync(
             ulong userId,
+            CancellationToken cancellationToken);
+
+        ValueTask<IReadOnlyCollection<ulong>> GetRoleMemberIdsAsync(
+            long roleId,
             CancellationToken cancellationToken);
 
         Task TrackUserAsync(
@@ -46,6 +52,8 @@ namespace Sokan.Yastah.Business.Users
         public UsersService(
             IAdministrationActionsRepository administrationActionsRepository,
             IOptions<AuthorizationConfiguration> authorizationConfigurationOptions,
+            IMemoryCache memoryCache,
+            IMessenger messenger,
             IPermissionsService permissionsService,
             ISystemClock systemClock,
             ITransactionScopeFactory transactionScopeFactory,
@@ -53,6 +61,8 @@ namespace Sokan.Yastah.Business.Users
         {
             _administrationActionsRepository = administrationActionsRepository;
             _authorizationConfigurationOptions = authorizationConfigurationOptions;
+            _memoryCache = memoryCache;
+            _messenger = messenger;
             _permissionsService = permissionsService;
             _systemClock = systemClock;
             _transactionScopeFactory = transactionScopeFactory;
@@ -81,6 +91,18 @@ namespace Sokan.Yastah.Business.Users
                     .ToSuccess();
             }
         }
+
+        public ValueTask<IReadOnlyCollection<ulong>> GetRoleMemberIdsAsync(
+                long roleId,
+                CancellationToken cancellationToken)
+            => _memoryCache.GetOrCreateLongTermAsync(MakeRoleMemberIdsCacheKey(roleId), entry =>
+            {
+                entry.Priority = CacheItemPriority.High;
+
+                return _usersRepository.ReadIdsAsync(
+                    roleId: roleId,
+                    cancellationToken: cancellationToken);
+            });
 
         public async Task TrackUserAsync(
             ulong userId,
@@ -130,6 +152,12 @@ namespace Sokan.Yastah.Business.Users
                             defaultRoleIds,
                             actionId,
                             cancellationToken);
+
+                    await _messenger.PublishNotificationAsync(
+                        new UserInitializingNotification(
+                            userId,
+                            actionId),
+                        cancellationToken);
                 }
 
                 transactionScope.Complete();
@@ -202,6 +230,12 @@ namespace Sokan.Yastah.Business.Users
                     return new NoChangesGivenError($"User ID {userId}")
                         .ToError();
 
+                await _messenger.PublishNotificationAsync(
+                    new UserUpdatingNotification(
+                        userId,
+                        actionId),
+                    cancellationToken);
+
                 transactionScope.Complete();
 
                 return OperationResult.Success;
@@ -216,7 +250,7 @@ namespace Sokan.Yastah.Business.Users
             CancellationToken cancellationToken)
         {
             var addedDeniedPermissionIds = deniedPermissionIds
-                .Where(id => !permissionMappings.Any(x => x.isDenied && (x.PermissionId == id)))
+                .Where(id => !permissionMappings.Any(x => x.IsDenied && (x.PermissionId == id)))
                 .ToArray();
 
             if (!addedDeniedPermissionIds.Any())
@@ -240,7 +274,7 @@ namespace Sokan.Yastah.Business.Users
             CancellationToken cancellationToken)
         {
             var addedGrantedPermissionIds = grantedPermissionIds
-                .Where(id => !permissionMappings.Any(x => !x.isDenied && (x.PermissionId == id)))
+                .Where(id => !permissionMappings.Any(x => !x.IsDenied && (x.PermissionId == id)))
                 .ToArray();
 
             if (!addedGrantedPermissionIds.Any())
@@ -263,18 +297,21 @@ namespace Sokan.Yastah.Business.Users
             long actionId,
             CancellationToken cancellationToken)
         {
-            var addedRoleMappingIds = assignedRoleIds
+            var addedRoleIds = assignedRoleIds
                 .Where(id => !roleMappings.Any(x => x.RoleId == id))
                 .ToArray();
 
-            if (!addedRoleMappingIds.Any())
+            if (!addedRoleIds.Any())
                 return false;
 
             await _usersRepository.CreateRoleMappingsAsync(
                 userId,
-                addedRoleMappingIds,
+                addedRoleIds,
                 actionId,
                 cancellationToken);
+
+            foreach (var roleId in addedRoleIds)
+                _memoryCache.Remove(MakeRoleMemberIdsCacheKey(roleId));
 
             return true;
         }
@@ -287,8 +324,8 @@ namespace Sokan.Yastah.Business.Users
             CancellationToken cancellationToken)
         {
             var removedPermissionMappingIds = permissionMappings
-                .Where(x => (!x.isDenied && !grantedPermissionIds.Contains(x.PermissionId))
-                    || (x.isDenied && !deniedPermissionIds.Contains(x.PermissionId)))
+                .Where(x => (!x.IsDenied && !grantedPermissionIds.Contains(x.PermissionId))
+                    || (x.IsDenied && !deniedPermissionIds.Contains(x.PermissionId)))
                 .Select(x => x.Id);
 
             if (!removedPermissionMappingIds.Any())
@@ -308,24 +345,32 @@ namespace Sokan.Yastah.Business.Users
             long actionId,
             CancellationToken cancellationToken)
         {
-            var removedRoleMappingIds = roleMappings
+            var removedRoleMappings = roleMappings
                 .Where(x => !assignedRoleIds.Contains(x.RoleId))
-                .Select(x => x.Id)
                 .ToArray();
 
-            if (!removedRoleMappingIds.Any())
+            if (!removedRoleMappings.Any())
                 return false;
 
             await _usersRepository.UpdateRoleMappingsAsync(
-                removedRoleMappingIds,
+                removedRoleMappings
+                    .Select(x => x.Id),
                 actionId,
                 cancellationToken);
+
+            foreach (var mapping in removedRoleMappings)
+                _memoryCache.Remove(MakeRoleMemberIdsCacheKey(mapping.RoleId));
 
             return true;
         }
 
+        private static string MakeRoleMemberIdsCacheKey(long roleId)
+            => $"{nameof(UsersService)}.RoleMemberIds.{roleId}";
+
         private readonly IAdministrationActionsRepository _administrationActionsRepository;
         private readonly IOptions<AuthorizationConfiguration> _authorizationConfigurationOptions;
+        private readonly IMemoryCache _memoryCache;
+        private readonly IMessenger _messenger;
         private readonly IPermissionsService _permissionsService;
         private readonly ISystemClock _systemClock;
         private readonly ITransactionScopeFactory _transactionScopeFactory;

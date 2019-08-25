@@ -60,6 +60,10 @@ namespace Sokan.Yastah.Data.Users
             ulong userId,
             CancellationToken cancellationToken);
 
+        Task<IReadOnlyCollection<ulong>> ReadIdsAsync(
+            CancellationToken cancellationToken,
+            Optional<long> roleId = default);
+
         Task<IReadOnlyCollection<UserOverviewViewModel>> ReadOverviewsAsync(
             CancellationToken cancellationToken);
 
@@ -260,6 +264,23 @@ namespace Sokan.Yastah.Data.Users
                     .Any(upm => upm.PermissionId == p.PermissionId))
                 .Select(PermissionIdentity.FromEntityProjection)
                 .ToArrayAsync();
+
+        public async Task<IReadOnlyCollection<ulong>> ReadIdsAsync(
+            CancellationToken cancellationToken,
+            Optional<long> roleId = default)
+        {
+            var query = _context.Set<UserEntity>()
+                .AsQueryable();
+
+            if (roleId.IsSpecified)
+                query = query.Where(u => u.RoleMappings.Any(urm =>
+                    (urm.DeletionId == null)
+                    && (urm.RoleId == roleId.Value)));
+
+            return await query
+                .Select(u => u.Id)
+                .ToArrayAsync(cancellationToken);
+        }
 
         public async Task<IReadOnlyCollection<UserOverviewViewModel>> ReadOverviewsAsync(
                 CancellationToken cancellationToken)

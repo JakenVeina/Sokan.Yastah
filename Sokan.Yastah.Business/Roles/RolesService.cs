@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
 
+using Sokan.Yastah.Common.Messaging;
 using Sokan.Yastah.Common.OperationModel;
 using Sokan.Yastah.Data;
 using Sokan.Yastah.Data.Administration;
@@ -46,6 +47,7 @@ namespace Sokan.Yastah.Business.Roles
         public RolesService(
             IAdministrationActionsRepository administrationActionsRepository,
             IMemoryCache memoryCache,
+            IMessenger messenger,
             IPermissionsRepository permissionsRepository,
             IRolesRepository rolesRepository,
             ISystemClock systemClock,
@@ -53,6 +55,7 @@ namespace Sokan.Yastah.Business.Roles
         {
             _administrationActionsRepository = administrationActionsRepository;
             _memoryCache = memoryCache;
+            _messenger = messenger;
             _permissionsRepository = permissionsRepository;
             _rolesRepository = rolesRepository;
             _systemClock = systemClock;
@@ -197,6 +200,12 @@ namespace Sokan.Yastah.Business.Roles
                     return new NoChangesGivenError($"Role ID {roleId}")
                         .ToError();
 
+                await _messenger.PublishNotificationAsync(
+                    new RoleUpdatingNotification(
+                        roleId,
+                        actionId),
+                    cancellationToken);
+
                 transactionScope.Complete();
 
                 _memoryCache.Remove(_getCurrentIdentitiesCacheKey);
@@ -287,6 +296,7 @@ namespace Sokan.Yastah.Business.Roles
 
         private readonly IAdministrationActionsRepository _administrationActionsRepository;
         private readonly IMemoryCache _memoryCache;
+        private readonly IMessenger _messenger;
         private readonly IPermissionsRepository _permissionsRepository;
         private readonly IRolesRepository _rolesRepository;
         private readonly ISystemClock _systemClock;

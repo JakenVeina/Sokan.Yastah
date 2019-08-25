@@ -5,18 +5,22 @@ namespace Sokan.Yastah.Business.Authentication
     public class AuthenticationTicket
     {
         public AuthenticationTicket(
+            long id,
             ulong userId,
             string username,
             string discriminator,
             string avatarHash,
             IReadOnlyDictionary<int, string> grantedPermissions)
         {
+            Id = id;
             UserId = userId;
             Username = username;
             Discriminator = discriminator;
             AvatarHash = avatarHash;
             GrantedPermissions = grantedPermissions;
         }
+
+        public long Id { get; }
 
         public ulong UserId { get; }
 

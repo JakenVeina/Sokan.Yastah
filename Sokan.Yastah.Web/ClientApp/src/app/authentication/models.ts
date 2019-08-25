@@ -1,4 +1,5 @@
 ﻿export interface IAuthenticationTicket {
+    id: number;
     userId: number;
     username: string;
     discriminator: string;
@@ -18,5 +19,6 @@ export interface IRawAuthenticationTicket {
     prms: {
         [id: number]: string;
     };
+    tckt: number;
     unique_name: string;
 }

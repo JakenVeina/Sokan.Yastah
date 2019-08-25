@@ -17,10 +17,13 @@ namespace Sokan.Yastah.Api.Authentication
             = "Yastah.Api.Authentication.Ticket.Signature";
 
         public static readonly TimeSpan TokenLifetime
-            = TimeSpan.FromMinutes(2);
+            = TimeSpan.FromDays(2);
 
         public static readonly TimeSpan TokenRefreshInterval
-            = TimeSpan.FromMinutes(1);
+            = TimeSpan.FromDays(1);
+
+        public const string TicketIdClaimType
+            = "tckt";
 
         public const string DiscriminatorClaimType
             = "dscm";

@@ -62,6 +62,7 @@ export class AuthenticationService {
 
         this._currentHeaderAndPayload = headerAndPayload;
         this._currentTicket = {
+            id: rawTicket.tckt,
             userId: rawTicket.nameid,
             username: rawTicket.unique_name,
             discriminator: rawTicket.dscm,

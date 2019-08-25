@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authentication;
@@ -17,7 +18,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
-using AuthenticationTicket = Sokan.Yastah.Business.Authentication.AuthenticationTicket;
 using IAuthenticationService = Sokan.Yastah.Business.Authentication.IAuthenticationService;
 
 namespace Sokan.Yastah.Api.Authentication
@@ -36,7 +36,7 @@ namespace Sokan.Yastah.Api.Authentication
 
         public static async Task OnCreatingTicket(OAuthCreatingTicketContext context)
         {
-            var permissions = (await context.HttpContext.RequestServices
+            var ticket = await context.HttpContext.RequestServices
                 .GetRequiredService<IAuthenticationService>()
                 .OnSignInAsync(
                     userId: ulong.Parse(context.Identity.Claims
@@ -51,13 +51,20 @@ namespace Sokan.Yastah.Api.Authentication
                     avatarHash: context.Identity.Claims
                         .First(x => x.Type == ApiAuthenticationDefaults.AvatarHashClaimType)
                         .Value,
-                    getGuildIdsDelegate: () => GetGuildIds(context), 
-                    context.HttpContext.RequestAborted))
-                .ToDictionary(x => x.Id, x => x.Name);
+                    getGuildIdsDelegate: cancellationToken => GetGuildIds(context, cancellationToken), 
+                    context.HttpContext.RequestAborted);
+
+            if (ticket is null)
+                return;
+
+            context.Identity.AddClaim(new Claim(
+                ApiAuthenticationDefaults.TicketIdClaimType,
+                ticket.Id.ToString(),
+                ClaimValueTypes.Integer64));
 
             context.Identity.AddClaim(new Claim(
                 ApiAuthenticationDefaults.PermissionsClaimType,
-                JsonConvert.SerializeObject(permissions, _jsonSerializerSettings),
+                JsonConvert.SerializeObject(ticket.GrantedPermissions, _jsonSerializerSettings),
                 JsonClaimValueTypes.Json));
         }
 
@@ -73,37 +80,57 @@ namespace Sokan.Yastah.Api.Authentication
             return Task.CompletedTask;
         }
 
-        public static Task OnTokenValidated(TokenValidatedContext context)
+        public static async Task OnTokenValidated(TokenValidatedContext context)
         {
             var jwtSecurityToken = (JwtSecurityToken)context.SecurityToken;
 
-            var ticket = new AuthenticationTicket(
-                userId: ((string)jwtSecurityToken.Payload["nameid"])
-                    .ParseUInt64(),
-                username: (string)jwtSecurityToken.Payload["unique_name"],
-                discriminator: (string)jwtSecurityToken.Payload[ApiAuthenticationDefaults.DiscriminatorClaimType],
-                avatarHash: (string)jwtSecurityToken.Payload[ApiAuthenticationDefaults.AvatarHashClaimType],
-                grantedPermissions: ((JObject)jwtSecurityToken.Payload[ApiAuthenticationDefaults.PermissionsClaimType])
-                    .ToObject<Dictionary<int, string>>());
+            var ticketId = (long)jwtSecurityToken.Payload[ApiAuthenticationDefaults.TicketIdClaimType];
 
-            context.HttpContext.RequestServices
+            var ticket = await context.HttpContext.RequestServices
                 .GetRequiredService<IAuthenticationService>()
-                .OnAuthenticated(ticket);
+                .OnAuthenticatedAsync(
+                    ticketId: ticketId,
+                    userId: ((string)jwtSecurityToken.Payload["nameid"])
+                        .ParseUInt64(),
+                    username: (string)jwtSecurityToken.Payload["unique_name"],
+                    discriminator: (string)jwtSecurityToken.Payload[ApiAuthenticationDefaults.DiscriminatorClaimType],
+                    avatarHash: (string)jwtSecurityToken.Payload[ApiAuthenticationDefaults.AvatarHashClaimType],
+                    grantedPermissions: ((JObject)jwtSecurityToken.Payload[ApiAuthenticationDefaults.PermissionsClaimType])
+                        .ToObject<Dictionary<int, string>>(),
+                    context.HttpContext.RequestAborted);
 
-            var options = context.HttpContext.RequestServices.GetRequiredService<IOptions<ApiAuthenticationOptions>>().Value;
-            var now = context.HttpContext.RequestServices.GetRequiredService<ISystemClock>().UtcNow;
-            return ((now - jwtSecurityToken.ValidFrom) > options.TokenRefreshInterval)
-                ? context.HttpContext.SignInAsync(ApiAuthenticationDefaults.AuthenticationScheme, context.Principal)
-                : Task.CompletedTask;
+            var renewSignIn = ticket.Id != ticketId;
+
+            if(!renewSignIn)
+            {
+                var options = context.HttpContext.RequestServices.GetRequiredService<IOptions<ApiAuthenticationOptions>>().Value;
+                var now = context.HttpContext.RequestServices.GetRequiredService<ISystemClock>().UtcNow;
+
+                renewSignIn = (now - jwtSecurityToken.ValidFrom) > options.TokenRefreshInterval;
+            }
+
+            if (renewSignIn)
+            {
+                var identity = context.Principal.Identities.First();
+                identity.RemoveClaim(identity.FindFirst(ApiAuthenticationDefaults.TicketIdClaimType));
+                identity.AddClaim(new Claim(
+                    ApiAuthenticationDefaults.TicketIdClaimType,
+                    ticket.Id.ToString(),
+                    ClaimValueTypes.Integer64));
+
+                await context.HttpContext.SignInAsync(ApiAuthenticationDefaults.AuthenticationScheme, context.Principal);
+            }
         }
 
-        private static async Task<IEnumerable<ulong>> GetGuildIds(OAuthCreatingTicketContext context)
+        private static async Task<IEnumerable<ulong>> GetGuildIds(
+            OAuthCreatingTicketContext context,
+            CancellationToken cancellationToken)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint + "/guilds");
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
 
-            var response = await context.Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
+            var response = await context.Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
                 throw new HttpRequestException("An error occurred while retrieving user guild information.");

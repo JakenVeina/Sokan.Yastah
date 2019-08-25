@@ -11,7 +11,7 @@ namespace Sokan.Yastah.Data.Users
 
         public int PermissionId { get; internal set; }
 
-        public bool isDenied { get; internal set; }
+        public bool IsDenied { get; internal set; }
 
         internal static readonly Expression<Func<UserPermissionMappingEntity, UserPermissionMappingIdentity>> FromEntityProjection
             = e => new UserPermissionMappingIdentity()
@@ -19,7 +19,7 @@ namespace Sokan.Yastah.Data.Users
                 Id = e.Id,
                 UserId = e.UserId,
                 PermissionId = e.PermissionId,
-                isDenied = e.IsDenied
+                IsDenied = e.IsDenied
             };
     }
 }

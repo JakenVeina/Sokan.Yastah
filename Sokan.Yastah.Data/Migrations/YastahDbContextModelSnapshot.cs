@@ -117,6 +117,28 @@ namespace Sokan.Yastah.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Sokan.Yastah.Data.Authentication.AuthenticationTicketEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<long>("CreationId");
+
+                    b.Property<long?>("DeletionId");
+
+                    b.Property<long>("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreationId");
+
+                    b.HasIndex("DeletionId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AuthenticationTickets","Authentication");
+                });
+
             modelBuilder.Entity("Sokan.Yastah.Data.Permissions.PermissionCategoryEntity", b =>
                 {
                     b.Property<int>("Id");
@@ -392,6 +414,23 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionCategoryEntity", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Sokan.Yastah.Data.Authentication.AuthenticationTicketEntity", b =>
+                {
+                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
+                        .WithMany()
+                        .HasForeignKey("CreationId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Deletion")
+                        .WithMany()
+                        .HasForeignKey("DeletionId");
+
+                    b.HasOne("Sokan.Yastah.Data.Users.UserEntity", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
