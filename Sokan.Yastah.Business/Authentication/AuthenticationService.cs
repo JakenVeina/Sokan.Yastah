@@ -187,12 +187,12 @@ namespace Sokan.Yastah.Business.Authentication
                 var activeTicketIdResult = await _authenticationRepository.ReadActiveTicketId(userId, cancellationToken);
 
                 if (activeTicketIdResult.IsSuccess)
-                    await _authenticationRepository.DeleteAsync(
+                    await _authenticationRepository.DeleteTicketAsync(
                         activeTicketIdResult.Value,
                         actionId,
                         cancellationToken);
 
-                var newTicketId = await _authenticationRepository.CreateAsync(
+                var newTicketId = await _authenticationRepository.CreateTicketAsync(
                     userId,
                     actionId,
                     cancellationToken);

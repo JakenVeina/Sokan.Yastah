@@ -14,12 +14,12 @@ namespace Sokan.Yastah.Data.Authentication
 {
     public interface IAuthenticationRepository
     {
-        Task<long> CreateAsync(
+        Task<long> CreateTicketAsync(
             ulong userId,
             long actionId,
             CancellationToken cancellationToken);
 
-        Task<OperationResult> DeleteAsync(
+        Task<OperationResult> DeleteTicketAsync(
             long ticketId,
             long actionId,
             CancellationToken cancellationToken);
@@ -42,7 +42,7 @@ namespace Sokan.Yastah.Data.Authentication
             _context = context;
         }
 
-        public async Task<long> CreateAsync(
+        public async Task<long> CreateTicketAsync(
             ulong userId,
             long actionId,
             CancellationToken cancellationToken)
@@ -59,7 +59,7 @@ namespace Sokan.Yastah.Data.Authentication
             return ticket.Id;
         }
 
-        public async Task<OperationResult> DeleteAsync(
+        public async Task<OperationResult> DeleteTicketAsync(
             long ticketId,
             long actionId,
             CancellationToken cancellationToken)
