@@ -127,7 +127,7 @@ namespace Sokan.Yastah.Business.Users
                 if(result.RowsInserted > 0)
                 {
                     var actionId = await _administrationActionsRepository.CreateAsync(
-                        (int)UserManagementAdministrationActionType.UserInitialization,
+                        (int)UserManagementAdministrationActionType.UserCreated,
                         now,
                         userId,
                         cancellationToken);
@@ -175,7 +175,7 @@ namespace Sokan.Yastah.Business.Users
                 var now = _systemClock.UtcNow;
 
                 var actionId = await _administrationActionsRepository.CreateAsync(
-                    (int)UserManagementAdministrationActionType.UserInitialization,
+                    (int)UserManagementAdministrationActionType.UserModified,
                     now,
                     performedById,
                     cancellationToken);

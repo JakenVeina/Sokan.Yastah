@@ -10,7 +10,7 @@ using Sokan.Yastah.Data;
 namespace Sokan.Yastah.Data.Migrations
 {
     [DbContext(typeof(YastahDbContext))]
-    [Migration("20190820042123_Initial")]
+    [Migration("20190826042219_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -91,7 +91,13 @@ namespace Sokan.Yastah.Data.Migrations
                         {
                             Id = 20,
                             CategoryId = 2,
-                            Name = "UserInitialization"
+                            Name = "UserCreated"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            CategoryId = 2,
+                            Name = "UserModified"
                         },
                         new
                         {

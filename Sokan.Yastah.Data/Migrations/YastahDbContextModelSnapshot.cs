@@ -89,7 +89,13 @@ namespace Sokan.Yastah.Data.Migrations
                         {
                             Id = 20,
                             CategoryId = 2,
-                            Name = "UserInitialization"
+                            Name = "UserCreated"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            CategoryId = 2,
+                            Name = "UserModified"
                         },
                         new
                         {

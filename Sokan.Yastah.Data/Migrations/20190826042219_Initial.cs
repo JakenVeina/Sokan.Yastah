@@ -473,7 +473,8 @@ namespace Sokan.Yastah.Data.Migrations
                     { 2, 1, "RoleModified" },
                     { 3, 1, "RoleDeleted" },
                     { 4, 1, "RoleRestored" },
-                    { 20, 2, "UserInitialization" }
+                    { 20, 2, "UserCreated" },
+                    { 21, 2, "UserModified" }
                 });
 
             migrationBuilder.InsertData(
