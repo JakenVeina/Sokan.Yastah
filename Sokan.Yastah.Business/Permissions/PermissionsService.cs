@@ -13,6 +13,9 @@ namespace Sokan.Yastah.Business.Permissions
 {
     public interface IPermissionsService
     {
+        ValueTask<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>> GetDescriptionsAsync(
+            CancellationToken cancellationToken);
+
         ValueTask<IReadOnlyCollection<PermissionIdentity>> GetIdentitiesAsync(
             CancellationToken cancellationToken);
     }
@@ -28,6 +31,15 @@ namespace Sokan.Yastah.Business.Permissions
             _permissionsRepository = permissionsRepository;
         }
 
+        public ValueTask<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>> GetDescriptionsAsync(
+                CancellationToken cancellationToken)
+            => _memoryCache.GetOrCreateLongTermAsync(_getDescriptionsCacheKey, entry =>
+            {
+                entry.Priority = CacheItemPriority.NeverRemove;
+
+                return _permissionsRepository.ReadDescriptionsAsync(cancellationToken);
+            });
+
         public ValueTask<IReadOnlyCollection<PermissionIdentity>> GetIdentitiesAsync(
                 CancellationToken cancellationToken)
             => _memoryCache.GetOrCreateLongTermAsync(_getIdentitiesCacheKey, entry =>
@@ -39,6 +51,9 @@ namespace Sokan.Yastah.Business.Permissions
 
         private readonly IMemoryCache _memoryCache;
         private readonly IPermissionsRepository _permissionsRepository;
+
+        private const string _getDescriptionsCacheKey
+            = nameof(PermissionsService) + "." + nameof(GetDescriptionsAsync);
 
         private const string _getIdentitiesCacheKey
             = nameof(PermissionsService) + "." + nameof(GetIdentitiesAsync);

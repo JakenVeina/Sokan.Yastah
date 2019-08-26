@@ -15,7 +15,7 @@ namespace Sokan.Yastah.Business.Permissions
 {
     public interface IPermissionsOperations
     {
-        Task<OperationResult<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>>> GetDescriptionsAsync(
+        ValueTask<OperationResult<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>>> GetDescriptionsAsync(
             CancellationToken cancellationToken);
     }
 
@@ -24,27 +24,27 @@ namespace Sokan.Yastah.Business.Permissions
     {
         public PermissionsOperations(
             IAuthorizationService authorizationService,
-            IPermissionsRepository permissionsRepository)
+            IPermissionsService permissionsService)
         {
             _authorizationService = authorizationService;
-            _permissionsRepository = permissionsRepository;
+            _permissionsService = permissionsService;
         }
 
-        public async Task<OperationResult<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>>> GetDescriptionsAsync(
+        public async ValueTask<OperationResult<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>>> GetDescriptionsAsync(
             CancellationToken cancellationToken)
         {
             var authResult = await _authorizationService.RequirePermissionsAsync(
                 cancellationToken,
                 (int)AdministrationPermission.ManagePermissions);
 
-            return (authResult.IsFailure)
+            return authResult.IsFailure
                 ? authResult.Error.ToError<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>>()
-                : (await _permissionsRepository.ReadDescriptionsAsync(cancellationToken))
+                : (await _permissionsService.GetDescriptionsAsync(cancellationToken))
                     .ToSuccess();
         }
 
         private readonly IAuthorizationService _authorizationService;
-        private readonly IPermissionsRepository _permissionsRepository;
+        private readonly IPermissionsService _permissionsService;
 
         [OnConfigureServices]
         public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
