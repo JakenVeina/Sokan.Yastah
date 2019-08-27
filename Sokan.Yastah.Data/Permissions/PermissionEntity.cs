@@ -9,6 +9,7 @@ namespace Sokan.Yastah.Data.Permissions
     internal class PermissionEntity
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int PermissionId { get; set; }
 
         [ForeignKey(nameof(Category))]

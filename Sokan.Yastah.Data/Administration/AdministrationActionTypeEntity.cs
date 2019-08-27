@@ -8,6 +8,7 @@ namespace Sokan.Yastah.Data.Administration
     internal class AdministrationActionTypeEntity
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
         [ForeignKey(nameof(Category))]

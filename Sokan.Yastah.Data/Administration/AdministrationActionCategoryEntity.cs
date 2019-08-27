@@ -9,6 +9,7 @@ namespace Sokan.Yastah.Data.Administration
     internal class AdministrationActionCategoryEntity
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
         [Required]

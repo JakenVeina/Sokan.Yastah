@@ -11,6 +11,7 @@ namespace Sokan.Yastah.Data.Users
     internal class UserEntity
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public ulong Id { get; set; }
 
         [Required]
