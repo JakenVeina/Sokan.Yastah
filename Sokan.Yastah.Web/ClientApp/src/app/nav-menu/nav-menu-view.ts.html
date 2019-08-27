@@ -2,28 +2,28 @@
     <nav>
         <h4>Yastah Game Portal</h4>
         <hr />
-        <div *ngIf="isAuthenticated" class="menu-item">
-            <img src="{{avatarUri}}" width="32" height="32" />
-            <h5>{{userName}}</h5>
+        <div *ngIf="isAuthenticated | async" class="menu-item">
+            <img src="{{avatarUri | async}}" width="32" height="32" />
+            <h5>{{username | async}}</h5>
             <h6><a href="{{signoutUri}}">(Logout)</a></h6>
         </div>
-        <hr *ngIf="isAuthenticated"/>
+        <hr *ngIf="isAuthenticated | async"/>
         <ul>
-            <li *ngIf="hasHome" class="menu-item">
+            <li *ngIf="hasHome | async" class="menu-item">
                 <span class="material-icons">home</span>
                 <h5><a [routerLink]="['/']">Home</a></h5>
             </li>
-            <li *ngIf="hasAdmin" class="menu-item">
+            <li *ngIf="hasAdmin | async" class="menu-item">
                 <span class="material-icons">security</span>
                 <h5><a (click)="adminSubmenu.hidden = !adminSubmenu.hidden">Administration</a></h5>
             </li>
             <li #adminSubmenu hidden class="menu-item">
                 <ul>
-                    <li *ngIf="hasAdminRoles" class="menu-item">
+                    <li *ngIf="hasAdminRoles | async" class="menu-item">
                         <span class="material-icons">people</span>
                         <h5><a [routerLink]="['/admin/roles']">Roles</a></h5>
                     </li>
-                    <li *ngIf="hasAdminUsers" class="menu-item">
+                    <li *ngIf="hasAdminUsers | async" class="menu-item">
                         <span class="material-icons">person</span>
                         <h5><a [routerLink]="['/admin/users']">Users</a></h5>
                     </li>

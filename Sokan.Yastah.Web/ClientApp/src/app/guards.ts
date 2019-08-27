@@ -1,5 +1,6 @@
 ﻿import { Injectable } from "@angular/core";
 import { CanActivate } from "@angular/router";
+import { Observable } from "rxjs";
 
 import { AuthorizationService } from "./authorization/authorization-service";
 
@@ -13,7 +14,7 @@ export class PortalGuard
         this._authorizationService = authorizationService;
     }
 
-    public canActivate(): boolean {
+    public canActivate(): Observable<boolean> {
         return this._authorizationService.hasAnyPermissions;
     }
 
