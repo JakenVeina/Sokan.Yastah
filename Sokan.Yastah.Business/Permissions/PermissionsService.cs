@@ -33,7 +33,7 @@ namespace Sokan.Yastah.Business.Permissions
 
         public ValueTask<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>> GetDescriptionsAsync(
                 CancellationToken cancellationToken)
-            => _memoryCache.GetOrCreateLongTermAsync(_getDescriptionsCacheKey, entry =>
+            => _memoryCache.OptimisticGetOrCreateAsync(_getDescriptionsCacheKey, entry =>
             {
                 entry.Priority = CacheItemPriority.NeverRemove;
 
@@ -42,7 +42,7 @@ namespace Sokan.Yastah.Business.Permissions
 
         public ValueTask<IReadOnlyCollection<PermissionIdentity>> GetIdentitiesAsync(
                 CancellationToken cancellationToken)
-            => _memoryCache.GetOrCreateLongTermAsync(_getIdentitiesCacheKey, entry =>
+            => _memoryCache.OptimisticGetOrCreateAsync(_getIdentitiesCacheKey, entry =>
             {
                 entry.Priority = CacheItemPriority.NeverRemove;
 

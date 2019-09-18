@@ -95,7 +95,7 @@ namespace Sokan.Yastah.Business.Users
         public ValueTask<IReadOnlyCollection<ulong>> GetRoleMemberIdsAsync(
                 long roleId,
                 CancellationToken cancellationToken)
-            => _memoryCache.GetOrCreateLongTermAsync(MakeRoleMemberIdsCacheKey(roleId), entry =>
+            => _memoryCache.OptimisticGetOrCreateAsync(MakeRoleMemberIdsCacheKey(roleId), entry =>
             {
                 entry.Priority = CacheItemPriority.High;
 

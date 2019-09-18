@@ -1,11 +1,13 @@
-﻿namespace Sokan.Yastah.Common.OperationModel
+﻿using System;
+
+namespace Sokan.Yastah.Common.OperationModel
 {
     public class OperationErrorBase
         : IOperationError
     {
         protected OperationErrorBase(string message)
         {
-            _message = message;
+            _message = message ?? throw new ArgumentNullException(nameof(message));
         }
 
         public string Code

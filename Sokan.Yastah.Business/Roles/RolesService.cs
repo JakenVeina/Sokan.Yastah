@@ -135,7 +135,7 @@ namespace Sokan.Yastah.Business.Roles
 
         public ValueTask<IReadOnlyCollection<RoleIdentityViewModel>> GetCurrentIdentitiesAsync(
                 CancellationToken cancellationToken)
-            => _memoryCache.GetOrCreateLongTermAsync(_getCurrentIdentitiesCacheKey, entry =>
+            => _memoryCache.OptimisticGetOrCreateAsync(_getCurrentIdentitiesCacheKey, entry =>
             {
                 entry.Priority = CacheItemPriority.High;
 

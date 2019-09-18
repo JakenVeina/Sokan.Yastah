@@ -170,7 +170,7 @@ namespace Sokan.Yastah.Business.Authentication
         private ValueTask<long> GetActiveTicketId(
                 ulong userId,
                 CancellationToken cancellationToken)
-            => _memoryCache.GetOrCreateLongTermAsync(MakeUserActiveTicketIdCacheKey(userId), async entry =>
+            => _memoryCache.OptimisticGetOrCreateAsync(MakeUserActiveTicketIdCacheKey(userId), async entry =>
             {
                 entry.Priority = CacheItemPriority.High;
 

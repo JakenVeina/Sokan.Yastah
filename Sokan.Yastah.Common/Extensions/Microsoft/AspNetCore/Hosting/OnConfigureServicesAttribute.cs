@@ -9,7 +9,7 @@ namespace Microsoft.AspNetCore.Hosting
     public sealed class OnConfigureServicesAttribute
         : Attribute
     {
-        public static IEnumerable<ConfigureServicesHandler> EnumeratedAttachedMethods(Assembly assembly)
+        public static IEnumerable<ConfigureServicesHandler> EnumerateAttachedMethods(Assembly assembly)
             => assembly
                 .DefinedTypes
                 .SelectMany(x => x.DeclaredMethods)

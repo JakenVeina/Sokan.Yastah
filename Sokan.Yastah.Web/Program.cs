@@ -1,4 +1,5 @@
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Hosting;
@@ -47,7 +48,7 @@ namespace Sokan.Yastah.Host
                 .Build();
 
             await webHost.Services
-                .HandleStartupAsync();
+                .HandleStartupAsync(CancellationToken.None);
 
             await webHost
                 .RunAsync();

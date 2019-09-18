@@ -8,7 +8,12 @@ namespace Sokan.Yastah.Common.OperationModel
             = new OperationResult(null);
 
         public static OperationResult FromError(IOperationError error)
-            => new OperationResult(error);
+        {
+            if (error is null)
+                throw new ArgumentNullException(nameof(error));
+
+            return new OperationResult(error);
+        }
 
         public static OperationResult<T> FromError<T>(IOperationError error)
             => OperationResult<T>.FromError(error);

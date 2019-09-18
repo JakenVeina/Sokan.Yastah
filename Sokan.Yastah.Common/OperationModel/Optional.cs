@@ -5,7 +5,7 @@ namespace Sokan.Yastah.Common.OperationModel
     public struct Optional<T>
     {
         public static readonly Optional<T> Unspecified
-            = new Optional<T>();
+            = new Optional<T>(false, default);
 
         public static Optional<T> FromValue(T value)
             => new Optional<T>(true, value);

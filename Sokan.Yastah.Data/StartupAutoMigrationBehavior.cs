@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -16,8 +17,8 @@ namespace Sokan.Yastah.Data
             _yastahDbContext = yastahDbContext;
         }
 
-        public Task OnStartupAsync()
-            => _yastahDbContext.Database.MigrateAsync();
+        public Task OnStartupAsync(CancellationToken cancellationToken)
+            => _yastahDbContext.Database.MigrateAsync(cancellationToken);
 
         private readonly YastahDbContext _yastahDbContext;
 

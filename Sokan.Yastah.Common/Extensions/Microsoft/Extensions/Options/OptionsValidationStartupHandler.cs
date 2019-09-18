@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Hosting;
@@ -15,7 +16,7 @@ namespace Microsoft.Extensions.Options
             _serviceProvider = serviceProvider;
         }
 
-        public Task OnStartupAsync()
+        public Task OnStartupAsync(CancellationToken cancellationToken)
         {
             _serviceProvider.GetRequiredService<IOptions<TOptions>>();
 

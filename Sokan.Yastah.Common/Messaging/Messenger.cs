@@ -25,11 +25,15 @@ namespace Sokan.Yastah.Common.Messaging
             _serviceProvider = serviceProvider;
         }
 
-        public Task PublishNotificationAsync<TNotification>(
+        public async Task PublishNotificationAsync<TNotification>(
                 TNotification notification,
                 CancellationToken cancellationToken)
-            => Task.WhenAll(_serviceProvider.GetServices<INotificationHandler<TNotification>>()
-                .Select(handler => handler.OnNotificationPublishedAsync(notification, cancellationToken)));
+        {
+            var handlers = _serviceProvider.GetServices<INotificationHandler<TNotification>>();
+
+            foreach (var handler in handlers)
+                await handler.OnNotificationPublishedAsync(notification, cancellationToken);
+        }
 
         private readonly IServiceProvider _serviceProvider;
 

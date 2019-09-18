@@ -10,7 +10,7 @@ namespace Microsoft.AspNetCore.Hosting
         public static IServiceCollection AddAssembly(this IServiceCollection services, Assembly assembly, IConfiguration configuration)
         {
             var handlers = OnConfigureServicesAttribute
-                .EnumeratedAttachedMethods(assembly);
+                .EnumerateAttachedMethods(assembly);
 
             foreach (var handler in handlers)
                 handler.Invoke(services, configuration);
