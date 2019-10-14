@@ -21,15 +21,15 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.AspNetCore.Hosting
             = new[]
             {
                 new TestCaseData(0)
-                    .SetName("{m}: 0 Startup Handlers"),
+                    .SetName("{m}(0 Startup Handlers)"),
                 new TestCaseData(1)
-                    .SetName("{m}: 1 Startup Handler"),
+                    .SetName("{m}(1 Startup Handler)"),
                 new TestCaseData(5)
-                    .SetName("{m}: 5 Startup Handlers")
+                    .SetName("{m}(5 Startup Handlers)")
             };
 
         public class TestContext
-            : AsyncMethodTestContextBase
+            : AsyncMethodTestContext
         {
             public TestContext(int startupHandlerCount)
             {

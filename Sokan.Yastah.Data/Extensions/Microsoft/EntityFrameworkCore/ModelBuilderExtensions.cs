@@ -4,10 +4,10 @@ namespace Microsoft.EntityFrameworkCore
 {
     public static class ModelBuilderExtensions
     {
-        public static ModelBuilder ApplyConfiguration(this ModelBuilder modelBuilder, Assembly assembly)
+        public static ModelBuilder ApplyAssembly(this ModelBuilder modelBuilder, Assembly assembly)
         {
             var handlers = OnModelCreatingAttribute
-                .EnumeratedAttachedMethods(assembly);
+                .EnumerateAttachedMethods(assembly);
 
             foreach (var handler in handlers)
                 handler.Invoke(modelBuilder);

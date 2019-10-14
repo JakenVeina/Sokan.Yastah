@@ -19,13 +19,13 @@ namespace Sokan.Yastah.Common.Test.Extensions.System
             = new[]
             {
                 new TestCaseData(typeof(TestEnum1))
-                    .SetName("{m}: Enum with no values"),
+                    .SetName("{m}(Enum with no values)"),
                 new TestCaseData(typeof(TestEnum2))
-                    .SetName("{m}: Enum with single value"),
+                    .SetName("{m}(Enum with single value)"),
                 new TestCaseData(typeof(TestEnum3))
-                    .SetName("{m}: Enum with many values"),
+                    .SetName("{m}(Enum with many values)"),
                 new TestCaseData(typeof(TestEnum4))
-                    .SetName("{m}: Enum with missing Description")
+                    .SetName("{m}(Enum with missing Description)")
             };
 
         public enum TestEnum1 { }

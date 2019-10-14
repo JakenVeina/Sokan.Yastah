@@ -20,15 +20,15 @@ namespace Sokan.Yastah.Common.Test.Messaging
             = new[]
             {
                 new TestCaseData(new TestContext(0))
-                    .SetName("{m}: 0 Notification Handlers"),
+                    .SetName("{m}(0 Notification Handlers)"),
                 new TestCaseData(new TestContext(1))
-                    .SetName("{m}: 1 Notification Handler"),
+                    .SetName("{m}(1 Notification Handler)"),
                 new TestCaseData(new TestContext(5))
-                    .SetName("{m}: 5 Notification Handlers")
+                    .SetName("{m}(5 Notification Handlers)")
             };
 
         public class TestContext
-            : AsyncMethodTestContextBase
+            : AsyncMethodTestContext
         {
             public TestContext(int notificationHandlerCount)
             {
@@ -57,7 +57,7 @@ namespace Sokan.Yastah.Common.Test.Messaging
 
         #endregion Test Cases
 
-            #region PublishNotificationAsync() Tests
+        #region PublishNotificationAsync() Tests
 
         [TestCaseSource(nameof(TestContextTestCaseData))]
         public async Task PublishNotificationAsync_Always_PublishesNotificationToEachHandler(

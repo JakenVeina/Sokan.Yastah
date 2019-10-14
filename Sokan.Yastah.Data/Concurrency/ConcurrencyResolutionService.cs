@@ -13,7 +13,7 @@ namespace Sokan.Yastah.Data.Concurrency
 {
     public interface IConcurrencyResolutionService
     {
-        Task SaveConcurrentChangesAsync(DbContext dbContext, CancellationToken cancellationToken);
+        Task HandleExceptionAsync(DbUpdateConcurrencyException exception, CancellationToken cancellationToken);
     }
 
     public class ConcurrencyResolutionService
@@ -25,35 +25,22 @@ namespace Sokan.Yastah.Data.Concurrency
             _serviceProvider = serviceProvider;
         }
 
-        public async Task SaveConcurrentChangesAsync(DbContext dbContext, CancellationToken cancellationToken)
+        // For the record, don't even bother trying to Unit Test this. DbUpdateConcurrencyException is not mockable.
+        // Layers upon layers of non-mockable dependencies, plus polymorphism abuse, just for extra fun
+        // (E.G. if you try and use an IEntityType that isn't EntityType, you get an exception)
+        public async Task HandleExceptionAsync(DbUpdateConcurrencyException exception, CancellationToken cancellationToken)
         {
-            // This seems dangerous, but simply serves to handle additional updates being performed to the entity while we are calculating the resolution.
-            // Because we manually overwrite OriginalValues with DatabaseValues below, after the resolution, the only way the next call to SaveChangesAsync()
-            // can fails is if an additional concurrent update occurs.
-            var success = false;
-            while(!success)
+            foreach (var entry in exception.Entries)
             {
-                try
-                {
-                    await dbContext
-                        .SaveChangesAsync(cancellationToken);
-                    success = true;
-                }
-                catch (DbUpdateConcurrencyException ex)
-                {
-                    foreach (var entry in ex.Entries)
-                    {
-                        var tEntity = entry.Entity.GetType();
-                        var originalValues = entry.OriginalValues;
-                        var currentValues = await entry.GetDatabaseValuesAsync();
-                        var proposedValues = entry.CurrentValues;
+                var tEntity = entry.Entity.GetType();
+                var originalValues = entry.OriginalValues;
+                var currentValues = await entry.GetDatabaseValuesAsync();
+                var proposedValues = entry.CurrentValues;
 
-                        if (HandleEntry(tEntity, originalValues, currentValues, proposedValues).IsUnhandled)
-                            throw new InvalidOperationException($"Concurrency exception for entity type {entry.Entity.GetType()} was unhandled", ex);
+                if (HandleEntry(tEntity, originalValues, currentValues, proposedValues).IsUnhandled)
+                    throw new InvalidOperationException($"Concurrency exception for entity type {entry.Entity.GetType()} was unhandled", exception);
 
-                        entry.OriginalValues.SetValues(currentValues);
-                    }
-                }
+                entry.OriginalValues.SetValues(currentValues);
             }
         }
 

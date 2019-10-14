@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.3.0" />
+    <PackageReference Include="MockQueryable.Moq" Version="1.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sokan.Yastah.Common.Test\Sokan.Yastah.Common.Test.csproj" />
+    <ProjectReference Include="..\Sokan.Yastah.Data\Sokan.Yastah.Data.csproj" />
+  </ItemGroup>
+
+</Project>

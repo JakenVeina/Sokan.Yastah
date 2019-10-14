@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore
     public sealed class OnModelCreatingAttribute
         : Attribute
     {
-        public static IEnumerable<Action<ModelBuilder>> EnumeratedAttachedMethods(Assembly assembly)
+        public static IEnumerable<Action<ModelBuilder>> EnumerateAttachedMethods(Assembly assembly)
             => assembly
                 .DefinedTypes
                 .SelectMany(x => x.DeclaredMethods)

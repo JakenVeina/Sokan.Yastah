@@ -12,37 +12,37 @@ using Sokan.Yastah.Common.OperationModel;
 
 namespace Sokan.Yastah.Data.Authentication
 {
-    public interface IAuthenticationRepository
+    public interface IAuthenticationTicketsRepository
     {
-        Task<long> CreateTicketAsync(
+        Task<long> CreateAsync(
             ulong userId,
             long actionId,
             CancellationToken cancellationToken);
 
-        Task<OperationResult> DeleteTicketAsync(
+        Task<OperationResult> DeleteAsync(
             long ticketId,
             long actionId,
             CancellationToken cancellationToken);
 
-        Task<OperationResult<long>> ReadActiveTicketId(
+        Task<OperationResult<long>> ReadActiveIdAsync(
             ulong userId,
             CancellationToken cancellationToken);
 
-        Task<IReadOnlyCollection<AuthenticationTicketIdentity>> ReadTicketIdentities(
+        Task<IReadOnlyCollection<AuthenticationTicketIdentity>> ReadIdentitiesAsync(
             CancellationToken cancellationToken,
             Optional<bool> isDeleted = default);
     }
 
-    public class AuthenticationRepository
-        : IAuthenticationRepository
+    public class AuthenticationTicketsRepository
+        : IAuthenticationTicketsRepository
     {
-        public AuthenticationRepository(
+        public AuthenticationTicketsRepository(
             YastahDbContext context)
         {
             _context = context;
         }
 
-        public async Task<long> CreateTicketAsync(
+        public async Task<long> CreateAsync(
             ulong userId,
             long actionId,
             CancellationToken cancellationToken)
@@ -59,13 +59,13 @@ namespace Sokan.Yastah.Data.Authentication
             return ticket.Id;
         }
 
-        public async Task<OperationResult> DeleteTicketAsync(
+        public async Task<OperationResult> DeleteAsync(
             long ticketId,
             long actionId,
             CancellationToken cancellationToken)
         {
-            var ticket = await _context.Set<AuthenticationTicketEntity>()
-                .FindAsync(new object[] { ticketId }, cancellationToken);
+            var ticket = await _context
+                .FindAsync<AuthenticationTicketEntity>(new object[] { ticketId }, cancellationToken);
 
             if (ticket is null)
                 return new DataNotFoundError($"Authentication Ticket ID {ticketId}")
@@ -82,7 +82,7 @@ namespace Sokan.Yastah.Data.Authentication
             return OperationResult.Success;
         }
 
-        public async Task<OperationResult<long>> ReadActiveTicketId(
+        public async Task<OperationResult<long>> ReadActiveIdAsync(
                 ulong userId,
                 CancellationToken cancellationToken)
         {
@@ -97,7 +97,7 @@ namespace Sokan.Yastah.Data.Authentication
                 : id.Value.ToSuccess();
         }
 
-        public async Task<IReadOnlyCollection<AuthenticationTicketIdentity>> ReadTicketIdentities(
+        public async Task<IReadOnlyCollection<AuthenticationTicketIdentity>> ReadIdentitiesAsync(
             CancellationToken cancellationToken,
             Optional<bool> isDeleted = default)
         {
@@ -118,6 +118,6 @@ namespace Sokan.Yastah.Data.Authentication
 
         [OnConfigureServices]
         public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
-            => services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
+            => services.AddScoped<IAuthenticationTicketsRepository, AuthenticationTicketsRepository>();
     }
 }

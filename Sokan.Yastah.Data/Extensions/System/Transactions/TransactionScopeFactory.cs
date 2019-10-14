@@ -16,22 +16,27 @@ namespace System.Transactions
         public ITransactionScope CreateScope(
                 IsolationLevel? isolationLevel = default)
             => new TransactionScopeWrapper(
-                new TransactionScope(
-                    scopeOption: TransactionScopeOption.Required,
-                    transactionOptions: new TransactionOptions()
-                    {
-                        IsolationLevel = isolationLevel ?? IsolationLevel.ReadCommitted,
-                        Timeout = TimeSpan.FromSeconds(30)
-                    },
-                    asyncFlowOption: TransactionScopeAsyncFlowOption.Enabled));
+                new TransactionOptions()
+                {
+                    IsolationLevel = isolationLevel ?? IsolationLevel.ReadCommitted,
+                    Timeout = TimeSpan.FromSeconds(30)
+                });
 
         private class TransactionScopeWrapper
             : ITransactionScope
         {
-            public TransactionScopeWrapper(TransactionScope scope)
+            public TransactionScopeWrapper(
+                TransactionOptions options)
             {
-                _scope = scope;
+                _options = options;
+                _scope = new TransactionScope(
+                    scopeOption: TransactionScopeOption.Required,
+                    transactionOptions: options,
+                    asyncFlowOption: TransactionScopeAsyncFlowOption.Enabled);
             }
+
+            public TransactionOptions Options
+                => _options;
 
             public void Complete()
                 => _scope.Complete();
@@ -39,6 +44,7 @@ namespace System.Transactions
             public void Dispose()
                 => _scope.Dispose();
 
+            private readonly TransactionOptions _options;
             private readonly TransactionScope _scope;
         }
 

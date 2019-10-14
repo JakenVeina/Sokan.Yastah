@@ -18,7 +18,7 @@ namespace Sokan.Yastah.Data.Roles
     {
         Task<bool> AnyVersionsAsync(
             CancellationToken cancellationToken,
-            Optional<IEnumerable<long>> excludeRoleIds = default,
+            Optional<IEnumerable<long>> excludedRoleIds = default,
             Optional<string> name = default,
             Optional<bool> isDeleted = default,
             Optional<bool> isLatestVersion = default);
@@ -74,7 +74,7 @@ namespace Sokan.Yastah.Data.Roles
 
         public Task<bool> AnyVersionsAsync(
             CancellationToken cancellationToken,
-            Optional<IEnumerable<long>> excludRoleeIds = default,
+            Optional<IEnumerable<long>> excludedRoleIds = default,
             Optional<string> name = default,
             Optional<bool> isDeleted = default,
             Optional<bool> isLatestVersion = default)
@@ -82,8 +82,8 @@ namespace Sokan.Yastah.Data.Roles
             var query = _context.Set<RoleVersionEntity>()
                 .AsQueryable();
 
-            if (excludRoleeIds.IsSpecified)
-                query = query.Where(x => !excludRoleeIds.Value.Contains(x.RoleId));
+            if (excludedRoleIds.IsSpecified)
+                query = query.Where(x => !excludedRoleIds.Value.Contains(x.RoleId));
 
             if (name.IsSpecified)
                 query = query.Where(x => x.Name == name.Value);
@@ -145,7 +145,6 @@ namespace Sokan.Yastah.Data.Roles
             CancellationToken cancellationToken,
             long roleId,
             Optional<bool> isDeleted = default)
-            
         {
             var query = _context.Set<RoleVersionEntity>()
                 .Where(x => x.NextVersionId == null)
@@ -165,7 +164,6 @@ namespace Sokan.Yastah.Data.Roles
 
         public async Task<IReadOnlyCollection<RoleIdentityViewModel>> ReadIdentitiesAsync(
                 CancellationToken cancellationToken,
-
                 Optional<bool> isDeleted = default)
         {
             var query = _context.Set<RoleVersionEntity>()

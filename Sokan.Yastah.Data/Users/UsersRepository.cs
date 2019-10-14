@@ -11,7 +11,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using Sokan.Yastah.Data.Permissions;
-using Sokan.Yastah.Data.Concurrency;
 using Sokan.Yastah.Data.Roles;
 using Sokan.Yastah.Common.OperationModel;
 
@@ -45,7 +44,6 @@ namespace Sokan.Yastah.Data.Users
             DateTimeOffset lastSeen,
             CancellationToken cancellationToken);
 
-        // TODO: try combining GetDefaultRoleIds and GetDefaultPermissionIds into one query
         Task<IReadOnlyList<long>> ReadDefaultRoleIdsAsync(
             CancellationToken cancellationToken);
 
@@ -92,11 +90,9 @@ namespace Sokan.Yastah.Data.Users
         : IUsersRepository
     {
         public UsersRepository(
-            IConcurrencyResolutionService concurrencyResolutionService,
             YastahDbContext context,
             ITransactionScopeFactory transactionScopeFactory)
         {
-            _concurrencyResolutionService = concurrencyResolutionService;
             _context = context;
             _transactionScopeFactory = transactionScopeFactory;
         }
@@ -128,7 +124,8 @@ namespace Sokan.Yastah.Data.Users
                     PermissionId = permissionId,
                     IsDenied = type == PermissionMappingType.Denied,
                     CreationId = actionId
-                });
+                })
+                .ToArray();
 
             await _context.AddRangeAsync(entities, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
@@ -150,7 +147,8 @@ namespace Sokan.Yastah.Data.Users
                     UserId = userId,
                     RoleId = roleId,
                     CreationId = actionId
-                });
+                })
+                .ToArray();
 
             await _context.AddRangeAsync(entities, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
@@ -174,8 +172,7 @@ namespace Sokan.Yastah.Data.Users
                 var result = MergeResult.SingleUpdate;
 
                 var entity = await _context
-                    .Set<UserEntity>()
-                    .FindAsync(new object[] { id }, cancellationToken);
+                    .FindAsync<UserEntity>(new object[] { id }, cancellationToken);
 
                 if (entity is null)
                 {
@@ -187,9 +184,7 @@ namespace Sokan.Yastah.Data.Users
                         FirstSeen = firstSeen
                     };
 
-                    await _context
-                        .Set<UserEntity>()
-                        .AddAsync(entity);
+                    await _context.AddAsync(entity, cancellationToken);
                 }
 
                 entity.Username = username;
@@ -197,8 +192,7 @@ namespace Sokan.Yastah.Data.Users
                 entity.AvatarHash = avatarHash;
                 entity.LastSeen = lastSeen;
 
-                await _concurrencyResolutionService
-                    .SaveConcurrentChangesAsync(_context, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
 
                 transactionScope.Complete();
 
@@ -259,7 +253,7 @@ namespace Sokan.Yastah.Data.Users
                 .Where(p => !_context
                     .Set<UserPermissionMappingEntity>()
                     .Where(upm => upm.UserId == userId)
-                    .Where(upm => !upm.IsDenied)
+                    .Where(upm => upm.IsDenied)
                     .Where(upm => upm.DeletionId == null)
                     .Any(upm => upm.PermissionId == p.PermissionId))
                 .Select(PermissionIdentity.FromEntityProjection)
@@ -368,7 +362,6 @@ namespace Sokan.Yastah.Data.Users
             }
         }
 
-        private readonly IConcurrencyResolutionService _concurrencyResolutionService;
         private readonly YastahDbContext _context;
         private readonly ITransactionScopeFactory _transactionScopeFactory;
 

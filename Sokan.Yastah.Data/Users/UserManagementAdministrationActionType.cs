@@ -10,7 +10,8 @@ namespace Sokan.Yastah.Data.Users
     public enum UserManagementAdministrationActionType
     {
         UserCreated = 20,
-        UserModified = 21
+        UserModified = 21,
+        DefaultsModified = 22
     }
 
     public static class UserManagementAdministrationActionTypeModelBuilder

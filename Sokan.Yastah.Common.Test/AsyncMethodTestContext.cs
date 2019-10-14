@@ -4,11 +4,9 @@ using System.Threading;
 namespace Sokan.Yastah.Common.Test
 {
     #pragma warning disable CA1063 // IDisposable warnings
-    public class AsyncMethodTestContextBase
+    public class AsyncMethodTestContext
         : IDisposable
     {
-        protected AsyncMethodTestContextBase() { }
-
         public CancellationTokenSource CancellationTokenSource { get; }
             = new CancellationTokenSource();
 

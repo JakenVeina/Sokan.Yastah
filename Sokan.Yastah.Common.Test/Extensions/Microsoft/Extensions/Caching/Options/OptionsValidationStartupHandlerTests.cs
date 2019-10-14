@@ -15,7 +15,7 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.Caching.Optio
         #region Test Cases
 
         public class TestContext
-            : AsyncMethodTestContextBase
+            : AsyncMethodTestContext
         {
             public TestContext()
             {

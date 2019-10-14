@@ -21,7 +21,7 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.AspNetCore.Hosting
             = new[]
             {
                 new TestCaseData(new MockAssembly())
-                    .SetName("{m}: Assembly does not contain OnConfigureServicesAttribute methods"),
+                    .SetName("{m}(Assembly does not contain OnConfigureServicesAttribute methods)"),
 
                 new TestCaseData(new MockAssembly()
                         .AddDefinedType(ti => ti
@@ -38,7 +38,7 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.AspNetCore.Hosting
                                 .AddCustomAttribute(cad => cad
                                     .SetConstructor(ci => ci
                                         .SetDeclaringType(typeof(OnConfigureServicesAttribute)))))))
-                    .SetName("{m}: Assembly contains OnConfigureServicesAttribute methods")
+                    .SetName("{m}(Assembly contains OnConfigureServicesAttribute methods)")
         };
 
         #endregion Test Cases

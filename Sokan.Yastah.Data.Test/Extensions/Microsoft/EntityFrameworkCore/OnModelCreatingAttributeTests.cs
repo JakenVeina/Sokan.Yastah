@@ -7,12 +7,12 @@ using NUnit.Framework;
 using Moq;
 using Shouldly;
 
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 
-namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.AspNetCore.Hosting
+namespace Sokan.Yastah.Data.Test.Extensions.Microsoft.EntityFrameworkCore
 {
     [TestFixture]
-    public class OnConfigureServicesAttributeTests
+    public class OnModelCreatingAttributeTests
     {
         #region Test Cases
 
@@ -56,7 +56,7 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.AspNetCore.Hosting
                                     .SetConstructor())
                                 .AddCustomAttribute(cad => cad
                                     .SetConstructor()))))
-                    .SetName("{m}(CustomAttributes does not contain OnConfigureServicesAttribute)"),
+                    .SetName("{m}(CustomAttributes does not contain OnModelCreatingAttribute)"),
 
                 new TestCaseData(new MockAssembly()
                         .AddDefinedType()
@@ -67,23 +67,23 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.AspNetCore.Hosting
                             .AddDeclaredMethod(mi => mi
                                 .AddCustomAttribute(cad => cad
                                     .SetConstructor(ci => ci
-                                        .SetDeclaringType(typeof(OnConfigureServicesAttribute))))))
+                                        .SetDeclaringType(typeof(OnModelCreatingAttribute))))))
                         .AddDefinedType(ti => ti
                             .AddDeclaredMethod(mi => mi
                                 .AddCustomAttribute(cad => cad
                                     .SetConstructor())
                                 .AddCustomAttribute(cad => cad
                                     .SetConstructor(ci => ci
-                                        .SetDeclaringType(typeof(OnConfigureServicesAttribute)))))
+                                        .SetDeclaringType(typeof(OnModelCreatingAttribute)))))
                             .AddDeclaredMethod(mi => mi
                                 .AddCustomAttribute(cad => cad
                                     .SetConstructor())
                                 .AddCustomAttribute(cad => cad
                                     .SetConstructor(ci => ci
-                                        .SetDeclaringType(typeof(OnConfigureServicesAttribute))))
+                                        .SetDeclaringType(typeof(OnModelCreatingAttribute))))
                                 .AddCustomAttribute(cad => cad
                                     .SetConstructor()))))
-                    .SetName("{m}(CustomAttributes contains OnConfigureServicesAttribute)")
+                    .SetName("{m}(CustomAttributes contains OnModelCreatingAttribute)")
         };
 
         #endregion Test Cases
@@ -98,28 +98,28 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.AspNetCore.Hosting
                 .MockDefinedTypes
                 .SelectMany(ti => ti.MockDeclaredMethods)
                 .Where(mi => mi.MockCustomAttributes
-                    .Any(cad => cad.Object.AttributeType == typeof(OnConfigureServicesAttribute)))
+                    .Any(cad => cad.Object.AttributeType == typeof(OnModelCreatingAttribute)))
                 .ToArray();
 
-            var mockConfigureServicesHandlers = mockConfigureServicesHandlerMethodInfos
+            var mockModelCreatingHandlers = mockConfigureServicesHandlerMethodInfos
                 .Select(mi =>
                 {
-                    var mockConfigureServicesHandler = new Mock<ConfigureServicesHandler>();
+                    var mockModelCreatingHandler = new Mock<Action<ModelBuilder>>();
 
                     mi.Setup(x => x.CreateDelegate(It.IsAny<Type>()))
-                        .Returns(mockConfigureServicesHandler.Object);
+                        .Returns(mockModelCreatingHandler.Object);
 
-                    return mockConfigureServicesHandler;
+                    return mockModelCreatingHandler;
                 })
                 .ToArray();
 
-            var result = OnConfigureServicesAttribute.EnumerateAttachedMethods(mockAssembly.Object)
+            var result = OnModelCreatingAttribute.EnumerateAttachedMethods(mockAssembly.Object)
                 .ToArray();
 
             mockConfigureServicesHandlerMethodInfos
-                .ForEach(mi => mi.Verify(x => x.CreateDelegate(typeof(ConfigureServicesHandler))));
+                .ForEach(mi => mi.Verify(x => x.CreateDelegate(typeof(Action<ModelBuilder>))));
 
-            result.ShouldBeSetEqualTo(mockConfigureServicesHandlers.Select(x => x.Object));
+            result.ShouldBeSetEqualTo(mockModelCreatingHandlers.Select(x => x.Object));
         }
 
         #endregion EnumerateAttachedMethods() Tests

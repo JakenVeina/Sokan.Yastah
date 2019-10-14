@@ -263,7 +263,7 @@ namespace Sokan.Yastah.Business.Roles
             CancellationToken cancellationToken)
         {
             var nameIsInUse = await _rolesRepository.AnyVersionsAsync(
-                excludeRoleIds: roleId?.ToEnumerable()?.ToOptional() ?? default,
+                excludedRoleIds: roleId?.ToEnumerable()?.ToOptional() ?? default,
                 name: name,
                 isDeleted: false,
                 isLatestVersion: true,

@@ -48,13 +48,13 @@ namespace Sokan.Yastah.Business.Authentication
             INotificationHandler<UserUpdatingNotification>
     {
         public AuthenticationService(
-            IAuthenticationRepository authenticationRepository,
+            IAuthenticationTicketsRepository authenticationTicketsRepository,
             IOptions<AuthorizationConfiguration> authorizationConfiguration,
             IMemoryCache memoryCache,
             ITransactionScopeFactory transactionScopeFactory,
             IUsersService usersService)
         {
-            _authenticationRepository = authenticationRepository;
+            _authenticationTicketsRepository = authenticationTicketsRepository;
             _authorizationConfiguration = authorizationConfiguration.Value;
             _memoryCache = memoryCache;
             _transactionScopeFactory = transactionScopeFactory;
@@ -174,7 +174,7 @@ namespace Sokan.Yastah.Business.Authentication
             {
                 entry.Priority = CacheItemPriority.High;
 
-                return (await _authenticationRepository.ReadActiveTicketId(userId, cancellationToken)).Value;
+                return (await _authenticationTicketsRepository.ReadActiveIdAsync(userId, cancellationToken)).Value;
             });
 
         private async Task UpdateActiveTicketId(
@@ -184,15 +184,15 @@ namespace Sokan.Yastah.Business.Authentication
         {
             using (var transactionScope = _transactionScopeFactory.CreateScope())
             {
-                var activeTicketIdResult = await _authenticationRepository.ReadActiveTicketId(userId, cancellationToken);
+                var activeTicketIdResult = await _authenticationTicketsRepository.ReadActiveIdAsync(userId, cancellationToken);
 
                 if (activeTicketIdResult.IsSuccess)
-                    await _authenticationRepository.DeleteTicketAsync(
+                    await _authenticationTicketsRepository.DeleteAsync(
                         activeTicketIdResult.Value,
                         actionId,
                         cancellationToken);
 
-                var newTicketId = await _authenticationRepository.CreateTicketAsync(
+                var newTicketId = await _authenticationTicketsRepository.CreateAsync(
                     userId,
                     actionId,
                     cancellationToken);
@@ -206,7 +206,7 @@ namespace Sokan.Yastah.Business.Authentication
         private static string MakeUserActiveTicketIdCacheKey(ulong userId)
             => $"{nameof(AuthenticationService)}.UserActiveTicketId.{userId}";
 
-        private readonly IAuthenticationRepository _authenticationRepository;
+        private readonly IAuthenticationTicketsRepository _authenticationTicketsRepository;
         private readonly AuthorizationConfiguration _authorizationConfiguration;
         private readonly IMemoryCache _memoryCache;
         private readonly ITransactionScopeFactory _transactionScopeFactory;

@@ -5,7 +5,7 @@ namespace Sokan.Yastah.Data.Permissions
 {
     public class PermissionDescriptionViewModel
     {
-        public long Id { get; internal set; }
+        public int Id { get; internal set; }
 
         public string Name { get; internal set; }
 
