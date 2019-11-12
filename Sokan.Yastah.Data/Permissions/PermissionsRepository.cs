@@ -17,7 +17,7 @@ namespace Sokan.Yastah.Data.Permissions
         Task<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>> ReadDescriptionsAsync(
             CancellationToken cancellationToken);
 
-        Task<IReadOnlyCollection<PermissionIdentity>> ReadIdentitiesAsync(
+        Task<IReadOnlyCollection<PermissionIdentityViewModel>> ReadIdentitiesAsync(
             CancellationToken cancellationToken);
 
         Task<IReadOnlyCollection<int>> ReadPermissionIdsAsync(
@@ -41,11 +41,11 @@ namespace Sokan.Yastah.Data.Permissions
                 .Select(PermissionCategoryDescriptionViewModel.FromEntityProjection)
                 .ToArrayAsync(cancellationToken);
 
-        public async Task<IReadOnlyCollection<PermissionIdentity>> ReadIdentitiesAsync(
+        public async Task<IReadOnlyCollection<PermissionIdentityViewModel>> ReadIdentitiesAsync(
                 CancellationToken cancellationToken)
             => await _context
                 .Set<PermissionEntity>()
-                .Select(PermissionIdentity.FromEntityProjection)
+                .Select(PermissionIdentityViewModel.FromEntityProjection)
                 .ToArrayAsync(cancellationToken);
 
         public async Task<IReadOnlyCollection<int>> ReadPermissionIdsAsync(

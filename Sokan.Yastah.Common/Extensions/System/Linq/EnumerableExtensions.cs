@@ -23,5 +23,9 @@ namespace System.Linq
             foreach (var item in sequence)
                 action.Invoke(item);
         }
+
+        public static bool SetEquals<T>(this IEnumerable<T> first, IEnumerable<T> second)
+            => first.OrderBy(x => x)
+                .SequenceEqual(second.OrderBy(x => x));
     }
 }

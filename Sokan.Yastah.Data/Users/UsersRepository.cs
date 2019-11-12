@@ -54,7 +54,7 @@ namespace Sokan.Yastah.Data.Users
             ulong userId,
             CancellationToken cancellationToken);
 
-        Task<IReadOnlyCollection<PermissionIdentity>> ReadGrantedPermissionIdentitiesAsync(
+        Task<IReadOnlyCollection<PermissionIdentityViewModel>> ReadGrantedPermissionIdentitiesAsync(
             ulong userId,
             CancellationToken cancellationToken);
 
@@ -230,7 +230,7 @@ namespace Sokan.Yastah.Data.Users
                 : result.ToSuccess();
         }
 
-        public async Task<IReadOnlyCollection<PermissionIdentity>> ReadGrantedPermissionIdentitiesAsync(
+        public async Task<IReadOnlyCollection<PermissionIdentityViewModel>> ReadGrantedPermissionIdentitiesAsync(
                 ulong userId,
                 CancellationToken cancellationToken)
             => await _context
@@ -256,7 +256,7 @@ namespace Sokan.Yastah.Data.Users
                     .Where(upm => upm.IsDenied)
                     .Where(upm => upm.DeletionId == null)
                     .Any(upm => upm.PermissionId == p.PermissionId))
-                .Select(PermissionIdentity.FromEntityProjection)
+                .Select(PermissionIdentityViewModel.FromEntityProjection)
                 .ToArrayAsync();
 
         public async Task<IReadOnlyCollection<ulong>> ReadIdsAsync(

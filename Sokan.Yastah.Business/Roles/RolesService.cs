@@ -10,11 +10,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
 
+using Sokan.Yastah.Business.Permissions;
 using Sokan.Yastah.Common.Messaging;
 using Sokan.Yastah.Common.OperationModel;
 using Sokan.Yastah.Data;
 using Sokan.Yastah.Data.Administration;
-using Sokan.Yastah.Data.Permissions;
 using Sokan.Yastah.Data.Roles;
 
 namespace Sokan.Yastah.Business.Roles
@@ -39,6 +39,10 @@ namespace Sokan.Yastah.Business.Roles
             RoleUpdateModel updateModel,
             ulong performedById,
             CancellationToken cancellationToken);
+
+        ValueTask<OperationResult> ValidateIdsAsync(
+            IReadOnlyCollection<long> roleIds,
+            CancellationToken cancellationToken);
     }
 
     public class RolesService
@@ -48,7 +52,7 @@ namespace Sokan.Yastah.Business.Roles
             IAdministrationActionsRepository administrationActionsRepository,
             IMemoryCache memoryCache,
             IMessenger messenger,
-            IPermissionsRepository permissionsRepository,
+            IPermissionsService permissionsService,
             IRolesRepository rolesRepository,
             ISystemClock systemClock,
             ITransactionScopeFactory transactionScopeFactory)
@@ -56,7 +60,7 @@ namespace Sokan.Yastah.Business.Roles
             _administrationActionsRepository = administrationActionsRepository;
             _memoryCache = memoryCache;
             _messenger = messenger;
-            _permissionsRepository = permissionsRepository;
+            _permissionsService = permissionsService;
             _rolesRepository = rolesRepository;
             _systemClock = systemClock;
             _transactionScopeFactory = transactionScopeFactory;
@@ -73,7 +77,7 @@ namespace Sokan.Yastah.Business.Roles
                 if (nameValidationResult.IsFailure)
                     return nameValidationResult.Error.ToError<long>();
 
-                var grantedPermissionIdsValidationResult = await ValidateGrantedPermissionIdsAsync(creationModel.GrantedPermissionIds, cancellationToken);
+                var grantedPermissionIdsValidationResult = await _permissionsService.ValidateIdsAsync(creationModel.GrantedPermissionIds, cancellationToken);
                 if (grantedPermissionIdsValidationResult.IsFailure)
                     return grantedPermissionIdsValidationResult.Error.ToError<long>();
 
@@ -109,11 +113,9 @@ namespace Sokan.Yastah.Business.Roles
         {
             using (var transactionScope = _transactionScopeFactory.CreateScope())
             {
-                var now = _systemClock.UtcNow;
-
                 var actionId = await _administrationActionsRepository.CreateAsync(
                     (int)RoleManagementAdministrationActionType.RoleDeleted,
-                    now,
+                    _systemClock.UtcNow,
                     performedById,
                     cancellationToken);
 
@@ -156,7 +158,7 @@ namespace Sokan.Yastah.Business.Roles
                 if (nameValidationResult.IsFailure)
                     return nameValidationResult;
 
-                var grantedPermissionIdsValidationResult = await ValidateGrantedPermissionIdsAsync(updateModel.GrantedPermissionIds, cancellationToken);
+                var grantedPermissionIdsValidationResult = await _permissionsService.ValidateIdsAsync(updateModel.GrantedPermissionIds, cancellationToken);
                 if (grantedPermissionIdsValidationResult.IsFailure)
                     return grantedPermissionIdsValidationResult;
 
@@ -176,7 +178,7 @@ namespace Sokan.Yastah.Business.Roles
                 if (updateResult.IsFailure && !(updateResult.Error is NoChangesGivenError))
                     return updateResult;
 
-                var anyChanges = false;
+                var anyChanges = updateResult.IsSuccess;
 
                 var permissionMappings = await _rolesRepository.ReadPermissionMappingIdentitiesAsync(
                     roleId: roleId,
@@ -212,6 +214,25 @@ namespace Sokan.Yastah.Business.Roles
 
                 return OperationResult.Success;
             }
+        }
+
+        public async ValueTask<OperationResult> ValidateIdsAsync(
+            IReadOnlyCollection<long> roleIds,
+            CancellationToken cancellationToken)
+        {
+            if (!roleIds.Any())
+                return OperationResult.Success;
+
+            var invalidRoleIds = roleIds
+                .Except((await GetCurrentIdentitiesAsync(cancellationToken))
+                .Select(x => x.Id)).ToArray();
+
+            return invalidRoleIds.Any()
+                ? ((invalidRoleIds.Length == 1)
+                        ? new DataNotFoundError($"Role ID {invalidRoleIds.First()}")
+                        : new DataNotFoundError($"Role IDs {string.Join(", ", invalidRoleIds)}"))
+                    .ToError()
+                : OperationResult.Success;
         }
 
         private async Task<bool> HandleAddedPermissions(
@@ -274,35 +295,15 @@ namespace Sokan.Yastah.Business.Roles
                 : OperationResult.Success;
         }
 
-        private async Task<OperationResult> ValidateGrantedPermissionIdsAsync(
-            IReadOnlyCollection<int> grantedPermissionIds,
-            CancellationToken cancellationToken)
-        {
-            if (!grantedPermissionIds.Any())
-                return OperationResult.Success;
-
-            var validPermissionIds = await _permissionsRepository.ReadPermissionIdsAsync(
-                permissionIds: grantedPermissionIds.ToOptional(),
-                cancellationToken: cancellationToken);
-
-            var invalidPermissionIds = grantedPermissionIds.Except(validPermissionIds).ToArray();
-            return invalidPermissionIds.Any()
-                ? ((invalidPermissionIds.Length == 1)
-                        ? new DataNotFoundError($"Permission ID {invalidPermissionIds.First()}")
-                        : new DataNotFoundError($"Permission IDs {string.Join(", ", invalidPermissionIds)}"))
-                    .ToError()
-                : OperationResult.Success;
-        }
-
         private readonly IAdministrationActionsRepository _administrationActionsRepository;
         private readonly IMemoryCache _memoryCache;
         private readonly IMessenger _messenger;
-        private readonly IPermissionsRepository _permissionsRepository;
+        private readonly IPermissionsService _permissionsService;
         private readonly IRolesRepository _rolesRepository;
         private readonly ISystemClock _systemClock;
         private readonly ITransactionScopeFactory _transactionScopeFactory;
 
-        private const string _getCurrentIdentitiesCacheKey
+        internal const string _getCurrentIdentitiesCacheKey
             = nameof(RolesService) + "." + nameof(GetCurrentIdentitiesAsync);
 
         [OnConfigureServices]

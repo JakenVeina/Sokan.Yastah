@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 
 using Sokan.Yastah.Business.Authorization;
 using Sokan.Yastah.Business.Permissions;
+using Sokan.Yastah.Business.Roles;
 using Sokan.Yastah.Common.Messaging;
 using Sokan.Yastah.Common.OperationModel;
 using Sokan.Yastah.Data;
@@ -24,7 +25,7 @@ namespace Sokan.Yastah.Business.Users
 {
     public interface IUsersService
     {
-        Task<OperationResult<IReadOnlyCollection<PermissionIdentity>>> GetGrantedPermissionsAsync(
+        Task<OperationResult<IReadOnlyCollection<PermissionIdentityViewModel>>> GetGrantedPermissionsAsync(
             ulong userId,
             CancellationToken cancellationToken);
 
@@ -55,6 +56,7 @@ namespace Sokan.Yastah.Business.Users
             IMemoryCache memoryCache,
             IMessenger messenger,
             IPermissionsService permissionsService,
+            IRolesService rolesService,
             ISystemClock systemClock,
             ITransactionScopeFactory transactionScopeFactory,
             IUsersRepository usersRepository)
@@ -64,12 +66,13 @@ namespace Sokan.Yastah.Business.Users
             _memoryCache = memoryCache;
             _messenger = messenger;
             _permissionsService = permissionsService;
+            _rolesService = rolesService;
             _systemClock = systemClock;
             _transactionScopeFactory = transactionScopeFactory;
             _usersRepository = usersRepository;
         }
 
-        public async Task<OperationResult<IReadOnlyCollection<PermissionIdentity>>> GetGrantedPermissionsAsync(
+        public async Task<OperationResult<IReadOnlyCollection<PermissionIdentityViewModel>>> GetGrantedPermissionsAsync(
             ulong userId,
             CancellationToken cancellationToken)
         {
@@ -85,7 +88,7 @@ namespace Sokan.Yastah.Business.Users
 
                 if (!userExists)
                     return new DataNotFoundError($"User ID {userId}")
-                        .ToError<IReadOnlyCollection<PermissionIdentity>>();
+                        .ToError<IReadOnlyCollection<PermissionIdentityViewModel>>();
 
                 return (await _usersRepository.ReadGrantedPermissionIdentitiesAsync(userId, cancellationToken))
                     .ToSuccess();
@@ -172,6 +175,18 @@ namespace Sokan.Yastah.Business.Users
         {
             using (var transactionScope = _transactionScopeFactory.CreateScope())
             {
+                var permissionIdsValidationResult = await _permissionsService.ValidateIdsAsync(
+                    updateModel.GrantedPermissionIds
+                        .Union(updateModel.DeniedPermissionIds)
+                        .ToArray(),
+                    cancellationToken);
+                if (permissionIdsValidationResult.IsFailure)
+                    return permissionIdsValidationResult;
+
+                var assignedRoleIdsValidationResult = await _rolesService.ValidateIdsAsync(updateModel.AssignedRoleIds, cancellationToken);
+                if (assignedRoleIdsValidationResult.IsFailure)
+                    return assignedRoleIdsValidationResult;
+
                 var now = _systemClock.UtcNow;
 
                 var actionId = await _administrationActionsRepository.CreateAsync(
@@ -364,7 +379,7 @@ namespace Sokan.Yastah.Business.Users
             return true;
         }
 
-        private static string MakeRoleMemberIdsCacheKey(long roleId)
+        internal static string MakeRoleMemberIdsCacheKey(long roleId)
             => $"{nameof(UsersService)}.RoleMemberIds.{roleId}";
 
         private readonly IAdministrationActionsRepository _administrationActionsRepository;
@@ -372,6 +387,7 @@ namespace Sokan.Yastah.Business.Users
         private readonly IMemoryCache _memoryCache;
         private readonly IMessenger _messenger;
         private readonly IPermissionsService _permissionsService;
+        private readonly IRolesService _rolesService;
         private readonly ISystemClock _systemClock;
         private readonly ITransactionScopeFactory _transactionScopeFactory;
         private readonly IUsersRepository _usersRepository;

@@ -3,10 +3,10 @@
     public class RoleUpdatingNotification
     {
         public RoleUpdatingNotification(
-            long userId,
+            long roleId,
             long actionId)
         {
-            RoleId = userId;
+            RoleId = roleId;
             ActionId = actionId;
         }
 

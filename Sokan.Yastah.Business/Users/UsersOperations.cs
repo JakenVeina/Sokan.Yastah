@@ -80,11 +80,12 @@ namespace Sokan.Yastah.Business.Users
                 cancellationToken,
                 (int)AdministrationPermission.ManageRoles);
 
+            if (authResult.IsFailure)
+                return authResult;
+
             var performedById = _authenticationService.CurrentTicket.UserId;
 
-            return authResult.IsFailure
-                ? authResult
-                : await _usersService.UpdateAsync(userId, updateModel, performedById, cancellationToken);
+            return await _usersService.UpdateAsync(userId, updateModel, performedById, cancellationToken);
         }
 
         private readonly IAuthenticationService _authenticationService;

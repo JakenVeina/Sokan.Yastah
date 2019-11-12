@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,6 +8,8 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
+using Sokan.Yastah.Common.OperationModel;
+using Sokan.Yastah.Data;
 using Sokan.Yastah.Data.Permissions;
 
 namespace Sokan.Yastah.Business.Permissions
@@ -16,7 +19,11 @@ namespace Sokan.Yastah.Business.Permissions
         ValueTask<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>> GetDescriptionsAsync(
             CancellationToken cancellationToken);
 
-        ValueTask<IReadOnlyCollection<PermissionIdentity>> GetIdentitiesAsync(
+        ValueTask<IReadOnlyCollection<PermissionIdentityViewModel>> GetIdentitiesAsync(
+            CancellationToken cancellationToken);
+
+        ValueTask<OperationResult> ValidateIdsAsync(
+            IReadOnlyCollection<int> permissionIds,
             CancellationToken cancellationToken);
     }
 
@@ -40,7 +47,7 @@ namespace Sokan.Yastah.Business.Permissions
                 return _permissionsRepository.ReadDescriptionsAsync(cancellationToken);
             });
 
-        public ValueTask<IReadOnlyCollection<PermissionIdentity>> GetIdentitiesAsync(
+        public ValueTask<IReadOnlyCollection<PermissionIdentityViewModel>> GetIdentitiesAsync(
                 CancellationToken cancellationToken)
             => _memoryCache.OptimisticGetOrCreateAsync(_getIdentitiesCacheKey, entry =>
             {
@@ -49,13 +56,32 @@ namespace Sokan.Yastah.Business.Permissions
                 return _permissionsRepository.ReadIdentitiesAsync(cancellationToken);
             });
 
+        public async ValueTask<OperationResult> ValidateIdsAsync(
+            IReadOnlyCollection<int> permissionIds,
+            CancellationToken cancellationToken)
+        {
+            if (!permissionIds.Any())
+                return OperationResult.Success;
+
+            var invalidPermissionIds = permissionIds
+                .Except((await GetIdentitiesAsync(cancellationToken))
+                .Select(x => x.Id)).ToArray();
+            
+            return invalidPermissionIds.Any()
+                ? ((invalidPermissionIds.Length == 1)
+                        ? new DataNotFoundError($"Permission ID {invalidPermissionIds.First()}")
+                        : new DataNotFoundError($"Permission IDs {string.Join(", ", invalidPermissionIds)}"))
+                    .ToError()
+                : OperationResult.Success;
+        }
+
         private readonly IMemoryCache _memoryCache;
         private readonly IPermissionsRepository _permissionsRepository;
 
-        private const string _getDescriptionsCacheKey
+        internal const string _getDescriptionsCacheKey
             = nameof(PermissionsService) + "." + nameof(GetDescriptionsAsync);
 
-        private const string _getIdentitiesCacheKey
+        internal const string _getIdentitiesCacheKey
             = nameof(PermissionsService) + "." + nameof(GetIdentitiesAsync);
 
         [OnConfigureServices]

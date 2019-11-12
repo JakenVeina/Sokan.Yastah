@@ -60,11 +60,12 @@ namespace Sokan.Yastah.Business.Roles
                 cancellationToken,
                 (int)AdministrationPermission.ManageRoles);
 
+            if (authResult.IsFailure)
+                return authResult.Error.ToError<long>();
+
             var performedById = _authenticationService.CurrentTicket.UserId;
 
-            return authResult.IsFailure
-                ? authResult.Error.ToError<long>()
-                : await _rolesService.CreateAsync(creationModel, performedById, cancellationToken);
+            return await _rolesService.CreateAsync(creationModel, performedById, cancellationToken);
         }
 
         public async Task<OperationResult> DeleteAsync(
@@ -75,11 +76,12 @@ namespace Sokan.Yastah.Business.Roles
                 cancellationToken,
                 (int)AdministrationPermission.ManageRoles);
 
+            if (authResult.IsFailure)
+                return authResult;
+
             var performedById = _authenticationService.CurrentTicket.UserId;
 
-            return authResult.IsFailure
-                ? authResult
-                : await _rolesService.DeleteAsync(roleId, performedById, cancellationToken);
+            return await _rolesService.DeleteAsync(roleId, performedById, cancellationToken);
         }
 
         public async Task<OperationResult<RoleDetailViewModel>> GetDetailAsync(
@@ -120,11 +122,12 @@ namespace Sokan.Yastah.Business.Roles
                 cancellationToken,
                 (int)AdministrationPermission.ManageRoles);
 
+            if (authResult.IsFailure)
+                return authResult;
+
             var performedById = _authenticationService.CurrentTicket.UserId;
 
-            return authResult.IsFailure
-                ? authResult
-                : await _rolesService.UpdateAsync(roleId, updateModel, performedById, cancellationToken);
+            return await _rolesService.UpdateAsync(roleId, updateModel, performedById, cancellationToken);
         }
 
         private readonly IAuthenticationService _authenticationService;

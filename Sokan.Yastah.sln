@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sokan.Yastah.Business", "So
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sokan.Yastah.Common.Test", "Sokan.Yastah.Common.Test\Sokan.Yastah.Common.Test.csproj", "{4E7A9771-30B9-4E85-9DC9-3501999DC9ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sokan.Yastah.Data.Test", "Sokan.Yastah.Data.Test\Sokan.Yastah.Data.Test.csproj", "{FCE1875A-1193-4EFA-805C-25BD8ADB649C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sokan.Yastah.Data.Test", "Sokan.Yastah.Data.Test\Sokan.Yastah.Data.Test.csproj", "{FCE1875A-1193-4EFA-805C-25BD8ADB649C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sokan.Yastah.Business.Test", "Sokan.Yastah.Business.Test\Sokan.Yastah.Business.Test.csproj", "{4125C6DA-38BC-47FC-88AA-E8F3FEB8863A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{FCE1875A-1193-4EFA-805C-25BD8ADB649C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FCE1875A-1193-4EFA-805C-25BD8ADB649C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FCE1875A-1193-4EFA-805C-25BD8ADB649C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4125C6DA-38BC-47FC-88AA-E8F3FEB8863A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4125C6DA-38BC-47FC-88AA-E8F3FEB8863A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4125C6DA-38BC-47FC-88AA-E8F3FEB8863A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4125C6DA-38BC-47FC-88AA-E8F3FEB8863A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

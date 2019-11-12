@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Sokan.Yastah.Common.OperationModel;
 
@@ -11,7 +12,7 @@ namespace Sokan.Yastah.Business.Authorization
                 IReadOnlyDictionary<int, string> missingPermissions)
             : base("Insufficient permissions to perform this operation")
         {
-            MissingPermissions = missingPermissions;
+            MissingPermissions = missingPermissions ?? throw new ArgumentNullException(nameof(missingPermissions));
         }
 
         public IReadOnlyDictionary<int, string> MissingPermissions { get; }

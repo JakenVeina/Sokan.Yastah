@@ -49,13 +49,13 @@ namespace Sokan.Yastah.Business.Authentication
     {
         public AuthenticationService(
             IAuthenticationTicketsRepository authenticationTicketsRepository,
-            IOptions<AuthorizationConfiguration> authorizationConfiguration,
+            IOptions<AuthorizationConfiguration> authorizationConfigurationOptions,
             IMemoryCache memoryCache,
             ITransactionScopeFactory transactionScopeFactory,
             IUsersService usersService)
         {
             _authenticationTicketsRepository = authenticationTicketsRepository;
-            _authorizationConfiguration = authorizationConfiguration.Value;
+            _authorizationConfiguration = authorizationConfigurationOptions.Value;
             _memoryCache = memoryCache;
             _transactionScopeFactory = transactionScopeFactory;
             _usersService = usersService;
@@ -73,7 +73,7 @@ namespace Sokan.Yastah.Business.Authentication
             IReadOnlyDictionary<int, string> grantedPermissions,
             CancellationToken cancellationToken)
         {
-            var activeTicketId = await GetActiveTicketId(userId, cancellationToken);
+            var activeTicketId = await GetActiveTicketIdAsync(userId, cancellationToken);
 
             if (activeTicketId != ticketId)
                 grantedPermissions = (await _usersService.GetGrantedPermissionsAsync(
@@ -113,7 +113,7 @@ namespace Sokan.Yastah.Business.Authentication
                 avatarHash,
                 cancellationToken);
 
-            var ticketId = await GetActiveTicketId(userId, cancellationToken);
+            var ticketId = await GetActiveTicketIdAsync(userId, cancellationToken);
 
             var grantedPermissions = await _usersService.GetGrantedPermissionsAsync(
                 userId,
@@ -167,7 +167,7 @@ namespace Sokan.Yastah.Business.Authentication
                 .Intersect(_authorizationConfiguration.MemberGuildIds)
                 .Any();
 
-        private ValueTask<long> GetActiveTicketId(
+        private ValueTask<long> GetActiveTicketIdAsync(
                 ulong userId,
                 CancellationToken cancellationToken)
             => _memoryCache.OptimisticGetOrCreateAsync(MakeUserActiveTicketIdCacheKey(userId), async entry =>
@@ -203,7 +203,7 @@ namespace Sokan.Yastah.Business.Authentication
             }
         }
 
-        private static string MakeUserActiveTicketIdCacheKey(ulong userId)
+        internal static string MakeUserActiveTicketIdCacheKey(ulong userId)
             => $"{nameof(AuthenticationService)}.UserActiveTicketId.{userId}";
 
         private readonly IAuthenticationTicketsRepository _authenticationTicketsRepository;
