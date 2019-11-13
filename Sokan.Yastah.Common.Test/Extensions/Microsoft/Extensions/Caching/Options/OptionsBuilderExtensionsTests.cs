@@ -5,8 +5,8 @@ using NUnit.Framework;
 using Moq;
 using Shouldly;
 
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.Caching.Options

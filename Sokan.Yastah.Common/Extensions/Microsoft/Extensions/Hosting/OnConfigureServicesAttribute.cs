@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Microsoft.AspNetCore.Hosting
+namespace Microsoft.Extensions.Hosting
 {
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class OnConfigureServicesAttribute

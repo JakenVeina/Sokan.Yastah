@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Sokan.Yastah.Host
@@ -12,18 +13,12 @@ namespace Sokan.Yastah.Host
     {
         public static async Task Main()
         {
-            var webHost = new WebHostBuilder()
-                .UseSetting(WebHostDefaults.ApplicationKey, "Sokan.Yastah")
-                .UseKestrel((context, options) =>
-                {
-                    options.Configure(context.Configuration.GetSection("Kestrel"));
-                })
+            var host = new HostBuilder()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseDefaultServiceProvider((context, options) =>
                 {
                     options.ValidateScopes = context.HostingEnvironment.IsDevelopment();
                 })
-                .UseStartup<Startup>()
                 .ConfigureAppConfiguration((context, configurationBuilder) =>
                 {
                     configurationBuilder
@@ -34,6 +29,16 @@ namespace Sokan.Yastah.Host
                     if (context.HostingEnvironment.IsDevelopment())
                         configurationBuilder
                             .AddUserSecrets<Startup>(optional: true);
+                })
+                .ConfigureWebHost(webHostBuilder =>
+                {
+                    webHostBuilder
+                        .UseSetting(WebHostDefaults.ApplicationKey, "Sokan.Yastah")
+                        .UseKestrel((context, options) =>
+                        {
+                            options.Configure(context.Configuration.GetSection("Kestrel"));
+                        })
+                        .UseStartup<Startup>();
                 })
                 .ConfigureLogging((context, loggingBuilder) =>
                 {
@@ -47,10 +52,10 @@ namespace Sokan.Yastah.Host
                 })
                 .Build();
 
-            await webHost.Services
+            await host.Services
                 .HandleStartupAsync(CancellationToken.None);
 
-            await webHost
+            await host
                 .RunAsync();
         }
     }

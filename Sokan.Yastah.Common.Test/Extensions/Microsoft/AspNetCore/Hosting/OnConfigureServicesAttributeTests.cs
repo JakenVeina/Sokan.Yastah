@@ -7,7 +7,7 @@ using NUnit.Framework;
 using Moq;
 using Shouldly;
 
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
 namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.AspNetCore.Hosting
 {

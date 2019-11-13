@@ -1,10 +1,9 @@
-using System;
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Internal;
 
 using Sokan.Yastah.Api;
@@ -16,29 +15,27 @@ using Sokan.Yastah.Web;
 namespace Sokan.Yastah.Host
 {
     public class Startup
-        : IStartup
     {
         public Startup(
             IConfiguration configuration,
-            IHostingEnvironment hostingEnvironment)
+            IWebHostEnvironment webHostEnvironment)
         {
             _configuration = configuration;
-            _hostingEnvironment = hostingEnvironment;
+            _webHostEnvironment = webHostEnvironment;
         }
 
-        public IServiceProvider ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services)
             => services
                 .AddSingleton<ISystemClock, SystemClock>()
                 .AddYastahCommon(_configuration)
                 .AddYastahData(_configuration)
                 .AddYastahBusiness(_configuration)
                 .AddYastahApi(_configuration)
-                .AddYastahWeb(_configuration)
-                .BuildServiceProvider();
+                .AddYastahWeb(_configuration);
 
         public void Configure(IApplicationBuilder applicationBuilder)
         {
-            if (!_hostingEnvironment.IsDevelopment())
+            if (!_webHostEnvironment.IsDevelopment())
                 applicationBuilder
                     .UseHsts();
 
@@ -57,6 +54,6 @@ namespace Sokan.Yastah.Host
             => !IsApiPath(context);
 
         private readonly IConfiguration _configuration;
-        private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IWebHostEnvironment _webHostEnvironment;
     }
 }

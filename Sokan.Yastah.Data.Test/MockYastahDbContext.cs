@@ -145,7 +145,7 @@ namespace Sokan.Yastah.Data.Test
             
             Setup(x => x.FindAsync<TEntity>(It.IsAny<object[]>(), It.IsAny<CancellationToken>()))
                 .Returns((object[] keys, CancellationToken cancellationToken)
-                    => Task.FromResult(entities.FirstOrDefault(entity => findPredicate.Invoke(keys, entity))));
+                    => new ValueTask<TEntity>(entities.FirstOrDefault(entity => findPredicate.Invoke(keys, entity))));
 
             return mockSet;
         }

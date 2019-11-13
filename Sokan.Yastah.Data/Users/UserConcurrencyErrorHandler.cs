@@ -1,9 +1,9 @@
 ﻿using System;
 
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 using Sokan.Yastah.Data.Concurrency;
 

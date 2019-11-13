@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Sokan.Yastah.Web
 {
@@ -23,8 +24,8 @@ namespace Sokan.Yastah.Web
 
         public static IApplicationBuilder UseYastahWeb(this IApplicationBuilder applicationBuilder)
         {
-            var hostingEnvironment = applicationBuilder.ApplicationServices
-                .GetRequiredService<IHostingEnvironment>();
+            var webHostEnvironment = applicationBuilder.ApplicationServices
+                .GetRequiredService<IWebHostEnvironment>();
 
             applicationBuilder
                 .UseStaticFiles()
@@ -34,7 +35,7 @@ namespace Sokan.Yastah.Web
             {
                 // TODO: Is there a better way to configure this path?
                 spaBuilder.Options.SourcePath = @"D:\Projects\Sokan.Yastah\Sokan.Yastah.Web\ClientApp";
-                if (hostingEnvironment.IsDevelopment())
+                if (webHostEnvironment.IsDevelopment())
                     spaBuilder.UseAngularCliServer(npmScript: "start");
             });
 
