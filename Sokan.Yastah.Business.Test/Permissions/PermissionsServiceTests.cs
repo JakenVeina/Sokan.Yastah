@@ -64,11 +64,14 @@ namespace Sokan.Yastah.Business.Test.Permissions
         {
             using (var testContext = new TestContext())
             {
-                var descriptions = new PermissionCategoryDescriptionViewModel[] { };
+                var descriptions = new PermissionCategoryDescriptionViewModel[]
+                { 
+                    new PermissionCategoryDescriptionViewModel()
+                };
 
                 testContext.MockPermissionsRepository
-                    .Setup(x => x.ReadDescriptionsAsync(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(descriptions);
+                    .Setup(x => x.AsyncEnumerateDescriptions())
+                    .Returns(descriptions.ToAsyncEnumerable());
 
                 var uut = testContext.BuildUut();
 
@@ -76,13 +79,14 @@ namespace Sokan.Yastah.Business.Test.Permissions
                     testContext.CancellationToken);
 
                 testContext.MockPermissionsRepository.ShouldHaveReceived(x => x
-                    .ReadDescriptionsAsync(testContext.CancellationToken));
+                    .AsyncEnumerateDescriptions());
 
                 testContext.MemoryCache.TryGetValue(PermissionsService._getDescriptionsCacheKey, out var cacheValue)
                     .ShouldBeTrue();
-                cacheValue.ShouldBeSameAs(descriptions);
+                cacheValue.ShouldBeAssignableTo<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>>()
+                    .ShouldBeSetEqualTo(descriptions);
 
-                result.ShouldBeSameAs(descriptions);
+                result.ShouldBeSameAs(cacheValue);
             }
         }
 
@@ -103,7 +107,7 @@ namespace Sokan.Yastah.Business.Test.Permissions
                 result.ShouldBeSameAs(descriptions);
 
                 testContext.MockPermissionsRepository.ShouldNotHaveReceived(x => x
-                    .ReadDescriptionsAsync(It.IsAny<CancellationToken>()));
+                    .AsyncEnumerateDescriptions());
             }
         }
 
@@ -116,11 +120,14 @@ namespace Sokan.Yastah.Business.Test.Permissions
         {
             using (var testContext = new TestContext())
             {
-                var identities = new PermissionIdentityViewModel[] { };
+                var identities = new PermissionIdentityViewModel[]
+                {
+                    new PermissionIdentityViewModel()
+                };
 
                 testContext.MockPermissionsRepository
-                    .Setup(x => x.ReadIdentitiesAsync(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(identities);
+                    .Setup(x => x.AsyncEnumerateIdentities())
+                    .Returns(identities.ToAsyncEnumerable());
 
                 var uut = testContext.BuildUut();
 
@@ -128,13 +135,14 @@ namespace Sokan.Yastah.Business.Test.Permissions
                     testContext.CancellationToken);
 
                 testContext.MockPermissionsRepository.ShouldHaveReceived(x => x
-                    .ReadIdentitiesAsync(testContext.CancellationToken));
+                    .AsyncEnumerateIdentities());
 
                 testContext.MemoryCache.TryGetValue(PermissionsService._getIdentitiesCacheKey, out var cacheValue)
                     .ShouldBeTrue();
-                cacheValue.ShouldBeSameAs(identities);
+                cacheValue.ShouldBeAssignableTo<IReadOnlyCollection<PermissionIdentityViewModel>>()
+                    .ShouldBeSetEqualTo(identities);
 
-                result.ShouldBeSameAs(identities);
+                result.ShouldBeSameAs(cacheValue);
             }
         }
 
@@ -155,7 +163,7 @@ namespace Sokan.Yastah.Business.Test.Permissions
                 result.ShouldBeSameAs(identities);
 
                 testContext.MockPermissionsRepository.ShouldNotHaveReceived(x => x
-                    .ReadIdentitiesAsync(It.IsAny<CancellationToken>()));
+                    .AsyncEnumerateIdentities());
             }
         }
 
@@ -258,8 +266,8 @@ namespace Sokan.Yastah.Business.Test.Permissions
                     .ToArray();
 
                 testContext.MockPermissionsRepository
-                    .Setup(x => x.ReadIdentitiesAsync(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(identities);
+                    .Setup(x => x.AsyncEnumerateIdentities())
+                    .Returns(identities.ToAsyncEnumerable());
                 
                 var uut = testContext.BuildUut();
 
@@ -270,7 +278,7 @@ namespace Sokan.Yastah.Business.Test.Permissions
                 result.IsSuccess.ShouldBeTrue();
 
                 testContext.MockPermissionsRepository.ShouldHaveReceived(x => x
-                    .ReadIdentitiesAsync(testContext.CancellationToken));
+                    .AsyncEnumerateIdentities());
             }
         }
 
@@ -292,7 +300,7 @@ namespace Sokan.Yastah.Business.Test.Permissions
                 result.IsSuccess.ShouldBeTrue();
 
                 testContext.MockPermissionsRepository.ShouldNotHaveReceived(x => x
-                    .ReadIdentitiesAsync(It.IsAny<CancellationToken>()));
+                    .AsyncEnumerateIdentities());
             }
         }
 

@@ -14,6 +14,9 @@ namespace Sokan.Yastah.Data.Authentication
 {
     public interface IAuthenticationTicketsRepository
     {
+        IAsyncEnumerable<AuthenticationTicketIdentity> AsyncEnumerateIdentities(
+            Optional<bool> isDeleted = default);
+
         Task<long> CreateAsync(
             ulong userId,
             long actionId,
@@ -27,10 +30,6 @@ namespace Sokan.Yastah.Data.Authentication
         Task<OperationResult<long>> ReadActiveIdAsync(
             ulong userId,
             CancellationToken cancellationToken);
-
-        Task<IReadOnlyCollection<AuthenticationTicketIdentity>> ReadIdentitiesAsync(
-            CancellationToken cancellationToken,
-            Optional<bool> isDeleted = default);
     }
 
     public class AuthenticationTicketsRepository
@@ -40,6 +39,22 @@ namespace Sokan.Yastah.Data.Authentication
             YastahDbContext context)
         {
             _context = context;
+        }
+
+        public IAsyncEnumerable<AuthenticationTicketIdentity> AsyncEnumerateIdentities(
+            Optional<bool> isDeleted = default)
+        {
+            var query = _context.Set<AuthenticationTicketEntity>()
+                .AsQueryable();
+
+            if (isDeleted.IsSpecified)
+                query = isDeleted.Value
+                    ? query.Where(x => x.DeletionId != null)
+                    : query.Where(x => x.DeletionId == null);
+
+            return query
+                .Select(AuthenticationTicketIdentity.FromEntityProjection)
+                .AsAsyncEnumerable();
         }
 
         public async Task<long> CreateAsync(
@@ -87,6 +102,7 @@ namespace Sokan.Yastah.Data.Authentication
                 CancellationToken cancellationToken)
         {
             var id = await _context.Set<AuthenticationTicketEntity>()
+                .AsQueryable()
                 .Where(x => x.UserId == userId)
                 .Where(x => x.DeletionId == null)
                 .Select(x => (long?)x.Id)
@@ -95,23 +111,6 @@ namespace Sokan.Yastah.Data.Authentication
             return (id is null)
                 ? new DataNotFoundError($"Active Authentication Ticket for User ID {userId}").ToError<long>()
                 : id.Value.ToSuccess();
-        }
-
-        public async Task<IReadOnlyCollection<AuthenticationTicketIdentity>> ReadIdentitiesAsync(
-            CancellationToken cancellationToken,
-            Optional<bool> isDeleted = default)
-        {
-            var query = _context.Set<AuthenticationTicketEntity>()
-                .AsQueryable();
-
-            if (isDeleted.IsSpecified)
-                query = isDeleted.Value
-                    ? query.Where(x => x.DeletionId != null)
-                    : query.Where(x => x.DeletionId == null);
-
-            return await query
-                .Select(AuthenticationTicketIdentity.FromEntityProjection)
-                .ToArrayAsync(cancellationToken);
         }
 
         private readonly YastahDbContext _context;

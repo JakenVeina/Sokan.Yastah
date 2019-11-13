@@ -116,6 +116,93 @@ namespace Sokan.Yastah.Data.Test.Roles
 
         #endregion AnyVersionsAsync() Tests
 
+        #region AsyncEnumerateIdentities() Tests
+
+        public static IReadOnlyList<TestCaseData> AsyncEnumerateIdentities_TestCaseData
+            => new[]
+            {
+                /*                  isDeleted                           versionIds              */
+                new TestCaseData(   Optional<bool>.Unspecified,         new[] { 1L, 5L, 7L }    ).SetName("{m}(All current versions)"),
+                new TestCaseData(   Optional<bool>.FromValue(true),     new[] { 5L }            ).SetName("{m}(Deleted current versions)"),
+                new TestCaseData(   Optional<bool>.FromValue(false),    new[] { 1L, 7L }        ).SetName("{m}(Undeleted current versions)")
+            };
+
+        [TestCaseSource(nameof(AsyncEnumerateIdentities_TestCaseData))]
+        public async Task AsyncEnumerateIdentities_Always_ReturnsMatchingIdentities(
+            Optional<bool> isDeleted,
+            IReadOnlyList<long> versionIds)
+        {
+            using (var testContext = new TestContext())
+            {
+                var uut = testContext.BuildUut();
+
+                var results = await uut.AsyncEnumerateIdentities(
+                        isDeleted)
+                    .ToArrayAsync();
+
+                results.ShouldNotBeNull();
+                results.ForEach(result => result.ShouldNotBeNull());
+                results.Select(x => x?.Id).ShouldBeSetEqualTo(versionIds.Select(x => (long?)testContext.Entities.RoleVersions.First(y => y.Id == x).RoleId));
+                foreach (var result in results)
+                {
+                    var entity = testContext.Entities.RoleVersions.First(y => (y.RoleId == result.Id) && versionIds.Contains(y.Id));
+
+                    result.Name.ShouldBe(result.Name);
+                }
+
+                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
+            }
+        }
+
+        #endregion AsyncEnumerateIdentities() Tests
+
+        #region AsyncEnumeratePermissionMappingIdentities() Tests
+
+        public static IReadOnlyList<TestCaseData> AsyncEnumeratePermissionMappingIdentities_TestCaseData
+            => new[]
+            {
+                /*                  roleId  isDeleted                           mappingIds              */
+                new TestCaseData(   1L,     Optional<bool>.FromValue(true),     Array.Empty<long>()     ).SetName("{m}(Role has no deleted mappings)"),
+                new TestCaseData(   1L,     Optional<bool>.FromValue(false),    new[] { 1L }            ).SetName("{m}(Role has only undeleted mappings)"),
+                new TestCaseData(   2L,     Optional<bool>.FromValue(true),     new[] { 2L }            ).SetName("{m}(Role has deleted mappings)"),
+                new TestCaseData(   2L,     Optional<bool>.FromValue(false),    new[] { 3L }            ).SetName("{m}(Role has undeleted mappings)"),
+                new TestCaseData(   3L,     Optional<bool>.Unspecified,         new[] { 4L, 5L, 6L }    ).SetName("{m}(Role has deleted and undeleted mappings)"),
+                new TestCaseData(   4L,     Optional<bool>.Unspecified,         Array.Empty<long>()     ).SetName("{m}(Role does not exist)")
+            };
+
+        [TestCaseSource(nameof(AsyncEnumeratePermissionMappingIdentities_TestCaseData))]
+        public async Task AsyncEnumeratePermissionMappingIdentities_Always_ReturnsMatchingIdentities(
+            long roleId,
+            Optional<bool> isDeleted,
+            IReadOnlyList<long> mappingIds)
+        {
+            using (var testContext = new TestContext())
+            {
+                var uut = testContext.BuildUut();
+
+                var results = await uut.AsyncEnumeratePermissionMappingIdentities(
+                        roleId,
+                        isDeleted)
+                    .ToArrayAsync();
+
+                results.ShouldNotBeNull();
+                results.ForEach(result => result.ShouldNotBeNull());
+                results.Select(x => x?.Id).ShouldBeSetEqualTo(mappingIds.Select(x => (long?)x));
+                foreach (var result in results)
+                {
+                    result.RoleId.ShouldBe(roleId);
+
+                    var entity = testContext.Entities.RolePermissionMappings.First(x => x.Id == result.Id);
+
+                    result.PermissionId.ShouldBe(entity.PermissionId);
+                }
+
+                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
+            }
+        }
+
+        #endregion AsyncEnumeratePermissionMappingIdentities() Tests
+
         #region CreateAsync() Tests
 
         public static IReadOnlyList<TestCaseData> CreateAsync_TestCaseData
@@ -325,93 +412,6 @@ namespace Sokan.Yastah.Data.Test.Roles
         }
 
         #endregion ReadDetailAsync() Tests
-
-        #region ReadIdentitiesAsync() Tests
-
-        public static IReadOnlyList<TestCaseData> ReadIdentitiesAsync_TestCaseData
-            => new[]
-            {
-                /*                  isDeleted                           versionIds              */
-                new TestCaseData(   Optional<bool>.Unspecified,         new[] { 1L, 5L, 7L }    ).SetName("{m}(All current versions)"),
-                new TestCaseData(   Optional<bool>.FromValue(true),     new[] { 5L }            ).SetName("{m}(Deleted current versions)"),
-                new TestCaseData(   Optional<bool>.FromValue(false),    new[] { 1L, 7L }        ).SetName("{m}(Undeleted current versions)")
-            };
-
-        [TestCaseSource(nameof(ReadIdentitiesAsync_TestCaseData))]
-        public async Task ReadIdentitiesAsync_Always_ReturnsMatchingIdentities(
-            Optional<bool> isDeleted,
-            IReadOnlyList<long> versionIds)
-        {
-            using (var testContext = new TestContext())
-            {
-                var uut = testContext.BuildUut();
-
-                var results = await uut.ReadIdentitiesAsync(
-                    testContext.CancellationToken,
-                    isDeleted);
-
-                results.ShouldNotBeNull();
-                results.ForEach(result => result.ShouldNotBeNull());
-                results.Select(x => x?.Id).ShouldBeSetEqualTo(versionIds.Select(x => (long?)testContext.Entities.RoleVersions.First(y => y.Id == x).RoleId));
-                foreach (var result in results)
-                {
-                    var entity = testContext.Entities.RoleVersions.First(y => (y.RoleId == result.Id) && versionIds.Contains(y.Id));
-
-                    result.Name.ShouldBe(result.Name);
-                }
-
-                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
-            }
-        }
-
-        #endregion ReadIdentitiesAsync() Tests
-
-        #region ReadPermissionMappingIdentitiesAsync() Tests
-
-        public static IReadOnlyList<TestCaseData> ReadPermissionMappingIdentitiesAsync_TestCaseData
-            => new[]
-            {
-                /*                  roleId  isDeleted                           mappingIds              */
-                new TestCaseData(   1L,     Optional<bool>.FromValue(true),     Array.Empty<long>()     ).SetName("{m}(Role has no deleted mappings)"),
-                new TestCaseData(   1L,     Optional<bool>.FromValue(false),    new[] { 1L }            ).SetName("{m}(Role has only undeleted mappings)"),
-                new TestCaseData(   2L,     Optional<bool>.FromValue(true),     new[] { 2L }            ).SetName("{m}(Role has deleted mappings)"),
-                new TestCaseData(   2L,     Optional<bool>.FromValue(false),    new[] { 3L }            ).SetName("{m}(Role has undeleted mappings)"),
-                new TestCaseData(   3L,     Optional<bool>.Unspecified,         new[] { 4L, 5L, 6L }    ).SetName("{m}(Role has deleted and undeleted mappings)"),
-                new TestCaseData(   4L,     Optional<bool>.Unspecified,         Array.Empty<long>()     ).SetName("{m}(Role does not exist)")
-            };
-
-        [TestCaseSource(nameof(ReadPermissionMappingIdentitiesAsync_TestCaseData))]
-        public async Task ReadPermissionMappingIdentitiesAsync_Always_ReturnsMatchingIdentities(
-            long roleId,
-            Optional<bool> isDeleted,
-            IReadOnlyList<long> mappingIds)
-        {
-            using (var testContext = new TestContext())
-            {
-                var uut = testContext.BuildUut();
-
-                var results = await uut.ReadPermissionMappingIdentitiesAsync(
-                    testContext.CancellationToken,
-                    roleId,
-                    isDeleted);
-
-                results.ShouldNotBeNull();
-                results.ForEach(result => result.ShouldNotBeNull());
-                results.Select(x => x?.Id).ShouldBeSetEqualTo(mappingIds.Select(x => (long?)x));
-                foreach (var result in results)
-                {
-                    result.RoleId.ShouldBe(roleId);
-                    
-                    var entity = testContext.Entities.RolePermissionMappings.First(x => x.Id == result.Id);
-
-                    result.PermissionId.ShouldBe(entity.PermissionId);
-                }
-
-                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
-            }
-        }
-
-        #endregion ReadPermissionMappingIdentitiesAsync() Tests
 
         #region UpdateAsync() Tests
 

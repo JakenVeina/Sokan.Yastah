@@ -82,6 +82,270 @@ namespace Sokan.Yastah.Data.Test.Users
 
         #endregion AnyAsync() Tests
 
+        #region AsyncEnumerateDefaultRoleIds() Tests
+
+        internal static IReadOnlyList<TestCaseData> AsyncEnumerateDefaultRoleIds_TestCaseData
+            => new[]
+            {
+                /*                  expectedResult      */
+                new TestCaseData(   new[] { 1L, 2L }    ).SetName("{m}()"),
+            };
+
+        [TestCaseSource(nameof(AsyncEnumerateDefaultRoleIds_TestCaseData))]
+        public async Task AsyncEnumerateDefaultRoleIds_Always_ReturnsUndeletedMappingRoleIds(
+            IReadOnlyList<long> expectedResult)
+        {
+            using (var testContext = new TestContext())
+            {
+                var uut = testContext.BuildUut();
+
+                var result = await uut.AsyncEnumerateDefaultRoleIds()
+                    .ToArrayAsync();
+
+                result.ShouldBeSetEqualTo(expectedResult);
+
+                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
+            }
+        }
+
+        #endregion AsyncEnumerateDefaultRoleIds() Tests
+
+        #region AsyncEnumerateDefaultPermissionIds() Tests
+
+        internal static IReadOnlyList<TestCaseData> AsyncEnumerateDefaultPermissionIds_TestCaseData
+            => new[]
+            {
+                /*                  expectedResult  */
+                new TestCaseData(   new[] { 1, 2 }  ).SetName("{m}()"),
+            };
+
+        [TestCaseSource(nameof(AsyncEnumerateDefaultPermissionIds_TestCaseData))]
+        public async Task AsyncEnumerateDefaultPermissionIds_Always_ReturnsUndeletedMappingPermissionIds(
+            IReadOnlyList<int> expectedResult)
+        {
+            using (var testContext = new TestContext())
+            {
+                var uut = testContext.BuildUut();
+
+                var result = await uut.AsyncEnumerateDefaultPermissionIds()
+                    .ToArrayAsync();
+
+                result.ShouldBeSetEqualTo(expectedResult);
+
+                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
+            }
+        }
+
+        #endregion AsyncEnumerateDefaultPermissionIds() Tests
+
+        #region AsyncEnumerateGrantedPermissionIdentities() Tests
+
+        internal static IReadOnlyList<TestCaseData> AsyncEnumerateGrantedPermissionIdentities_TestCaseData
+            => new[]
+            {
+                /*                  userId  grantedPermissionIds    */
+                new TestCaseData(   1UL,    new[] { 1, 2, 3 }       ).SetName("{m}(User 1)"),
+                new TestCaseData(   2UL,    new[] { 3 }             ).SetName("{m}(User 2)"),
+                new TestCaseData(   3UL,    Array.Empty<int>()      ).SetName("{m}(User 3)")
+            };
+
+        [TestCaseSource(nameof(AsyncEnumerateGrantedPermissionIdentities_TestCaseData))]
+        public async Task AsyncEnumerateGrantedPermissionIdentities_Always_ReturnsExpected(
+            ulong userId,
+            IReadOnlyList<int> permissionIds)
+        {
+            using (var testContext = new TestContext())
+            {
+                var uut = testContext.BuildUut();
+
+                var results = await uut.AsyncEnumerateGrantedPermissionIdentities(
+                        userId)
+                    .ToArrayAsync();
+
+                results.ShouldNotBeNull();
+                results.ForEach(result => result.ShouldNotBeNull());
+                results.Select(result => result.Id).ShouldBeSetEqualTo(permissionIds);
+                results.ForEach(result =>
+                {
+                    var entity = testContext.Entities.Permissions.First(p => p.PermissionId == result.Id);
+
+                    result.Name.ShouldContain(entity.Name);
+                    result.Name.ShouldContain(entity.Category.Name);
+                });
+
+                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
+            }
+        }
+
+        #endregion AsyncEnumerateGrantedPermissionIdentities() Tests
+
+        #region AsyncEnumerateIds() Tests
+
+        internal static readonly IReadOnlyList<TestCaseData> AsyncEnumerateIds_TestCaseData
+            = new[]
+            {
+                /*                  roleId                          userIds                 */
+                new TestCaseData(   Optional<long>.Unspecified,     new[] { 1UL, 2UL, 3UL } ).SetName("{m}()"),
+                new TestCaseData(   Optional<long>.FromValue(0),    Array.Empty<ulong>()    ).SetName("{m}(userId: 0)"),
+                new TestCaseData(   Optional<long>.FromValue(1),    new[] { 2UL }           ).SetName("{m}(userId: 1)"),
+                new TestCaseData(   Optional<long>.FromValue(2),    new[] { 1UL }           ).SetName("{m}(userId: 2)"),
+                new TestCaseData(   Optional<long>.FromValue(3),    new[] { 2UL }           ).SetName("{m}(userId: 3)"),
+                new TestCaseData(   Optional<long>.FromValue(4),    Array.Empty<ulong>()    ).SetName("{m}(userId: 4)")
+            };
+
+        [TestCaseSource(nameof(AsyncEnumerateIds_TestCaseData))]
+        public async Task AsyncEnumerateIds_Tests(
+            Optional<long> roleId,
+            IReadOnlyList<ulong> userIds)
+        {
+            using (var testContext = new TestContext())
+            {
+                var uut = testContext.BuildUut();
+
+                var result = await uut.AsyncEnumerateIds(
+                        roleId)
+                    .ToArrayAsync();
+
+                result.ShouldBeSetEqualTo(userIds);
+
+                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
+            }
+        }
+
+        #endregion AsyncEnumerateIds() Tests
+
+        #region AsyncEnumerateOverviews() Tests
+
+        [Test]
+        public async Task AsyncEnumerateOverviews_Always_ReturnsAllUserOverviews()
+        {
+            using (var testContext = new TestContext())
+            {
+                var uut = testContext.BuildUut();
+
+                var results = await uut.AsyncEnumerateOverviews()
+                    .ToArrayAsync();
+
+                results.ShouldNotBeNull();
+                results.ForEach(result => result.ShouldNotBeNull());
+                results.Select(result => result.Id).ShouldBeSetEqualTo(testContext.Entities.Users.Select(u => u.Id));
+                results.ForEach(result =>
+                {
+                    var entity = testContext.Entities.Users.First(u => u.Id == result.Id);
+
+                    result.Username.ShouldBe(entity.Username);
+                    result.Discriminator.ShouldBe(entity.Discriminator);
+                    result.FirstSeen.ShouldBe(entity.FirstSeen);
+                    result.LastSeen.ShouldBe(entity.LastSeen);
+                });
+
+                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
+            }
+        }
+
+        #endregion AsyncEnumerateOverviews() Tests
+
+        #region AsyncEnumeratePermissionMappingIdentities() Tests
+
+        internal static readonly IReadOnlyList<TestCaseData> AsyncEnumeratePermissionMappingIdentities_TestCaseData
+            = new[]
+            {
+                /*                  userId, isDeleted,                          mappingIds              */
+                new TestCaseData(   0UL,    Optional<bool>.Unspecified,         Array.Empty<long>()     ).SetName("{m}(userId: 0)"),
+                new TestCaseData(   1UL,    Optional<bool>.Unspecified,         new[] { 1L, 7L, 8L }    ).SetName("{m}(userId: 1)"),
+                new TestCaseData(   1UL,    Optional<bool>.FromValue(true),     new[] { 1L }            ).SetName("{m}(userId: 1, isDeleted: true)"),
+                new TestCaseData(   1UL,    Optional<bool>.FromValue(false),    new[] { 7L, 8L }        ).SetName("{m}(userId: 1, isDeleted: false)"),
+                new TestCaseData(   2UL,    Optional<bool>.Unspecified,         new[] { 4L, 5L, 6L }    ).SetName("{m}(userId: 2)"),
+                new TestCaseData(   2UL,    Optional<bool>.FromValue(true),     new[] { 5L }            ).SetName("{m}(userId: 2, isDeleted: true)"),
+                new TestCaseData(   2UL,    Optional<bool>.FromValue(false),    new[] { 4L, 6L }        ).SetName("{m}(userId: 2, isDeleted: false)"),
+                new TestCaseData(   3UL,    Optional<bool>.Unspecified,         new[] { 2L, 3L }        ).SetName("{m}(userId: 3)"),
+                new TestCaseData(   3UL,    Optional<bool>.FromValue(true),     Array.Empty<long>()     ).SetName("{m}(userId: 3, isDeleted: true)"),
+                new TestCaseData(   3UL,    Optional<bool>.FromValue(false),    new[] { 2L, 3L }        ).SetName("{m}(userId: 3, isDeleted: false)")
+           };
+
+        [TestCaseSource(nameof(AsyncEnumeratePermissionMappingIdentities_TestCaseData))]
+        public async Task AsyncEnumeratePermissionMappingIdentities_Always_ReturnsMatchingPermissionMappingIdentities(
+            ulong userId,
+            Optional<bool> isDeleted,
+            IReadOnlyList<long> mappingIds)
+        {
+            using (var testContext = new TestContext())
+            {
+                var uut = testContext.BuildUut();
+
+                var results = await uut.AsyncEnumeratePermissionMappingIdentities(
+                        userId,
+                        isDeleted)
+                    .ToArrayAsync();
+
+                results.ShouldNotBeNull();
+                results.ForEach(result => result.ShouldNotBeNull());
+                results.Select(x => x.Id).ShouldBeSetEqualTo(mappingIds);
+                results.ForEach(result =>
+                {
+                    var entity = testContext.Entities.UserPermissionMappings.First(upm => upm.Id == result.Id);
+
+                    result.UserId.ShouldBe(entity.UserId);
+                    result.PermissionId.ShouldBe(entity.PermissionId);
+                    result.IsDenied.ShouldBe(entity.IsDenied);
+                });
+
+                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
+            }
+        }
+
+        #endregion AsyncEnumeratePermissionMappingIdentities() Tests
+
+        #region AsyncEnumerateRoleMappingIdentities() Tests
+
+        internal static readonly IReadOnlyList<TestCaseData> AsyncEnumerateRoleMappingIdentities_TestCaseData
+            = new[]
+            {
+                /*                  userId, isDeleted,                          mappingIds              */
+                new TestCaseData(   0UL,    Optional<bool>.Unspecified,         Array.Empty<long>()     ).SetName("{m}(userId: 0)"),
+                new TestCaseData(   1UL,    Optional<bool>.Unspecified,         new[] { 5L, 6L }        ).SetName("{m}(userId: 1)"),
+                new TestCaseData(   1UL,    Optional<bool>.FromValue(true),     new[] { 6L }            ).SetName("{m}(userId: 1, isDeleted: true)"),
+                new TestCaseData(   1UL,    Optional<bool>.FromValue(false),    new[] { 5L }            ).SetName("{m}(userId: 1, isDeleted: false)"),
+                new TestCaseData(   2UL,    Optional<bool>.Unspecified,         new[] { 3L, 4L }        ).SetName("{m}(userId: 2)"),
+                new TestCaseData(   2UL,    Optional<bool>.FromValue(true),     Array.Empty<long>()     ).SetName("{m}(userId: 2, isDeleted: true)"),
+                new TestCaseData(   2UL,    Optional<bool>.FromValue(false),    new[] { 3L, 4L }        ).SetName("{m}(userId: 2, isDeleted: false)"),
+                new TestCaseData(   3UL,    Optional<bool>.Unspecified,         new[] { 1L, 2L }        ).SetName("{m}(userId: 3)"),
+                new TestCaseData(   3UL,    Optional<bool>.FromValue(true),     new[] { 1L, 2L }        ).SetName("{m}(userId: 3, isDeleted: true)"),
+                new TestCaseData(   3UL,    Optional<bool>.FromValue(false),    Array.Empty<long>()     ).SetName("{m}(userId: 3, isDeleted: false)")
+           };
+
+        [TestCaseSource(nameof(AsyncEnumerateRoleMappingIdentities_TestCaseData))]
+        public async Task AsyncEnumerateRoleMappingIdentities_Always_ReturnsMatchingRoleMappingIdentities(
+            ulong userId,
+            Optional<bool> isDeleted,
+            IReadOnlyList<long> mappingIds)
+        {
+            using (var testContext = new TestContext())
+            {
+                var uut = testContext.BuildUut();
+
+                var results = await uut.AsyncEnumerateRoleMappingIdentities(
+                        userId,
+                        isDeleted)
+                    .ToArrayAsync();
+
+                results.ShouldNotBeNull();
+                results.ForEach(result => result.ShouldNotBeNull());
+                results.Select(x => x.Id).ShouldBeSetEqualTo(mappingIds);
+                results.ForEach(result =>
+                {
+                    var entity = testContext.Entities.UserRoleMappings.First(upm => upm.Id == result.Id);
+
+                    result.UserId.ShouldBe(entity.UserId);
+                    result.RoleId.ShouldBe(entity.RoleId);
+                });
+
+                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
+            }
+        }
+
+        #endregion AsyncEnumerateRoleMappingIdentities() Tests
+
         #region CreatePermissionMappingsAsync() Tests
 
         public static IReadOnlyList<TestCaseData> CreatePermissionMappingsAsync_TestCaseData
@@ -359,62 +623,6 @@ namespace Sokan.Yastah.Data.Test.Users
 
         #endregion MergeAsync() Tests
 
-        #region ReadDefaultRoleIdsAsync() Tests
-
-        internal static IReadOnlyList<TestCaseData> ReadDefaultRoleIdsAsync_TestCaseData
-            => new[]
-            {
-                /*                  expectedResult      */
-                new TestCaseData(   new[] { 1L, 2L }    ).SetName("{m}()"),
-            };
-
-        [TestCaseSource(nameof(ReadDefaultRoleIdsAsync_TestCaseData))]
-        public async Task ReadDefaultRoleIdsAsync_Always_ReturnsUndeletedMappingRoleIds(
-            IReadOnlyList<long> expectedResult)
-        {
-            using (var testContext = new TestContext())
-            {
-                var uut = testContext.BuildUut();
-
-                var result = await uut.ReadDefaultRoleIdsAsync(
-                    testContext.CancellationToken);
-
-                result.ShouldBeSetEqualTo(expectedResult);
-
-                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
-            }
-        }
-
-        #endregion ReadDefaultRoleIdsAsync() Tests
-
-        #region ReadDefaultPermissionIdsAsync() Tests
-
-        internal static IReadOnlyList<TestCaseData> ReadDefaultPermissionIdsAsync_TestCaseData
-            => new[]
-            {
-                /*                  expectedResult  */
-                new TestCaseData(   new[] { 1, 2 }  ).SetName("{m}()"),
-            };
-
-        [TestCaseSource(nameof(ReadDefaultPermissionIdsAsync_TestCaseData))]
-        public async Task ReadDefaultPermissionIdsAsync_Always_ReturnsUndeletedMappingPermissionIds(
-            IReadOnlyList<int> expectedResult)
-        {
-            using (var testContext = new TestContext())
-            {
-                var uut = testContext.BuildUut();
-
-                var result = await uut.ReadDefaultPermissionIdsAsync(
-                    testContext.CancellationToken);
-
-                result.ShouldBeSetEqualTo(expectedResult);
-
-                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
-            }
-        }
-
-        #endregion ReadDefaultPermissionIdsAsync() Tests
-
         #region ReadDetailAsync() Tests
 
         internal static IReadOnlyList<TestCaseData> ReadDetailAsync_UserDoesNotExist_TestCaseData
@@ -487,214 +695,6 @@ namespace Sokan.Yastah.Data.Test.Users
         }
 
         #endregion ReadDetailAsync() Tests
-
-        #region ReadGrantedPermissionIdentitiesAsync() Tests
-
-        internal static IReadOnlyList<TestCaseData> ReadGrantedPermissionIdentitiesAsync_TestCaseData
-            => new[]
-            {
-                /*                  userId  grantedPermissionIds    */
-                new TestCaseData(   1UL,    new[] { 1, 2, 3 }       ).SetName("{m}(User 1)"),
-                new TestCaseData(   2UL,    new[] { 3 }             ).SetName("{m}(User 2)"),
-                new TestCaseData(   3UL,    Array.Empty<int>()      ).SetName("{m}(User 3)")
-            };
-
-        [TestCaseSource(nameof(ReadGrantedPermissionIdentitiesAsync_TestCaseData))]
-        public async Task ReadGrantedPermissionIdentitiesAsync_Always_ReturnsExpected(
-            ulong userId,
-            IReadOnlyList<int> permissionIds)
-        {
-            using (var testContext = new TestContext())
-            {
-                var uut = testContext.BuildUut();
-
-                var results = await uut.ReadGrantedPermissionIdentitiesAsync(
-                    userId,
-                    testContext.CancellationToken);
-
-                results.ShouldNotBeNull();
-                results.ForEach(result => result.ShouldNotBeNull());
-                results.Select(result => result.Id).ShouldBeSetEqualTo(permissionIds);
-                results.ForEach(result =>
-                {
-                    var entity = testContext.Entities.Permissions.First(p => p.PermissionId == result.Id);
-
-                    result.Name.ShouldContain(entity.Name);
-                    result.Name.ShouldContain(entity.Category.Name);
-                });
-
-                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
-            }
-        }
-
-        #endregion ReadGrantedPermissionIdentitiesAsync() Tests
-
-        #region ReadIdsAsync() Tests
-
-        internal static readonly IReadOnlyList<TestCaseData> ReadIdsAsync_TestCaseData
-            = new[]
-            {
-                /*                  roleId                          userIds                 */
-                new TestCaseData(   Optional<long>.Unspecified,     new[] { 1UL, 2UL, 3UL } ).SetName("{m}()"),
-                new TestCaseData(   Optional<long>.FromValue(0),    Array.Empty<ulong>()    ).SetName("{m}(userId: 0)"),
-                new TestCaseData(   Optional<long>.FromValue(1),    new[] { 2UL }           ).SetName("{m}(userId: 1)"),
-                new TestCaseData(   Optional<long>.FromValue(2),    new[] { 1UL }           ).SetName("{m}(userId: 2)"),
-                new TestCaseData(   Optional<long>.FromValue(3),    new[] { 2UL }           ).SetName("{m}(userId: 3)"),
-                new TestCaseData(   Optional<long>.FromValue(4),    Array.Empty<ulong>()    ).SetName("{m}(userId: 4)")
-            };
-
-        [TestCaseSource(nameof(ReadIdsAsync_TestCaseData))]
-        public async Task ReadIdsAsync_Tests(
-            Optional<long> roleId,
-            IReadOnlyList<ulong> userIds)
-        {
-            using (var testContext = new TestContext())
-            {
-                var uut = testContext.BuildUut();
-
-                var result = await uut.ReadIdsAsync(
-                    testContext.CancellationToken,
-                    roleId);
-
-                result.ShouldBeSetEqualTo(userIds);
-
-                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
-            }
-        }
-
-        #endregion ReadIdsAsync() Tests
-
-        #region ReadOverviewsAsync() Tests
-
-        [Test]
-        public async Task ReadOverviewsAsync_Always_ReturnsAllUserOverviews()
-        {
-            using (var testContext = new TestContext())
-            {
-                var uut = testContext.BuildUut();
-
-                var results = await uut.ReadOverviewsAsync(
-                    testContext.CancellationToken);
-
-                results.ShouldNotBeNull();
-                results.ForEach(result => result.ShouldNotBeNull());
-                results.Select(result => result.Id).ShouldBeSetEqualTo(testContext.Entities.Users.Select(u => u.Id));
-                results.ForEach(result =>
-                {
-                    var entity = testContext.Entities.Users.First(u => u.Id == result.Id);
-
-                    result.Username.ShouldBe(entity.Username);
-                    result.Discriminator.ShouldBe(entity.Discriminator);
-                    result.FirstSeen.ShouldBe(entity.FirstSeen);
-                    result.LastSeen.ShouldBe(entity.LastSeen);
-                });
-
-                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
-            }
-        }
-
-        #endregion ReadOverviewsAsync() Tests
-
-        #region ReadPermissionMappingIdentitiesAsync() Tests
-
-        internal static readonly IReadOnlyList<TestCaseData> ReadPermissionMappingIdentitiesAsync_TestCaseData
-            = new[]
-            {
-                /*                  userId, isDeleted,                          mappingIds              */
-                new TestCaseData(   0UL,    Optional<bool>.Unspecified,         Array.Empty<long>()     ).SetName("{m}(userId: 0)"),
-                new TestCaseData(   1UL,    Optional<bool>.Unspecified,         new[] { 1L, 7L, 8L }    ).SetName("{m}(userId: 1)"),
-                new TestCaseData(   1UL,    Optional<bool>.FromValue(true),     new[] { 1L }            ).SetName("{m}(userId: 1, isDeleted: true)"),
-                new TestCaseData(   1UL,    Optional<bool>.FromValue(false),    new[] { 7L, 8L }        ).SetName("{m}(userId: 1, isDeleted: false)"),
-                new TestCaseData(   2UL,    Optional<bool>.Unspecified,         new[] { 4L, 5L, 6L }    ).SetName("{m}(userId: 2)"),
-                new TestCaseData(   2UL,    Optional<bool>.FromValue(true),     new[] { 5L }            ).SetName("{m}(userId: 2, isDeleted: true)"),
-                new TestCaseData(   2UL,    Optional<bool>.FromValue(false),    new[] { 4L, 6L }        ).SetName("{m}(userId: 2, isDeleted: false)"),
-                new TestCaseData(   3UL,    Optional<bool>.Unspecified,         new[] { 2L, 3L }        ).SetName("{m}(userId: 3)"),
-                new TestCaseData(   3UL,    Optional<bool>.FromValue(true),     Array.Empty<long>()     ).SetName("{m}(userId: 3, isDeleted: true)"),
-                new TestCaseData(   3UL,    Optional<bool>.FromValue(false),    new[] { 2L, 3L }        ).SetName("{m}(userId: 3, isDeleted: false)")
-           };
-
-        [TestCaseSource(nameof(ReadPermissionMappingIdentitiesAsync_TestCaseData))]
-        public async Task ReadPermissionMappingIdentitiesAsync_Always_ReturnsMatchingPermissionMappingIdentities(
-            ulong userId,
-            Optional<bool> isDeleted,
-            IReadOnlyList<long> mappingIds)
-        {
-            using (var testContext = new TestContext())
-            {
-                var uut = testContext.BuildUut();
-
-                var results = await uut.ReadPermissionMappingIdentitiesAsync(
-                    testContext.CancellationToken,
-                    userId,
-                    isDeleted);
-
-                results.ShouldNotBeNull();
-                results.ForEach(result => result.ShouldNotBeNull());
-                results.Select(x => x.Id).ShouldBeSetEqualTo(mappingIds);
-                results.ForEach(result =>
-                {
-                    var entity = testContext.Entities.UserPermissionMappings.First(upm => upm.Id == result.Id);
-
-                    result.UserId.ShouldBe(entity.UserId);
-                    result.PermissionId.ShouldBe(entity.PermissionId);
-                    result.IsDenied.ShouldBe(entity.IsDenied);
-                });
-
-                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
-            }
-        }
-
-        #endregion ReadPermissionMappingIdentitiesAsync() Tests
-
-        #region ReadRoleMappingIdentitiesAsync() Tests
-
-        internal static readonly IReadOnlyList<TestCaseData> ReadRoleMappingIdentitiesAsync_TestCaseData
-            = new[]
-            {
-                /*                  userId, isDeleted,                          mappingIds              */
-                new TestCaseData(   0UL,    Optional<bool>.Unspecified,         Array.Empty<long>()     ).SetName("{m}(userId: 0)"),
-                new TestCaseData(   1UL,    Optional<bool>.Unspecified,         new[] { 5L, 6L }        ).SetName("{m}(userId: 1)"),
-                new TestCaseData(   1UL,    Optional<bool>.FromValue(true),     new[] { 6L }            ).SetName("{m}(userId: 1, isDeleted: true)"),
-                new TestCaseData(   1UL,    Optional<bool>.FromValue(false),    new[] { 5L }            ).SetName("{m}(userId: 1, isDeleted: false)"),
-                new TestCaseData(   2UL,    Optional<bool>.Unspecified,         new[] { 3L, 4L }        ).SetName("{m}(userId: 2)"),
-                new TestCaseData(   2UL,    Optional<bool>.FromValue(true),     Array.Empty<long>()     ).SetName("{m}(userId: 2, isDeleted: true)"),
-                new TestCaseData(   2UL,    Optional<bool>.FromValue(false),    new[] { 3L, 4L }        ).SetName("{m}(userId: 2, isDeleted: false)"),
-                new TestCaseData(   3UL,    Optional<bool>.Unspecified,         new[] { 1L, 2L }        ).SetName("{m}(userId: 3)"),
-                new TestCaseData(   3UL,    Optional<bool>.FromValue(true),     new[] { 1L, 2L }        ).SetName("{m}(userId: 3, isDeleted: true)"),
-                new TestCaseData(   3UL,    Optional<bool>.FromValue(false),    Array.Empty<long>()     ).SetName("{m}(userId: 3, isDeleted: false)")
-           };
-
-        [TestCaseSource(nameof(ReadRoleMappingIdentitiesAsync_TestCaseData))]
-        public async Task ReadRoleMappingIdentitiesAsync_Always_ReturnsMatchingRoleMappingIdentities(
-            ulong userId,
-            Optional<bool> isDeleted,
-            IReadOnlyList<long> mappingIds)
-        {
-            using (var testContext = new TestContext())
-            {
-                var uut = testContext.BuildUut();
-
-                var results = await uut.ReadRoleMappingIdentitiesAsync(
-                    testContext.CancellationToken,
-                    userId,
-                    isDeleted);
-
-                results.ShouldNotBeNull();
-                results.ForEach(result => result.ShouldNotBeNull());
-                results.Select(x => x.Id).ShouldBeSetEqualTo(mappingIds);
-                results.ForEach(result =>
-                {
-                    var entity = testContext.Entities.UserRoleMappings.First(upm => upm.Id == result.Id);
-
-                    result.UserId.ShouldBe(entity.UserId);
-                    result.RoleId.ShouldBe(entity.RoleId);
-                });
-
-                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
-            }
-        }
-
-        #endregion ReadRoleMappingIdentitiesAsync() Tests
 
         #region UpdatePermissionMappingsAsync() Tests
 

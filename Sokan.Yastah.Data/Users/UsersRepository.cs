@@ -22,6 +22,26 @@ namespace Sokan.Yastah.Data.Users
             CancellationToken cancellationToken,
             Optional<ulong> userId = default);
 
+        IAsyncEnumerable<long> AsyncEnumerateDefaultRoleIds();
+
+        IAsyncEnumerable<int> AsyncEnumerateDefaultPermissionIds();
+
+        IAsyncEnumerable<PermissionIdentityViewModel> AsyncEnumerateGrantedPermissionIdentities(
+            ulong userId);
+
+        IAsyncEnumerable<ulong> AsyncEnumerateIds(
+            Optional<long> roleId = default);
+
+        IAsyncEnumerable<UserOverviewViewModel> AsyncEnumerateOverviews();
+
+        IAsyncEnumerable<UserPermissionMappingIdentity> AsyncEnumeratePermissionMappingIdentities(
+            ulong userId,
+            Optional<bool> isDeleted = default);
+
+        IAsyncEnumerable<UserRoleMappingIdentity> AsyncEnumerateRoleMappingIdentities(
+            ulong userId,
+            Optional<bool> isDeleted = default);
+
         Task<IReadOnlyList<long>> CreatePermissionMappingsAsync(
             ulong userId,
             IEnumerable<int> permissionIds,
@@ -44,36 +64,9 @@ namespace Sokan.Yastah.Data.Users
             DateTimeOffset lastSeen,
             CancellationToken cancellationToken);
 
-        Task<IReadOnlyList<long>> ReadDefaultRoleIdsAsync(
-            CancellationToken cancellationToken);
-
-        Task<IReadOnlyList<int>> ReadDefaultPermissionIdsAsync(
-            CancellationToken cancellationToken);
-
         Task<OperationResult<UserDetailViewModel>> ReadDetailAsync(
             ulong userId,
             CancellationToken cancellationToken);
-
-        Task<IReadOnlyCollection<PermissionIdentityViewModel>> ReadGrantedPermissionIdentitiesAsync(
-            ulong userId,
-            CancellationToken cancellationToken);
-
-        Task<IReadOnlyCollection<ulong>> ReadIdsAsync(
-            CancellationToken cancellationToken,
-            Optional<long> roleId = default);
-
-        Task<IReadOnlyCollection<UserOverviewViewModel>> ReadOverviewsAsync(
-            CancellationToken cancellationToken);
-
-        Task<IReadOnlyCollection<UserPermissionMappingIdentity>> ReadPermissionMappingIdentitiesAsync(
-            CancellationToken cancellationToken,
-            ulong userId,
-            Optional<bool> isDeleted = default);
-
-        Task<IReadOnlyCollection<UserRoleMappingIdentity>> ReadRoleMappingIdentitiesAsync(
-            CancellationToken cancellationToken,
-            ulong userId,
-            Optional<bool> isDeleted = default);
 
         Task UpdatePermissionMappingsAsync(
             IEnumerable<long> mappingIds,
@@ -108,6 +101,105 @@ namespace Sokan.Yastah.Data.Users
                 query = query.Where(x => x.Id == userId.Value);
 
             return query.AnyAsync(cancellationToken);
+        }
+
+        public IAsyncEnumerable<long> AsyncEnumerateDefaultRoleIds()
+            => _context.Set<DefaultRoleMappingEntity>()
+                .AsQueryable()
+                .Where(x => x.DeletionId == null)
+                .Select(x => x.RoleId)
+                .AsAsyncEnumerable();
+
+        public IAsyncEnumerable<int> AsyncEnumerateDefaultPermissionIds()
+            => _context.Set<DefaultPermissionMappingEntity>()
+                .AsQueryable()
+                .Where(x => x.DeletionId == null)
+                .Select(x => x.PermissionId)
+                .AsAsyncEnumerable();
+
+        public IAsyncEnumerable<PermissionIdentityViewModel> AsyncEnumerateGrantedPermissionIdentities(
+                ulong userId)
+            => _context.Set<PermissionEntity>()
+                .AsQueryable()
+                .Where(p => _context.Set<UserPermissionMappingEntity>()
+                        .AsQueryable()
+                        .Where(upm => upm.UserId == userId)
+                        .Where(upm => !upm.IsDenied)
+                        .Where(upm => upm.DeletionId == null)
+                        .Any(upm => upm.PermissionId == p.PermissionId)
+                    || _context.Set<RolePermissionMappingEntity>()
+                        .AsQueryable()
+                        .Where(rpm => _context.Set<UserRoleMappingEntity>()
+                            .AsQueryable()
+                            .Where(urm => urm.DeletionId == null)
+                            .Where(urm => urm.UserId == userId)
+                            .Any(urm => urm.RoleId == rpm.RoleId))
+                        .Where(x => x.DeletionId == null)
+                        .Any(rpm => rpm.PermissionId == p.PermissionId))
+                .Where(p => !_context.Set<UserPermissionMappingEntity>()
+                    .AsQueryable()
+                    .Where(upm => upm.UserId == userId)
+                    .Where(upm => upm.IsDenied)
+                    .Where(upm => upm.DeletionId == null)
+                    .Any(upm => upm.PermissionId == p.PermissionId))
+                .Select(PermissionIdentityViewModel.FromEntityProjection)
+                .AsAsyncEnumerable();
+
+        public IAsyncEnumerable<ulong> AsyncEnumerateIds(
+            Optional<long> roleId = default)
+        {
+            var query = _context.Set<UserEntity>()
+                .AsQueryable();
+
+            if (roleId.IsSpecified)
+                query = query.Where(u => u.RoleMappings.Any(urm =>
+                    (urm.DeletionId == null)
+                    && (urm.RoleId == roleId.Value)));
+
+            return query
+                .Select(u => u.Id)
+                .AsAsyncEnumerable();
+        }
+
+        public IAsyncEnumerable<UserOverviewViewModel> AsyncEnumerateOverviews()
+            => _context.Set<UserEntity>()
+                .Select(UserOverviewViewModel.FromEntityProjection)
+                .AsAsyncEnumerable();
+
+        public IAsyncEnumerable<UserPermissionMappingIdentity> AsyncEnumeratePermissionMappingIdentities(
+            ulong userId,
+            Optional<bool> isDeleted = default)
+        {
+            var query = _context.Set<UserPermissionMappingEntity>()
+                .AsQueryable()
+                .Where(x => x.UserId == userId);
+
+            if (isDeleted.IsSpecified)
+                query = isDeleted.Value
+                    ? query.Where(x => x.DeletionId != null)
+                    : query.Where(x => x.DeletionId == null);
+
+            return query
+                .Select(UserPermissionMappingIdentity.FromEntityProjection)
+                .AsAsyncEnumerable();
+        }
+
+        public IAsyncEnumerable<UserRoleMappingIdentity> AsyncEnumerateRoleMappingIdentities(
+            ulong userId,
+            Optional<bool> isDeleted = default)
+        {
+            var query = _context.Set<UserRoleMappingEntity>()
+                .AsQueryable()
+                .Where(x => x.UserId == userId);
+
+            if (isDeleted.IsSpecified)
+                query = isDeleted.Value
+                    ? query.Where(x => x.DeletionId != null)
+                    : query.Where(x => x.DeletionId == null);
+
+            return query
+                .Select(UserRoleMappingIdentity.FromEntityProjection)
+                .AsAsyncEnumerable();
         }
 
         public async Task<IReadOnlyList<long>> CreatePermissionMappingsAsync(
@@ -200,27 +292,12 @@ namespace Sokan.Yastah.Data.Users
             }
         }
 
-        public async Task<IReadOnlyList<long>> ReadDefaultRoleIdsAsync(
-                CancellationToken cancellationToken)
-            => await _context
-                .Set<DefaultRoleMappingEntity>()
-                .Where(x => x.DeletionId == null)
-                .Select(x => x.RoleId)
-                .ToArrayAsync(cancellationToken);
-
-        public async Task<IReadOnlyList<int>> ReadDefaultPermissionIdsAsync(
-                CancellationToken cancellationToken)
-            => await _context
-                .Set<DefaultPermissionMappingEntity>()
-                .Where(x => x.DeletionId == null)
-                .Select(x => x.PermissionId)
-                .ToArrayAsync(cancellationToken);
-
         public async Task<OperationResult<UserDetailViewModel>> ReadDetailAsync(
             ulong userId,
             CancellationToken cancellationToken)
         {
             var result = await _context.Set<UserEntity>()
+                .AsQueryable()
                 .Where(x => x.Id == userId)
                 .Select(UserDetailViewModel.FromEntityProjection)
                 .FirstOrDefaultAsync(cancellationToken);
@@ -228,94 +305,6 @@ namespace Sokan.Yastah.Data.Users
             return (result is null)
                 ? new DataNotFoundError($"User ID {userId}").ToError<UserDetailViewModel>()
                 : result.ToSuccess();
-        }
-
-        public async Task<IReadOnlyCollection<PermissionIdentityViewModel>> ReadGrantedPermissionIdentitiesAsync(
-                ulong userId,
-                CancellationToken cancellationToken)
-            => await _context
-                .Set<PermissionEntity>()
-                .Where(p => _context
-                        .Set<UserPermissionMappingEntity>()
-                        .Where(upm => upm.UserId == userId)
-                        .Where(upm => !upm.IsDenied)
-                        .Where(upm => upm.DeletionId == null)
-                        .Any(upm => upm.PermissionId == p.PermissionId)
-                    || _context
-                        .Set<RolePermissionMappingEntity>()
-                        .Where(rpm => _context
-                            .Set<UserRoleMappingEntity>()
-                            .Where(urm => urm.DeletionId == null)
-                            .Where(urm => urm.UserId == userId)
-                            .Any(urm => urm.RoleId == rpm.RoleId))
-                        .Where(x => x.DeletionId == null)
-                        .Any(rpm => rpm.PermissionId == p.PermissionId))
-                .Where(p => !_context
-                    .Set<UserPermissionMappingEntity>()
-                    .Where(upm => upm.UserId == userId)
-                    .Where(upm => upm.IsDenied)
-                    .Where(upm => upm.DeletionId == null)
-                    .Any(upm => upm.PermissionId == p.PermissionId))
-                .Select(PermissionIdentityViewModel.FromEntityProjection)
-                .ToArrayAsync();
-
-        public async Task<IReadOnlyCollection<ulong>> ReadIdsAsync(
-            CancellationToken cancellationToken,
-            Optional<long> roleId = default)
-        {
-            var query = _context.Set<UserEntity>()
-                .AsQueryable();
-
-            if (roleId.IsSpecified)
-                query = query.Where(u => u.RoleMappings.Any(urm =>
-                    (urm.DeletionId == null)
-                    && (urm.RoleId == roleId.Value)));
-
-            return await query
-                .Select(u => u.Id)
-                .ToArrayAsync(cancellationToken);
-        }
-
-        public async Task<IReadOnlyCollection<UserOverviewViewModel>> ReadOverviewsAsync(
-                CancellationToken cancellationToken)
-            => await _context.Set<UserEntity>()
-                .Select(UserOverviewViewModel.FromEntityProjection)
-                .ToArrayAsync(cancellationToken);
-
-        public async Task<IReadOnlyCollection<UserPermissionMappingIdentity>> ReadPermissionMappingIdentitiesAsync(
-            CancellationToken cancellationToken,
-            ulong userId,
-            Optional<bool> isDeleted = default)
-        {
-            var query = _context.Set<UserPermissionMappingEntity>()
-                .Where(x => x.UserId == userId);
-
-            if (isDeleted.IsSpecified)
-                query = isDeleted.Value
-                    ? query.Where(x => x.DeletionId != null)
-                    : query.Where(x => x.DeletionId == null);
-
-            return await query
-                .Select(UserPermissionMappingIdentity.FromEntityProjection)
-                .ToArrayAsync();
-        }
-
-        public async Task<IReadOnlyCollection<UserRoleMappingIdentity>> ReadRoleMappingIdentitiesAsync(
-            CancellationToken cancellationToken,
-            ulong userId,
-            Optional<bool> isDeleted = default)
-        {
-            var query = _context.Set<UserRoleMappingEntity>()
-                .Where(x => x.UserId == userId);
-
-            if (isDeleted.IsSpecified)
-                query = isDeleted.Value
-                    ? query.Where(x => x.DeletionId != null)
-                    : query.Where(x => x.DeletionId == null);
-
-            return await query
-                .Select(UserRoleMappingIdentity.FromEntityProjection)
-                .ToArrayAsync();
         }
 
         public async Task UpdatePermissionMappingsAsync(

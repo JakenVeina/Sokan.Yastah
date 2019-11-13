@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -68,7 +69,9 @@ namespace Sokan.Yastah.Business.Users
 
             return authResult.IsFailure
                 ? authResult.Error.ToError<IReadOnlyCollection<UserOverviewViewModel>>()
-                : (await _usersRepository.ReadOverviewsAsync(cancellationToken))
+                : (await _usersRepository.AsyncEnumerateOverviews()
+                            .ToArrayAsync(cancellationToken)
+                        as IReadOnlyCollection<UserOverviewViewModel>)
                     .ToSuccess();
         }
         public async Task<OperationResult> UpdateAsync(

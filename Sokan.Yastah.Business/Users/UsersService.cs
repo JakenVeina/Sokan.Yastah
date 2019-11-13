@@ -90,7 +90,9 @@ namespace Sokan.Yastah.Business.Users
                     return new DataNotFoundError($"User ID {userId}")
                         .ToError<IReadOnlyCollection<PermissionIdentityViewModel>>();
 
-                return (await _usersRepository.ReadGrantedPermissionIdentitiesAsync(userId, cancellationToken))
+                return (await _usersRepository.AsyncEnumerateGrantedPermissionIdentities(userId)
+                            .ToArrayAsync(cancellationToken)
+                        as IReadOnlyCollection<PermissionIdentityViewModel>)
                     .ToSuccess();
             }
         }
@@ -98,13 +100,14 @@ namespace Sokan.Yastah.Business.Users
         public ValueTask<IReadOnlyCollection<ulong>> GetRoleMemberIdsAsync(
                 long roleId,
                 CancellationToken cancellationToken)
-            => _memoryCache.OptimisticGetOrCreateAsync(MakeRoleMemberIdsCacheKey(roleId), entry =>
+            => _memoryCache.OptimisticGetOrCreateAsync(MakeRoleMemberIdsCacheKey(roleId), async entry =>
             {
                 entry.Priority = CacheItemPriority.High;
 
-                return _usersRepository.ReadIdsAsync(
-                    roleId: roleId,
-                    cancellationToken: cancellationToken);
+                return await _usersRepository.AsyncEnumerateIds(
+                            roleId: roleId)
+                        .ToArrayAsync(cancellationToken)
+                    as IReadOnlyCollection<ulong>;
             });
 
         public async Task TrackUserAsync(
@@ -136,7 +139,8 @@ namespace Sokan.Yastah.Business.Users
                         cancellationToken);
 
                     var defaultPermissionIds = await _usersRepository
-                        .ReadDefaultPermissionIdsAsync(cancellationToken);
+                            .AsyncEnumerateDefaultPermissionIds()
+                        .ToArrayAsync(cancellationToken);
 
                     if (defaultPermissionIds.Any())
                         await _usersRepository.CreatePermissionMappingsAsync(
@@ -147,7 +151,8 @@ namespace Sokan.Yastah.Business.Users
                             cancellationToken);
 
                     var defaultRoleIds = await _usersRepository
-                        .ReadDefaultRoleIdsAsync(cancellationToken);
+                            .AsyncEnumerateDefaultRoleIds()
+                        .ToArrayAsync(cancellationToken);
 
                     if (defaultRoleIds.Any())
                         await _usersRepository.CreateRoleMappingsAsync(
@@ -197,10 +202,10 @@ namespace Sokan.Yastah.Business.Users
 
                 var anyChanges = false;
 
-                var permissionMappings = await _usersRepository.ReadPermissionMappingIdentitiesAsync(
-                    userId: userId,
-                    isDeleted: false,
-                    cancellationToken: cancellationToken);
+                var permissionMappings = await _usersRepository.AsyncEnumeratePermissionMappingIdentities(
+                        userId: userId,
+                        isDeleted: false)
+                    .ToArrayAsync(cancellationToken);
 
                 anyChanges |= await HandleRemovedPermissionMappings(
                     permissionMappings,
@@ -223,10 +228,10 @@ namespace Sokan.Yastah.Business.Users
                     actionId,
                     cancellationToken);
 
-                var roleMappings = await _usersRepository.ReadRoleMappingIdentitiesAsync(
-                    userId: userId,
-                    isDeleted: false,
-                    cancellationToken: cancellationToken);
+                var roleMappings = await _usersRepository.AsyncEnumerateRoleMappingIdentities(
+                        userId: userId,
+                        isDeleted: false)
+                    .ToArrayAsync(cancellationToken);
 
                 anyChanges |= await HandleRemovedRoleMappings(
                     roleMappings,

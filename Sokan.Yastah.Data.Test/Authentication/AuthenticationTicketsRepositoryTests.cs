@@ -256,9 +256,9 @@ namespace Sokan.Yastah.Data.Test.Authentication
 
         #endregion ReadActiveIdAsync() Tests
 
-        #region ReadIdentitiesAsync() Tests
+        #region AsyncEnumerateIdentities() Tests
 
-        internal static readonly IReadOnlyList<TestCaseData> ReadIdentitiesAsync_TestCaseData
+        internal static readonly IReadOnlyList<TestCaseData> AsyncEnumerateIdentities_TestCaseData
             = new[]
             {
                 /*                  isDeleted                           ticketIds                       */
@@ -267,8 +267,8 @@ namespace Sokan.Yastah.Data.Test.Authentication
                 new TestCaseData(   Optional<bool>.FromValue(false),    new[] {         3L, 4L, 5L })   .SetName("{m}(isDeleted: false)")
             };
 
-        [TestCaseSource(nameof(ReadIdentitiesAsync_TestCaseData))]
-        public async Task ReadIdentitiesAsync_Always_ReturnsMatches(
+        [TestCaseSource(nameof(AsyncEnumerateIdentities_TestCaseData))]
+        public async Task AsyncEnumerateIdentities_Always_ReturnsMatches(
             Optional<bool> isDeleted,
             IReadOnlyList<long> ticketIds)
         {
@@ -276,9 +276,9 @@ namespace Sokan.Yastah.Data.Test.Authentication
             {
                 var uut = testContext.BuildUut();
 
-                var results = await uut.ReadIdentitiesAsync(
-                    testContext.CancellationToken,
-                    isDeleted);
+                var results = await uut.AsyncEnumerateIdentities(
+                        isDeleted)
+                    .ToArrayAsync();
 
                 results.ShouldNotBeNull();
                 results.ForEach(result => result.ShouldNotBeNull());

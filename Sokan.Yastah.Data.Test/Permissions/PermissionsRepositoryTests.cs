@@ -31,17 +31,17 @@ namespace Sokan.Yastah.Data.Test.Permissions
 
         #endregion Test Context
 
-        #region ReadDescriptionsAsync() Tests
+        #region AsyncEnumerateDescriptions() Tests
 
         [Test]
-        public async Task ReadDescriptionsAsync_Always_ReturnsAllDescriptions()
+        public async Task AsyncEnumerateDescriptions_Always_ReturnsAllDescriptions()
         {
             using (var testContext = new TestContext())
             {
                 var uut = testContext.BuildUut();
 
-                var results = await uut.ReadDescriptionsAsync(
-                    testContext.CancellationToken);
+                var results = await uut.AsyncEnumerateDescriptions()
+                    .ToArrayAsync();
 
                 results.ShouldNotBeNull();
                 results.ForEach(result => result.ShouldNotBeNull());
@@ -72,19 +72,19 @@ namespace Sokan.Yastah.Data.Test.Permissions
             }
         }
 
-        #endregion ReadDescriptionsAsync() Tests
+        #endregion AsyncEnumerateDescriptions() Tests
 
-        #region ReadIdentitiesAsync() Tests
+        #region AsyncEnumerateIdentities() Tests
 
         [Test]
-        public async Task ReadIdentitiesAsync_Always_ReturnsAllDescriptions()
+        public async Task AsyncEnumerateIdentities_Always_ReturnsAllDescriptions()
         {
             using (var testContext = new TestContext())
             {
                 var uut = testContext.BuildUut();
 
-                var results = await uut.ReadIdentitiesAsync(
-                    testContext.CancellationToken);
+                var results = await uut.AsyncEnumerateIdentities()
+                    .ToArrayAsync();
 
                 results.ShouldNotBeNull();
                 results.ForEach(result => result.ShouldNotBeNull());
@@ -102,11 +102,11 @@ namespace Sokan.Yastah.Data.Test.Permissions
             }
         }
 
-        #endregion ReadIdentitiesAsync() Tests
+        #endregion AsyncEnumerateIdentities() Tests
 
-        #region ReadPermissionIdsAsync() Tests
+        #region AsyncEnumeratePermissionIds() Tests
 
-        internal static readonly IReadOnlyList<TestCaseData> ReadPermissionIdsAsync_TestCaseData
+        internal static readonly IReadOnlyList<TestCaseData> AsyncEnumeratePermissionIds_TestCaseData
             = new[]
             {
                 /*                  permissionIds                                                           expectedResult      */
@@ -121,8 +121,8 @@ namespace Sokan.Yastah.Data.Test.Permissions
                 new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] {             4 }),  Array.Empty<int>()  ).SetName("{m}(permissionIds: 4)")
             };
 
-        [TestCaseSource(nameof(ReadPermissionIdsAsync_TestCaseData))]
-        public async Task ReadPermissionIdsAsync_Always_ReturnsMatches(
+        [TestCaseSource(nameof(AsyncEnumeratePermissionIds_TestCaseData))]
+        public async Task AsyncEnumeratePermissionIds_Always_ReturnsMatches(
             Optional<IReadOnlyCollection<int>> permissionIds,
             IReadOnlyList<int> expectedResult)
         {
@@ -130,9 +130,9 @@ namespace Sokan.Yastah.Data.Test.Permissions
             {
                 var uut = testContext.BuildUut();
 
-                var result = await uut.ReadPermissionIdsAsync(
-                    testContext.CancellationToken,
-                    permissionIds);
+                var result = await uut.AsyncEnumeratePermissionIds(
+                        permissionIds)
+                    .ToArrayAsync();
 
                 result.ShouldBeSetEqualTo(expectedResult);
 
@@ -140,6 +140,6 @@ namespace Sokan.Yastah.Data.Test.Permissions
             }
         }
 
-        #endregion ReadPermissionIdsAsync() Tests
+        #endregion AsyncEnumeratePermissionIds() Tests
     }
 }

@@ -137,13 +137,14 @@ namespace Sokan.Yastah.Business.Roles
 
         public ValueTask<IReadOnlyCollection<RoleIdentityViewModel>> GetCurrentIdentitiesAsync(
                 CancellationToken cancellationToken)
-            => _memoryCache.OptimisticGetOrCreateAsync(_getCurrentIdentitiesCacheKey, entry =>
+            => _memoryCache.OptimisticGetOrCreateAsync(_getCurrentIdentitiesCacheKey, async entry =>
             {
                 entry.Priority = CacheItemPriority.High;
 
-                return _rolesRepository.ReadIdentitiesAsync(
-                    isDeleted: false,
-                    cancellationToken: cancellationToken);
+                return await _rolesRepository.AsyncEnumerateIdentities(
+                            isDeleted: false)
+                        .ToArrayAsync(cancellationToken)
+                    as IReadOnlyCollection<RoleIdentityViewModel>;
             });
 
         public async Task<OperationResult> UpdateAsync(
@@ -180,10 +181,10 @@ namespace Sokan.Yastah.Business.Roles
 
                 var anyChanges = updateResult.IsSuccess;
 
-                var permissionMappings = await _rolesRepository.ReadPermissionMappingIdentitiesAsync(
-                    roleId: roleId,
-                    isDeleted: false,
-                    cancellationToken: cancellationToken);
+                var permissionMappings = await _rolesRepository.AsyncEnumeratePermissionMappingIdentities(
+                        roleId: roleId,
+                        isDeleted: false)
+                    .ToArrayAsync(cancellationToken);
 
                 anyChanges |= await HandleRemovedPermissionMappings(
                     permissionMappings,

@@ -23,6 +23,13 @@ namespace Sokan.Yastah.Data.Roles
             Optional<bool> isDeleted = default,
             Optional<bool> isLatestVersion = default);
 
+        IAsyncEnumerable<RoleIdentityViewModel> AsyncEnumerateIdentities(
+            Optional<bool> isDeleted = default);
+
+        IAsyncEnumerable<RolePermissionMappingIdentity> AsyncEnumeratePermissionMappingIdentities(
+            long roleId,
+            Optional<bool> isDeleted = default);
+
         Task<long> CreateAsync(
             string name,
             long actionId,
@@ -35,15 +42,6 @@ namespace Sokan.Yastah.Data.Roles
             CancellationToken cancellationToken);
 
         Task<OperationResult<RoleDetailViewModel>> ReadDetailAsync(
-            CancellationToken cancellationToken,
-            long roleId,
-            Optional<bool> isDeleted = default);
-
-        Task<IReadOnlyCollection<RoleIdentityViewModel>> ReadIdentitiesAsync(
-            CancellationToken cancellationToken,
-            Optional<bool> isDeleted = default);
-
-        Task<IReadOnlyCollection<RolePermissionMappingIdentity>> ReadPermissionMappingIdentitiesAsync(
             CancellationToken cancellationToken,
             long roleId,
             Optional<bool> isDeleted = default);
@@ -99,6 +97,39 @@ namespace Sokan.Yastah.Data.Roles
             return query.AnyAsync(cancellationToken);
         }
 
+        public IAsyncEnumerable<RoleIdentityViewModel> AsyncEnumerateIdentities(
+                Optional<bool> isDeleted = default)
+        {
+            var query = _context.Set<RoleVersionEntity>()
+                .AsQueryable()
+                .Where(x => x.NextVersionId == null);
+
+            if (isDeleted.IsSpecified)
+                query = query.Where(x => x.IsDeleted == isDeleted.Value);
+
+            return query
+                .Select(RoleIdentityViewModel.FromVersionEntityProjection)
+                .AsAsyncEnumerable();
+        }
+
+        public IAsyncEnumerable<RolePermissionMappingIdentity> AsyncEnumeratePermissionMappingIdentities(
+            long roleId,
+            Optional<bool> isDeleted = default)
+        {
+            var query = _context.Set<RolePermissionMappingEntity>()
+                .AsQueryable()
+                .Where(x => x.RoleId == roleId);
+
+            if (isDeleted.IsSpecified)
+                query = isDeleted.Value
+                    ? query.Where(x => x.DeletionId != null)
+                    : query.Where(x => x.DeletionId == null);
+
+            return query
+                .Select(RolePermissionMappingIdentity.FromEntityProjection)
+                .AsAsyncEnumerable();
+        }
+
         public async Task<long> CreateAsync(
             string name,
             long actionId,
@@ -147,6 +178,7 @@ namespace Sokan.Yastah.Data.Roles
             Optional<bool> isDeleted = default)
         {
             var query = _context.Set<RoleVersionEntity>()
+                .AsQueryable()
                 .Where(x => x.NextVersionId == null)
                 .Where(x => x.RoleId == roleId);
 
@@ -162,40 +194,6 @@ namespace Sokan.Yastah.Data.Roles
                 : result.ToSuccess();
         }
 
-        public async Task<IReadOnlyCollection<RoleIdentityViewModel>> ReadIdentitiesAsync(
-                CancellationToken cancellationToken,
-                Optional<bool> isDeleted = default)
-        {
-            var query = _context.Set<RoleVersionEntity>()
-                .Where(x => x.NextVersionId == null);
-
-            if (isDeleted.IsSpecified)
-                query = query.Where(x => x.IsDeleted == isDeleted.Value);
-
-            return await query
-                .Select(RoleIdentityViewModel.FromVersionEntityProjection)
-                .ToArrayAsync(cancellationToken);
-        }
-
-        public async Task<IReadOnlyCollection<RolePermissionMappingIdentity>> ReadPermissionMappingIdentitiesAsync(
-            CancellationToken cancellationToken,
-            long roleId,
-            Optional<bool> isDeleted = default)
-        {
-            var query = _context.Set<RolePermissionMappingEntity>()
-                .Where(x => x.RoleId == roleId);
-
-            if (isDeleted.IsSpecified)
-                query = isDeleted.Value
-                    ? query.Where(x => x.DeletionId != null)
-                    : query.Where(x => x.DeletionId == null);
-
-            return await query
-                .Select(RolePermissionMappingIdentity.FromEntityProjection)
-                .ToArrayAsync();
-        }
-
-
         public async Task<OperationResult<long>> UpdateAsync(
             CancellationToken cancellationToken,
             long roleId,
@@ -206,6 +204,7 @@ namespace Sokan.Yastah.Data.Roles
             using (var transactionScope = _transactionScopeFactory.CreateScope())
             {
                 var currentVersion = await _context.Set<RoleVersionEntity>()
+                    .AsQueryable()
                     .Where(x => x.RoleId == roleId)
                     .Where(x => x.NextVersionId == null)
                     .FirstOrDefaultAsync(cancellationToken);

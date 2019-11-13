@@ -117,11 +117,10 @@ namespace Sokan.Yastah.Business.Test.Users
                     ulong userId,
                     IEnumerable<(long mappingId, int permissionId, bool isDenied)> mappings)
                 => MockUsersRepository
-                    .Setup(x => x.ReadPermissionMappingIdentitiesAsync(
-                        It.IsAny<CancellationToken>(),
+                    .Setup(x => x.AsyncEnumeratePermissionMappingIdentities(
                         It.IsAny<ulong>(),
                         It.IsAny<Optional<bool>>()))
-                    .ReturnsAsync(mappings
+                    .Returns(mappings
                         .Select(x => new UserPermissionMappingIdentity()
                         {
                             Id = x.mappingId,
@@ -129,24 +128,23 @@ namespace Sokan.Yastah.Business.Test.Users
                             PermissionId = x.permissionId,
                             IsDenied = x.isDenied
                         })
-                        .ToArray());
+                        .ToAsyncEnumerable());
 
             public void SetUserRoleMappings(
                     ulong userId,
                     IEnumerable<(long mappingId, long roleId)> mappings)
                 => MockUsersRepository
-                    .Setup(x => x.ReadRoleMappingIdentitiesAsync(
-                        It.IsAny<CancellationToken>(),
+                    .Setup(x => x.AsyncEnumerateRoleMappingIdentities(
                         It.IsAny<ulong>(),
                         It.IsAny<Optional<bool>>()))
-                    .ReturnsAsync(mappings
+                    .Returns(mappings
                         .Select(x => new UserRoleMappingIdentity()
                         {
                             Id = x.mappingId,
                             UserId = userId,
                             RoleId = x.roleId
                         })
-                        .ToArray());
+                        .ToAsyncEnumerable());
 
             public void SetValidatePermissionIdsResult(IOperationError error = null)
                 => MockPermissionsService
@@ -306,11 +304,14 @@ namespace Sokan.Yastah.Business.Test.Users
                     .Setup(x => x.AnyAsync(It.IsAny<CancellationToken>(), It.IsAny<Optional<ulong>>()))
                     .ReturnsAsync(true);
 
-                var identities = new PermissionIdentityViewModel[] { };
+                var identities = new PermissionIdentityViewModel[]
+                {
+                    new PermissionIdentityViewModel()
+                };
 
                 testContext.MockUsersRepository
-                    .Setup(x => x.ReadGrantedPermissionIdentitiesAsync(It.IsAny<ulong>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(identities);
+                    .Setup(x => x.AsyncEnumerateGrantedPermissionIdentities(It.IsAny<ulong>()))
+                    .Returns(identities.ToAsyncEnumerable());
 
                 var uut = testContext.BuildUut();
 
@@ -319,7 +320,7 @@ namespace Sokan.Yastah.Business.Test.Users
                     testContext.CancellationToken);
 
                 result.IsSuccess.ShouldBeTrue();
-                result.Value.ShouldBeSameAs(identities);
+                result.Value.ShouldBeSetEqualTo(identities);
 
                 testContext.MockPermissionsService.Invocations.ShouldBeEmpty();
 
@@ -327,7 +328,7 @@ namespace Sokan.Yastah.Business.Test.Users
                     .AnyAsync(testContext.CancellationToken, userId));
 
                 testContext.MockUsersRepository.ShouldHaveReceived(x => x
-                    .ReadGrantedPermissionIdentitiesAsync(userId, testContext.CancellationToken));
+                    .AsyncEnumerateGrantedPermissionIdentities(userId));
             }
         }
 
@@ -341,13 +342,17 @@ namespace Sokan.Yastah.Business.Test.Users
         {
             using (var testContext = new TestContext())
             {
-                var memberIds = new ulong[] { };
+                var memberIds = new ulong[]
+                {
+                    1UL,
+                    2UL,
+                    3UL
+                };
 
                 testContext.MockUsersRepository
-                    .Setup(x => x.ReadIdsAsync(
-                        It.IsAny<CancellationToken>(),
+                    .Setup(x => x.AsyncEnumerateIds(
                         It.IsAny<Optional<long>>()))
-                    .ReturnsAsync(memberIds);
+                    .Returns(memberIds.ToAsyncEnumerable());
 
                 var uut = testContext.BuildUut();
 
@@ -356,15 +361,15 @@ namespace Sokan.Yastah.Business.Test.Users
                     testContext.CancellationToken);
 
                 testContext.MockUsersRepository.ShouldHaveReceived(x => x
-                    .ReadIdsAsync(
-                        testContext.CancellationToken,
+                    .AsyncEnumerateIds(
                         roleId));
 
                 testContext.MemoryCache.TryGetValue(UsersService.MakeRoleMemberIdsCacheKey(roleId), out var cacheValue)
                     .ShouldBeTrue();
-                cacheValue.ShouldBeSameAs(memberIds);
+                cacheValue.ShouldBeAssignableTo<IReadOnlyCollection<ulong>>()
+                    .ShouldBeSetEqualTo(memberIds);
 
-                result.ShouldBeSameAs(memberIds);
+                result.ShouldBeSameAs(cacheValue);
             }
         }
 
@@ -385,8 +390,7 @@ namespace Sokan.Yastah.Business.Test.Users
                     testContext.CancellationToken);
 
                 testContext.MockUsersRepository.ShouldNotHaveReceived(x => x
-                    .ReadIdsAsync(
-                        It.IsAny<CancellationToken>(),
+                    .AsyncEnumerateIds(
                         It.IsAny<Optional<long>>()));
 
                 result.ShouldBeSameAs(memberIds);
@@ -436,12 +440,12 @@ namespace Sokan.Yastah.Business.Test.Users
                     .ReturnsAsync(MergeResult.SingleInsert);
 
                 testContext.MockUsersRepository
-                    .Setup(x => x.ReadDefaultPermissionIdsAsync(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(defaultPermissionIds.ToArray());
+                    .Setup(x => x.AsyncEnumerateDefaultPermissionIds())
+                    .Returns(defaultPermissionIds.ToAsyncEnumerable());
 
                 testContext.MockUsersRepository
-                    .Setup(x => x.ReadDefaultRoleIdsAsync(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(defaultRoleIds.ToArray());
+                    .Setup(x => x.AsyncEnumerateDefaultRoleIds())
+                    .Returns(defaultRoleIds.ToAsyncEnumerable());
 
                 var uut = testContext.BuildUut();
 
@@ -741,14 +745,12 @@ namespace Sokan.Yastah.Business.Test.Users
                     .CreateScope(default));
 
                 testContext.MockUsersRepository.ShouldHaveReceived(x => x
-                    .ReadPermissionMappingIdentitiesAsync(
-                        testContext.CancellationToken,
+                    .AsyncEnumeratePermissionMappingIdentities(
                         userId,
                         false));
 
                 testContext.MockUsersRepository.ShouldHaveReceived(x => x
-                    .ReadRoleMappingIdentitiesAsync(
-                        testContext.CancellationToken,
+                    .AsyncEnumerateRoleMappingIdentities(
                         userId,
                         false));
 
@@ -863,14 +865,12 @@ namespace Sokan.Yastah.Business.Test.Users
                         testContext.CancellationToken));
 
                 testContext.MockUsersRepository.ShouldHaveReceived(x => x
-                    .ReadPermissionMappingIdentitiesAsync(
-                        testContext.CancellationToken,
+                    .AsyncEnumeratePermissionMappingIdentities(
                         userId,
                         false));
 
                 testContext.MockUsersRepository.ShouldHaveReceived(x => x
-                    .ReadRoleMappingIdentitiesAsync(
-                        testContext.CancellationToken,
+                    .AsyncEnumerateRoleMappingIdentities(
                         userId,
                         false));
 

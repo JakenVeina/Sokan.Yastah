@@ -40,20 +40,24 @@ namespace Sokan.Yastah.Business.Permissions
 
         public ValueTask<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>> GetDescriptionsAsync(
                 CancellationToken cancellationToken)
-            => _memoryCache.OptimisticGetOrCreateAsync(_getDescriptionsCacheKey, entry =>
+            => _memoryCache.OptimisticGetOrCreateAsync(_getDescriptionsCacheKey, async entry =>
             {
                 entry.Priority = CacheItemPriority.NeverRemove;
 
-                return _permissionsRepository.ReadDescriptionsAsync(cancellationToken);
+                return await _permissionsRepository.AsyncEnumerateDescriptions()
+                        .ToArrayAsync(cancellationToken)
+                    as IReadOnlyCollection<PermissionCategoryDescriptionViewModel>;
             });
 
         public ValueTask<IReadOnlyCollection<PermissionIdentityViewModel>> GetIdentitiesAsync(
                 CancellationToken cancellationToken)
-            => _memoryCache.OptimisticGetOrCreateAsync(_getIdentitiesCacheKey, entry =>
+            => _memoryCache.OptimisticGetOrCreateAsync(_getIdentitiesCacheKey, async entry =>
             {
                 entry.Priority = CacheItemPriority.NeverRemove;
 
-                return _permissionsRepository.ReadIdentitiesAsync(cancellationToken);
+                return await _permissionsRepository.AsyncEnumerateIdentities()
+                        .ToArrayAsync(cancellationToken)
+                    as IReadOnlyCollection<PermissionIdentityViewModel>;
             });
 
         public async ValueTask<OperationResult> ValidateIdsAsync(

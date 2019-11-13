@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -14,14 +12,11 @@ namespace Sokan.Yastah.Data.Permissions
 {
     public interface IPermissionsRepository
     {
-        Task<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>> ReadDescriptionsAsync(
-            CancellationToken cancellationToken);
+        IAsyncEnumerable<PermissionCategoryDescriptionViewModel> AsyncEnumerateDescriptions();
 
-        Task<IReadOnlyCollection<PermissionIdentityViewModel>> ReadIdentitiesAsync(
-            CancellationToken cancellationToken);
+        IAsyncEnumerable<PermissionIdentityViewModel> AsyncEnumerateIdentities();
 
-        Task<IReadOnlyCollection<int>> ReadPermissionIdsAsync(
-            CancellationToken cancellationToken,
+        IAsyncEnumerable<int> AsyncEnumeratePermissionIds(
             Optional<IReadOnlyCollection<int>> permissionIds = default);
     }
 
@@ -34,22 +29,19 @@ namespace Sokan.Yastah.Data.Permissions
             _context = context;
         }
 
-        public async Task<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>> ReadDescriptionsAsync(
-                CancellationToken cancellationToken)
-            => await _context
+        public IAsyncEnumerable<PermissionCategoryDescriptionViewModel> AsyncEnumerateDescriptions()
+            => _context
                 .Set<PermissionCategoryEntity>()
                 .Select(PermissionCategoryDescriptionViewModel.FromEntityProjection)
-                .ToArrayAsync(cancellationToken);
+                .AsAsyncEnumerable();
 
-        public async Task<IReadOnlyCollection<PermissionIdentityViewModel>> ReadIdentitiesAsync(
-                CancellationToken cancellationToken)
-            => await _context
+        public IAsyncEnumerable<PermissionIdentityViewModel> AsyncEnumerateIdentities()
+            => _context
                 .Set<PermissionEntity>()
                 .Select(PermissionIdentityViewModel.FromEntityProjection)
-                .ToArrayAsync(cancellationToken);
+                .AsAsyncEnumerable();
 
-        public async Task<IReadOnlyCollection<int>> ReadPermissionIdsAsync(
-                CancellationToken cancellationToken,
+        public IAsyncEnumerable<int> AsyncEnumeratePermissionIds(
                 Optional<IReadOnlyCollection<int>> permissionIds = default)
         {
             var query = _context.Set<PermissionEntity>()
@@ -58,9 +50,9 @@ namespace Sokan.Yastah.Data.Permissions
             if (permissionIds.IsSpecified)
                 query = query.Where(x => permissionIds.Value.Contains(x.PermissionId));
 
-            return await query
+            return query
                 .Select(x => x.PermissionId)
-                .ToArrayAsync(cancellationToken);
+                .AsAsyncEnumerable();
         }
 
         private readonly YastahDbContext _context;

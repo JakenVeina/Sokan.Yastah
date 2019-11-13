@@ -128,18 +128,17 @@ namespace Sokan.Yastah.Business.Test.Roles
                     long mappingId,
                     int permissionId)> permissionMappings)
                 => MockRolesRepository
-                    .Setup(x => x.ReadPermissionMappingIdentitiesAsync(
-                        It.IsAny<CancellationToken>(),
+                    .Setup(x => x.AsyncEnumeratePermissionMappingIdentities(
                         It.IsAny<long>(),
                         It.IsAny<Optional<bool>>()))
-                    .ReturnsAsync(permissionMappings.Select(x =>
+                    .Returns(permissionMappings.Select(x =>
                         new RolePermissionMappingIdentity()
                         {
                             Id = x.mappingId,
                             RoleId = roleId,
                             PermissionId = x.permissionId
                         })
-                        .ToArray());
+                        .ToAsyncEnumerable());
 
             public void SetCurrentIdentitiesCache(IReadOnlyCollection<RoleIdentityViewModel> identities = null)
                 => MemoryCache.Set(RolesService._getCurrentIdentitiesCacheKey, identities ?? Array.Empty<RoleIdentityViewModel>());
@@ -525,13 +524,15 @@ namespace Sokan.Yastah.Business.Test.Roles
         {
             using (var testContext = new TestContext())
             {
-                var identities = new RoleIdentityViewModel[] { };
+                var identities = new RoleIdentityViewModel[]
+                {
+                    new RoleIdentityViewModel()
+                };
 
                 testContext.MockRolesRepository
-                    .Setup(x => x.ReadIdentitiesAsync(
-                        It.IsAny<CancellationToken>(),
+                    .Setup(x => x.AsyncEnumerateIdentities(
                         It.IsAny<Optional<bool>>()))
-                    .ReturnsAsync(identities);
+                    .Returns(identities.ToAsyncEnumerable());
 
                 var uut = testContext.BuildUut();
 
@@ -539,13 +540,14 @@ namespace Sokan.Yastah.Business.Test.Roles
                     testContext.CancellationToken);
 
                 testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .ReadIdentitiesAsync(testContext.CancellationToken, false));
+                    .AsyncEnumerateIdentities(false));
 
                 testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out var cacheValue)
                     .ShouldBeTrue();
-                cacheValue.ShouldBeSameAs(identities);
+                cacheValue.ShouldBeAssignableTo<IReadOnlyCollection<RoleIdentityViewModel>>()
+                    .ShouldBeSetEqualTo(identities);
 
-                result.ShouldBeSameAs(identities);
+                result.ShouldBeSameAs(cacheValue);
             }
         }
 
@@ -564,7 +566,7 @@ namespace Sokan.Yastah.Business.Test.Roles
                     testContext.CancellationToken);
 
                 testContext.MockRolesRepository.ShouldNotHaveReceived(x => x
-                    .ReadIdentitiesAsync(It.IsAny<CancellationToken>(), It.IsAny<Optional<bool>>()));
+                    .AsyncEnumerateIdentities(It.IsAny<Optional<bool>>()));
 
                 result.ShouldBeSameAs(identities);
             }
@@ -878,8 +880,7 @@ namespace Sokan.Yastah.Business.Test.Roles
                         default));
 
                 testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .ReadPermissionMappingIdentitiesAsync(
-                        testContext.CancellationToken,
+                    .AsyncEnumeratePermissionMappingIdentities(
                         roleId,
                         false));
 
@@ -977,8 +978,7 @@ namespace Sokan.Yastah.Business.Test.Roles
                         default));
 
                 testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .ReadPermissionMappingIdentitiesAsync(
-                        testContext.CancellationToken,
+                    .AsyncEnumeratePermissionMappingIdentities(
                         roleId,
                         false));
 
@@ -1094,8 +1094,7 @@ namespace Sokan.Yastah.Business.Test.Roles
                         default));
 
                 testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .ReadPermissionMappingIdentitiesAsync(
-                        testContext.CancellationToken,
+                    .AsyncEnumeratePermissionMappingIdentities(
                         roleId,
                         false));
 
@@ -1243,10 +1242,9 @@ namespace Sokan.Yastah.Business.Test.Roles
                     .ToArray();
 
                 testContext.MockRolesRepository
-                    .Setup(x => x.ReadIdentitiesAsync(
-                        It.IsAny<CancellationToken>(),
+                    .Setup(x => x.AsyncEnumerateIdentities(
                         It.IsAny<Optional<bool>>()))
-                    .ReturnsAsync(identities);
+                    .Returns(identities.ToAsyncEnumerable());
 
                 var uut = testContext.BuildUut();
 
@@ -1257,8 +1255,7 @@ namespace Sokan.Yastah.Business.Test.Roles
                 result.IsSuccess.ShouldBeTrue();
 
                 testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .ReadIdentitiesAsync(
-                        testContext.CancellationToken,
+                    .AsyncEnumerateIdentities(
                         false));
             }
         }
@@ -1281,8 +1278,7 @@ namespace Sokan.Yastah.Business.Test.Roles
                 result.IsSuccess.ShouldBeTrue();
 
                 testContext.MockRolesRepository.ShouldNotHaveReceived(x => x
-                    .ReadIdentitiesAsync(
-                        It.IsAny<CancellationToken>(),
+                    .AsyncEnumerateIdentities(
                         It.IsAny<Optional<bool>>()));
             }
         }

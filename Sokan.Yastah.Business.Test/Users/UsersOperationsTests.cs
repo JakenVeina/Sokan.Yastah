@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -197,11 +198,14 @@ namespace Sokan.Yastah.Business.Test.Users
         {
             using (var testContext = new TestContext())
             {
-                var overviews = new UserOverviewViewModel[] { };
+                var overviews = new UserOverviewViewModel[]
+                {
+                    new UserOverviewViewModel()
+                };
 
                 testContext.MockUsersRepository
-                    .Setup(x => x.ReadOverviewsAsync(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(overviews);
+                    .Setup(x => x.AsyncEnumerateOverviews())
+                    .Returns(overviews.ToAsyncEnumerable());
 
                 var uut = testContext.BuildUut();
 
@@ -209,7 +213,7 @@ namespace Sokan.Yastah.Business.Test.Users
                     testContext.CancellationToken);
 
                 result.IsSuccess.ShouldBeTrue();
-                result.Value.ShouldBeSameAs(overviews);
+                result.Value.ShouldBeSetEqualTo(overviews);
 
                 testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                     .RequirePermissionsAsync(
@@ -219,7 +223,7 @@ namespace Sokan.Yastah.Business.Test.Users
                 testContext.MockUsersService.Invocations.ShouldBeEmpty();
 
                 testContext.MockUsersRepository
-                    .ShouldHaveReceived(x => x.ReadOverviewsAsync(testContext.CancellationToken));
+                    .ShouldHaveReceived(x => x.AsyncEnumerateOverviews());
             }
         }
 
