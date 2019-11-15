@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -43,7 +44,7 @@ namespace Sokan.Yastah.Business.Test.Roles
                 MockRolesService = new Mock<IRolesService>();
             }
 
-            public AuthenticationTicket CurrentTicket;
+            public AuthenticationTicket? CurrentTicket;
 
             public OperationResult RequirePermissionsResult;
 
@@ -273,7 +274,10 @@ namespace Sokan.Yastah.Business.Test.Roles
         {
             using (var testContext = new TestContext())
             {
-                var detail = new RoleDetailViewModel();
+                var detail = new RoleDetailViewModel(
+                    id:                     default,
+                    name:                   string.Empty,
+                    grantedPermissionIds:   Array.Empty<int>());
 
                 testContext.MockRolesRepository
                     .Setup(x => x.ReadDetailAsync(It.IsAny<CancellationToken>(), It.IsAny<long>(), It.IsAny<Optional<bool>>()))

@@ -24,12 +24,10 @@ namespace Sokan.Yastah.Data.Users
                     .Cast<UserManagementAdministrationActionType>();
 
                 foreach (var type in types)
-                    entityBuilder.HasData(new AdministrationActionTypeEntity()
-                    {
-                        Id = (int)type,
-                        CategoryId = (int)AdministrationActionCategory.UserManagement,
-                        Name = type.ToString()
-                    });
+                    entityBuilder.HasData(new AdministrationActionTypeEntity(
+                        id:         (int)type,
+                        categoryId: (int)AdministrationActionCategory.UserManagement,
+                        name:       type.ToString()));
             });
     }
 }

@@ -25,12 +25,10 @@ namespace Sokan.Yastah.Data.Roles
                     .Cast<RoleManagementAdministrationActionType>();
 
                 foreach (var type in types)
-                    entityBuilder.HasData(new AdministrationActionTypeEntity()
-                    {
-                        Id = (int)type,
-                        CategoryId = (int)AdministrationActionCategory.RoleManagement,
-                        Name = type.ToString()
-                    });
+                    entityBuilder.HasData(new AdministrationActionTypeEntity(
+                        id:         (int)type,
+                        categoryId: (int)AdministrationActionCategory.RoleManagement,
+                        name:       type.ToString()));
             });
     }
 }

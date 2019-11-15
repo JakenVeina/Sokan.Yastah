@@ -17,11 +17,9 @@ namespace Sokan.Yastah.Data.Administration
             => modelBuilder.Entity<AdministrationActionCategoryEntity>(entityBuilder =>
             {
                 foreach (var category in EnumEx.EnumerateValues<AdministrationActionCategory>())
-                    entityBuilder.HasData(new AdministrationActionCategoryEntity()
-                    {
-                        Id = (int)category,
-                        Name = category.ToString()
-                    });
+                    entityBuilder.HasData(new AdministrationActionCategoryEntity(
+                        id:     (int)category,
+                        name:   category.ToString()));
             });
     }
 }

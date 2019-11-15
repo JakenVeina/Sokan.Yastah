@@ -15,7 +15,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
     {
         #region Test Cases
 
-        public static readonly IReadOnlyList<string> ValueTestCases
+        public static readonly IReadOnlyList<string?> ValueTestCases
             = new[]
             {
                 null,
@@ -58,7 +58,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
 
         [TestCaseSource(nameof(ValueTestCases))]
         public void ToOperator_Always_ResultIsFromValue(
-            string value)
+            string? value)
         {
             var result = value.ToOptional();
 
@@ -72,7 +72,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
 
         [TestCaseSource(nameof(ValueTestCases))]
         public void ToSuccess_Always_ResultIsFromValue(
-            string value)
+            string? value)
         {
             var result = value.ToSuccess();
 

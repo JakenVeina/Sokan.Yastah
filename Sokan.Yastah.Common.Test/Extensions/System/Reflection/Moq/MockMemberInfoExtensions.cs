@@ -2,7 +2,7 @@
 {
     public static class MockMemberInfoExtensions
     {
-        public static MockMemberInfo<T> AddCustomAttribute<T>(this MockMemberInfo<T> @this, Action<MockCustomAttributeData> setup = null)
+        public static MockMemberInfo<T> AddCustomAttribute<T>(this MockMemberInfo<T> @this, Action<MockCustomAttributeData>? setup = null)
             where T : MemberInfo
         {
             var mockCustomAttribute = new MockCustomAttributeData();

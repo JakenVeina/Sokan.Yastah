@@ -2,10 +2,20 @@
 {
     public class UserIdentityViewModel
     {
-        public ulong Id { get; internal set; }
+        public UserIdentityViewModel(
+            ulong id,
+            string username,
+            string discriminator)
+        {
+            Id = id;
+            Username = username;
+            Discriminator = discriminator;
+        }
 
-        public string Username { get; internal set; }
+        public ulong Id { get; }
 
-        public string Discriminator { get; internal set; }
+        public string Username { get; }
+
+        public string Discriminator { get; }
     }
 }

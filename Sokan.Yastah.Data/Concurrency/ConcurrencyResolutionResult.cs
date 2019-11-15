@@ -26,7 +26,7 @@ namespace Sokan.Yastah.Data.Concurrency
         public bool Equals(ConcurrencyResolutionResult result)
             => _isHandled == result._isHandled;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => (obj is ConcurrencyResolutionResult result)
                 ? Equals(result)
                 : false;

@@ -5,21 +5,31 @@ namespace Sokan.Yastah.Data.Users
 {
     public class UserPermissionMappingIdentity
     {
-        public long Id { get; internal set; }
+        public UserPermissionMappingIdentity(
+            long id,
+            ulong userId,
+            int permissionId,
+            bool isDenied)
+        {
+            Id = id;
+            UserId = userId;
+            PermissionId = permissionId;
+            IsDenied = isDenied;
+        }
 
-        public ulong UserId { get; internal set; }
+        public long Id { get; }
 
-        public int PermissionId { get; internal set; }
+        public ulong UserId { get; }
 
-        public bool IsDenied { get; internal set; }
+        public int PermissionId { get; }
+
+        public bool IsDenied { get; }
 
         internal static readonly Expression<Func<UserPermissionMappingEntity, UserPermissionMappingIdentity>> FromEntityProjection
-            = e => new UserPermissionMappingIdentity()
-            {
-                Id = e.Id,
-                UserId = e.UserId,
-                PermissionId = e.PermissionId,
-                IsDenied = e.IsDenied
-            };
+            = e => new UserPermissionMappingIdentity(
+                e.Id,
+                e.UserId,
+                e.PermissionId,
+                e.IsDenied);
     }
 }

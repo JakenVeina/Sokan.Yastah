@@ -32,12 +32,11 @@ namespace Sokan.Yastah.Data.Administration
             ulong performedById,
             CancellationToken cancellationToken)
         {
-            var action = new AdministrationActionEntity()
-            {
-                TypeId = typeId,
-                Performed = performed,
-                PerformedById = performedById
-            };
+            var action = new AdministrationActionEntity(
+                id:             default,
+                typeId:         typeId,
+                performed:      performed,
+                performedById:  performedById);
 
             await _context.AddAsync(action, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);

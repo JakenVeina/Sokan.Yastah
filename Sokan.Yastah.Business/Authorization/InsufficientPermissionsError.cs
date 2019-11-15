@@ -12,7 +12,7 @@ namespace Sokan.Yastah.Business.Authorization
                 IReadOnlyDictionary<int, string> missingPermissions)
             : base("Insufficient permissions to perform this operation")
         {
-            MissingPermissions = missingPermissions ?? throw new ArgumentNullException(nameof(missingPermissions));
+            MissingPermissions = missingPermissions;
         }
 
         public IReadOnlyDictionary<int, string> MissingPermissions { get; }

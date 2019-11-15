@@ -7,11 +7,14 @@ namespace Sokan.Yastah.Business.Users
     {
         [Required]
         public IReadOnlyCollection<int> GrantedPermissionIds { get; set; }
+            = null!;
 
         [Required]
         public IReadOnlyCollection<int> DeniedPermissionIds { get; set; }
+            = null!;
 
         [Required]
         public IReadOnlyCollection<long> AssignedRoleIds { get; set; }
+            = null!;
     }
 }

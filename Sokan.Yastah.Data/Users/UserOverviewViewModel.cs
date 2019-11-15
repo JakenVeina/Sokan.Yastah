@@ -6,18 +6,31 @@ namespace Sokan.Yastah.Data.Users
     public class UserOverviewViewModel
         : UserIdentityViewModel
     {
-        public DateTimeOffset FirstSeen { get; internal set; }
+        public UserOverviewViewModel(
+                ulong id,
+                string username,
+                string discriminator,
+                DateTimeOffset firstSeen,
+                DateTimeOffset lastSeen)
+            : base(
+                id,
+                username,
+                discriminator)
+        {
+            FirstSeen = firstSeen;
+            LastSeen = lastSeen;
+        }
 
-        public DateTimeOffset LastSeen { get; internal set; }
+        public DateTimeOffset FirstSeen { get; }
 
-        internal  static readonly Expression<Func<UserEntity, UserOverviewViewModel>> FromEntityProjection
-            = e => new UserOverviewViewModel()
-            {
-                Id = e.Id,
-                Username = e.Username,
-                Discriminator = e.Discriminator,
-                FirstSeen = e.FirstSeen,
-                LastSeen = e.LastSeen
-            };
+        public DateTimeOffset LastSeen { get; }
+
+        internal static readonly Expression<Func<UserEntity, UserOverviewViewModel>> FromEntityProjection
+            = e => new UserOverviewViewModel(
+                e.Id,
+                e.Username,
+                e.Discriminator,
+                e.FirstSeen,
+                e.LastSeen);
     }
 }

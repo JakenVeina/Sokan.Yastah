@@ -8,12 +8,7 @@ namespace Sokan.Yastah.Common.OperationModel
             = new OperationResult(null);
 
         public static OperationResult FromError(IOperationError error)
-        {
-            if (error is null)
-                throw new ArgumentNullException(nameof(error));
-
-            return new OperationResult(error);
-        }
+            => new OperationResult(error);
 
         public static OperationResult<T> FromError<T>(IOperationError error)
             => OperationResult<T>.FromError(error);
@@ -21,7 +16,7 @@ namespace Sokan.Yastah.Common.OperationModel
         public static OperationResult<T> FromValue<T>(T value)
             => OperationResult<T>.FromValue(value);
 
-        private OperationResult(IOperationError error)
+        private OperationResult(IOperationError? error)
             => _error = error;
 
         public IOperationError Error
@@ -33,6 +28,6 @@ namespace Sokan.Yastah.Common.OperationModel
         public bool IsSuccess
             => _error is null;
 
-        private readonly IOperationError _error;
+        private readonly IOperationError? _error;
     }
 }

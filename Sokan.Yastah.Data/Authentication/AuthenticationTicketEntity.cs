@@ -11,24 +11,38 @@ namespace Sokan.Yastah.Data.Authentication
     [Table("AuthenticationTickets", Schema = "Authentication")]
     internal class AuthenticationTicketEntity
     {
+        public AuthenticationTicketEntity(
+            long id,
+            ulong userId,
+            long creationId,
+            long? deletionId)
+        {
+            Id = id;
+            UserId = userId;
+            CreationId = creationId;
+            DeletionId = deletionId;
+        }
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long Id { get; set; }
+        public long Id { get; internal set; }
 
         [ForeignKey(nameof(User))]
-        public ulong UserId { get; set; }
+        public ulong UserId { get; }
 
-        public UserEntity User { get; set; }
+        public UserEntity User { get; internal set; }
+            = null!;
 
         [ForeignKey(nameof(Creation))]
-        public long CreationId { get; set; }
+        public long CreationId { get; }
 
-        public AdministrationActionEntity Creation { get; set; }
+        public AdministrationActionEntity Creation { get; internal set; }
+            = null!;
 
         [ForeignKey(nameof(Deletion))]
         public long? DeletionId { get; set; }
 
-        public AdministrationActionEntity Deletion { get; set; }
+        public AdministrationActionEntity? Deletion { get; set; }
 
         [OnModelCreating]
         public static void OnModelCreating(ModelBuilder modelBuilder)

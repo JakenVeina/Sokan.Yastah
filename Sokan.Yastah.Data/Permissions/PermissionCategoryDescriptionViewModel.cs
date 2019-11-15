@@ -7,28 +7,36 @@ namespace Sokan.Yastah.Data.Permissions
 {
     public class PermissionCategoryDescriptionViewModel
     {
-        public int Id { get; internal set; }
+        public PermissionCategoryDescriptionViewModel(
+            int id,
+            string name,
+            string description,
+            IReadOnlyCollection<PermissionDescriptionViewModel> permissions)
+        {
+            Id = id;
+            Name = name;
+            Description = description;
+            Permissions = permissions;
+        }
 
-        public string Name { get; internal set; }
+        public int Id { get; }
 
-        public string Description { get; internal set; }
+        public string Name { get; }
 
-        public IReadOnlyCollection<PermissionDescriptionViewModel> Permissions { get; internal set; }
+        public string Description { get; }
+
+        public IReadOnlyCollection<PermissionDescriptionViewModel> Permissions { get; }
 
         internal static readonly Expression<Func<PermissionCategoryEntity, PermissionCategoryDescriptionViewModel>> FromEntityProjection
-            = e => new PermissionCategoryDescriptionViewModel()
-            {
-                Id = e.Id,
-                Name = e.Name,
-                Description = e.Description,
-                Permissions = e.Permissions
-                    .Select(p => new PermissionDescriptionViewModel()
-                    {
-                        Id = p.PermissionId,
-                        Name = p.Name,
-                        Description = p.Description
-                    })
-                    .ToArray()
-            };
+            = e => new PermissionCategoryDescriptionViewModel(
+                e.Id,
+                e.Name,
+                e.Description,
+                e.Permissions
+                    .Select(p => new PermissionDescriptionViewModel(
+                        p.PermissionId,
+                        p.Name,
+                        p.Description))
+                    .ToArray());
     }
 }

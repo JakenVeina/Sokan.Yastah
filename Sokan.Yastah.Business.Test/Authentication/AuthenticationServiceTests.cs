@@ -115,11 +115,9 @@ namespace Sokan.Yastah.Business.Test.Authentication
 
             public void SetGrantedPermissions(IReadOnlyDictionary<int, string> grantedPermissions)
                 => GrantedPermissions = grantedPermissions
-                    .Select(x => new PermissionIdentityViewModel()
-                    {
-                        Id = x.Key,
-                        Name = x.Value
-                    })
+                    .Select(x => new PermissionIdentityViewModel(
+                        id:     x.Key,
+                        name:   x.Value))
                     .ToArray();
 
             public void SetNoActiveTicket(ulong userId)
@@ -369,7 +367,7 @@ namespace Sokan.Yastah.Business.Test.Authentication
                     testContext.CancellationToken);
 
                 result.ShouldNotBeNull();
-                result.Id.ShouldBe(ticketId);
+                result!.Id.ShouldBe(ticketId);
                 result.UserId.ShouldBe(userId);
                 result.Username.ShouldBe(username);
                 result.Discriminator.ShouldBe(discriminator);
@@ -488,7 +486,7 @@ namespace Sokan.Yastah.Business.Test.Authentication
                     testContext.CancellationToken);
 
                 result.ShouldNotBeNull();
-                result.Id.ShouldBe(ticketId);
+                result!.Id.ShouldBe(ticketId);
                 result.UserId.ShouldBe(userId);
                 result.Username.ShouldBe(username);
                 result.Discriminator.ShouldBe(discriminator);
@@ -537,7 +535,7 @@ namespace Sokan.Yastah.Business.Test.Authentication
                     testContext.CancellationToken);
 
                 result.ShouldNotBeNull();
-                result.Id.ShouldBe(ticketId);
+                result!.Id.ShouldBe(ticketId);
                 result.UserId.ShouldBe(userId);
                 result.Username.ShouldBe(username);
                 result.Discriminator.ShouldBe(discriminator);
@@ -589,7 +587,7 @@ namespace Sokan.Yastah.Business.Test.Authentication
                     testContext.CancellationToken);
 
                 result.ShouldNotBeNull();
-                result.Id.ShouldBe(ticketId);
+                result!.Id.ShouldBe(ticketId);
                 result.UserId.ShouldBe(userId);
                 result.Username.ShouldBe(username);
                 result.Discriminator.ShouldBe(discriminator);

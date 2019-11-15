@@ -18,7 +18,7 @@ namespace System.Reflection.Moq
                 .Returns(() => MockCustomAttributes.Select(x => x.Object));
         }
 
-        public Type DeclaringType { get; set; }
+        public Type? DeclaringType { get; set; }
 
         public List<MockCustomAttributeData> MockCustomAttributes { get; }
             = new List<MockCustomAttributeData>();

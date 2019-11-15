@@ -13,15 +13,6 @@ namespace Sokan.Yastah.Business.Test.Authorization
     {
         #region Constructor() Tests
 
-        [Test]
-        public void Constructor_MissingPermissionsIsNull_ThrowsException()
-        {
-            Should.Throw<ArgumentNullException>(() =>
-            {
-                _ = new InsufficientPermissionsError(null);
-            });
-        }
-
         internal static readonly IReadOnlyList<TestCaseData> Constructor_MissingPermissionsIsNotNull_TestCaseData
             = new[]
             {

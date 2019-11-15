@@ -11,9 +11,11 @@ namespace Sokan.Yastah.Business.Authorization
     {
         [Required]
         public ulong[] AdminUserIds { get; set; }
+            = null!;
 
         [Required]
         public ulong[] MemberGuildIds { get; set; }
+            = null!;
 
         [OnConfigureServices]
         public static void ConfigureServices(IServiceCollection services, IConfiguration configuration)

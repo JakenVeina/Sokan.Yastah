@@ -13,7 +13,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
     {
         #region Test Cases
 
-        public static readonly IReadOnlyList<string> ValueTestCases
+        public static readonly IReadOnlyList<string?> ValueTestCases
             = new[]
             {
                 null,
@@ -70,9 +70,9 @@ namespace Sokan.Yastah.Common.Test.OperationModel
 
         [TestCaseSource(nameof(ValueTestCases))]
         public void FromValue_Always_IsSpecified(
-            string value)
+            string? value)
         {
-            var result = Optional<string>.FromValue(value);
+            var result = Optional<string?>.FromValue(value);
 
             result.IsSpecified.ShouldBeTrue();
             result.IsUnspecified.ShouldBeFalse();
@@ -80,9 +80,9 @@ namespace Sokan.Yastah.Common.Test.OperationModel
 
         [TestCaseSource(nameof(ValueTestCases))]
         public void FromValue_Always_ValueIsGiven(
-            string value)
+            string? value)
         {
-            var result = Optional<string>.FromValue(value);
+            var result = Optional<string?>.FromValue(value);
 
             result.Value.ShouldBe(value);
         }
@@ -93,9 +93,9 @@ namespace Sokan.Yastah.Common.Test.OperationModel
 
         [TestCaseSource(nameof(ValueTestCases))]
         public void Operator_CastFromValue_Always_ResultIsFromValue(
-            string value)
+            string? value)
         {
-            var result = (Optional<string>)value;
+            var result = (Optional<string?>)value;
 
             result.IsSpecified.ShouldBeTrue();
             result.Value.ShouldBe(value);

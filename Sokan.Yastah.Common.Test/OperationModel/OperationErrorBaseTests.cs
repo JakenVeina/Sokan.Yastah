@@ -27,24 +27,8 @@ namespace Sokan.Yastah.Common.Test.OperationModel
 
         #region Constructor Tests
 
-        [Test]
-        public void Constructor_MessageIsNull_ThrowsException()
-        {
-            Should.Throw<ArgumentNullException>(() =>
-            {
-                try
-                {
-                    _ = new Mock<OperationErrorBase>(null).Object;
-                }
-                catch(TargetInvocationException ex)
-                {
-                    throw ex.InnerException;
-                }
-            });
-        }
-
         [TestCaseSource(nameof(ValidMessageTestCases))]
-        public void Constructor_MessageIsNotNull_CodeIsTypeName(
+        public void Constructor_Always_CodeIsTypeName(
             string message)
         {
             var uut = new Mock<OperationErrorBase>(message).Object;
@@ -53,7 +37,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         }
 
         [TestCaseSource(nameof(ValidMessageTestCases))]
-        public void Constructor_MessageIsNotNull_MessageIsGiven(
+        public void Constructor_Always_MessageIsGiven(
             string message)
         {
             var uut = new Mock<OperationErrorBase>(message).Object;

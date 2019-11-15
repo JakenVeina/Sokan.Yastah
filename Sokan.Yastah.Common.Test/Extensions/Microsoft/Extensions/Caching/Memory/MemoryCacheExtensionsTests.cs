@@ -15,13 +15,6 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.Caching.Memor
     {
         #region Test Cases
 
-        public static readonly IReadOnlyList<object> ItemTestCases
-            = new []
-            {
-                null,
-                new object()
-            };
-
         public class TestContext
         {
             public TestContext()
@@ -45,6 +38,7 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.Caching.Memor
                 = new Mock<Func<ICacheEntry, Task<object>>>();
 
             public object Item { get; set; }
+                = new object();
 
             public delegate void TryGetValueCallback(object key, out object value);
         }
@@ -53,18 +47,14 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.Caching.Memor
 
         #region OptimisticGetOrCreateAsync() Tests
 
-        [TestCaseSource(nameof(ItemTestCases))]
-        public async Task OptimisticGetOrCreateAsync_MemoryCacheDoesNotContainKey_CreatesCacheEntry(
-            object item)
+        [Test]
+        public async Task OptimisticGetOrCreateAsync_MemoryCacheDoesNotContainKey_CreatesCacheEntry()
         {
-            var testContext = new TestContext()
-            {
-                Item = item
-            };
+            var testContext = new TestContext();
 
             testContext.MockMemoryCache
                 .Setup(x => x.TryGetValue(It.IsAny<object>(), out It.Ref<object>.IsAny))
-                .Callback(new TestContext.TryGetValueCallback((object k, out object v) => v = default))
+                .Callback(new TestContext.TryGetValueCallback((object k, out object v) => v = new object()))
                 .Returns(false);
 
             var key = new object();
@@ -73,28 +63,24 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.Caching.Memor
                 key,
                 testContext.MockFactory.Object);
 
-            result.ShouldBeSameAs(item);
+            result.ShouldBeSameAs(testContext.Item);
 
             testContext.MockMemoryCache.ShouldHaveReceived(x => x.CreateEntry(key));
 
             testContext.MockFactory.ShouldHaveReceived(x => x.Invoke(testContext.MockCacheEntry.Object));
 
-            testContext.MockCacheEntry.ShouldHaveReceivedSet(x => x.Value = item);
+            testContext.MockCacheEntry.ShouldHaveReceivedSet(x => x.Value = testContext.Item);
             testContext.MockCacheEntry.ShouldHaveReceived(x => x.Dispose());
         }
 
-        [TestCaseSource(nameof(ItemTestCases))]
-        public async Task OptimisticGetOrCreateAsync_FactoryThrowsException_DoesNotCommitCacheEntry(
-            object item)
+        [Test]
+        public async Task OptimisticGetOrCreateAsync_FactoryThrowsException_DoesNotCommitCacheEntry()
         {
-            var testContext = new TestContext()
-            {
-                Item = item
-            };
+            var testContext = new TestContext();
 
             testContext.MockMemoryCache
                 .Setup(x => x.TryGetValue(It.IsAny<object>(), out It.Ref<object>.IsAny))
-                .Callback(new TestContext.TryGetValueCallback((object k, out object v) => v = default))
+                .Callback(new TestContext.TryGetValueCallback((object k, out object v) => v = new object()))
                 .Returns(false);
 
             testContext.MockFactory
@@ -118,14 +104,12 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.Caching.Memor
             testContext.MockCacheEntry.ShouldNotHaveReceived(x => x.Dispose());
         }
 
-        [TestCaseSource(nameof(ItemTestCases))]
-        public async Task OptimisticGetOrCreateAsync_MemoryCacheContainsKey_DoesNotCreateCacheEntry(
-            object item)
+        [Test]
+        public async Task OptimisticGetOrCreateAsync_MemoryCacheContainsKey_DoesNotCreateCacheEntry()
         {
-            var testContext = new TestContext()
-            {
-                Item = item
-            };
+            var testContext = new TestContext();
+
+            var item = new object();
 
             testContext.MockMemoryCache
                 .Setup(x => x.TryGetValue(It.IsAny<object>(), out It.Ref<object>.IsAny))

@@ -5,18 +5,26 @@ namespace Sokan.Yastah.Data.Roles
 {
     public class RolePermissionMappingIdentity
     {
-        public long Id { get; internal set; }
+        public RolePermissionMappingIdentity(
+            long id,
+            long roleId,
+            int permissionId)
+        {
+            Id = id;
+            RoleId = roleId;
+            PermissionId = permissionId;
+        }
 
-        public long RoleId { get; internal set; }
+        public long Id { get; }
 
-        public int PermissionId { get; internal set; }
+        public long RoleId { get; }
+
+        public int PermissionId { get; }
 
         internal static readonly Expression<Func<RolePermissionMappingEntity, RolePermissionMappingIdentity>> FromEntityProjection
-            = e => new RolePermissionMappingIdentity()
-            {
-                Id = e.Id,
-                RoleId = e.RoleId,
-                PermissionId = e.PermissionId
-            };
+            = e => new RolePermissionMappingIdentity(
+                e.Id,
+                e.RoleId,
+                e.PermissionId);
     }
 }

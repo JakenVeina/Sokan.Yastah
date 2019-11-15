@@ -137,7 +137,7 @@ namespace Sokan.Yastah.Api.Authentication
             }
 
             return JArray.Parse(await response.Content.ReadAsStringAsync())
-                .Select(guild => ulong.Parse((guild as JObject)
+                .Select(guild => ulong.Parse(((JObject)guild)
                     .Property("id").Value.ToString()));
         }
 

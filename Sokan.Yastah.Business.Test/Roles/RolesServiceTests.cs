@@ -132,27 +132,23 @@ namespace Sokan.Yastah.Business.Test.Roles
                         It.IsAny<long>(),
                         It.IsAny<Optional<bool>>()))
                     .Returns(permissionMappings.Select(x =>
-                        new RolePermissionMappingIdentity()
-                        {
-                            Id = x.mappingId,
-                            RoleId = roleId,
-                            PermissionId = x.permissionId
-                        })
+                        new RolePermissionMappingIdentity(
+                            id:             x.mappingId,
+                            roleId:         roleId,
+                            permissionId:   x.permissionId))
                         .ToAsyncEnumerable());
 
-            public void SetCurrentIdentitiesCache(IReadOnlyCollection<RoleIdentityViewModel> identities = null)
+            public void SetCurrentIdentitiesCache(IReadOnlyCollection<RoleIdentityViewModel>? identities = null)
                 => MemoryCache.Set(RolesService._getCurrentIdentitiesCacheKey, identities ?? Array.Empty<RoleIdentityViewModel>());
 
             public void SetCurrentIdentitiesCache(IReadOnlyCollection<long> roleIds)
                 => SetCurrentIdentitiesCache(roleIds
-                    .Select(x => new RoleIdentityViewModel()
-                    {
-                        Id = x,
-                        Name = $"Role {x}"
-                    })
+                    .Select(x => new RoleIdentityViewModel(
+                        id:     x,
+                        name:   $"Role {x}"))
                     .ToArray());
 
-            public void SetValidatePermissionIdsResult(IOperationError error = null)
+            public void SetValidatePermissionIdsResult(IOperationError? error = null)
                 => MockPermissionsService
                     .Setup(x => x.ValidateIdsAsync(
                         It.IsAny<IReadOnlyCollection<int>>(),
@@ -526,7 +522,9 @@ namespace Sokan.Yastah.Business.Test.Roles
             {
                 var identities = new RoleIdentityViewModel[]
                 {
-                    new RoleIdentityViewModel()
+                    new RoleIdentityViewModel(
+                        id:     default,
+                        name:   string.Empty)
                 };
 
                 testContext.MockRolesRepository
@@ -1234,11 +1232,9 @@ namespace Sokan.Yastah.Business.Test.Roles
             using (var testContext = new TestContext())
             {
                 var identities = roleIds
-                    .Select(x => new RoleIdentityViewModel()
-                    {
-                        Id = x,
-                        Name = $"Role {x}"
-                    })
+                    .Select(x => new RoleIdentityViewModel(
+                        id:     x,
+                        name:   $"Role {x}"))
                     .ToArray();
 
                 testContext.MockRolesRepository

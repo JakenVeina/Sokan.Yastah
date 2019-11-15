@@ -5,15 +5,21 @@ namespace Sokan.Yastah.Data.Roles
 {
     public class RoleIdentityViewModel
     {
-        public long Id { get; internal set; }
+        public RoleIdentityViewModel(
+            long id,
+            string name)
+        {
+            Id = id;
+            Name = name;
+        }
 
-        public string Name { get; internal set; }
+        public long Id { get; }
+
+        public string Name { get; }
 
         internal static readonly Expression<Func<RoleVersionEntity, RoleIdentityViewModel>> FromVersionEntityProjection
-            = ve => new RoleIdentityViewModel()
-            {
-                Id = ve.RoleId,
-                Name = ve.Name
-            };
+            = ve => new RoleIdentityViewModel(
+                ve.RoleId,
+                ve.Name);
     }
 }

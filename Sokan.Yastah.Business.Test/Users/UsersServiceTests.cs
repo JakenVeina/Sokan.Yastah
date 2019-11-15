@@ -110,7 +110,7 @@ namespace Sokan.Yastah.Business.Test.Users
 
             public void SetRoleMemberIdsCache(
                     long roleId,
-                    IReadOnlyCollection<ulong> memberIds = null)
+                    IReadOnlyCollection<ulong>? memberIds = null)
                 => MemoryCache.Set(UsersService.MakeRoleMemberIdsCacheKey(roleId), memberIds ?? Array.Empty<ulong>());
 
             public void SetUserPermissionMappings(
@@ -121,13 +121,11 @@ namespace Sokan.Yastah.Business.Test.Users
                         It.IsAny<ulong>(),
                         It.IsAny<Optional<bool>>()))
                     .Returns(mappings
-                        .Select(x => new UserPermissionMappingIdentity()
-                        {
-                            Id = x.mappingId,
-                            UserId = userId,
-                            PermissionId = x.permissionId,
-                            IsDenied = x.isDenied
-                        })
+                        .Select(x => new UserPermissionMappingIdentity(
+                            id:             x.mappingId,
+                            userId:         userId,
+                            permissionId:   x.permissionId,
+                            isDenied:       x.isDenied))
                         .ToAsyncEnumerable());
 
             public void SetUserRoleMappings(
@@ -138,15 +136,13 @@ namespace Sokan.Yastah.Business.Test.Users
                         It.IsAny<ulong>(),
                         It.IsAny<Optional<bool>>()))
                     .Returns(mappings
-                        .Select(x => new UserRoleMappingIdentity()
-                        {
-                            Id = x.mappingId,
-                            UserId = userId,
-                            RoleId = x.roleId
-                        })
+                        .Select(x => new UserRoleMappingIdentity(
+                            id:     x.mappingId,
+                            userId: userId,
+                            roleId: x.roleId))
                         .ToAsyncEnumerable());
 
-            public void SetValidatePermissionIdsResult(IOperationError error = null)
+            public void SetValidatePermissionIdsResult(IOperationError? error = null)
                 => MockPermissionsService
                     .Setup(x => x.ValidateIdsAsync(
                         It.IsAny<IReadOnlyCollection<int>>(),
@@ -155,7 +151,7 @@ namespace Sokan.Yastah.Business.Test.Users
                         ? OperationResult.Success
                         : error.ToError());
 
-            public void SetValidateRoleIdsResult(IOperationError error = null)
+            public void SetValidateRoleIdsResult(IOperationError? error = null)
                 => MockRolesService
                     .Setup(x => x.ValidateIdsAsync(
                         It.IsAny<IReadOnlyCollection<long>>(),
@@ -306,7 +302,9 @@ namespace Sokan.Yastah.Business.Test.Users
 
                 var identities = new PermissionIdentityViewModel[]
                 {
-                    new PermissionIdentityViewModel()
+                    new PermissionIdentityViewModel(
+                        id:     default,
+                        name:   string.Empty)
                 };
 
                 testContext.MockUsersRepository

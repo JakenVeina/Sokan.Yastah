@@ -26,13 +26,11 @@ namespace Sokan.Yastah.Data.Administration
             => modelBuilder.Entity<PermissionEntity>(entityBuilder =>
             {
                 foreach (var category in EnumEx.EnumerateValuesWithDescriptions<AdministrationPermission>())
-                    entityBuilder.HasData(new PermissionEntity()
-                    {
-                        CategoryId = (int)PermissionCategory.Administration,
-                        PermissionId = (int)category.value,
-                        Name = category.value.ToString(),
-                        Description = category.description
-                    });
+                    entityBuilder.HasData(new PermissionEntity(
+                        categoryId:     (int)PermissionCategory.Administration,
+                        permissionId:   (int)category.value,
+                        name:           category.value.ToString(),
+                        description:    category.description));
             });
     }
 }

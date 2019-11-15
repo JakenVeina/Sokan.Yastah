@@ -210,13 +210,13 @@ namespace Sokan.Yastah.Data.Users
             CancellationToken cancellationToken)
         {
             var entities = permissionIds
-                .Select(permissionId => new UserPermissionMappingEntity()
-                {
-                    UserId = userId,
-                    PermissionId = permissionId,
-                    IsDenied = type == PermissionMappingType.Denied,
-                    CreationId = actionId
-                })
+                .Select(permissionId => new UserPermissionMappingEntity(
+                    id:             default,
+                    userId:         userId,
+                    permissionId:   permissionId,
+                    isDenied:       type == PermissionMappingType.Denied,
+                    creationId:     actionId,
+                    deletionId:     null))
                 .ToArray();
 
             await _context.AddRangeAsync(entities, cancellationToken);
@@ -234,12 +234,12 @@ namespace Sokan.Yastah.Data.Users
             CancellationToken cancellationToken)
         {
             var entities = roleIds
-                .Select(roleId => new UserRoleMappingEntity()
-                {
-                    UserId = userId,
-                    RoleId = roleId,
-                    CreationId = actionId
-                })
+                .Select(roleId => new UserRoleMappingEntity(
+                    id:         default,
+                    userId:     userId,
+                    roleId:     roleId,
+                    creationId: actionId,
+                    deletionId: null))
                 .ToArray();
 
             await _context.AddRangeAsync(entities, cancellationToken);
@@ -264,25 +264,29 @@ namespace Sokan.Yastah.Data.Users
                 var result = MergeResult.SingleUpdate;
 
                 var entity = await _context
-                    .FindAsync<UserEntity>(new object[] { id }, cancellationToken);
+                    .FindAsync<UserEntity?>(new object[] { id }, cancellationToken);
 
                 if (entity is null)
                 {
                     result = MergeResult.SingleInsert;
 
-                    entity = new UserEntity()
-                    {
-                        Id = id,
-                        FirstSeen = firstSeen
-                    };
+                    entity = new UserEntity(
+                        id,
+                        username,
+                        discriminator,
+                        avatarHash,
+                        firstSeen,
+                        lastSeen);
 
                     await _context.AddAsync(entity, cancellationToken);
                 }
-
-                entity.Username = username;
-                entity.Discriminator = discriminator;
-                entity.AvatarHash = avatarHash;
-                entity.LastSeen = lastSeen;
+                else
+                {
+                    entity.Username = username;
+                    entity.Discriminator = discriminator;
+                    entity.AvatarHash = avatarHash;
+                    entity.LastSeen = lastSeen;
+                }
 
                 await _context.SaveChangesAsync(cancellationToken);
 

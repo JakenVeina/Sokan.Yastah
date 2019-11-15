@@ -11,31 +11,50 @@ namespace Sokan.Yastah.Data.Users
     [Table("UserPermissionMappings", Schema = "Users")]
     internal class UserPermissionMappingEntity
     {
+        public UserPermissionMappingEntity(
+            long id,
+            ulong userId,
+            int permissionId,
+            bool isDenied,
+            long creationId,
+            long? deletionId)
+        {
+            Id = id;
+            UserId = userId;
+            PermissionId = permissionId;
+            IsDenied = isDenied;
+            CreationId = creationId;
+            DeletionId = deletionId;
+        }
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long Id { get; set; }
+        public long Id { get; internal set; }
 
         [ForeignKey(nameof(User))]
-        public ulong UserId { get; set; }
+        public ulong UserId { get; }
 
-        public UserEntity User { get; set; }
+        public UserEntity User { get; internal set; }
+            = null!;
 
         [ForeignKey(nameof(Permission))]
-        public int PermissionId { get; set; }
+        public int PermissionId { get; }
 
-        public PermissionEntity Permission { get; set; }
+        public PermissionEntity Permission { get; internal set; }
+            = null!;
 
-        public bool IsDenied { get; set; }
+        public bool IsDenied { get; }
 
         [ForeignKey(nameof(Creation))]
-        public long CreationId { get; set; }
+        public long CreationId { get; }
 
-        public AdministrationActionEntity Creation { get; set; }
+        public AdministrationActionEntity Creation { get; internal set; }
+            = null!;
 
         [ForeignKey(nameof(Deletion))]
         public long? DeletionId { get; set; }
 
-        public AdministrationActionEntity Deletion { get; set; }
+        public AdministrationActionEntity? Deletion { get; set; }
 
         [OnModelCreating]
         public static void OnModelCreating(ModelBuilder modelBuilder)
@@ -44,6 +63,9 @@ namespace Sokan.Yastah.Data.Users
                 entityBuilder
                     .Property(x => x.UserId)
                     .HasConversion<long>();
+
+                entityBuilder
+                    .Property(x => x.IsDenied);
             });
     }
 }

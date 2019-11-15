@@ -19,6 +19,7 @@ namespace Sokan.Yastah.Api.Authentication
             TokenHeaderAndPayloadCookieKey = ApiAuthenticationDefaults.TokenHeaderAndPayloadCookieKey;
             TokenLifetime = ApiAuthenticationDefaults.TokenLifetime;
             TokenRefreshInterval = ApiAuthenticationDefaults.TokenRefreshInterval;
+            TokenSecret = string.Empty;
             TokenSignatureCookieKey = ApiAuthenticationDefaults.TokenSignatureCookieKey;
         }
 

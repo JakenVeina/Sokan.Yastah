@@ -14,7 +14,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
     {
         #region Test Cases
 
-        public static readonly IReadOnlyList<string> ValueTestCases
+        public static readonly IReadOnlyList<string?> ValueTestCases
             = new[]
             {
                 null,
@@ -70,15 +70,6 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         #region FromError() Tests
 
         [Test]
-        public void FromError_ErrorIsNull_ThrowsException()
-        {
-            Should.Throw<ArgumentNullException>(() =>
-            {
-                _ = OperationResult.FromError(null);
-            });
-        }
-
-        [Test]
         public void FromError_Otherwise_IsFailure()
         {
             var error = new Mock<IOperationError>().Object;
@@ -102,15 +93,6 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         #endregion FromError() Tests
 
         #region FromError<T>() Tests
-
-        [Test]
-        public void FromError_Generic_ErrorIsNull_ThrowsException()
-        {
-            Should.Throw<ArgumentNullException>(() =>
-            {
-                _ = OperationResult.FromError<string>(null);
-            });
-        }
 
         [Test]
         public void FromError_Generic_Otherwise_IsFailure()
@@ -152,7 +134,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
 
         [TestCaseSource(nameof(ValueTestCases))]
         public void FromValue_Always_IsSuccess(
-            string value)
+            string? value)
         {
             var result = OperationResult.FromValue(value);
 
@@ -162,7 +144,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
 
         [TestCaseSource(nameof(ValueTestCases))]
         public void FromValue_Always_ErrorThrowsException(
-            string value)
+            string? value)
         {
             var result = OperationResult.FromValue(value);
 
@@ -174,7 +156,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
 
         [TestCaseSource(nameof(ValueTestCases))]
         public void FromValue_Always_ValueIsGiven(
-            string value)
+            string? value)
         {
             var result = OperationResult.FromValue(value);
 

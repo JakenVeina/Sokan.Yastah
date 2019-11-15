@@ -135,18 +135,30 @@ namespace Sokan.Yastah.Data.Roles
             long actionId,
             CancellationToken cancellationToken)
         {
-            var version = new RoleVersionEntity()
+            using (var transactionScope = _transactionScopeFactory.CreateScope())
             {
-                Role = new RoleEntity(),
-                Name = name,
-                IsDeleted = false,
-                ActionId = actionId
-            };
+                var role = new RoleEntity(
+                    id: default);
 
-            await _context.AddAsync(version, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
+                await _context.AddAsync(role, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
 
-            return version.Role.Id;
+                var version = new RoleVersionEntity(
+                    id: default,
+                    roleId: role.Id,
+                    name: name,
+                    isDeleted: false,
+                    actionId: actionId,
+                    previousVersionId: null,
+                    nextVersionId: null);
+
+                await _context.AddAsync(version, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
+
+                transactionScope.Complete();
+
+                return version.Role.Id;
+            }
         }
 
         public async Task<IReadOnlyCollection<long>> CreatePermissionMappingsAsync(
@@ -156,12 +168,12 @@ namespace Sokan.Yastah.Data.Roles
             CancellationToken cancellationToken)
         {
             var mappings = permissionIds
-                .Select(permissionId => new RolePermissionMappingEntity()
-                {
-                    RoleId = roleId,
-                    PermissionId = permissionId,
-                    CreationId = actionId
-                })
+                .Select(permissionId => new RolePermissionMappingEntity(
+                    id:             default,
+                    roleId:         roleId,
+                    permissionId:   permissionId,
+                    creationId:     actionId,
+                    deletionId:     null))
                 .ToArray();
 
             await _context.AddRangeAsync(mappings, cancellationToken);
@@ -213,18 +225,19 @@ namespace Sokan.Yastah.Data.Roles
                     return new DataNotFoundError($"Role ID {roleId}")
                         .ToError<long>();
 
-                var newVersion = new RoleVersionEntity()
-                {
-                    RoleId = currentVersion.RoleId,
-                    Name = (name.IsSpecified)
-                        ? name.Value
-                        : currentVersion.Name,
-                    IsDeleted = (isDeleted.IsSpecified)
-                        ? isDeleted.Value
-                        : currentVersion.IsDeleted,
-                    ActionId = actionId,
-                    PreviousVersionId = currentVersion.Id
-                };
+                var newVersion = new RoleVersionEntity(
+                    id:                 default,
+                    roleId:             currentVersion.RoleId,
+                    name:               name.IsSpecified
+                                            ? name.Value
+                                            : currentVersion.Name,
+                    isDeleted:          isDeleted.IsSpecified
+                                            ? isDeleted.Value
+                                            : currentVersion.IsDeleted,
+                    actionId:           actionId,
+                    previousVersionId:  currentVersion.Id,
+                    nextVersionId:      null
+                );
 
                 if ((newVersion.Name == currentVersion.Name)
                         && (newVersion.IsDeleted == currentVersion.IsDeleted))

@@ -14,6 +14,7 @@ namespace Sokan.Yastah.Business
 
         [Required]
         public string ClientSecret { get; set; }
+            = null!;
 
         [OnConfigureServices]
         public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)

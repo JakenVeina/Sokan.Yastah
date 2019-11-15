@@ -14,6 +14,7 @@ namespace Sokan.Yastah.Api.Authentication
 
         [Required]
         public string TokenSecret { get; set; }
+            = null!;
 
         [OnConfigureServices]
         public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)

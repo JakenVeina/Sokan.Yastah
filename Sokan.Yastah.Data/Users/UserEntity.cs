@@ -10,9 +10,25 @@ namespace Sokan.Yastah.Data.Users
     [Table("Users", Schema = "Users")]
     internal class UserEntity
     {
+        public UserEntity(
+            ulong id,
+            string username,
+            string discriminator,
+            string? avatarHash,
+            DateTimeOffset firstSeen,
+            DateTimeOffset lastSeen)
+        {
+            Id = id;
+            Username = username;
+            Discriminator = discriminator;
+            AvatarHash = avatarHash;
+            FirstSeen = firstSeen;
+            LastSeen = lastSeen;
+        }
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public ulong Id { get; set; }
+        public ulong Id { get; internal set; }
 
         [Required]
         public string Username { get; set; }
@@ -20,15 +36,17 @@ namespace Sokan.Yastah.Data.Users
         [Required]
         public string Discriminator { get; set; }
 
-        public string AvatarHash { get; set; }
+        public string? AvatarHash { get; set; }
 
-        public DateTimeOffset FirstSeen { get; set; }
+        public DateTimeOffset FirstSeen { get; }
 
         public DateTimeOffset LastSeen { get; set; }
 
-        public ICollection<UserPermissionMappingEntity> PermissionMappings { get; set; }
+        public ICollection<UserPermissionMappingEntity> PermissionMappings { get; internal set; }
+            = null!;
 
-        public ICollection<UserRoleMappingEntity> RoleMappings { get; set; }
+        public ICollection<UserRoleMappingEntity> RoleMappings { get; internal set; }
+            = null!;
 
         [OnModelCreating]
         public static void OnModelCreating(ModelBuilder modelBuilder)
@@ -37,6 +55,9 @@ namespace Sokan.Yastah.Data.Users
                 entityBuilder
                     .Property(x => x.Id)
                     .HasConversion<long>();
+
+                entityBuilder
+                    .Property(x => x.FirstSeen);
             });
     }
 }

@@ -224,14 +224,25 @@ namespace Sokan.Yastah.Data.Test.Roles
         {
             using (var testContext = new TestContext(isReadOnly: false))
             {
+                var roleEntity = null as RoleEntity;
+                var roleVersionEntity = null as RoleVersionEntity;
+
+                testContext.MockContext
+                    .Setup(x => x.AddAsync(It.IsAny<RoleEntity>(), It.IsAny<CancellationToken>()))
+                    .Callback<RoleEntity, CancellationToken>((x, y) => roleEntity = x);
                 testContext.MockContext
                     .Setup(x => x.AddAsync(It.IsAny<RoleVersionEntity>(), It.IsAny<CancellationToken>()))
-                    .Callback<RoleVersionEntity, CancellationToken>((x, y) =>
+                    .Callback<RoleVersionEntity, CancellationToken>((x, y) => roleVersionEntity = x);
+
+                testContext.MockContext
+                    .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                    .Callback(() =>
                     {
-                        if(x?.Role != null)
+                        if (roleEntity is { })
                         {
-                            x.Role.Id = roleId;
-                            x.RoleId = roleId;
+                            roleEntity.Id = roleId;
+                            if (roleVersionEntity is { })
+                                roleVersionEntity.Role = roleEntity;
                         }
                     });
 
@@ -242,24 +253,29 @@ namespace Sokan.Yastah.Data.Test.Roles
                     actionId,
                     testContext.CancellationToken);
 
+                testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
+                    .CreateScope(default));
+
+                testContext.MockContext
+                    .ShouldHaveReceived(x => x.AddAsync(It.IsNotNull<RoleEntity>(), testContext.CancellationToken));
                 testContext.MockContext
                     .ShouldHaveReceived(x => x.AddAsync(It.IsNotNull<RoleVersionEntity>(), testContext.CancellationToken));
                 testContext.MockContext
-                    .ShouldHaveReceived(x => x.SaveChangesAsync(testContext.CancellationToken));
+                    .ShouldHaveReceived(x => x.SaveChangesAsync(testContext.CancellationToken), Times.Exactly(2));
 
-                var entity = testContext.MockContext
-                    .Invocations
-                    .Where(x => x.Method.Name == nameof(YastahDbContext.AddAsync))
-                    .Select(x => (RoleVersionEntity)x.Arguments[0])
-                    .First();
+                testContext.MockTransactionScope.ShouldHaveReceived(x => x
+                    .Complete());
+                testContext.MockTransactionScope.ShouldHaveReceived(x => x
+                    .Dispose());
 
-                entity.Name.ShouldBe(name);
-                entity.ActionId.ShouldBe(actionId);
-                entity.PreviousVersionId.ShouldBeNull();
-                entity.NextVersionId.ShouldBeNull();
-                entity.RoleId.ShouldBe(roleId);
-                entity.Role.ShouldNotBeNull();
-                entity.Role.Id.ShouldBe(roleId);
+                roleEntity!.Id.ShouldBe(roleId);
+
+                roleVersionEntity!.Name.ShouldBe(name);
+                roleVersionEntity.ActionId.ShouldBe(actionId);
+                roleVersionEntity.PreviousVersionId.ShouldBeNull();
+                roleVersionEntity.NextVersionId.ShouldBeNull();
+                roleVersionEntity.RoleId.ShouldBe(roleId);
+                roleVersionEntity.Role.ShouldBeSameAs(roleEntity);
 
                 result.ShouldBe(roleId);
             }

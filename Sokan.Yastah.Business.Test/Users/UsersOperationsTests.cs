@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,7 +45,7 @@ namespace Sokan.Yastah.Business.Test.Users
                 MockUsersService = new Mock<IUsersService>();
             }
 
-            public AuthenticationTicket CurrentTicket;
+            public AuthenticationTicket? CurrentTicket;
 
             public OperationResult RequirePermissionsResult;
 
@@ -135,7 +136,15 @@ namespace Sokan.Yastah.Business.Test.Users
         {
             using (var testContext = new TestContext())
             {
-                var detail = new UserDetailViewModel();
+                var detail = new UserDetailViewModel(
+                    id:                     default,
+                    username:               string.Empty,
+                    discriminator:          string.Empty,
+                    firstSeen:              default,
+                    lastSeen:               default,
+                    grantedPermissionIds:   Array.Empty<int>(),
+                    deniedPermissionIds:    Array.Empty<int>(),
+                    assignedRoleIds:        Array.Empty<long>());
 
                 testContext.MockUsersRepository
                     .Setup(x => x.ReadDetailAsync(It.IsAny<ulong>(), It.IsAny<CancellationToken>()))
@@ -200,7 +209,12 @@ namespace Sokan.Yastah.Business.Test.Users
             {
                 var overviews = new UserOverviewViewModel[]
                 {
-                    new UserOverviewViewModel()
+                    new UserOverviewViewModel(
+                        id:             default,
+                        username:       string.Empty,
+                        discriminator:  string.Empty,
+                        firstSeen:      default,
+                        lastSeen:       default)
                 };
 
                 testContext.MockUsersRepository

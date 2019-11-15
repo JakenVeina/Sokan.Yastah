@@ -7,8 +7,10 @@ namespace Sokan.Yastah.Business.Roles
     {
         [Required]
         public string Name { get; set; }
+            = null!;
 
         [Required]
         public IReadOnlyCollection<int> GrantedPermissionIds { get; set; }
+            = null!;
     }
 }

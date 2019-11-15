@@ -5,15 +5,21 @@ namespace Sokan.Yastah.Data.Permissions
 {
     public class PermissionIdentityViewModel
     {
-        public int Id { get; internal set; }
+        public PermissionIdentityViewModel(
+            int id,
+            string name)
+        {
+            Id = id;
+            Name = name;
+        }
 
-        public string Name { get; internal set; }
+        public int Id { get; }
+
+        public string Name { get; }
 
         internal static readonly Expression<Func<PermissionEntity, PermissionIdentityViewModel>> FromEntityProjection
-            = entity => new PermissionIdentityViewModel()
-            {
-                Id = entity.PermissionId,
-                Name = entity.Category.Name + "." + entity.Name
-            };
+            = p => new PermissionIdentityViewModel(
+                p.PermissionId,
+                p.Category.Name + "." + p.Name);
     }
 }

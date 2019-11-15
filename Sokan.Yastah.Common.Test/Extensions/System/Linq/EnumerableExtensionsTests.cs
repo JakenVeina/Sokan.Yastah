@@ -13,7 +13,7 @@ namespace Sokan.Yastah.Common.Test.Extensions.System.Linq
     {
         #region Test Cases
 
-        public static readonly IReadOnlyList<string[]> SequenceTestCases
+        public static readonly IReadOnlyList<string?[]> SequenceTestCases
             = new[]
             {
                 Array.Empty<string>(),
@@ -27,9 +27,9 @@ namespace Sokan.Yastah.Common.Test.Extensions.System.Linq
         #region Do() Tests
 
         [TestCaseSource(nameof(SequenceTestCases))]
-        public void Do_Always_InvokesActionForEachItemInSequence(params string[] sequence)
+        public void Do_Always_InvokesActionForEachItemInSequence(params string?[] sequence)
         {
-            var mockAction = new Mock<Action<string>>();
+            var mockAction = new Mock<Action<string?>>();
 
             sequence.Do(mockAction.Object)
                 .ToArray();
@@ -41,9 +41,9 @@ namespace Sokan.Yastah.Common.Test.Extensions.System.Linq
         }
 
         [TestCaseSource(nameof(SequenceTestCases))]
-        public void Do_Always_ReturnsEachItemInSequence(params string[] sequence)
+        public void Do_Always_ReturnsEachItemInSequence(params string?[] sequence)
         {
-            var mockAction = new Mock<Action<string>>();
+            var mockAction = new Mock<Action<string?>>();
 
             var result = sequence.Do(mockAction.Object)
                 .ToArray();
@@ -56,9 +56,9 @@ namespace Sokan.Yastah.Common.Test.Extensions.System.Linq
         #region ForEach() Tests
 
         [TestCaseSource(nameof(SequenceTestCases))]
-        public void ForEach_Always_InvokesActionForEachItemInSequence(params string[] sequence)
+        public void ForEach_Always_InvokesActionForEachItemInSequence(params string?[] sequence)
         {
-            var mockAction = new Mock<Action<string>>();
+            var mockAction = new Mock<Action<string?>>();
 
             sequence.ForEach(mockAction.Object);
 

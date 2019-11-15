@@ -21,7 +21,7 @@ namespace Sokan.Yastah.Business.Authentication
 {
     public interface IAuthenticationService
     {
-        AuthenticationTicket CurrentTicket { get; }
+        AuthenticationTicket? CurrentTicket { get; }
 
         Task<AuthenticationTicket> OnAuthenticatedAsync(
             long ticketId,
@@ -32,7 +32,7 @@ namespace Sokan.Yastah.Business.Authentication
             IReadOnlyDictionary<int, string> grantedPermissions,
             CancellationToken cancellationToken);
 
-        Task<AuthenticationTicket> OnSignInAsync(
+        Task<AuthenticationTicket?> OnSignInAsync(
             ulong userId,
             string username,
             string discriminator,
@@ -61,7 +61,7 @@ namespace Sokan.Yastah.Business.Authentication
             _usersService = usersService;
         }
 
-        public AuthenticationTicket CurrentTicket
+        public AuthenticationTicket? CurrentTicket
             => _currentTicket;
 
         public async Task<AuthenticationTicket> OnAuthenticatedAsync(
@@ -93,7 +93,7 @@ namespace Sokan.Yastah.Business.Authentication
             return _currentTicket;
         }
 
-        public async Task<AuthenticationTicket> OnSignInAsync(
+        public async Task<AuthenticationTicket?> OnSignInAsync(
             ulong userId,
             string username,
             string discriminator,
@@ -212,7 +212,7 @@ namespace Sokan.Yastah.Business.Authentication
         private readonly ITransactionScopeFactory _transactionScopeFactory;
         private readonly IUsersService _usersService;
 
-        private AuthenticationTicket _currentTicket;
+        private AuthenticationTicket? _currentTicket;
 
         [OnConfigureServices]
         public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)

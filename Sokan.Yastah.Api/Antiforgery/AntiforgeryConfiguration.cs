@@ -6,11 +6,11 @@ namespace Sokan.Yastah.Api.Antiforgery
 {
     public class AntiforgeryConfiguration
     {
-        public string RequestTokenCookieName { get; set; }
+        public string? RequestTokenCookieName { get; set; }
 
-        public string RequestTokenHeaderName { get; set; }
+        public string? RequestTokenHeaderName { get; set; }
 
-        public string StateTokenCookieName { get; set; }
+        public string? StateTokenCookieName { get; set; }
 
         [OnConfigureServices]
         public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)

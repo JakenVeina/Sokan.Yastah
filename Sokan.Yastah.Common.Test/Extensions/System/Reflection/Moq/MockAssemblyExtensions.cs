@@ -4,7 +4,7 @@ namespace System.Reflection.Moq
 {
     public static class FakeAssemblyExtensions
     {
-        public static MockAssembly AddDefinedType(this MockAssembly @this, Action<MockTypeInfo> setup = null)
+        public static MockAssembly AddDefinedType(this MockAssembly @this, Action<MockTypeInfo>? setup = null)
         {
             var mockDefinedType = new MockTypeInfo();
 

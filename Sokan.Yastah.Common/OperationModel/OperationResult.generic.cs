@@ -5,17 +5,12 @@ namespace Sokan.Yastah.Common.OperationModel
     public struct OperationResult<T>
     {
         public static OperationResult<T> FromError(IOperationError error)
-        {
-            if (error is null)
-                throw new ArgumentNullException(nameof(error));
-
-            return new OperationResult<T>(error, default);
-        }
+            => new OperationResult<T>(error, default!);
 
         public static OperationResult<T> FromValue(T value)
             => new OperationResult<T>(null, value);
 
-        private OperationResult(IOperationError error, T value)
+        private OperationResult(IOperationError? error, T value)
         {
             _error = error;
             _value = value;
@@ -43,7 +38,7 @@ namespace Sokan.Yastah.Common.OperationModel
         public static implicit operator OperationResult<T>(T value)
             => FromValue(value);
 
-        private readonly IOperationError _error;
+        private readonly IOperationError? _error;
 
         private readonly T _value;
     }

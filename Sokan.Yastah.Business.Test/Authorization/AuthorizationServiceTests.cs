@@ -51,7 +51,7 @@ namespace Sokan.Yastah.Business.Test.Authorization
                     .ReturnsAsync(() => PermissionIdentities);
             }
 
-            public AuthenticationTicket CurrentTicket;
+            public AuthenticationTicket? CurrentTicket;
 
             public IReadOnlyList<PermissionIdentityViewModel> PermissionIdentities;
             public readonly Mock<IAuthenticationService> MockAuthenticationService;
@@ -64,7 +64,7 @@ namespace Sokan.Yastah.Business.Test.Authorization
 
             public void SetCurrentTicket(IEnumerable<int> grantedPermissionIds)
                 => CurrentTicket = new AuthenticationTicket(
-                    CurrentTicket.Id,
+                    CurrentTicket!.Id,
                     CurrentTicket.UserId,
                     CurrentTicket.Username,
                     CurrentTicket.Discriminator,
@@ -75,11 +75,9 @@ namespace Sokan.Yastah.Business.Test.Authorization
 
             public void SetPermissionIdentities(IEnumerable<int> permissionIds)
                 => PermissionIdentities = permissionIds
-                    .Select(id => new PermissionIdentityViewModel()
-                    {
-                        Id = id,
-                        Name = $"Permission {id}"
-                    })
+                    .Select(id => new PermissionIdentityViewModel(
+                        id:     id,
+                        name:   $"Permission {id}"))
                     .ToArray();
         }
 

@@ -14,7 +14,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
     {
         #region Test Cases
 
-        public static readonly IReadOnlyList<string> ValueTestCases
+        public static readonly IReadOnlyList<string?> ValueTestCases
             = new[]
             {
                 null,
@@ -53,15 +53,6 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         #endregion Default Tests
 
         #region FromError() Tests
-
-        [Test]
-        public void FromError_ErrorIsNull_ThrowsException()
-        {
-            Should.Throw<ArgumentNullException>(() =>
-            {
-                _ = OperationResult<string>.FromError(null);
-            });
-        }
 
         [Test]
         public void FromError_Otherwise_IsFailure()
@@ -103,9 +94,9 @@ namespace Sokan.Yastah.Common.Test.OperationModel
 
         [TestCaseSource(nameof(ValueTestCases))]
         public void FromValue_Always_IsSuccess(
-            string value)
+            string? value)
         {
-            var result = OperationResult<string>.FromValue(value);
+            var result = OperationResult<string?>.FromValue(value);
 
             result.IsSuccess.ShouldBeTrue();
             result.IsFailure.ShouldBeFalse();
@@ -113,9 +104,9 @@ namespace Sokan.Yastah.Common.Test.OperationModel
 
         [TestCaseSource(nameof(ValueTestCases))]
         public void FromValue_Always_ErrorThrowsException(
-            string value)
+            string? value)
         {
-            var result = OperationResult<string>.FromValue(value);
+            var result = OperationResult<string?>.FromValue(value);
 
             Should.Throw<InvalidOperationException>(() =>
             {
@@ -125,9 +116,9 @@ namespace Sokan.Yastah.Common.Test.OperationModel
 
         [TestCaseSource(nameof(ValueTestCases))]
         public void FromValue_Always_ValueIsGiven(
-            string value)
+            string? value)
         {
-            var result = OperationResult<string>.FromValue(value);
+            var result = OperationResult<string?>.FromValue(value);
 
             result.Value.ShouldBe(value);
         }
@@ -138,7 +129,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
 
         [TestCaseSource(nameof(ValueTestCases))]
         public void Operator_CastToOperationResult_OperationResultIsSuccess_ResultIsSuccess(
-            string value)
+            string? value)
         {
             var operationResult = OperationResult.FromValue(value);
 
@@ -166,9 +157,9 @@ namespace Sokan.Yastah.Common.Test.OperationModel
 
         [TestCaseSource(nameof(ValueTestCases))]
         public void Operator_CastFromValue_Always_ResultIsFromValue(
-            string value)
+            string? value)
         {
-            var result = (OperationResult<string>)value;
+            var result = (OperationResult<string?>)value;
 
             result.IsSuccess.ShouldBeTrue();
             result.Value.ShouldBe(value);

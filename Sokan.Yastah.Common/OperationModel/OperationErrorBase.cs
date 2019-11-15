@@ -7,7 +7,7 @@ namespace Sokan.Yastah.Common.OperationModel
     {
         protected OperationErrorBase(string message)
         {
-            _message = message ?? throw new ArgumentNullException(nameof(message));
+            _message = message;
         }
 
         public string Code

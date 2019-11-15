@@ -62,11 +62,11 @@ namespace Sokan.Yastah.Data.Authentication
             long actionId,
             CancellationToken cancellationToken)
         {
-            var ticket = new AuthenticationTicketEntity()
-            {
-                UserId = userId,
-                CreationId = actionId
-            };
+            var ticket = new AuthenticationTicketEntity(
+                id:         default,
+                userId:     userId,
+                creationId: actionId,
+                deletionId: null);
 
             await _context.AddAsync(ticket, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
@@ -80,7 +80,7 @@ namespace Sokan.Yastah.Data.Authentication
             CancellationToken cancellationToken)
         {
             var ticket = await _context
-                .FindAsync<AuthenticationTicketEntity>(new object[] { ticketId }, cancellationToken);
+                .FindAsync<AuthenticationTicketEntity?>(new object[] { ticketId }, cancellationToken);
 
             if (ticket is null)
                 return new DataNotFoundError($"Authentication Ticket ID {ticketId}")

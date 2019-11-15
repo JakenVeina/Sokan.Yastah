@@ -5,15 +5,21 @@ namespace Sokan.Yastah.Data.Authentication
 {
     public class AuthenticationTicketIdentity
     {
-        public long Id { get; internal set; }
+        public AuthenticationTicketIdentity(
+            long id,
+            ulong userId)
+        {
+            Id = id;
+            UserId = userId;
+        }
 
-        public ulong UserId { get; internal set; }
+        public long Id { get; }
+
+        public ulong UserId { get; }
 
         internal static readonly Expression<Func<AuthenticationTicketEntity, AuthenticationTicketIdentity>> FromEntityProjection
-            = e => new AuthenticationTicketIdentity()
-            {
-                Id = e.Id,
-                UserId = e.UserId
-            };
+            = e => new AuthenticationTicketIdentity(
+                e.Id,
+                e.UserId);
     }
 }

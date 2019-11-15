@@ -2,7 +2,7 @@
 {
     public static class MockTypeInfoExtensions
     {
-        public static MockTypeInfo AddDeclaredMethod(this MockTypeInfo @this, Action<MockMethodInfo> setup = null)
+        public static MockTypeInfo AddDeclaredMethod(this MockTypeInfo @this, Action<MockMethodInfo>? setup = null)
         {
             var mockDeclaredMethod = new MockMethodInfo();
 

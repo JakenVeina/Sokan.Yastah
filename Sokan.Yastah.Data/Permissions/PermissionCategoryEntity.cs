@@ -9,25 +9,42 @@ namespace Sokan.Yastah.Data.Permissions
     [Table("PermissionCategories", Schema = "Permissions")]
     internal class PermissionCategoryEntity
     {
+        public PermissionCategoryEntity(
+            int id,
+            string name,
+            string description)
+        {
+            Id = id;
+            Name = name;
+            Description = description;
+        }
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int Id { get; set; }
+        public int Id { get; }
 
         [Required]
-        public string Name { get; set; }
+        public string Name { get; }
 
         [Required]
-        public string Description { get; set; }
+        public string Description { get; }
 
-        public ICollection<PermissionEntity> Permissions { get; set; }
+        public ICollection<PermissionEntity> Permissions { get; internal set; }
+            = null!;
 
         [OnModelCreating]
         public static void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<PermissionCategoryEntity>(entityBuilder =>
             {
                 entityBuilder
+                    .Property(x => x.Id);
+
+                entityBuilder
                     .HasIndex(x => x.Name)
                     .IsUnique();
+
+                entityBuilder
+                    .Property(x => x.Description);
             });
     }
 }

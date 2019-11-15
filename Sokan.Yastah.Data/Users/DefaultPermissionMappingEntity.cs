@@ -11,24 +11,38 @@ namespace Sokan.Yastah.Data.Users
     [Table("DefaultPermissionMappings", Schema = "Users")]
     internal class DefaultPermissionMappingEntity
     {
+        public DefaultPermissionMappingEntity(
+            long id,
+            int permissionId,
+            long creationId,
+            long? deletionId)
+        {
+            Id = id;
+            PermissionId = permissionId;
+            CreationId = creationId;
+            DeletionId = deletionId;
+        }
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long Id { get; set; }
+        public long Id { get; internal set; }
 
         [ForeignKey(nameof(Permission))]
-        public int PermissionId { get; set; }
+        public int PermissionId { get; }
 
-        public PermissionEntity Permission { get; set; }
+        public PermissionEntity Permission { get; internal set; }
+            = null!;
 
         [ForeignKey(nameof(Creation))]
-        public long CreationId { get; set; }
+        public long CreationId { get; }
 
-        public AdministrationActionEntity Creation { get; set; }
+        public AdministrationActionEntity Creation { get; internal set; }
+            = null!;
 
         [ForeignKey(nameof(Deletion))]
         public long? DeletionId { get; set; }
 
-        public AdministrationActionEntity Deletion { get; set; }
+        public AdministrationActionEntity? Deletion { get; set; }
 
         [OnModelCreating]
         public static void OnModelCreating(ModelBuilder modelBuilder)

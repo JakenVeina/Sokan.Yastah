@@ -45,11 +45,11 @@ namespace Sokan.Yastah.Data.Concurrency
         }
 
         private ConcurrencyResolutionResult HandleEntry(Type tEntity, PropertyValues originalValues, PropertyValues currentValues, PropertyValues proposedValues)
-            => (GetType()
-                        .GetMethod(nameof(HandleEntryGeneric), BindingFlags.Instance | BindingFlags.NonPublic)
+            => ((Func<PropertyValues, PropertyValues, PropertyValues, ConcurrencyResolutionResult>)
+                    GetType()
+                        .GetMethod(nameof(HandleEntryGeneric), BindingFlags.Instance | BindingFlags.NonPublic)!
                         .MakeGenericMethod(tEntity)
-                        .CreateDelegate(typeof(Func<EntityEntry, PropertyValues, ConcurrencyResolutionResult>), this)
-                    as Func<PropertyValues, PropertyValues, PropertyValues, ConcurrencyResolutionResult>)
+                        .CreateDelegate(typeof(Func<EntityEntry, PropertyValues, ConcurrencyResolutionResult>), this))
                 .Invoke(originalValues, currentValues, proposedValues);
 
         private ConcurrencyResolutionResult HandleEntryGeneric<TEntity>(PropertyValues originalValues, PropertyValues currentValues, PropertyValues proposedValues)

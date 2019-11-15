@@ -8,9 +8,9 @@ namespace System.Reflection.Moq
         public MockCustomAttributeData()
         {
             Setup(x => x.Constructor)
-                .Returns(() => MockConstructor.Object);
+                .Returns(() => MockConstructor!.Object);
         }
 
-        public MockConstructorInfo MockConstructor { get; set; }
+        public MockConstructorInfo? MockConstructor { get; set; }
     }
 }

@@ -5,6 +5,16 @@ namespace Sokan.Yastah.Data.Users
 {
     public class UserRoleMappingIdentity
     {
+        public UserRoleMappingIdentity(
+            long id,
+            ulong userId,
+            long roleId)
+        {
+            Id = id;
+            UserId = userId;
+            RoleId = roleId;
+        }
+
         public long Id { get; internal set; }
 
         public ulong UserId { get; internal set; }
@@ -12,11 +22,9 @@ namespace Sokan.Yastah.Data.Users
         public long RoleId { get; internal set; }
 
         internal static readonly Expression<Func<UserRoleMappingEntity, UserRoleMappingIdentity>> FromEntityProjection
-            = e => new UserRoleMappingIdentity()
-            {
-                Id = e.Id,
-                UserId = e.UserId,
-                RoleId = e.RoleId
-            };
+            = e => new UserRoleMappingIdentity(
+                e.Id,
+                e.UserId,
+                e.RoleId);
     }
 }

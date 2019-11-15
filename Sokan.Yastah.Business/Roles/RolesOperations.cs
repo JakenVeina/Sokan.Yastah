@@ -63,7 +63,7 @@ namespace Sokan.Yastah.Business.Roles
             if (authResult.IsFailure)
                 return authResult.Error.ToError<long>();
 
-            var performedById = _authenticationService.CurrentTicket.UserId;
+            var performedById = _authenticationService.CurrentTicket!.UserId;
 
             return await _rolesService.CreateAsync(creationModel, performedById, cancellationToken);
         }
@@ -79,7 +79,7 @@ namespace Sokan.Yastah.Business.Roles
             if (authResult.IsFailure)
                 return authResult;
 
-            var performedById = _authenticationService.CurrentTicket.UserId;
+            var performedById = _authenticationService.CurrentTicket!.UserId;
 
             return await _rolesService.DeleteAsync(roleId, performedById, cancellationToken);
         }
@@ -125,7 +125,7 @@ namespace Sokan.Yastah.Business.Roles
             if (authResult.IsFailure)
                 return authResult;
 
-            var performedById = _authenticationService.CurrentTicket.UserId;
+            var performedById = _authenticationService.CurrentTicket!.UserId;
 
             return await _rolesService.UpdateAsync(roleId, updateModel, performedById, cancellationToken);
         }

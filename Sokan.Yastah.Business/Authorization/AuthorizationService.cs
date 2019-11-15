@@ -46,7 +46,7 @@ namespace Sokan.Yastah.Business.Authorization
                 return result;
 
             var missingPermissionIds = permissionIds
-                .Where(id => !_authenticationService.CurrentTicket.GrantedPermissions
+                .Where(id => !_authenticationService.CurrentTicket!.GrantedPermissions
                     .ContainsKey(id))
                 .ToHashSet();
 

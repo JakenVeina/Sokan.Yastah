@@ -8,34 +8,53 @@ namespace Sokan.Yastah.Data.Users
     public class UserDetailViewModel
         : UserOverviewViewModel
     {
-        public IReadOnlyList<int> GrantedPermissionIds { get; internal set; }
+        public UserDetailViewModel(
+                ulong id,
+                string username,
+                string discriminator,
+                DateTimeOffset firstSeen,
+                DateTimeOffset lastSeen,
+                IReadOnlyList<int> grantedPermissionIds,
+                IReadOnlyList<int> deniedPermissionIds,
+                IReadOnlyList<long> assignedRoleIds)
+            : base(
+                id,
+                username,
+                discriminator,
+                firstSeen,
+                lastSeen)
+        {
+            GrantedPermissionIds = grantedPermissionIds;
+            DeniedPermissionIds = deniedPermissionIds;
+            AssignedRoleIds = assignedRoleIds;
+        }
 
-        public IReadOnlyList<int> DeniedPermissionIds { get; internal set; }
+        public IReadOnlyList<int> GrantedPermissionIds { get; }
 
-        public IReadOnlyList<long> AssignedRoleIds { get; internal set; }
+        public IReadOnlyList<int> DeniedPermissionIds { get; }
+
+        public IReadOnlyList<long> AssignedRoleIds { get; }
 
         new internal static Expression<Func<UserEntity, UserDetailViewModel>> FromEntityProjection
-            => e => new UserDetailViewModel()
-            {
-                Id = e.Id,
-                Username = e.Username,
-                Discriminator = e.Discriminator,
-                FirstSeen = e.FirstSeen,
-                LastSeen = e.LastSeen,
-                GrantedPermissionIds = e.PermissionMappings
+            => e => new UserDetailViewModel(
+                e.Id,
+                e.Username,
+                e.Discriminator,
+                e.FirstSeen,
+                e.LastSeen,
+                e.PermissionMappings
                     .Where(pm => !pm.IsDenied)
                     .Where(pm => pm.DeletionId == null)
                     .Select(pm => pm.PermissionId)
                     .ToArray(),
-                DeniedPermissionIds = e.PermissionMappings
+                e.PermissionMappings
                     .Where(pm => pm.IsDenied)
                     .Where(pm => pm.DeletionId == null)
                     .Select(pm => pm.PermissionId)
                     .ToArray(),
-                AssignedRoleIds = e.RoleMappings
+                e.RoleMappings
                     .Where(rm => rm.DeletionId == null)
                     .Select(rm => rm.RoleId)
-                    .ToArray()
-            };
+                    .ToArray());
     }
 }

@@ -516,7 +516,7 @@ namespace Sokan.Yastah.Data.Test.Users
             using (var testContext = new TestContext(isReadOnly: false))
             {
                 testContext.MockContext
-                    .Setup(x => x.FindAsync<UserEntity>(It.IsAny<object[]>(), It.IsAny<CancellationToken>()))
+                    .Setup(x => x.FindAsync<UserEntity?>(It.IsAny<object[]>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(null as UserEntity);
 
                 var uut = testContext.BuildUut();

@@ -86,7 +86,7 @@ namespace Sokan.Yastah.Business.Users
             if (authResult.IsFailure)
                 return authResult;
 
-            var performedById = _authenticationService.CurrentTicket.UserId;
+            var performedById = _authenticationService.CurrentTicket!.UserId;
 
             return await _usersService.UpdateAsync(userId, updateModel, performedById, cancellationToken);
         }

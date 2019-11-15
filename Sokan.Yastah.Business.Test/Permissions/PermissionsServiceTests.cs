@@ -42,16 +42,14 @@ namespace Sokan.Yastah.Business.Test.Permissions
                     MemoryCache,
                     MockPermissionsRepository.Object);
 
-            public void SetIdentitiesCache(IReadOnlyCollection<PermissionIdentityViewModel> identities = null)
+            public void SetIdentitiesCache(IReadOnlyCollection<PermissionIdentityViewModel>? identities = null)
                 => MemoryCache.Set(PermissionsService._getIdentitiesCacheKey, identities ?? Array.Empty<PermissionIdentityViewModel>());
 
             public void SetIdentitiesCache(IReadOnlyCollection<int> permissionIds)
                 => SetIdentitiesCache(permissionIds
-                    .Select(x => new PermissionIdentityViewModel()
-                    {
-                        Id = x,
-                        Name = $"Permission {x}"
-                    })
+                    .Select(x => new PermissionIdentityViewModel(
+                        id:     x,
+                        name:   $"Permission {x}"))
                     .ToArray());
         }
 
@@ -66,7 +64,11 @@ namespace Sokan.Yastah.Business.Test.Permissions
             {
                 var descriptions = new PermissionCategoryDescriptionViewModel[]
                 { 
-                    new PermissionCategoryDescriptionViewModel()
+                    new PermissionCategoryDescriptionViewModel(
+                        id:             default,
+                        name:           string.Empty,
+                        description:    string.Empty,
+                        permissions:    Array.Empty<PermissionDescriptionViewModel>())
                 };
 
                 testContext.MockPermissionsRepository
@@ -122,7 +124,9 @@ namespace Sokan.Yastah.Business.Test.Permissions
             {
                 var identities = new PermissionIdentityViewModel[]
                 {
-                    new PermissionIdentityViewModel()
+                    new PermissionIdentityViewModel(
+                        id:     default,
+                        name:   string.Empty)
                 };
 
                 testContext.MockPermissionsRepository
@@ -258,11 +262,9 @@ namespace Sokan.Yastah.Business.Test.Permissions
             using (var testContext = new TestContext())
             {
                 var identities = validPermissionIds
-                    .Select(x => new PermissionIdentityViewModel()
-                    {
-                        Id = x,
-                        Name = $"Permission {x}"
-                    })
+                    .Select(x => new PermissionIdentityViewModel(
+                        id:     x,
+                        name:   $"Permission {x}"))
                     .ToArray();
 
                 testContext.MockPermissionsRepository

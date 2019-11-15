@@ -23,7 +23,12 @@ namespace Sokan.Yastah.Common.Test.Extensions.System
                 new TestCaseData(typeof(TestEnum2))
                     .SetName("{m}(Enum with single value)"),
                 new TestCaseData(typeof(TestEnum3))
-                    .SetName("{m}(Enum with many values)"),
+                    .SetName("{m}(Enum with many values)")
+            };
+
+        public static readonly IReadOnlyList<TestCaseData> InvalidTEnumTestCaseData
+            = new[]
+            {
                 new TestCaseData(typeof(TestEnum4))
                     .SetName("{m}(Enum with missing Description)")
             };
@@ -67,7 +72,7 @@ namespace Sokan.Yastah.Common.Test.Extensions.System
             => GetType()
                 .GetMethod(
                     nameof(EnumerateValues_TEnumIsAnEnum_EnumeratesEnumValues),
-                    BindingFlags.NonPublic | BindingFlags.Static)
+                    BindingFlags.NonPublic | BindingFlags.Static)!
                 .MakeGenericMethod(tEnum)
                 .Invoke(null, Array.Empty<object>());
 
@@ -97,29 +102,51 @@ namespace Sokan.Yastah.Common.Test.Extensions.System
         }
 
         [TestCaseSource(nameof(TEnumTestCaseData))]
-        public void EnumerateValuesAndDescriptions_TEnumIsAnEnum_EnumeratesEnumValues(Type tEnum)
+        public void EnumerateValuesAndDescriptions_TEnumIsValid_EnumeratesEnumValues(Type tEnum)
             => GetType()
                 .GetMethod(
                     nameof(EnumerateValues_TEnumIsAnEnum_EnumeratesEnumValues),
-                    BindingFlags.NonPublic | BindingFlags.Static)
+                    BindingFlags.NonPublic | BindingFlags.Static)!
                 .MakeGenericMethod(tEnum)
                 .Invoke(null, Array.Empty<object>());
 
-        private static void EnumerateValuesAndDescriptions_TEnumIsAnEnum_EnumeratesEnumValues<TEnum>()
+        private static void EnumerateValuesAndDescriptions_TEnumIsValid_EnumeratesEnumValues<TEnum>()
             where TEnum : struct, IConvertible
         {
             var valuesWithDescriptions = Enum.GetValues(typeof(TEnum))
                 .Cast<TEnum>()
                 .Select(x => (
                     value: x,
-                    description: typeof(TEnum).GetField(x.ToString())
-                        .GetCustomAttribute<DescriptionAttribute>()
-                        ?.Description));
+                    description: typeof(TEnum).GetField(x.ToString()!)!
+                        .GetCustomAttribute<DescriptionAttribute>()!
+                        .Description));
 
             var result = EnumEx.EnumerateValuesWithDescriptions<TEnum>()
                 .ToArray();
 
             result.ShouldBeSequenceEqualTo(valuesWithDescriptions);
+        }
+
+        [TestCaseSource(nameof(InvalidTEnumTestCaseData))]
+        public void EnumerateValuesAndDescriptions_TEnumIsNotValid_EnumeratesEnumValues(Type tEnum)
+            => GetType()
+                .GetMethod(
+                    nameof(EnumerateValuesAndDescriptions_TEnumIsNotValid_EnumeratesEnumValues),
+                    BindingFlags.NonPublic | BindingFlags.Static)!
+                .MakeGenericMethod(tEnum)
+                .Invoke(null, Array.Empty<object>());
+
+        private static void EnumerateValuesAndDescriptions_TEnumIsNotValid_EnumeratesEnumValues<TEnum>()
+            where TEnum : struct, IConvertible
+        {
+            var result = Should.Throw<ArgumentException>(() =>
+            {
+                EnumEx.EnumerateValuesWithDescriptions<TEnum>()
+                    .ToArray();
+            });
+
+            result.Message.ShouldContain(typeof(TEnum).Name);
+            result.Message.ShouldContain(nameof(DescriptionAttribute));
         }
 
         #endregion EnumerateValuesWithDescriptions() Tests

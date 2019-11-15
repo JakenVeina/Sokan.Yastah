@@ -11,29 +11,46 @@ namespace Sokan.Yastah.Data.Users
     [Table("UserRoleMappings", Schema = "Users")]
     internal class UserRoleMappingEntity
     {
+        public UserRoleMappingEntity(
+            long id,
+            ulong userId,
+            long roleId,
+            long creationId,
+            long? deletionId)
+        {
+            Id = id;
+            UserId = userId;
+            RoleId = roleId;
+            CreationId = creationId;
+            DeletionId = deletionId;
+        }
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long Id { get; set; }
+        public long Id { get; internal set; }
 
         [ForeignKey(nameof(User))]
-        public ulong UserId { get; set; }
+        public ulong UserId { get; }
 
-        public UserEntity User { get; set; }
+        public UserEntity User { get; internal set; }
+            = null!;
 
         [ForeignKey(nameof(Role))]
-        public long RoleId { get; set; }
+        public long RoleId { get; }
 
-        public RoleEntity Role { get; set; }
+        public RoleEntity Role { get; internal set; }
+            = null!;
 
         [ForeignKey(nameof(Creation))]
-        public long CreationId { get; set; }
+        public long CreationId { get; }
 
-        public AdministrationActionEntity Creation { get; set; }
+        public AdministrationActionEntity Creation { get; internal set; }
+            = null!;
 
         [ForeignKey(nameof(Deletion))]
         public long? DeletionId { get; set; }
 
-        public AdministrationActionEntity Deletion { get; set; }
+        public AdministrationActionEntity? Deletion { get; set; }
 
         [OnModelCreating]
         public static void OnModelCreating(ModelBuilder modelBuilder)
