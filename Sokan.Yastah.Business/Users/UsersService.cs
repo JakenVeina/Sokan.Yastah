@@ -263,7 +263,7 @@ namespace Sokan.Yastah.Business.Users
         }
 
         private async Task<bool> HandleAddedDeniedPermissions(
-            IEnumerable<UserPermissionMappingIdentity> permissionMappings,
+            IEnumerable<UserPermissionMappingIdentityViewModel> permissionMappings,
             IEnumerable<int> deniedPermissionIds,
             ulong userId,
             long actionId,
@@ -287,7 +287,7 @@ namespace Sokan.Yastah.Business.Users
         }
 
         private async Task<bool> HandleAddedGrantedPermissions(
-            IEnumerable<UserPermissionMappingIdentity> permissionMappings,
+            IEnumerable<UserPermissionMappingIdentityViewModel> permissionMappings,
             IEnumerable<int> grantedPermissionIds,
             ulong userId,
             long actionId,
@@ -311,7 +311,7 @@ namespace Sokan.Yastah.Business.Users
         }
 
         private async Task<bool> HandleAddedRoles(
-            IEnumerable<UserRoleMappingIdentity> roleMappings,
+            IEnumerable<UserRoleMappingIdentityViewModel> roleMappings,
             IEnumerable<long> assignedRoleIds,
             ulong userId,
             long actionId,
@@ -337,7 +337,7 @@ namespace Sokan.Yastah.Business.Users
         }
 
         private async Task<bool> HandleRemovedPermissionMappings(
-            IEnumerable<UserPermissionMappingIdentity> permissionMappings,
+            IEnumerable<UserPermissionMappingIdentityViewModel> permissionMappings,
             IEnumerable<int> grantedPermissionIds,
             IEnumerable<int> deniedPermissionIds,
             long actionId,
@@ -360,7 +360,7 @@ namespace Sokan.Yastah.Business.Users
         }
 
         private async Task<bool> HandleRemovedRoleMappings(
-            IEnumerable<UserRoleMappingIdentity> roleMappings,
+            IEnumerable<UserRoleMappingIdentityViewModel> roleMappings,
             IEnumerable<long> assignedRoleIds,
             long actionId,
             CancellationToken cancellationToken)

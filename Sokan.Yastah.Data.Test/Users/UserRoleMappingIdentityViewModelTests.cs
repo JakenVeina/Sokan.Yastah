@@ -8,7 +8,7 @@ using Sokan.Yastah.Data.Users;
 namespace Sokan.Yastah.Data.Test.Users
 {
     [TestFixture]
-    public class UserRoleMappingIdentityTests
+    public class UserRoleMappingIdentityViewModelTests
     {
         #region Constructor() Tests
 
@@ -30,7 +30,7 @@ namespace Sokan.Yastah.Data.Test.Users
             ulong userId,
             long roleId)
         {
-            var result = new UserRoleMappingIdentity(
+            var result = new UserRoleMappingIdentityViewModel(
                 id,
                 userId,
                 roleId);

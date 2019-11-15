@@ -8,7 +8,7 @@ using Sokan.Yastah.Data.Authentication;
 namespace Sokan.Yastah.Data.Test.Authentication
 {
     [TestFixture]
-    public class AuthenticationTicketIdentityTests
+    public class AuthenticationTicketIdentityViewModelTests
     {
         #region Constructor() Tests
 
@@ -29,7 +29,7 @@ namespace Sokan.Yastah.Data.Test.Authentication
             long id,
             ulong userId)
         {
-            var result = new AuthenticationTicketIdentity(
+            var result = new AuthenticationTicketIdentityViewModel(
                 id,
                 userId);
 

@@ -26,7 +26,7 @@ namespace Sokan.Yastah.Data.Roles
         IAsyncEnumerable<RoleIdentityViewModel> AsyncEnumerateIdentities(
             Optional<bool> isDeleted = default);
 
-        IAsyncEnumerable<RolePermissionMappingIdentity> AsyncEnumeratePermissionMappingIdentities(
+        IAsyncEnumerable<RolePermissionMappingIdentityViewModel> AsyncEnumeratePermissionMappingIdentities(
             long roleId,
             Optional<bool> isDeleted = default);
 
@@ -112,7 +112,7 @@ namespace Sokan.Yastah.Data.Roles
                 .AsAsyncEnumerable();
         }
 
-        public IAsyncEnumerable<RolePermissionMappingIdentity> AsyncEnumeratePermissionMappingIdentities(
+        public IAsyncEnumerable<RolePermissionMappingIdentityViewModel> AsyncEnumeratePermissionMappingIdentities(
             long roleId,
             Optional<bool> isDeleted = default)
         {
@@ -126,7 +126,7 @@ namespace Sokan.Yastah.Data.Roles
                     : query.Where(x => x.DeletionId == null);
 
             return query
-                .Select(RolePermissionMappingIdentity.FromEntityProjection)
+                .Select(RolePermissionMappingIdentityViewModel.FromEntityProjection)
                 .AsAsyncEnumerable();
         }
 

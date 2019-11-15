@@ -3,9 +3,9 @@ using System.Linq.Expressions;
 
 namespace Sokan.Yastah.Data.Users
 {
-    public class UserPermissionMappingIdentity
+    public class UserPermissionMappingIdentityViewModel
     {
-        public UserPermissionMappingIdentity(
+        public UserPermissionMappingIdentityViewModel(
             long id,
             ulong userId,
             int permissionId,
@@ -25,8 +25,8 @@ namespace Sokan.Yastah.Data.Users
 
         public bool IsDenied { get; }
 
-        internal static readonly Expression<Func<UserPermissionMappingEntity, UserPermissionMappingIdentity>> FromEntityProjection
-            = e => new UserPermissionMappingIdentity(
+        internal static readonly Expression<Func<UserPermissionMappingEntity, UserPermissionMappingIdentityViewModel>> FromEntityProjection
+            = e => new UserPermissionMappingIdentityViewModel(
                 e.Id,
                 e.UserId,
                 e.PermissionId,

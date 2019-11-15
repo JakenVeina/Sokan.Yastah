@@ -237,7 +237,7 @@ namespace Sokan.Yastah.Business.Roles
         }
 
         private async Task<bool> HandleAddedPermissions(
-            IEnumerable<RolePermissionMappingIdentity> permissionMappings,
+            IEnumerable<RolePermissionMappingIdentityViewModel> permissionMappings,
             IEnumerable<int> grantedPermissionIds,
             long roleId,
             long actionId,
@@ -259,7 +259,7 @@ namespace Sokan.Yastah.Business.Roles
         }
 
         private async Task<bool> HandleRemovedPermissionMappings(
-            IEnumerable<RolePermissionMappingIdentity> permissionMappings,
+            IEnumerable<RolePermissionMappingIdentityViewModel> permissionMappings,
             IEnumerable<int> grantedPermissionIds,
             long actionId,
             CancellationToken cancellationToken)

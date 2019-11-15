@@ -34,11 +34,11 @@ namespace Sokan.Yastah.Data.Users
 
         IAsyncEnumerable<UserOverviewViewModel> AsyncEnumerateOverviews();
 
-        IAsyncEnumerable<UserPermissionMappingIdentity> AsyncEnumeratePermissionMappingIdentities(
+        IAsyncEnumerable<UserPermissionMappingIdentityViewModel> AsyncEnumeratePermissionMappingIdentities(
             ulong userId,
             Optional<bool> isDeleted = default);
 
-        IAsyncEnumerable<UserRoleMappingIdentity> AsyncEnumerateRoleMappingIdentities(
+        IAsyncEnumerable<UserRoleMappingIdentityViewModel> AsyncEnumerateRoleMappingIdentities(
             ulong userId,
             Optional<bool> isDeleted = default);
 
@@ -166,7 +166,7 @@ namespace Sokan.Yastah.Data.Users
                 .Select(UserOverviewViewModel.FromEntityProjection)
                 .AsAsyncEnumerable();
 
-        public IAsyncEnumerable<UserPermissionMappingIdentity> AsyncEnumeratePermissionMappingIdentities(
+        public IAsyncEnumerable<UserPermissionMappingIdentityViewModel> AsyncEnumeratePermissionMappingIdentities(
             ulong userId,
             Optional<bool> isDeleted = default)
         {
@@ -180,11 +180,11 @@ namespace Sokan.Yastah.Data.Users
                     : query.Where(x => x.DeletionId == null);
 
             return query
-                .Select(UserPermissionMappingIdentity.FromEntityProjection)
+                .Select(UserPermissionMappingIdentityViewModel.FromEntityProjection)
                 .AsAsyncEnumerable();
         }
 
-        public IAsyncEnumerable<UserRoleMappingIdentity> AsyncEnumerateRoleMappingIdentities(
+        public IAsyncEnumerable<UserRoleMappingIdentityViewModel> AsyncEnumerateRoleMappingIdentities(
             ulong userId,
             Optional<bool> isDeleted = default)
         {
@@ -198,7 +198,7 @@ namespace Sokan.Yastah.Data.Users
                     : query.Where(x => x.DeletionId == null);
 
             return query
-                .Select(UserRoleMappingIdentity.FromEntityProjection)
+                .Select(UserRoleMappingIdentityViewModel.FromEntityProjection)
                 .AsAsyncEnumerable();
         }
 

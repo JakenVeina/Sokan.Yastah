@@ -14,7 +14,7 @@ namespace Sokan.Yastah.Data.Authentication
 {
     public interface IAuthenticationTicketsRepository
     {
-        IAsyncEnumerable<AuthenticationTicketIdentity> AsyncEnumerateIdentities(
+        IAsyncEnumerable<AuthenticationTicketIdentityViewModel> AsyncEnumerateIdentities(
             Optional<bool> isDeleted = default);
 
         Task<long> CreateAsync(
@@ -41,7 +41,7 @@ namespace Sokan.Yastah.Data.Authentication
             _context = context;
         }
 
-        public IAsyncEnumerable<AuthenticationTicketIdentity> AsyncEnumerateIdentities(
+        public IAsyncEnumerable<AuthenticationTicketIdentityViewModel> AsyncEnumerateIdentities(
             Optional<bool> isDeleted = default)
         {
             var query = _context.Set<AuthenticationTicketEntity>()
@@ -53,7 +53,7 @@ namespace Sokan.Yastah.Data.Authentication
                     : query.Where(x => x.DeletionId == null);
 
             return query
-                .Select(AuthenticationTicketIdentity.FromEntityProjection)
+                .Select(AuthenticationTicketIdentityViewModel.FromEntityProjection)
                 .AsAsyncEnumerable();
         }
 

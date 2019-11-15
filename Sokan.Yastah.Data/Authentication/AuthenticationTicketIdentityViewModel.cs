@@ -3,9 +3,9 @@ using System.Linq.Expressions;
 
 namespace Sokan.Yastah.Data.Authentication
 {
-    public class AuthenticationTicketIdentity
+    public class AuthenticationTicketIdentityViewModel
     {
-        public AuthenticationTicketIdentity(
+        public AuthenticationTicketIdentityViewModel(
             long id,
             ulong userId)
         {
@@ -17,8 +17,8 @@ namespace Sokan.Yastah.Data.Authentication
 
         public ulong UserId { get; }
 
-        internal static readonly Expression<Func<AuthenticationTicketEntity, AuthenticationTicketIdentity>> FromEntityProjection
-            = e => new AuthenticationTicketIdentity(
+        internal static readonly Expression<Func<AuthenticationTicketEntity, AuthenticationTicketIdentityViewModel>> FromEntityProjection
+            = e => new AuthenticationTicketIdentityViewModel(
                 e.Id,
                 e.UserId);
     }

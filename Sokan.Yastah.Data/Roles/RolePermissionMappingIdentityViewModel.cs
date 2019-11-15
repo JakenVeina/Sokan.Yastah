@@ -3,9 +3,9 @@ using System.Linq.Expressions;
 
 namespace Sokan.Yastah.Data.Roles
 {
-    public class RolePermissionMappingIdentity
+    public class RolePermissionMappingIdentityViewModel
     {
-        public RolePermissionMappingIdentity(
+        public RolePermissionMappingIdentityViewModel(
             long id,
             long roleId,
             int permissionId)
@@ -21,8 +21,8 @@ namespace Sokan.Yastah.Data.Roles
 
         public int PermissionId { get; }
 
-        internal static readonly Expression<Func<RolePermissionMappingEntity, RolePermissionMappingIdentity>> FromEntityProjection
-            = e => new RolePermissionMappingIdentity(
+        internal static readonly Expression<Func<RolePermissionMappingEntity, RolePermissionMappingIdentityViewModel>> FromEntityProjection
+            = e => new RolePermissionMappingIdentityViewModel(
                 e.Id,
                 e.RoleId,
                 e.PermissionId);

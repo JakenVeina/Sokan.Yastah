@@ -8,7 +8,7 @@ using Sokan.Yastah.Data.Users;
 namespace Sokan.Yastah.Data.Test.Users
 {
     [TestFixture]
-    public class UserPermissionMappingIdentityTests
+    public class UserPermissionMappingIdentityViewModelTests
     {
         #region Constructor() Tests
 
@@ -31,7 +31,7 @@ namespace Sokan.Yastah.Data.Test.Users
             int permissionId,
             bool isDenied)
         {
-            var result = new UserPermissionMappingIdentity(
+            var result = new UserPermissionMappingIdentityViewModel(
                 id,
                 userId,
                 permissionId,

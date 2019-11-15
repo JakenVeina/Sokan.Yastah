@@ -121,7 +121,7 @@ namespace Sokan.Yastah.Business.Test.Users
                         It.IsAny<ulong>(),
                         It.IsAny<Optional<bool>>()))
                     .Returns(mappings
-                        .Select(x => new UserPermissionMappingIdentity(
+                        .Select(x => new UserPermissionMappingIdentityViewModel(
                             id:             x.mappingId,
                             userId:         userId,
                             permissionId:   x.permissionId,
@@ -136,7 +136,7 @@ namespace Sokan.Yastah.Business.Test.Users
                         It.IsAny<ulong>(),
                         It.IsAny<Optional<bool>>()))
                     .Returns(mappings
-                        .Select(x => new UserRoleMappingIdentity(
+                        .Select(x => new UserRoleMappingIdentityViewModel(
                             id:     x.mappingId,
                             userId: userId,
                             roleId: x.roleId))

@@ -132,7 +132,7 @@ namespace Sokan.Yastah.Business.Test.Roles
                         It.IsAny<long>(),
                         It.IsAny<Optional<bool>>()))
                     .Returns(permissionMappings.Select(x =>
-                        new RolePermissionMappingIdentity(
+                        new RolePermissionMappingIdentityViewModel(
                             id:             x.mappingId,
                             roleId:         roleId,
                             permissionId:   x.permissionId))

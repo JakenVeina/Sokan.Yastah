@@ -8,7 +8,7 @@ using Sokan.Yastah.Data.Roles;
 namespace Sokan.Yastah.Data.Test.Roles
 {
     [TestFixture]
-    public class RolePermissionMappingIdentityTests
+    public class RolePermissionMappingIdentityViewModelTests
     {
         #region Constructor() Tests
 
@@ -30,7 +30,7 @@ namespace Sokan.Yastah.Data.Test.Roles
             long roleId,
             int permissionId)
         {
-            var result = new RolePermissionMappingIdentity(
+            var result = new RolePermissionMappingIdentityViewModel(
                 id,
                 roleId,
                 permissionId);
