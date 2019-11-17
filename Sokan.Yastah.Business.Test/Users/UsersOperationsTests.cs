@@ -23,7 +23,7 @@ namespace Sokan.Yastah.Business.Test.Users
     {
         #region Test Context
 
-        public class TestContext
+        internal class TestContext
             : AsyncMethodTestContext
         {
             public TestContext()
@@ -105,70 +105,68 @@ namespace Sokan.Yastah.Business.Test.Users
         public async Task GetDetailAsync_RequirePermissionsAsyncFails_ReturnsImmediately(
             ulong userId)
         {
-            using (var testContext = new TestContext())
-            {
-                var mockError = new Mock<IOperationError>();
+            using var testContext = new TestContext();
+            
+            var mockError = new Mock<IOperationError>();
 
-                testContext.RequirePermissionsResult = OperationResult.FromError(mockError.Object);
+            testContext.RequirePermissionsResult = OperationResult.FromError(mockError.Object);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.GetDetailAsync(
-                    userId,
-                    testContext.CancellationToken);
+            var result = await uut.GetDetailAsync(
+                userId,
+                testContext.CancellationToken);
 
-                result.IsFailure.ShouldBeTrue();
-                result.Error.ShouldBeSameAs(mockError.Object);
+            result.IsFailure.ShouldBeTrue();
+            result.Error.ShouldBeSameAs(mockError.Object);
 
-                testContext.MockAuthorizationService.ShouldHaveReceived(x => x
-                    .RequirePermissionsAsync(
-                        testContext.CancellationToken,
-                        It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+            testContext.MockAuthorizationService.ShouldHaveReceived(x => x
+                .RequirePermissionsAsync(
+                    testContext.CancellationToken,
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
 
-                testContext.MockUsersService.Invocations.ShouldBeEmpty();
-                testContext.MockUsersRepository.Invocations.ShouldBeEmpty();
-            }
+            testContext.MockUsersService.Invocations.ShouldBeEmpty();
+            testContext.MockUsersRepository.Invocations.ShouldBeEmpty();
         }
 
         [TestCaseSource(nameof(UserId_TestCaseData))]
         public async Task GetDetailAsync_RequirePermissionsAsyncSucceeds_ReturnsReadDetailAsync(
             ulong userId)
         {
-            using (var testContext = new TestContext())
-            {
-                var detail = new UserDetailViewModel(
-                    id:                     default,
-                    username:               string.Empty,
-                    discriminator:          string.Empty,
-                    firstSeen:              default,
-                    lastSeen:               default,
-                    grantedPermissionIds:   Array.Empty<int>(),
-                    deniedPermissionIds:    Array.Empty<int>(),
-                    assignedRoleIds:        Array.Empty<long>());
+            using var testContext = new TestContext();
+            
+            var detail = new UserDetailViewModel(
+                id: default,
+                username: string.Empty,
+                discriminator: string.Empty,
+                firstSeen: default,
+                lastSeen: default,
+                grantedPermissionIds: Array.Empty<int>(),
+                deniedPermissionIds: Array.Empty<int>(),
+                assignedRoleIds: Array.Empty<long>());
 
-                testContext.MockUsersRepository
-                    .Setup(x => x.ReadDetailAsync(It.IsAny<ulong>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(detail);
+            testContext.MockUsersRepository
+                .Setup(x => x.ReadDetailAsync(It.IsAny<ulong>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(detail);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.GetDetailAsync(
-                    userId,
-                    testContext.CancellationToken);
+            var result = await uut.GetDetailAsync(
+                userId,
+                testContext.CancellationToken);
 
-                result.IsSuccess.ShouldBeTrue();
-                result.Value.ShouldBeSameAs(detail);
+            result.IsSuccess.ShouldBeTrue();
+            result.Value.ShouldBeSameAs(detail);
 
-                testContext.MockAuthorizationService.ShouldHaveReceived(x => x
-                    .RequirePermissionsAsync(
-                        testContext.CancellationToken,
-                        It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+            testContext.MockAuthorizationService.ShouldHaveReceived(x => x
+                .RequirePermissionsAsync(
+                    testContext.CancellationToken,
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
 
-                testContext.MockUsersRepository.ShouldHaveReceived(x => x
-                    .ReadDetailAsync(userId, testContext.CancellationToken));
+            testContext.MockUsersRepository.ShouldHaveReceived(x => x
+                .ReadDetailAsync(userId, testContext.CancellationToken));
 
-                testContext.MockUsersService.Invocations.ShouldBeEmpty();
-            }
+            testContext.MockUsersService.Invocations.ShouldBeEmpty();
         }
 
         #endregion GetDetailAsync() Tests
@@ -178,67 +176,65 @@ namespace Sokan.Yastah.Business.Test.Users
         [Test]
         public async Task GetOverviewsAsync_RequirePermissionsAsyncFails_ReturnsImmediately()
         {
-            using (var testContext = new TestContext())
-            {
-                var mockError = new Mock<IOperationError>();
+            using var testContext = new TestContext();
+            
+            var mockError = new Mock<IOperationError>();
 
-                testContext.RequirePermissionsResult = OperationResult.FromError(mockError.Object);
+            testContext.RequirePermissionsResult = OperationResult.FromError(mockError.Object);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.GetOverviewsAsync(
-                    testContext.CancellationToken);
+            var result = await uut.GetOverviewsAsync(
+                testContext.CancellationToken);
 
-                result.IsFailure.ShouldBeTrue();
-                result.Error.ShouldBeSameAs(mockError.Object);
+            result.IsFailure.ShouldBeTrue();
+            result.Error.ShouldBeSameAs(mockError.Object);
 
-                testContext.MockAuthorizationService.ShouldHaveReceived(x => x
-                    .RequirePermissionsAsync(
-                        testContext.CancellationToken,
-                        It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+            testContext.MockAuthorizationService.ShouldHaveReceived(x => x
+                .RequirePermissionsAsync(
+                    testContext.CancellationToken,
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
 
-                testContext.MockUsersService.Invocations.ShouldBeEmpty();
-                testContext.MockUsersRepository.Invocations.ShouldBeEmpty();
-            }
+            testContext.MockUsersService.Invocations.ShouldBeEmpty();
+            testContext.MockUsersRepository.Invocations.ShouldBeEmpty();
         }
 
         [Test]
         public async Task GetOverviewsAsync_RequirePermissionsAsyncSucceeds_ReturnsGetCurrentOverviewsAsync()
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext();
+            
+            var overviews = new UserOverviewViewModel[]
             {
-                var overviews = new UserOverviewViewModel[]
-                {
-                    new UserOverviewViewModel(
-                        id:             default,
-                        username:       string.Empty,
-                        discriminator:  string.Empty,
-                        firstSeen:      default,
-                        lastSeen:       default)
-                };
+                new UserOverviewViewModel(
+                    id:             default,
+                    username:       string.Empty,
+                    discriminator:  string.Empty,
+                    firstSeen:      default,
+                    lastSeen:       default)
+            };
 
-                testContext.MockUsersRepository
-                    .Setup(x => x.AsyncEnumerateOverviews())
-                    .Returns(overviews.ToAsyncEnumerable());
+            testContext.MockUsersRepository
+                .Setup(x => x.AsyncEnumerateOverviews())
+                .Returns(overviews.ToAsyncEnumerable());
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.GetOverviewsAsync(
-                    testContext.CancellationToken);
+            var result = await uut.GetOverviewsAsync(
+                testContext.CancellationToken);
 
-                result.IsSuccess.ShouldBeTrue();
-                result.Value.ShouldBeSetEqualTo(overviews);
+            result.IsSuccess.ShouldBeTrue();
+            result.Value.ShouldBeSetEqualTo(overviews);
 
-                testContext.MockAuthorizationService.ShouldHaveReceived(x => x
-                    .RequirePermissionsAsync(
-                        testContext.CancellationToken,
-                        It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+            testContext.MockAuthorizationService.ShouldHaveReceived(x => x
+                .RequirePermissionsAsync(
+                    testContext.CancellationToken,
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
 
-                testContext.MockUsersService.Invocations.ShouldBeEmpty();
+            testContext.MockUsersService.Invocations.ShouldBeEmpty();
 
-                testContext.MockUsersRepository
-                    .ShouldHaveReceived(x => x.AsyncEnumerateOverviews());
-            }
+            testContext.MockUsersRepository
+                .ShouldHaveReceived(x => x.AsyncEnumerateOverviews());
         }
 
         #endregion GetOverviewsAsync() Tests
@@ -249,32 +245,31 @@ namespace Sokan.Yastah.Business.Test.Users
         public async Task UpdateAsync_RequirePermissionsAsyncFails_ReturnsImmediately(
             ulong userId)
         {
-            using (var testContext = new TestContext())
-            {
-                var mockError = new Mock<IOperationError>();
+            using var testContext = new TestContext();
+            
+            var mockError = new Mock<IOperationError>();
 
-                testContext.RequirePermissionsResult = OperationResult.FromError(mockError.Object);
+            testContext.RequirePermissionsResult = OperationResult.FromError(mockError.Object);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var updateModel = new UserUpdateModel();
+            var updateModel = new UserUpdateModel();
 
-                var result = await uut.UpdateAsync(
-                    userId,
-                    updateModel,
-                    testContext.CancellationToken);
+            var result = await uut.UpdateAsync(
+                userId,
+                updateModel,
+                testContext.CancellationToken);
 
-                result.IsFailure.ShouldBeTrue();
-                result.Error.ShouldBeSameAs(mockError.Object);
+            result.IsFailure.ShouldBeTrue();
+            result.Error.ShouldBeSameAs(mockError.Object);
 
-                testContext.MockAuthorizationService.ShouldHaveReceived(x => x
-                    .RequirePermissionsAsync(
-                        testContext.CancellationToken,
-                        It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+            testContext.MockAuthorizationService.ShouldHaveReceived(x => x
+                .RequirePermissionsAsync(
+                    testContext.CancellationToken,
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
 
-                testContext.MockUsersService.Invocations.ShouldBeEmpty();
-                testContext.MockUsersRepository.Invocations.ShouldBeEmpty();
-            }
+            testContext.MockUsersService.Invocations.ShouldBeEmpty();
+            testContext.MockUsersRepository.Invocations.ShouldBeEmpty();
         }
 
         [TestCaseSource(nameof(CurrentUserId_UserId_TestCaseData))]
@@ -282,38 +277,37 @@ namespace Sokan.Yastah.Business.Test.Users
             ulong currentUserId,
             ulong userId)
         {
-            using (var testContext = new TestContext())
-            {
-                testContext.SetCurrentUserId(currentUserId);
+            using var testContext = new TestContext();
+            
+            testContext.SetCurrentUserId(currentUserId);
 
-                var mockError = new Mock<IOperationError>();
+            var mockError = new Mock<IOperationError>();
 
-                testContext.MockUsersService
-                    .Setup(x => x.UpdateAsync(It.IsAny<ulong>(), It.IsAny<UserUpdateModel>(), It.IsAny<ulong>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(OperationResult.FromError(mockError.Object));
+            testContext.MockUsersService
+                .Setup(x => x.UpdateAsync(It.IsAny<ulong>(), It.IsAny<UserUpdateModel>(), It.IsAny<ulong>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(OperationResult.FromError(mockError.Object));
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var updateModel = new UserUpdateModel();
+            var updateModel = new UserUpdateModel();
 
-                var result = await uut.UpdateAsync(
-                    userId,
-                    updateModel,
-                    testContext.CancellationToken);
+            var result = await uut.UpdateAsync(
+                userId,
+                updateModel,
+                testContext.CancellationToken);
 
-                result.IsFailure.ShouldBeTrue();
-                result.Error.ShouldBeSameAs(mockError.Object);
+            result.IsFailure.ShouldBeTrue();
+            result.Error.ShouldBeSameAs(mockError.Object);
 
-                testContext.MockAuthorizationService.ShouldHaveReceived(x => x
-                    .RequirePermissionsAsync(
-                        testContext.CancellationToken,
-                        It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+            testContext.MockAuthorizationService.ShouldHaveReceived(x => x
+                .RequirePermissionsAsync(
+                    testContext.CancellationToken,
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
 
-                testContext.MockUsersService.ShouldHaveReceived(x => x
-                    .UpdateAsync(userId, updateModel, currentUserId, testContext.CancellationToken));
+            testContext.MockUsersService.ShouldHaveReceived(x => x
+                .UpdateAsync(userId, updateModel, currentUserId, testContext.CancellationToken));
 
-                testContext.MockUsersRepository.Invocations.ShouldBeEmpty();
-            }
+            testContext.MockUsersRepository.Invocations.ShouldBeEmpty();
         }
 
         #endregion UpdateAsync() Tests

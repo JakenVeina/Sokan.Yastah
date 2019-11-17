@@ -49,35 +49,34 @@ namespace Sokan.Yastah.Data.Test.Authentication
             long actionId,
             long id)
         {
-            using (var testContext = new TestContext(isReadOnly: false))
-            {
-                testContext.MockContext
-                    .Setup(x => x.AddAsync(It.IsAny<AuthenticationTicketEntity>(), It.IsAny<CancellationToken>()))
-                    .Callback<AuthenticationTicketEntity, CancellationToken>((x, y) => x.Id = id);
+            using var testContext = new TestContext(isReadOnly: false);
+            
+            testContext.MockContext
+                .Setup(x => x.AddAsync(It.IsAny<AuthenticationTicketEntity>(), It.IsAny<CancellationToken>()))
+                .Callback<AuthenticationTicketEntity, CancellationToken>((x, y) => x.Id = id);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.CreateAsync(
-                    userId,
-                    actionId,
-                    testContext.CancellationToken);
+            var result = await uut.CreateAsync(
+                userId,
+                actionId,
+                testContext.CancellationToken);
 
-                testContext.MockContext
-                    .ShouldHaveReceived(x => x.AddAsync(It.IsNotNull<AuthenticationTicketEntity>(), testContext.CancellationToken));
-                testContext.MockContext
-                    .ShouldHaveReceived(x => x.SaveChangesAsync(testContext.CancellationToken));
+            testContext.MockContext
+                .ShouldHaveReceived(x => x.AddAsync(It.IsNotNull<AuthenticationTicketEntity>(), testContext.CancellationToken));
+            testContext.MockContext
+                .ShouldHaveReceived(x => x.SaveChangesAsync(testContext.CancellationToken));
 
-                var entity = testContext.MockContext
-                    .Invocations
-                    .Where(x => x.Method.Name == nameof(YastahDbContext.AddAsync))
-                    .Select(x => (AuthenticationTicketEntity)x.Arguments[0])
-                    .First();
+            var entity = testContext.MockContext
+                .Invocations
+                .Where(x => x.Method.Name == nameof(YastahDbContext.AddAsync))
+                .Select(x => (AuthenticationTicketEntity)x.Arguments[0])
+                .First();
 
-                entity.UserId.ShouldBe(userId);
-                entity.CreationId.ShouldBe(actionId);
+            entity.UserId.ShouldBe(userId);
+            entity.CreationId.ShouldBe(actionId);
 
-                result.ShouldBe(id);
-            }
+            result.ShouldBe(id);
         }
 
         #endregion CreateAsync() Tests
@@ -99,24 +98,23 @@ namespace Sokan.Yastah.Data.Test.Authentication
             long ticketId,
             long actionId)
         {
-            using (var testContext = new TestContext(isReadOnly: false))
-            {
-                var uut = testContext.BuildUut();
+            using var testContext = new TestContext(isReadOnly: false);
+            
+            var uut = testContext.BuildUut();
 
-                var result = await uut.DeleteAsync(
-                    ticketId,
-                    actionId,
-                    testContext.CancellationToken);
+            var result = await uut.DeleteAsync(
+                ticketId,
+                actionId,
+                testContext.CancellationToken);
 
-                result.IsFailure.ShouldBeTrue();
-                result.Error.ShouldBeOfType<DataNotFoundError>();
-                result.Error.Message.ShouldContain(ticketId.ToString());
+            result.IsFailure.ShouldBeTrue();
+            result.Error.ShouldBeOfType<DataNotFoundError>();
+            result.Error.Message.ShouldContain(ticketId.ToString());
 
-                testContext.MockContext.ShouldHaveReceived(x => x.FindAsync<AuthenticationTicketEntity>(
-                    It.Is<object[]>(y => y.SequenceEqual(ticketId.ToEnumerable().Cast<object>())),
-                    testContext.CancellationToken));
-                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
-            }
+            testContext.MockContext.ShouldHaveReceived(x => x.FindAsync<AuthenticationTicketEntity>(
+                It.Is<object[]>(y => y.SequenceEqual(ticketId.ToEnumerable().Cast<object>())),
+                testContext.CancellationToken));
+            testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
         }
 
         public static readonly IReadOnlyList<TestCaseData> DeleteAsync_TicketIsDeleted_TestCaseData
@@ -132,29 +130,28 @@ namespace Sokan.Yastah.Data.Test.Authentication
             long ticketId,
             long actionId)
         {
-            using (var testContext = new TestContext(isReadOnly: false))
-            {
-                var ticket = testContext.Entities.AuthenticationTickets.First(x => x.Id == ticketId);
-                var deletionId = ticket.DeletionId;
+            using var testContext = new TestContext(isReadOnly: false);
+            
+            var ticket = testContext.Entities.AuthenticationTickets.First(x => x.Id == ticketId);
+            var deletionId = ticket.DeletionId;
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.DeleteAsync(
-                    ticketId,
-                    actionId,
-                    testContext.CancellationToken);
+            var result = await uut.DeleteAsync(
+                ticketId,
+                actionId,
+                testContext.CancellationToken);
 
-                result.IsFailure.ShouldBeTrue();
-                result.Error.ShouldBeOfType<DataAlreadyDeletedError>();
-                result.Error.Message.ShouldContain(ticketId.ToString());
+            result.IsFailure.ShouldBeTrue();
+            result.Error.ShouldBeOfType<DataAlreadyDeletedError>();
+            result.Error.Message.ShouldContain(ticketId.ToString());
 
-                ticket.DeletionId.ShouldBe(deletionId);
+            ticket.DeletionId.ShouldBe(deletionId);
 
-                testContext.MockContext.ShouldHaveReceived(x => x.FindAsync<AuthenticationTicketEntity>(
-                    It.Is<object[]>(y => y.SequenceEqual(ticketId.ToEnumerable().Cast<object>())),
-                    testContext.CancellationToken));
-                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
-            }
+            testContext.MockContext.ShouldHaveReceived(x => x.FindAsync<AuthenticationTicketEntity>(
+                It.Is<object[]>(y => y.SequenceEqual(ticketId.ToEnumerable().Cast<object>())),
+                testContext.CancellationToken));
+            testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
         }
 
         public static readonly IReadOnlyList<TestCaseData> DeleteAsync_TicketIsNotDeleted_TestCaseData
@@ -171,26 +168,25 @@ namespace Sokan.Yastah.Data.Test.Authentication
             long ticketId,
             long actionId)
         {
-            using (var testContext = new TestContext(isReadOnly: false))
-            {
-                var ticket = testContext.Entities.AuthenticationTickets.First(x => x.Id == ticketId);
+            using var testContext = new TestContext(isReadOnly: false);
+            
+            var ticket = testContext.Entities.AuthenticationTickets.First(x => x.Id == ticketId);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.DeleteAsync(
-                    ticketId,
-                    actionId,
-                    testContext.CancellationToken);
+            var result = await uut.DeleteAsync(
+                ticketId,
+                actionId,
+                testContext.CancellationToken);
 
-                result.IsSuccess.ShouldBeTrue();
+            result.IsSuccess.ShouldBeTrue();
 
-                ticket.DeletionId.ShouldBe(actionId);
+            ticket.DeletionId.ShouldBe(actionId);
 
-                testContext.MockContext.ShouldHaveReceived(x => x.FindAsync<AuthenticationTicketEntity>(
-                    It.Is<object[]>(y => y.SequenceEqual(ticketId.ToEnumerable().Cast<object>())),
-                    testContext.CancellationToken));
-                testContext.MockContext.ShouldHaveReceived(x => x.SaveChangesAsync(testContext.CancellationToken));
-            }
+            testContext.MockContext.ShouldHaveReceived(x => x.FindAsync<AuthenticationTicketEntity>(
+                It.Is<object[]>(y => y.SequenceEqual(ticketId.ToEnumerable().Cast<object>())),
+                testContext.CancellationToken));
+            testContext.MockContext.ShouldHaveReceived(x => x.SaveChangesAsync(testContext.CancellationToken));
         }
 
         #endregion DeleteAsync() Tests
@@ -210,19 +206,18 @@ namespace Sokan.Yastah.Data.Test.Authentication
         public async Task ReadActiveIdAsync_TicketDoesNotExist_ReturnsFailure(
             ulong userId)
         {
-            using (var testContext = new TestContext())
-            {
-                var uut = testContext.BuildUut();
+            using var testContext = new TestContext();
+            
+            var uut = testContext.BuildUut();
 
-                var result = await uut.ReadActiveIdAsync(
-                    userId,
-                    testContext.CancellationToken);
+            var result = await uut.ReadActiveIdAsync(
+                userId,
+                testContext.CancellationToken);
 
-                result.IsFailure.ShouldBeTrue();
-                result.Error.Message.ShouldContain(userId.ToString());
+            result.IsFailure.ShouldBeTrue();
+            result.Error.Message.ShouldContain(userId.ToString());
 
-                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
-            }
+            testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
         }
 
         internal static readonly IReadOnlyList<TestCaseData> ReadActiveIdAsync_TicketExists_TestCaseData
@@ -239,19 +234,18 @@ namespace Sokan.Yastah.Data.Test.Authentication
             ulong userId,
             long ticketId)
         {
-            using (var testContext = new TestContext())
-            {
-                var uut = testContext.BuildUut();
+            using var testContext = new TestContext();
+            
+            var uut = testContext.BuildUut();
 
-                var result = await uut.ReadActiveIdAsync(
-                    userId,
-                    testContext.CancellationToken);
+            var result = await uut.ReadActiveIdAsync(
+                userId,
+                testContext.CancellationToken);
 
-                result.IsSuccess.ShouldBeTrue();
-                result.Value.ShouldBe(ticketId);
+            result.IsSuccess.ShouldBeTrue();
+            result.Value.ShouldBe(ticketId);
 
-                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
-            }
+            testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
         }
 
         #endregion ReadActiveIdAsync() Tests
@@ -272,26 +266,25 @@ namespace Sokan.Yastah.Data.Test.Authentication
             Optional<bool> isDeleted,
             IReadOnlyList<long> ticketIds)
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext();
+            
+            var uut = testContext.BuildUut();
+
+            var results = await uut.AsyncEnumerateIdentities(
+                    isDeleted)
+                .ToArrayAsync();
+
+            results.ShouldNotBeNull();
+            results.ForEach(result => result.ShouldNotBeNull());
+            results.Select(x => x.Id).ShouldBeSetEqualTo(ticketIds);
+            results.ForEach(result =>
             {
-                var uut = testContext.BuildUut();
+                var entity = testContext.Entities.AuthenticationTickets.First(x => x.Id == result.Id);
 
-                var results = await uut.AsyncEnumerateIdentities(
-                        isDeleted)
-                    .ToArrayAsync();
+                result.UserId.ShouldBe(entity.UserId);
+            });
 
-                results.ShouldNotBeNull();
-                results.ForEach(result => result.ShouldNotBeNull());
-                results.Select(x => x.Id).ShouldBeSetEqualTo(ticketIds);
-                results.ForEach(result =>
-                {
-                    var entity = testContext.Entities.AuthenticationTickets.First(x => x.Id == result.Id);
-
-                    result.UserId.ShouldBe(entity.UserId);
-                });
-
-                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
-            }
+            testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
         }
 
         #endregion ReadIdentitiesAsync() Tests

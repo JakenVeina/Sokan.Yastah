@@ -14,7 +14,7 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.Caching.Optio
     {
         #region Test Cases
 
-        public class TestContext
+        internal class TestContext
             : AsyncMethodTestContext
         {
             public TestContext()
@@ -38,36 +38,34 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.Caching.Optio
         [Test]
         public async Task OnStartupAsync_ServiceProviderDoesNotContainOptions_ThrowsException()
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext();
+            
+            testContext.MockServiceProvider
+                .Setup(x => x.GetService(typeof(IOptions<object>)))
+                .Returns(null);
+
+            var uut = new OptionsValidationStartupHandler<object>(
+                testContext.MockServiceProvider.Object);
+
+            await Should.ThrowAsync<InvalidOperationException>(async () =>
             {
-                testContext.MockServiceProvider
-                    .Setup(x => x.GetService(typeof(IOptions<object>)))
-                    .Returns(null);
-
-                var uut = new OptionsValidationStartupHandler<object>(
-                    testContext.MockServiceProvider.Object);
-
-                await Should.ThrowAsync<InvalidOperationException>(async () =>
-                {
-                    await uut.OnStartupAsync(testContext.CancellationToken);
-                });
-            }
+                await uut.OnStartupAsync(testContext.CancellationToken);
+            });
         }
 
         [Test]
         public async Task OnStartupAsync_ServiceProviderContainsOptions_GetsOptionsFromServiceProvider()
         {
-            using (var testContext = new TestContext())
-            {
-                var uut = new OptionsValidationStartupHandler<object>(
-                    testContext.MockServiceProvider.Object);
+            using var testContext = new TestContext();
+            
+            var uut = new OptionsValidationStartupHandler<object>(
+                testContext.MockServiceProvider.Object);
 
-                await uut.OnStartupAsync(testContext.CancellationToken);
+            await uut.OnStartupAsync(testContext.CancellationToken);
 
-                testContext.MockServiceProvider.ShouldHaveReceived(x => x.GetService(typeof(IOptions<object>)));
+            testContext.MockServiceProvider.ShouldHaveReceived(x => x.GetService(typeof(IOptions<object>)));
 
-                testContext.MockOptions.Invocations.ShouldBeEmpty();
-            }
+            testContext.MockOptions.Invocations.ShouldBeEmpty();
         }
 
         #endregion OnStartupAsync() Tests

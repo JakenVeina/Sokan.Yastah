@@ -1,6 +1,6 @@
 ﻿namespace Sokan.Yastah.Api.Antiforgery
 {
-    public class AntiforgeryDefaults
+    public static class AntiforgeryDefaults
     {
         public const string RequestTokenCookieName
             = "Yastah.Api.Antiforgery.RequestToken";

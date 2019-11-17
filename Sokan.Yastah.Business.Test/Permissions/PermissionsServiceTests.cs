@@ -24,7 +24,7 @@ namespace Sokan.Yastah.Business.Test.Permissions
     {
         #region Test Context
 
-        public class TestContext
+        internal class TestContext
             : AsyncMethodTestContext
         {
             public TestContext()
@@ -60,57 +60,55 @@ namespace Sokan.Yastah.Business.Test.Permissions
         [Test]
         public async Task GetDescriptionsAsync_DescriptionsAreNotCached_ReadsDescriptions()
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext();
+            
+            var descriptions = new PermissionCategoryDescriptionViewModel[]
             {
-                var descriptions = new PermissionCategoryDescriptionViewModel[]
-                { 
-                    new PermissionCategoryDescriptionViewModel(
-                        id:             default,
-                        name:           string.Empty,
-                        description:    string.Empty,
-                        permissions:    Array.Empty<PermissionDescriptionViewModel>())
-                };
+                new PermissionCategoryDescriptionViewModel(
+                    id:             default,
+                    name:           string.Empty,
+                    description:    string.Empty,
+                    permissions:    Array.Empty<PermissionDescriptionViewModel>())
+            };
 
-                testContext.MockPermissionsRepository
-                    .Setup(x => x.AsyncEnumerateDescriptions())
-                    .Returns(descriptions.ToAsyncEnumerable());
+            testContext.MockPermissionsRepository
+                .Setup(x => x.AsyncEnumerateDescriptions())
+                .Returns(descriptions.ToAsyncEnumerable());
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.GetDescriptionsAsync(
-                    testContext.CancellationToken);
+            var result = await uut.GetDescriptionsAsync(
+                testContext.CancellationToken);
 
-                testContext.MockPermissionsRepository.ShouldHaveReceived(x => x
-                    .AsyncEnumerateDescriptions());
+            testContext.MockPermissionsRepository.ShouldHaveReceived(x => x
+                .AsyncEnumerateDescriptions());
 
-                testContext.MemoryCache.TryGetValue(PermissionsService._getDescriptionsCacheKey, out var cacheValue)
-                    .ShouldBeTrue();
-                cacheValue.ShouldBeAssignableTo<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>>()
-                    .ShouldBeSetEqualTo(descriptions);
+            testContext.MemoryCache.TryGetValue(PermissionsService._getDescriptionsCacheKey, out var cacheValue)
+                .ShouldBeTrue();
+            cacheValue.ShouldBeAssignableTo<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>>()
+                .ShouldBeSetEqualTo(descriptions);
 
-                result.ShouldBeSameAs(cacheValue);
-            }
+            result.ShouldBeSameAs(cacheValue);
         }
 
         [Test]
         public async Task GetDescriptionsAsync_DescriptionsAreCached_DoesNotReadDescriptions()
         {
-            using (var testContext = new TestContext())
-            {
-                var descriptions = new PermissionCategoryDescriptionViewModel[] { };
+            using var testContext = new TestContext();
+            
+            var descriptions = new PermissionCategoryDescriptionViewModel[0];
 
-                testContext.MemoryCache.Set(PermissionsService._getDescriptionsCacheKey, descriptions);
+            testContext.MemoryCache.Set(PermissionsService._getDescriptionsCacheKey, descriptions);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.GetDescriptionsAsync(
-                    testContext.CancellationToken);
+            var result = await uut.GetDescriptionsAsync(
+                testContext.CancellationToken);
 
-                result.ShouldBeSameAs(descriptions);
+            result.ShouldBeSameAs(descriptions);
 
-                testContext.MockPermissionsRepository.ShouldNotHaveReceived(x => x
-                    .AsyncEnumerateDescriptions());
-            }
+            testContext.MockPermissionsRepository.ShouldNotHaveReceived(x => x
+                .AsyncEnumerateDescriptions());
         }
 
         #endregion GetDescriptionsAsync() Tests
@@ -120,55 +118,53 @@ namespace Sokan.Yastah.Business.Test.Permissions
         [Test]
         public async Task GetIdentitiesAsync_IdentitiesAreNotCached_ReadsIdentities()
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext();
+
+            var identities = new PermissionIdentityViewModel[]
             {
-                var identities = new PermissionIdentityViewModel[]
-                {
-                    new PermissionIdentityViewModel(
-                        id:     default,
-                        name:   string.Empty)
-                };
+                new PermissionIdentityViewModel(
+                    id:     default,
+                    name:   string.Empty)
+            };
 
-                testContext.MockPermissionsRepository
-                    .Setup(x => x.AsyncEnumerateIdentities())
-                    .Returns(identities.ToAsyncEnumerable());
+            testContext.MockPermissionsRepository
+                .Setup(x => x.AsyncEnumerateIdentities())
+                .Returns(identities.ToAsyncEnumerable());
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.GetIdentitiesAsync(
-                    testContext.CancellationToken);
+            var result = await uut.GetIdentitiesAsync(
+                testContext.CancellationToken);
 
-                testContext.MockPermissionsRepository.ShouldHaveReceived(x => x
-                    .AsyncEnumerateIdentities());
+            testContext.MockPermissionsRepository.ShouldHaveReceived(x => x
+                .AsyncEnumerateIdentities());
 
-                testContext.MemoryCache.TryGetValue(PermissionsService._getIdentitiesCacheKey, out var cacheValue)
-                    .ShouldBeTrue();
-                cacheValue.ShouldBeAssignableTo<IReadOnlyCollection<PermissionIdentityViewModel>>()
-                    .ShouldBeSetEqualTo(identities);
+            testContext.MemoryCache.TryGetValue(PermissionsService._getIdentitiesCacheKey, out var cacheValue)
+                .ShouldBeTrue();
+            cacheValue.ShouldBeAssignableTo<IReadOnlyCollection<PermissionIdentityViewModel>>()
+                .ShouldBeSetEqualTo(identities);
 
-                result.ShouldBeSameAs(cacheValue);
-            }
+            result.ShouldBeSameAs(cacheValue);
         }
 
         [Test]
         public async Task GetIdentitiesAsync_IdentitiesAreCached_DoesNotReadIdentities()
         {
-            using (var testContext = new TestContext())
-            {
-                var identities = new PermissionIdentityViewModel[] { };
+            using var testContext = new TestContext();
+            
+            var identities = new PermissionIdentityViewModel[0];
 
-                testContext.MemoryCache.Set(PermissionsService._getIdentitiesCacheKey, identities);
+            testContext.MemoryCache.Set(PermissionsService._getIdentitiesCacheKey, identities);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.GetIdentitiesAsync(
-                    testContext.CancellationToken);
+            var result = await uut.GetIdentitiesAsync(
+                testContext.CancellationToken);
 
-                result.ShouldBeSameAs(identities);
+            result.ShouldBeSameAs(identities);
 
-                testContext.MockPermissionsRepository.ShouldNotHaveReceived(x => x
-                    .AsyncEnumerateIdentities());
-            }
+            testContext.MockPermissionsRepository.ShouldNotHaveReceived(x => x
+                .AsyncEnumerateIdentities());
         }
 
         #endregion GetIdentitiesAsync() Tests
@@ -178,16 +174,15 @@ namespace Sokan.Yastah.Business.Test.Permissions
         [Test]
         public async Task ValidateIdsAsync_PermissionIdsIsEmpty_ReturnsSuccess()
         {
-            using (var testContext = new TestContext())
-            {
-                var uut = testContext.BuildUut();
+            using var testContext = new TestContext();
 
-                var result = await uut.ValidateIdsAsync(
-                    Array.Empty<int>(),
-                    testContext.CancellationToken);
+            var uut = testContext.BuildUut();
 
-                result.IsSuccess.ShouldBeTrue();
-            }
+            var result = await uut.ValidateIdsAsync(
+                Array.Empty<int>(),
+                testContext.CancellationToken);
+
+            result.IsSuccess.ShouldBeTrue();
         }
 
         public static readonly IReadOnlyList<TestCaseData> ValidateIdsAsync_PermissionIdsHasInvalidIds_TestCaseData
@@ -207,21 +202,20 @@ namespace Sokan.Yastah.Business.Test.Permissions
             IReadOnlyList<int> validPermissionIds,
             IReadOnlyList<int> invalidPermissionIds)
         {
-            using (var testContext = new TestContext())
-            {
-                testContext.SetIdentitiesCache(validPermissionIds);
+            using var testContext = new TestContext();
+            
+            testContext.SetIdentitiesCache(validPermissionIds);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.ValidateIdsAsync(
-                    permissionIds,
-                    testContext.CancellationToken);
+            var result = await uut.ValidateIdsAsync(
+                permissionIds,
+                testContext.CancellationToken);
 
-                result.IsFailure.ShouldBeTrue();
-                result.Error.ShouldBeOfType<DataNotFoundError>();
-                foreach (var invalidPermissionId in invalidPermissionIds)
-                    result.Error.Message.ShouldContain(invalidPermissionId.ToString());
-            }
+            result.IsFailure.ShouldBeTrue();
+            result.Error.ShouldBeOfType<DataNotFoundError>();
+            foreach (var invalidPermissionId in invalidPermissionIds)
+                result.Error.Message.ShouldContain(invalidPermissionId.ToString());
         }
 
         public static readonly IReadOnlyList<TestCaseData> ValidateIdsAsync_PermissionIdsDoesNotHaveInvalidIds_TestCaseData
@@ -240,18 +234,17 @@ namespace Sokan.Yastah.Business.Test.Permissions
             IReadOnlyList<int> permissionIds,
             IReadOnlyList<int> validPermissionIds)
         {
-            using (var testContext = new TestContext())
-            {
-                testContext.SetIdentitiesCache(validPermissionIds);
+            using var testContext = new TestContext();
+            
+            testContext.SetIdentitiesCache(validPermissionIds);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.ValidateIdsAsync(
-                    permissionIds,
-                    testContext.CancellationToken);
+            var result = await uut.ValidateIdsAsync(
+                permissionIds,
+                testContext.CancellationToken);
 
-                result.IsSuccess.ShouldBeTrue();
-            }
+            result.IsSuccess.ShouldBeTrue();
         }
 
         [TestCaseSource(nameof(ValidateIdsAsync_PermissionIdsDoesNotHaveInvalidIds_TestCaseData))]
@@ -259,29 +252,28 @@ namespace Sokan.Yastah.Business.Test.Permissions
             IReadOnlyList<int> permissionIds,
             IReadOnlyList<int> validPermissionIds)
         {
-            using (var testContext = new TestContext())
-            {
-                var identities = validPermissionIds
-                    .Select(x => new PermissionIdentityViewModel(
-                        id:     x,
-                        name:   $"Permission {x}"))
-                    .ToArray();
+            using var testContext = new TestContext();
+            
+            var identities = validPermissionIds
+                .Select(x => new PermissionIdentityViewModel(
+                    id: x,
+                    name: $"Permission {x}"))
+                .ToArray();
 
-                testContext.MockPermissionsRepository
-                    .Setup(x => x.AsyncEnumerateIdentities())
-                    .Returns(identities.ToAsyncEnumerable());
-                
-                var uut = testContext.BuildUut();
+            testContext.MockPermissionsRepository
+                .Setup(x => x.AsyncEnumerateIdentities())
+                .Returns(identities.ToAsyncEnumerable());
 
-                var result = await uut.ValidateIdsAsync(
-                    permissionIds,
-                    testContext.CancellationToken);
+            var uut = testContext.BuildUut();
 
-                result.IsSuccess.ShouldBeTrue();
+            var result = await uut.ValidateIdsAsync(
+                permissionIds,
+                testContext.CancellationToken);
 
-                testContext.MockPermissionsRepository.ShouldHaveReceived(x => x
-                    .AsyncEnumerateIdentities());
-            }
+            result.IsSuccess.ShouldBeTrue();
+
+            testContext.MockPermissionsRepository.ShouldHaveReceived(x => x
+                .AsyncEnumerateIdentities());
         }
 
         [TestCaseSource(nameof(ValidateIdsAsync_PermissionIdsDoesNotHaveInvalidIds_TestCaseData))]
@@ -289,21 +281,20 @@ namespace Sokan.Yastah.Business.Test.Permissions
             IReadOnlyList<int> permissionIds,
             IReadOnlyList<int> validPermissionIds)
         {
-            using (var testContext = new TestContext())
-            {
-                testContext.SetIdentitiesCache(validPermissionIds);
+            using var testContext = new TestContext();
+            
+            testContext.SetIdentitiesCache(validPermissionIds);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.ValidateIdsAsync(
-                    permissionIds,
-                    testContext.CancellationToken);
+            var result = await uut.ValidateIdsAsync(
+                permissionIds,
+                testContext.CancellationToken);
 
-                result.IsSuccess.ShouldBeTrue();
+            result.IsSuccess.ShouldBeTrue();
 
-                testContext.MockPermissionsRepository.ShouldNotHaveReceived(x => x
-                    .AsyncEnumerateIdentities());
-            }
+            testContext.MockPermissionsRepository.ShouldNotHaveReceived(x => x
+                .AsyncEnumerateIdentities());
         }
 
         #endregion ValidateIdsAsync() Tests

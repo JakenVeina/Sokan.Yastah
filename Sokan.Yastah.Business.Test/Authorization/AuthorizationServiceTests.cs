@@ -22,7 +22,7 @@ namespace Sokan.Yastah.Business.Test.Authorization
     {
         #region Test Context
 
-        public class TestContext
+        internal class TestContext
             : AsyncMethodTestContext
         {
             public TestContext()
@@ -88,30 +88,29 @@ namespace Sokan.Yastah.Business.Test.Authorization
         [Test]
         public void RequireAuthentication_CurrentTicketIsNull_ReturnsUnauthenticatedUserError()
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext()
             {
-                testContext.CurrentTicket = null;
+                CurrentTicket = null
+            };
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = uut.RequireAuthentication();
+            var result = uut.RequireAuthentication();
 
-                result.IsFailure.ShouldBeTrue();
-                result.Error.ShouldBeOfType<UnauthenticatedUserError>();
-            }
+            result.IsFailure.ShouldBeTrue();
+            result.Error.ShouldBeOfType<UnauthenticatedUserError>();
         }
 
         [Test]
         public void RequireAuthentication_CurrentTicketIsNotNull_ReturnsSuccess()
         {
-            using (var testContext = new TestContext())
-            {
-                var uut = testContext.BuildUut();
+            using var testContext = new TestContext();
+            
+            var uut = testContext.BuildUut();
 
-                var result = uut.RequireAuthentication();
+            var result = uut.RequireAuthentication();
 
-                result.IsSuccess.ShouldBeTrue();
-            }
+            result.IsSuccess.ShouldBeTrue();
         }
 
         #endregion RequireAuthentication() Tests
@@ -133,21 +132,21 @@ namespace Sokan.Yastah.Business.Test.Authorization
         public async Task RequirePermissionsAsync_CurrentTicketIsNull_ReturnsUnauthenticatedUserError(
             int[] permissionIds)
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext()
             {
-                testContext.CurrentTicket = null;
+                CurrentTicket = null
+            };
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    permissionIds);
+            var result = await uut.RequirePermissionsAsync(
+                testContext.CancellationToken,
+                permissionIds);
 
-                result.IsFailure.ShouldBeTrue();
-                result.Error.ShouldBeOfType<UnauthenticatedUserError>();
+            result.IsFailure.ShouldBeTrue();
+            result.Error.ShouldBeOfType<UnauthenticatedUserError>();
 
-                testContext.MockPermissionsService.Invocations.ShouldBeEmpty();
-            }
+            testContext.MockPermissionsService.Invocations.ShouldBeEmpty();
         }
 
         internal static readonly IReadOnlyList<TestCaseData> RequirePermissionsAsync_CurrentTicketDoesNotHavePermissions_TestCaseData
@@ -166,31 +165,30 @@ namespace Sokan.Yastah.Business.Test.Authorization
             int[] permissionIds,
             IReadOnlyList<int> grantedPermissionIds)
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext();
+            
+            testContext.SetPermissionIdentities(grantedPermissionIds.Union(permissionIds));
+            testContext.SetCurrentTicket(grantedPermissionIds);
+
+            var uut = testContext.BuildUut();
+
+            var result = await uut.RequirePermissionsAsync(
+                testContext.CancellationToken,
+                permissionIds);
+
+            result.IsFailure.ShouldBeTrue();
+            var error = result.Error.ShouldBeOfType<InsufficientPermissionsError>();
+            error.MissingPermissions.Select(x => x.Key)
+                .ShouldBeSetEqualTo(permissionIds.Except(grantedPermissionIds));
+            error.MissingPermissions.ForEach(permission =>
             {
-                testContext.SetPermissionIdentities(grantedPermissionIds.Union(permissionIds));
-                testContext.SetCurrentTicket(grantedPermissionIds);
+                var identity = testContext.PermissionIdentities.First(x => x.Id == permission.Key);
 
-                var uut = testContext.BuildUut();
+                permission.Value.ShouldBe(identity.Name);
+            });
 
-                var result = await uut.RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    permissionIds);
-
-                result.IsFailure.ShouldBeTrue();
-                var error = result.Error.ShouldBeOfType<InsufficientPermissionsError>();
-                error.MissingPermissions.Select(x => x.Key)
-                    .ShouldBeSetEqualTo(permissionIds.Except(grantedPermissionIds));
-                error.MissingPermissions.ForEach(permission =>
-                {
-                    var identity = testContext.PermissionIdentities.First(x => x.Id == permission.Key);
-
-                    permission.Value.ShouldBe(identity.Name);
-                });
-
-                testContext.MockPermissionsService.ShouldHaveReceived(x => x
-                    .GetIdentitiesAsync(testContext.CancellationToken));
-            }
+            testContext.MockPermissionsService.ShouldHaveReceived(x => x
+                .GetIdentitiesAsync(testContext.CancellationToken));
         }
 
         internal static readonly IReadOnlyList<TestCaseData> RequirePermissionsAsync_CurrentTicketHasPermissions_TestCaseData
@@ -210,21 +208,20 @@ namespace Sokan.Yastah.Business.Test.Authorization
             int[] permissionIds,
             IReadOnlyList<int> grantedPermissionIds)
         {
-            using (var testContext = new TestContext())
-            {
-                testContext.SetPermissionIdentities(grantedPermissionIds.Union(permissionIds));
-                testContext.SetCurrentTicket(grantedPermissionIds);
+            using var testContext = new TestContext();
+            
+            testContext.SetPermissionIdentities(grantedPermissionIds.Union(permissionIds));
+            testContext.SetCurrentTicket(grantedPermissionIds);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    permissionIds);
+            var result = await uut.RequirePermissionsAsync(
+                testContext.CancellationToken,
+                permissionIds);
 
-                result.IsSuccess.ShouldBeTrue();
+            result.IsSuccess.ShouldBeTrue();
 
-                testContext.MockPermissionsService.Invocations.ShouldBeEmpty();
-            }
+            testContext.MockPermissionsService.Invocations.ShouldBeEmpty();
         }
 
 

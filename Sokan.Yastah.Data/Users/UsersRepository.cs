@@ -259,41 +259,40 @@ namespace Sokan.Yastah.Data.Users
             DateTimeOffset lastSeen,
             CancellationToken cancellationToken)
         {
-            using (var transactionScope = _transactionScopeFactory.CreateScope())
+            using var transactionScope = _transactionScopeFactory.CreateScope();
+            
+            var result = MergeResult.SingleUpdate;
+
+            var entity = await _context
+                .FindAsync<UserEntity?>(new object[] { id }, cancellationToken);
+
+            if (entity is null)
             {
-                var result = MergeResult.SingleUpdate;
+                result = MergeResult.SingleInsert;
 
-                var entity = await _context
-                    .FindAsync<UserEntity?>(new object[] { id }, cancellationToken);
+                entity = new UserEntity(
+                    id,
+                    username,
+                    discriminator,
+                    avatarHash,
+                    firstSeen,
+                    lastSeen);
 
-                if (entity is null)
-                {
-                    result = MergeResult.SingleInsert;
-
-                    entity = new UserEntity(
-                        id,
-                        username,
-                        discriminator,
-                        avatarHash,
-                        firstSeen,
-                        lastSeen);
-
-                    await _context.AddAsync(entity, cancellationToken);
-                }
-                else
-                {
-                    entity.Username = username;
-                    entity.Discriminator = discriminator;
-                    entity.AvatarHash = avatarHash;
-                    entity.LastSeen = lastSeen;
-                }
-
-                await _context.SaveChangesAsync(cancellationToken);
-
-                transactionScope.Complete();
-
-                return result;
+                await _context.AddAsync(entity, cancellationToken);
             }
+            else
+            {
+                entity.Username = username;
+                entity.Discriminator = discriminator;
+                entity.AvatarHash = avatarHash;
+                entity.LastSeen = lastSeen;
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            transactionScope.Complete();
+
+            return result;
         }
 
         public async Task<OperationResult<UserDetailViewModel>> ReadDetailAsync(
@@ -316,21 +315,20 @@ namespace Sokan.Yastah.Data.Users
             long deletionId,
             CancellationToken cancellationToken)
         {
-            using (var transactionScope = _transactionScopeFactory.CreateScope())
+            using var transactionScope = _transactionScopeFactory.CreateScope();
+            
+            var findKeys = new object[1];
+            foreach (var mappingId in mappingIds)
             {
-                var findKeys = new object[1];
-                foreach (var mappingId in mappingIds)
-                {
-                    findKeys[0] = mappingId;
-                    var mapping = await _context.FindAsync<UserPermissionMappingEntity>(findKeys, cancellationToken);
+                findKeys[0] = mappingId;
+                var mapping = await _context.FindAsync<UserPermissionMappingEntity>(findKeys, cancellationToken);
 
-                    mapping.DeletionId = deletionId;
-                }
-
-                await _context.SaveChangesAsync(cancellationToken);
-
-                transactionScope.Complete();
+                mapping.DeletionId = deletionId;
             }
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            transactionScope.Complete();
         }
 
         public async Task UpdateRoleMappingsAsync(
@@ -338,21 +336,20 @@ namespace Sokan.Yastah.Data.Users
             long deletionId,
             CancellationToken cancellationToken)
         {
-            using (var transactionScope = _transactionScopeFactory.CreateScope())
+            using var transactionScope = _transactionScopeFactory.CreateScope();
+            
+            var findKeys = new object[1];
+            foreach (var mappingId in mappingIds)
             {
-                var findKeys = new object[1];
-                foreach (var mappingId in mappingIds)
-                {
-                    findKeys[0] = mappingId;
-                    var mapping = await _context.FindAsync<UserRoleMappingEntity>(findKeys, cancellationToken);
+                findKeys[0] = mappingId;
+                var mapping = await _context.FindAsync<UserRoleMappingEntity>(findKeys, cancellationToken);
 
-                    mapping.DeletionId = deletionId;
-                }
-
-                await _context.SaveChangesAsync(cancellationToken);
-
-                transactionScope.Complete();
+                mapping.DeletionId = deletionId;
             }
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            transactionScope.Complete();
         }
 
         private readonly YastahDbContext _context;

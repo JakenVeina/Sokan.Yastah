@@ -135,30 +135,29 @@ namespace Sokan.Yastah.Data.Roles
             long actionId,
             CancellationToken cancellationToken)
         {
-            using (var transactionScope = _transactionScopeFactory.CreateScope())
-            {
-                var role = new RoleEntity(
-                    id: default);
+            using var transactionScope = _transactionScopeFactory.CreateScope();
 
-                await _context.AddAsync(role, cancellationToken);
-                await _context.SaveChangesAsync(cancellationToken);
+            var role = new RoleEntity(
+                id: default);
 
-                var version = new RoleVersionEntity(
-                    id: default,
-                    roleId: role.Id,
-                    name: name,
-                    isDeleted: false,
-                    actionId: actionId,
-                    previousVersionId: null,
-                    nextVersionId: null);
+            await _context.AddAsync(role, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
 
-                await _context.AddAsync(version, cancellationToken);
-                await _context.SaveChangesAsync(cancellationToken);
+            var version = new RoleVersionEntity(
+                id: default,
+                roleId: role.Id,
+                name: name,
+                isDeleted: false,
+                actionId: actionId,
+                previousVersionId: null,
+                nextVersionId: null);
 
-                transactionScope.Complete();
+            await _context.AddAsync(version, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
 
-                return version.Role.Id;
-            }
+            transactionScope.Complete();
+
+            return version.Role.Id;
         }
 
         public async Task<IReadOnlyCollection<long>> CreatePermissionMappingsAsync(
@@ -213,49 +212,48 @@ namespace Sokan.Yastah.Data.Roles
             Optional<string> name = default,
             Optional<bool> isDeleted = default)
         {
-            using (var transactionScope = _transactionScopeFactory.CreateScope())
+            using var transactionScope = _transactionScopeFactory.CreateScope();
+            
+            var currentVersion = await _context.Set<RoleVersionEntity>()
+                .AsQueryable()
+                .Where(x => x.RoleId == roleId)
+                .Where(x => x.NextVersionId == null)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (currentVersion is null)
+                return new DataNotFoundError($"Role ID {roleId}")
+                    .ToError<long>();
+
+            var newVersion = new RoleVersionEntity(
+                id: default,
+                roleId: currentVersion.RoleId,
+                name: name.IsSpecified
+                                        ? name.Value
+                                        : currentVersion.Name,
+                isDeleted: isDeleted.IsSpecified
+                                        ? isDeleted.Value
+                                        : currentVersion.IsDeleted,
+                actionId: actionId,
+                previousVersionId: currentVersion.Id,
+                nextVersionId: null
+            );
+
+            if ((newVersion.Name == currentVersion.Name)
+                    && (newVersion.IsDeleted == currentVersion.IsDeleted))
             {
-                var currentVersion = await _context.Set<RoleVersionEntity>()
-                    .AsQueryable()
-                    .Where(x => x.RoleId == roleId)
-                    .Where(x => x.NextVersionId == null)
-                    .FirstOrDefaultAsync(cancellationToken);
-
-                if (currentVersion is null)
-                    return new DataNotFoundError($"Role ID {roleId}")
-                        .ToError<long>();
-
-                var newVersion = new RoleVersionEntity(
-                    id:                 default,
-                    roleId:             currentVersion.RoleId,
-                    name:               name.IsSpecified
-                                            ? name.Value
-                                            : currentVersion.Name,
-                    isDeleted:          isDeleted.IsSpecified
-                                            ? isDeleted.Value
-                                            : currentVersion.IsDeleted,
-                    actionId:           actionId,
-                    previousVersionId:  currentVersion.Id,
-                    nextVersionId:      null
-                );
-
-                if ((newVersion.Name == currentVersion.Name)
-                        && (newVersion.IsDeleted == currentVersion.IsDeleted))
-                {
-                    transactionScope.Complete();
-                    return new NoChangesGivenError($"Role ID {roleId}")
-                        .ToError<long>();
-                }
-
-                currentVersion.NextVersion = newVersion;
-                await _context.AddAsync(newVersion, cancellationToken);
-                await _context.SaveChangesAsync(cancellationToken);
-
                 transactionScope.Complete();
-
-                return newVersion.Id
-                    .ToSuccess();
+                return new NoChangesGivenError($"Role ID {roleId}")
+                    .ToError<long>();
             }
+
+            currentVersion.NextVersion = newVersion;
+            await _context.AddAsync(newVersion, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            transactionScope.Complete();
+
+            return newVersion.Id
+                .ToSuccess();
         }
 
         public async Task UpdatePermissionMappingsAsync(
@@ -263,21 +261,20 @@ namespace Sokan.Yastah.Data.Roles
             long deletionId,
             CancellationToken cancellationToken)
         {
-            using (var transactionScope = _transactionScopeFactory.CreateScope())
+            using var transactionScope = _transactionScopeFactory.CreateScope();
+            
+            var findKeys = new object[1];
+            foreach (var mappingId in mappingIds)
             {
-                var findKeys = new object[1];
-                foreach (var mappingId in mappingIds)
-                {
-                    findKeys[0] = mappingId;
-                    var mapping = await _context.FindAsync<RolePermissionMappingEntity>(findKeys, cancellationToken);
+                findKeys[0] = mappingId;
+                var mapping = await _context.FindAsync<RolePermissionMappingEntity>(findKeys, cancellationToken);
 
-                    mapping.DeletionId = deletionId;
-                }
-
-                await _context.SaveChangesAsync(cancellationToken);
-
-                transactionScope.Complete();
+                mapping.DeletionId = deletionId;
             }
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            transactionScope.Complete();
         }
 
         private readonly YastahDbContext _context;

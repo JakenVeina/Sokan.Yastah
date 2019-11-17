@@ -15,7 +15,7 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.Caching.Memor
     {
         #region Test Cases
 
-        public class TestContext
+        internal class TestContext
         {
             public TestContext()
             {

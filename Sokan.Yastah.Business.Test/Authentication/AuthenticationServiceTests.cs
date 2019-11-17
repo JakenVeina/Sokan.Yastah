@@ -30,7 +30,7 @@ namespace Sokan.Yastah.Business.Test.Authentication
     {
         #region Test Context
 
-        public class TestContext
+        internal class TestContext
             : AsyncMethodTestContext
         {
             public TestContext()
@@ -142,12 +142,11 @@ namespace Sokan.Yastah.Business.Test.Authentication
         [Test]
         public void Constructor_Always_CurrentTicketIsNull()
         {
-            using (var testContext = new TestContext())
-            {
-                var result = testContext.BuildUut();
+            using var testContext = new TestContext();
 
-                result.CurrentTicket.ShouldBeNull();
-            }
+            var result = testContext.BuildUut();
+
+            result.CurrentTicket.ShouldBeNull();
         }
 
         #endregion Constructor() Tests
@@ -174,34 +173,35 @@ namespace Sokan.Yastah.Business.Test.Authentication
             string avatarHash,
             IReadOnlyDictionary<int, string> grantedPermissions)
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext()
             {
-                testContext.ActiveTicketId = ticketId;
-                testContext.SetGrantedPermissions(grantedPermissions);
+                ActiveTicketId = ticketId,
+            };
 
-                var uut = testContext.BuildUut();
+            testContext.SetGrantedPermissions(grantedPermissions);
 
-                var result = await uut.OnAuthenticatedAsync(
-                    ticketId,
-                    userId,
-                    username,
-                    discriminator,
-                    avatarHash,
-                    grantedPermissions,
-                    testContext.CancellationToken);
+            var uut = testContext.BuildUut();
 
-                result.Id.ShouldBe(ticketId);
-                result.UserId.ShouldBe(userId);
-                result.Username.ShouldBe(username);
-                result.Discriminator.ShouldBe(discriminator);
-                result.AvatarHash.ShouldBe(avatarHash);
-                result.GrantedPermissions.ShouldBeSetEqualTo(grantedPermissions);
+            var result = await uut.OnAuthenticatedAsync(
+                ticketId,
+                userId,
+                username,
+                discriminator,
+                avatarHash,
+                grantedPermissions,
+                testContext.CancellationToken);
 
-                uut.CurrentTicket.ShouldBeSameAs(result);
+            result.Id.ShouldBe(ticketId);
+            result.UserId.ShouldBe(userId);
+            result.Username.ShouldBe(username);
+            result.Discriminator.ShouldBe(discriminator);
+            result.AvatarHash.ShouldBe(avatarHash);
+            result.GrantedPermissions.ShouldBeSetEqualTo(grantedPermissions);
 
-                testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
-                    .ReadActiveIdAsync(userId, testContext.CancellationToken));
-            }
+            uut.CurrentTicket.ShouldBeSameAs(result);
+
+            testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
+                .ReadActiveIdAsync(userId, testContext.CancellationToken));
         }
 
         [TestCaseSource(nameof(OnAuthenticatedAsync_TestCaseData))]
@@ -213,36 +213,37 @@ namespace Sokan.Yastah.Business.Test.Authentication
             string avatarHash,
             IReadOnlyDictionary<int, string> grantedPermissions)
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext()
             {
-                testContext.ActiveTicketId = ticketId;
-                testContext.SetGrantedPermissions(grantedPermissions);
+                ActiveTicketId = ticketId
+            };
 
-                testContext.MemoryCache.Set(AuthenticationService.MakeUserActiveTicketIdCacheKey(userId), ticketId);
+            testContext.SetGrantedPermissions(grantedPermissions);
 
-                var uut = testContext.BuildUut();
+            testContext.MemoryCache.Set(AuthenticationService.MakeUserActiveTicketIdCacheKey(userId), ticketId);
 
-                var result = await uut.OnAuthenticatedAsync(
-                    ticketId,
-                    userId,
-                    username,
-                    discriminator,
-                    avatarHash,
-                    grantedPermissions,
-                    testContext.CancellationToken);
+            var uut = testContext.BuildUut();
 
-                result.Id.ShouldBe(ticketId);
-                result.UserId.ShouldBe(userId);
-                result.Username.ShouldBe(username);
-                result.Discriminator.ShouldBe(discriminator);
-                result.AvatarHash.ShouldBe(avatarHash);
-                result.GrantedPermissions.ShouldBeSetEqualTo(grantedPermissions);
+            var result = await uut.OnAuthenticatedAsync(
+                ticketId,
+                userId,
+                username,
+                discriminator,
+                avatarHash,
+                grantedPermissions,
+                testContext.CancellationToken);
 
-                uut.CurrentTicket.ShouldBeSameAs(result);
+            result.Id.ShouldBe(ticketId);
+            result.UserId.ShouldBe(userId);
+            result.Username.ShouldBe(username);
+            result.Discriminator.ShouldBe(discriminator);
+            result.AvatarHash.ShouldBe(avatarHash);
+            result.GrantedPermissions.ShouldBeSetEqualTo(grantedPermissions);
 
-                testContext.MockAuthenticationTicketsRepository.ShouldNotHaveReceived(x => x
-                    .ReadActiveIdAsync(It.IsAny<ulong>(), It.IsAny<CancellationToken>()));
-            }
+            uut.CurrentTicket.ShouldBeSameAs(result);
+
+            testContext.MockAuthenticationTicketsRepository.ShouldNotHaveReceived(x => x
+                .ReadActiveIdAsync(It.IsAny<ulong>(), It.IsAny<CancellationToken>()));
         }
 
         [TestCaseSource(nameof(OnAuthenticatedAsync_TestCaseData))]
@@ -254,32 +255,31 @@ namespace Sokan.Yastah.Business.Test.Authentication
             string avatarHash,
             IReadOnlyDictionary<int, string> grantedPermissions)
         {
-            using (var testContext = new TestContext())
-            {
-                var uut = testContext.BuildUut();
+            using var testContext = new TestContext();
 
-                var result = await uut.OnAuthenticatedAsync(
-                    ticketId,
-                    userId,
-                    username,
-                    discriminator,
-                    avatarHash,
-                    grantedPermissions,
-                    testContext.CancellationToken);
+            var uut = testContext.BuildUut();
 
-                result.Id.ShouldBe(testContext.ActiveTicketId);
-                result.UserId.ShouldBe(userId);
-                result.Username.ShouldBe(username);
-                result.Discriminator.ShouldBe(discriminator);
-                result.AvatarHash.ShouldBe(avatarHash);
-                result.GrantedPermissions.ShouldBeSetEqualTo(testContext.GrantedPermissions
-                    .Select(x => new KeyValuePair<int, string>(x.Id, x.Name)));
+            var result = await uut.OnAuthenticatedAsync(
+                ticketId,
+                userId,
+                username,
+                discriminator,
+                avatarHash,
+                grantedPermissions,
+                testContext.CancellationToken);
 
-                uut.CurrentTicket.ShouldBeSameAs(result);
+            result.Id.ShouldBe(testContext.ActiveTicketId);
+            result.UserId.ShouldBe(userId);
+            result.Username.ShouldBe(username);
+            result.Discriminator.ShouldBe(discriminator);
+            result.AvatarHash.ShouldBe(avatarHash);
+            result.GrantedPermissions.ShouldBeSetEqualTo(testContext.GrantedPermissions
+                .Select(x => new KeyValuePair<int, string>(x.Id, x.Name)));
 
-                testContext.MockUsersService.ShouldHaveReceived(x => x
-                    .GetGrantedPermissionsAsync(userId, testContext.CancellationToken));
-            }
+            uut.CurrentTicket.ShouldBeSameAs(result);
+
+            testContext.MockUsersService.ShouldHaveReceived(x => x
+                .GetGrantedPermissionsAsync(userId, testContext.CancellationToken));
         }
 
         [TestCaseSource(nameof(OnAuthenticatedAsync_TestCaseData))]
@@ -291,33 +291,33 @@ namespace Sokan.Yastah.Business.Test.Authentication
             string avatarHash,
             IReadOnlyDictionary<int, string> grantedPermissions)
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext()
             {
-                testContext.ActiveTicketId = ticketId;
+                ActiveTicketId = ticketId
+            };
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.OnAuthenticatedAsync(
-                    ticketId,
-                    userId,
-                    username,
-                    discriminator,
-                    avatarHash,
-                    grantedPermissions,
-                    testContext.CancellationToken);
+            var result = await uut.OnAuthenticatedAsync(
+                ticketId,
+                userId,
+                username,
+                discriminator,
+                avatarHash,
+                grantedPermissions,
+                testContext.CancellationToken);
 
-                result.Id.ShouldBe(testContext.ActiveTicketId);
-                result.UserId.ShouldBe(userId);
-                result.Username.ShouldBe(username);
-                result.Discriminator.ShouldBe(discriminator);
-                result.AvatarHash.ShouldBe(avatarHash);
-                result.GrantedPermissions.ShouldBeSetEqualTo(grantedPermissions);
+            result.Id.ShouldBe(testContext.ActiveTicketId);
+            result.UserId.ShouldBe(userId);
+            result.Username.ShouldBe(username);
+            result.Discriminator.ShouldBe(discriminator);
+            result.AvatarHash.ShouldBe(avatarHash);
+            result.GrantedPermissions.ShouldBeSetEqualTo(grantedPermissions);
 
-                uut.CurrentTicket.ShouldBeSameAs(result);
+            uut.CurrentTicket.ShouldBeSameAs(result);
 
-                testContext.MockUsersService.ShouldNotHaveReceived(x => x
-                    .GetGrantedPermissionsAsync(It.IsAny<ulong>(), It.IsAny<CancellationToken>()));
-            }
+            testContext.MockUsersService.ShouldNotHaveReceived(x => x
+                .GetGrantedPermissionsAsync(It.IsAny<ulong>(), It.IsAny<CancellationToken>()));
         }
 
         #endregion OnAuthenticatedAsync() Tests
@@ -345,43 +345,44 @@ namespace Sokan.Yastah.Business.Test.Authentication
             long ticketId,
             IReadOnlyDictionary<int, string> grantedPermissions)
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext()
             {
-                testContext.AuthorizationConfiguration.AdminUserIds = adminUserIds.ToArray();
-                testContext.ActiveTicketId = ticketId;
-                testContext.SetGrantedPermissions(grantedPermissions);
+                ActiveTicketId = ticketId
+            };
+            
+            testContext.AuthorizationConfiguration.AdminUserIds = adminUserIds.ToArray();
+            testContext.SetGrantedPermissions(grantedPermissions);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var mockGetGuildIdsDelegate = new Mock<Func<CancellationToken, Task<IEnumerable<ulong>>>>();
-                mockGetGuildIdsDelegate
-                    .Setup(x => x.Invoke(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(Array.Empty<ulong>());
+            var mockGetGuildIdsDelegate = new Mock<Func<CancellationToken, Task<IEnumerable<ulong>>>>();
+            mockGetGuildIdsDelegate
+                .Setup(x => x.Invoke(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Array.Empty<ulong>());
 
-                var result = await uut.OnSignInAsync(
-                    userId,
-                    username,
-                    discriminator,
-                    avatarHash,
-                    mockGetGuildIdsDelegate.Object,
-                    testContext.CancellationToken);
+            var result = await uut.OnSignInAsync(
+                userId,
+                username,
+                discriminator,
+                avatarHash,
+                mockGetGuildIdsDelegate.Object,
+                testContext.CancellationToken);
 
-                result.ShouldNotBeNull();
-                result!.Id.ShouldBe(ticketId);
-                result.UserId.ShouldBe(userId);
-                result.Username.ShouldBe(username);
-                result.Discriminator.ShouldBe(discriminator);
-                result.AvatarHash.ShouldBe(avatarHash);
-                result.GrantedPermissions.ShouldBeSetEqualTo(grantedPermissions);
+            result.ShouldNotBeNull();
+            result!.Id.ShouldBe(ticketId);
+            result.UserId.ShouldBe(userId);
+            result.Username.ShouldBe(username);
+            result.Discriminator.ShouldBe(discriminator);
+            result.AvatarHash.ShouldBe(avatarHash);
+            result.GrantedPermissions.ShouldBeSetEqualTo(grantedPermissions);
 
-                testContext.MockUsersService.ShouldHaveReceived(x => x
-                    .TrackUserAsync(userId, username, discriminator, avatarHash, testContext.CancellationToken));
+            testContext.MockUsersService.ShouldHaveReceived(x => x
+                .TrackUserAsync(userId, username, discriminator, avatarHash, testContext.CancellationToken));
 
-                testContext.MockUsersService.ShouldHaveReceived(x => x
-                    .GetGrantedPermissionsAsync(userId, testContext.CancellationToken));
+            testContext.MockUsersService.ShouldHaveReceived(x => x
+                .GetGrantedPermissionsAsync(userId, testContext.CancellationToken));
 
-                uut.CurrentTicket.ShouldBeNull();
-            }
+            uut.CurrentTicket.ShouldBeNull();
         }
 
         internal static readonly IReadOnlyList<TestCaseData> OnSignInAsync_UserIsNotAdminAndNotGuildMember_TestCaseData
@@ -405,39 +406,38 @@ namespace Sokan.Yastah.Business.Test.Authentication
             IReadOnlyList<ulong> adminUserIds,
             IReadOnlyList<ulong> memberGuildIds)
         {
-            using (var testContext = new TestContext())
-            {
-                testContext.AuthorizationConfiguration.AdminUserIds = adminUserIds.ToArray();
-                testContext.AuthorizationConfiguration.MemberGuildIds = memberGuildIds.ToArray();
+            using var testContext = new TestContext();
+            
+            testContext.AuthorizationConfiguration.AdminUserIds = adminUserIds.ToArray();
+            testContext.AuthorizationConfiguration.MemberGuildIds = memberGuildIds.ToArray();
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var mockGetGuildIdsDelegate = new Mock<Func<CancellationToken, Task<IEnumerable<ulong>>>>();
-                mockGetGuildIdsDelegate
-                    .Setup(x => x.Invoke(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(guildIds);
+            var mockGetGuildIdsDelegate = new Mock<Func<CancellationToken, Task<IEnumerable<ulong>>>>();
+            mockGetGuildIdsDelegate
+                .Setup(x => x.Invoke(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(guildIds);
 
-                var result = await uut.OnSignInAsync(
-                    userId,
-                    username,
-                    discriminator,
-                    avatarHash,
-                    mockGetGuildIdsDelegate.Object,
-                    testContext.CancellationToken);
+            var result = await uut.OnSignInAsync(
+                userId,
+                username,
+                discriminator,
+                avatarHash,
+                mockGetGuildIdsDelegate.Object,
+                testContext.CancellationToken);
 
-                result.ShouldBeNull();
+            result.ShouldBeNull();
 
-                mockGetGuildIdsDelegate.ShouldHaveReceived(x => x
-                    .Invoke(testContext.CancellationToken));
+            mockGetGuildIdsDelegate.ShouldHaveReceived(x => x
+                .Invoke(testContext.CancellationToken));
 
-                testContext.MockUsersService.ShouldNotHaveReceived(x => x
-                    .TrackUserAsync(It.IsAny<ulong>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()));
+            testContext.MockUsersService.ShouldNotHaveReceived(x => x
+                .TrackUserAsync(It.IsAny<ulong>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()));
 
-                testContext.MockUsersService.ShouldNotHaveReceived(x => x
-                    .GetGrantedPermissionsAsync(It.IsAny<ulong>(), It.IsAny<CancellationToken>()));
+            testContext.MockUsersService.ShouldNotHaveReceived(x => x
+                .GetGrantedPermissionsAsync(It.IsAny<ulong>(), It.IsAny<CancellationToken>()));
 
-                uut.CurrentTicket.ShouldBeNull();
-            }
+            uut.CurrentTicket.ShouldBeNull();
         }
 
         internal static readonly IReadOnlyList<TestCaseData> OnSignInAsync_UserIsNotAdminAndIsGuildMember_TestCaseData
@@ -463,44 +463,43 @@ namespace Sokan.Yastah.Business.Test.Authentication
             long ticketId,
             IReadOnlyDictionary<int, string> grantedPermissions)
         {
-            using (var testContext = new TestContext())
-            {
-                testContext.AuthorizationConfiguration.AdminUserIds = adminUserIds.ToArray();
-                testContext.AuthorizationConfiguration.MemberGuildIds = memberGuildIds.ToArray();
-                testContext.ActiveTicketId = ticketId;
-                testContext.SetGrantedPermissions(grantedPermissions);
+            using var testContext = new TestContext();
+            
+            testContext.AuthorizationConfiguration.AdminUserIds = adminUserIds.ToArray();
+            testContext.AuthorizationConfiguration.MemberGuildIds = memberGuildIds.ToArray();
+            testContext.ActiveTicketId = ticketId;
+            testContext.SetGrantedPermissions(grantedPermissions);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var mockGetGuildIdsDelegate = new Mock<Func<CancellationToken, Task<IEnumerable<ulong>>>>();
-                mockGetGuildIdsDelegate
-                    .Setup(x => x.Invoke(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(guildIds);
+            var mockGetGuildIdsDelegate = new Mock<Func<CancellationToken, Task<IEnumerable<ulong>>>>();
+            mockGetGuildIdsDelegate
+                .Setup(x => x.Invoke(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(guildIds);
 
-                var result = await uut.OnSignInAsync(
-                    userId,
-                    username,
-                    discriminator,
-                    avatarHash,
-                    mockGetGuildIdsDelegate.Object,
-                    testContext.CancellationToken);
+            var result = await uut.OnSignInAsync(
+                userId,
+                username,
+                discriminator,
+                avatarHash,
+                mockGetGuildIdsDelegate.Object,
+                testContext.CancellationToken);
 
-                result.ShouldNotBeNull();
-                result!.Id.ShouldBe(ticketId);
-                result.UserId.ShouldBe(userId);
-                result.Username.ShouldBe(username);
-                result.Discriminator.ShouldBe(discriminator);
-                result.AvatarHash.ShouldBe(avatarHash);
-                result.GrantedPermissions.ShouldBeSetEqualTo(grantedPermissions);
+            result.ShouldNotBeNull();
+            result!.Id.ShouldBe(ticketId);
+            result.UserId.ShouldBe(userId);
+            result.Username.ShouldBe(username);
+            result.Discriminator.ShouldBe(discriminator);
+            result.AvatarHash.ShouldBe(avatarHash);
+            result.GrantedPermissions.ShouldBeSetEqualTo(grantedPermissions);
 
-                testContext.MockUsersService.ShouldHaveReceived(x => x
-                    .TrackUserAsync(userId, username, discriminator, avatarHash, testContext.CancellationToken));
+            testContext.MockUsersService.ShouldHaveReceived(x => x
+                .TrackUserAsync(userId, username, discriminator, avatarHash, testContext.CancellationToken));
 
-                testContext.MockUsersService.ShouldHaveReceived(x => x
-                    .GetGrantedPermissionsAsync(userId, testContext.CancellationToken));
+            testContext.MockUsersService.ShouldHaveReceived(x => x
+                .GetGrantedPermissionsAsync(userId, testContext.CancellationToken));
 
-                uut.CurrentTicket.ShouldBeNull();
-            }
+            uut.CurrentTicket.ShouldBeNull();
         }
 
         [TestCaseSource(nameof(OnSignInAsync_UserIsAdmin_TestCaseData))]
@@ -513,44 +512,45 @@ namespace Sokan.Yastah.Business.Test.Authentication
             long ticketId,
             IReadOnlyDictionary<int, string> grantedPermissions)
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext()
             {
-                testContext.AuthorizationConfiguration.AdminUserIds = adminUserIds.ToArray();
-                testContext.ActiveTicketId = ticketId;
-                testContext.SetGrantedPermissions(grantedPermissions);
+                ActiveTicketId = ticketId
+            };
+            
+            testContext.AuthorizationConfiguration.AdminUserIds = adminUserIds.ToArray();
+            testContext.SetGrantedPermissions(grantedPermissions);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var mockGetGuildIdsDelegate = new Mock<Func<CancellationToken, Task<IEnumerable<ulong>>>>();
-                mockGetGuildIdsDelegate
-                    .Setup(x => x.Invoke(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(Array.Empty<ulong>());
+            var mockGetGuildIdsDelegate = new Mock<Func<CancellationToken, Task<IEnumerable<ulong>>>>();
+            mockGetGuildIdsDelegate
+                .Setup(x => x.Invoke(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Array.Empty<ulong>());
 
-                var result = await uut.OnSignInAsync(
-                    userId,
-                    username,
-                    discriminator,
-                    avatarHash,
-                    mockGetGuildIdsDelegate.Object,
-                    testContext.CancellationToken);
+            var result = await uut.OnSignInAsync(
+                userId,
+                username,
+                discriminator,
+                avatarHash,
+                mockGetGuildIdsDelegate.Object,
+                testContext.CancellationToken);
 
-                result.ShouldNotBeNull();
-                result!.Id.ShouldBe(ticketId);
-                result.UserId.ShouldBe(userId);
-                result.Username.ShouldBe(username);
-                result.Discriminator.ShouldBe(discriminator);
-                result.AvatarHash.ShouldBe(avatarHash);
-                result.GrantedPermissions.ShouldBeSetEqualTo(grantedPermissions);
+            result.ShouldNotBeNull();
+            result!.Id.ShouldBe(ticketId);
+            result.UserId.ShouldBe(userId);
+            result.Username.ShouldBe(username);
+            result.Discriminator.ShouldBe(discriminator);
+            result.AvatarHash.ShouldBe(avatarHash);
+            result.GrantedPermissions.ShouldBeSetEqualTo(grantedPermissions);
 
-                testContext.MemoryCache.TryGetValue(AuthenticationService.MakeUserActiveTicketIdCacheKey(userId), out var cacheValue)
-                    .ShouldBeTrue();
-                cacheValue.ShouldBe(ticketId);
+            testContext.MemoryCache.TryGetValue(AuthenticationService.MakeUserActiveTicketIdCacheKey(userId), out var cacheValue)
+                .ShouldBeTrue();
+            cacheValue.ShouldBe(ticketId);
 
-                testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
-                    .ReadActiveIdAsync(userId, testContext.CancellationToken));
+            testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
+                .ReadActiveIdAsync(userId, testContext.CancellationToken));
 
-                uut.CurrentTicket.ShouldBeNull();
-            }
+            uut.CurrentTicket.ShouldBeNull();
         }
 
         [TestCaseSource(nameof(OnSignInAsync_UserIsAdmin_TestCaseData))]
@@ -563,42 +563,41 @@ namespace Sokan.Yastah.Business.Test.Authentication
             long ticketId,
             IReadOnlyDictionary<int, string> grantedPermissions)
         {
-            using (var testContext = new TestContext())
-            {
-                testContext.AuthorizationConfiguration.AdminUserIds = adminUserIds.ToArray();
-                testContext.ActiveTicketId = ticketId;
-                testContext.SetGrantedPermissions(grantedPermissions);
+            using var testContext = new TestContext();
+            
+            testContext.AuthorizationConfiguration.AdminUserIds = adminUserIds.ToArray();
+            testContext.ActiveTicketId = ticketId;
+            testContext.SetGrantedPermissions(grantedPermissions);
 
-                testContext.MemoryCache.Set(AuthenticationService.MakeUserActiveTicketIdCacheKey(userId), ticketId);
+            testContext.MemoryCache.Set(AuthenticationService.MakeUserActiveTicketIdCacheKey(userId), ticketId);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var mockGetGuildIdsDelegate = new Mock<Func<CancellationToken, Task<IEnumerable<ulong>>>>();
-                mockGetGuildIdsDelegate
-                    .Setup(x => x.Invoke(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(Array.Empty<ulong>());
+            var mockGetGuildIdsDelegate = new Mock<Func<CancellationToken, Task<IEnumerable<ulong>>>>();
+            mockGetGuildIdsDelegate
+                .Setup(x => x.Invoke(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Array.Empty<ulong>());
 
-                var result = await uut.OnSignInAsync(
-                    userId,
-                    username,
-                    discriminator,
-                    avatarHash,
-                    mockGetGuildIdsDelegate.Object,
-                    testContext.CancellationToken);
+            var result = await uut.OnSignInAsync(
+                userId,
+                username,
+                discriminator,
+                avatarHash,
+                mockGetGuildIdsDelegate.Object,
+                testContext.CancellationToken);
 
-                result.ShouldNotBeNull();
-                result!.Id.ShouldBe(ticketId);
-                result.UserId.ShouldBe(userId);
-                result.Username.ShouldBe(username);
-                result.Discriminator.ShouldBe(discriminator);
-                result.AvatarHash.ShouldBe(avatarHash);
-                result.GrantedPermissions.ShouldBeSetEqualTo(grantedPermissions);
+            result.ShouldNotBeNull();
+            result!.Id.ShouldBe(ticketId);
+            result.UserId.ShouldBe(userId);
+            result.Username.ShouldBe(username);
+            result.Discriminator.ShouldBe(discriminator);
+            result.AvatarHash.ShouldBe(avatarHash);
+            result.GrantedPermissions.ShouldBeSetEqualTo(grantedPermissions);
 
-                testContext.MockAuthenticationTicketsRepository.ShouldNotHaveReceived(x => x
-                    .ReadActiveIdAsync(It.IsAny<ulong>(), It.IsAny<CancellationToken>()));
+            testContext.MockAuthenticationTicketsRepository.ShouldNotHaveReceived(x => x
+                .ReadActiveIdAsync(It.IsAny<ulong>(), It.IsAny<CancellationToken>()));
 
-                uut.CurrentTicket.ShouldBeNull();
-            }
+            uut.CurrentTicket.ShouldBeNull();
         }
 
         #endregion OnSignInAsync() Tests
@@ -621,24 +620,23 @@ namespace Sokan.Yastah.Business.Test.Authentication
             long roleId,
             long actionId)
         {
-            using (var testContext = new TestContext())
-            {
-                testContext.SetRoleMemberIds(Array.Empty<ulong>());
+            using var testContext = new TestContext();
+            
+            testContext.SetRoleMemberIds(Array.Empty<ulong>());
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var notification = new RoleUpdatingNotification(roleId, actionId);
+            var notification = new RoleUpdatingNotification(roleId, actionId);
 
-                await uut.OnNotificationPublishedAsync(
-                    notification,
-                    testContext.CancellationToken);
+            await uut.OnNotificationPublishedAsync(
+                notification,
+                testContext.CancellationToken);
 
-                testContext.MockUsersService.ShouldHaveReceived(x => x
-                    .GetRoleMemberIdsAsync(roleId, testContext.CancellationToken));
+            testContext.MockUsersService.ShouldHaveReceived(x => x
+                .GetRoleMemberIdsAsync(roleId, testContext.CancellationToken));
 
-                testContext.MockTransactionScopeFactory.ShouldNotHaveReceived(x => x
-                    .CreateScope(It.IsAny<IsolationLevel?>()));
-            }
+            testContext.MockTransactionScopeFactory.ShouldNotHaveReceived(x => x
+                .CreateScope(It.IsAny<IsolationLevel?>()));
         }
 
         public static readonly IReadOnlyList<TestCaseData> OnNotificationPublishedAsync_RoleUpdatingNotification_RoleHasMembers_TestCaseData
@@ -658,61 +656,61 @@ namespace Sokan.Yastah.Business.Test.Authentication
             long actionId,
             IReadOnlyList<(ulong userId, long activeTicketId, long newTicketId)> userTickets)
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext();
+            
+            testContext.SetRoleMemberIds(userTickets.Select(x => x.userId).ToArray());
+            
+            foreach (var (userId, activeTicketId, newTicketId) in userTickets)
             {
-                testContext.SetRoleMemberIds(userTickets.Select(x => x.userId).ToArray());
-                foreach (var userTicket in userTickets)
-                {
-                    testContext.SetActiveTicketId(userTicket.userId, userTicket.activeTicketId);
-                    testContext.SetNextTicketId(userTicket.userId, userTicket.newTicketId);
-                }
+                testContext.SetActiveTicketId(userId, activeTicketId);
+                testContext.SetNextTicketId(userId, newTicketId);
+            }
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var notification = new RoleUpdatingNotification(roleId, actionId);
+            var notification = new RoleUpdatingNotification(roleId, actionId);
 
-                await uut.OnNotificationPublishedAsync(
-                    notification,
-                    testContext.CancellationToken);
+            await uut.OnNotificationPublishedAsync(
+                notification,
+                testContext.CancellationToken);
 
-                testContext.MockUsersService.ShouldHaveReceived(x => x
-                    .GetRoleMemberIdsAsync(roleId, testContext.CancellationToken));
+            testContext.MockUsersService.ShouldHaveReceived(x => x
+                .GetRoleMemberIdsAsync(roleId, testContext.CancellationToken));
 
-                testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
-                        .CreateScope(It.IsAny<IsolationLevel?>()),
-                    Times.Exactly(userTickets.Count));
+            testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
+                    .CreateScope(It.IsAny<IsolationLevel?>()),
+                Times.Exactly(userTickets.Count));
 
-                foreach(var activeTicket in userTickets)
-                {
-                    testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
-                        .ReadActiveIdAsync(
-                            activeTicket.userId,
-                            testContext.CancellationToken));
+            foreach (var (userId, activeTicketId, newTicketId) in userTickets)
+            {
+                testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
+                    .ReadActiveIdAsync(
+                        userId,
+                        testContext.CancellationToken));
 
-                    testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
-                        .DeleteAsync(
-                            activeTicket.activeTicketId,
-                            actionId,
-                            testContext.CancellationToken));
+                testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
+                    .DeleteAsync(
+                        activeTicketId,
+                        actionId,
+                        testContext.CancellationToken));
 
-                    testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
-                        .CreateAsync(
-                            activeTicket.userId,
-                            actionId,
-                            testContext.CancellationToken));
+                testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
+                    .CreateAsync(
+                        userId,
+                        actionId,
+                        testContext.CancellationToken));
 
-                    testContext.MemoryCache.TryGetValue(AuthenticationService.MakeUserActiveTicketIdCacheKey(activeTicket.userId), out var cacheValue)
-                        .ShouldBeTrue();
-                    cacheValue.ShouldBe(activeTicket.newTicketId);
-                }
+                testContext.MemoryCache.TryGetValue(AuthenticationService.MakeUserActiveTicketIdCacheKey(userId), out var cacheValue)
+                    .ShouldBeTrue();
+                cacheValue.ShouldBe(newTicketId);
+            }
 
-                foreach(var mockTransactionScope in testContext.MockTransactionScopes)
-                {
-                    mockTransactionScope.ShouldHaveReceived(x => x
-                        .Complete());
-                    mockTransactionScope.ShouldHaveReceived(x => x
-                        .Dispose());
-                }
+            foreach (var mockTransactionScope in testContext.MockTransactionScopes)
+            {
+                mockTransactionScope.ShouldHaveReceived(x => x
+                    .Complete());
+                mockTransactionScope.ShouldHaveReceived(x => x
+                    .Dispose());
             }
         }
 
@@ -737,42 +735,41 @@ namespace Sokan.Yastah.Business.Test.Authentication
             long actionId,
             long ticketId)
         {
-            using (var testContext = new TestContext())
-            {
-                testContext.SetNoActiveTicket(userId);
-                testContext.SetNextTicketId(userId, ticketId);
+            using var testContext = new TestContext();
+            
+            testContext.SetNoActiveTicket(userId);
+            testContext.SetNextTicketId(userId, ticketId);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var notification = new UserInitializingNotification(userId, actionId);
+            var notification = new UserInitializingNotification(userId, actionId);
 
-                await uut.OnNotificationPublishedAsync(
-                    notification,
-                    testContext.CancellationToken);
+            await uut.OnNotificationPublishedAsync(
+                notification,
+                testContext.CancellationToken);
 
-                testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
-                    .CreateScope(It.IsAny<IsolationLevel?>()));
+            testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
+                .CreateScope(It.IsAny<IsolationLevel?>()));
 
-                testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
-                    .ReadActiveIdAsync(
-                        userId,
-                        testContext.CancellationToken));
+            testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
+                .ReadActiveIdAsync(
+                    userId,
+                    testContext.CancellationToken));
 
-                testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
-                    .CreateAsync(
-                        userId,
-                        actionId,
-                        testContext.CancellationToken));
+            testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
+                .CreateAsync(
+                    userId,
+                    actionId,
+                    testContext.CancellationToken));
 
-                testContext.MemoryCache.TryGetValue(AuthenticationService.MakeUserActiveTicketIdCacheKey(userId), out var cacheValue)
-                    .ShouldBeTrue();
-                cacheValue.ShouldBe(ticketId);
+            testContext.MemoryCache.TryGetValue(AuthenticationService.MakeUserActiveTicketIdCacheKey(userId), out var cacheValue)
+                .ShouldBeTrue();
+            cacheValue.ShouldBe(ticketId);
 
-                testContext.MockTransactionScopes.First().ShouldHaveReceived(x => x
-                    .Complete());
-                testContext.MockTransactionScopes.First().ShouldHaveReceived(x => x
-                    .Dispose());
-            }
+            testContext.MockTransactionScopes.First().ShouldHaveReceived(x => x
+                .Complete());
+            testContext.MockTransactionScopes.First().ShouldHaveReceived(x => x
+                .Dispose());
         }
 
         #endregion OnNotificationPublishedAsync(UserInitializingNotification) Tests
@@ -797,48 +794,47 @@ namespace Sokan.Yastah.Business.Test.Authentication
             long activeTicketId,
             long newTicketId)
         {
-            using (var testContext = new TestContext())
-            {
-                testContext.SetActiveTicketId(userId, activeTicketId);
-                testContext.SetNextTicketId(userId, newTicketId);
+            using var testContext = new TestContext();
+            
+            testContext.SetActiveTicketId(userId, activeTicketId);
+            testContext.SetNextTicketId(userId, newTicketId);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var notification = new UserUpdatingNotification(userId, actionId);
+            var notification = new UserUpdatingNotification(userId, actionId);
 
-                await uut.OnNotificationPublishedAsync(
-                    notification,
-                    testContext.CancellationToken);
+            await uut.OnNotificationPublishedAsync(
+                notification,
+                testContext.CancellationToken);
 
-                testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
-                    .CreateScope(It.IsAny<IsolationLevel?>()));
+            testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
+                .CreateScope(It.IsAny<IsolationLevel?>()));
 
-                testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
-                    .ReadActiveIdAsync(
-                        userId,
-                        testContext.CancellationToken));
+            testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
+                .ReadActiveIdAsync(
+                    userId,
+                    testContext.CancellationToken));
 
-                testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
-                    .DeleteAsync(
-                        activeTicketId,
-                        actionId,
-                        testContext.CancellationToken));
+            testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
+                .DeleteAsync(
+                    activeTicketId,
+                    actionId,
+                    testContext.CancellationToken));
 
-                testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
-                    .CreateAsync(
-                        userId,
-                        actionId,
-                        testContext.CancellationToken));
+            testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
+                .CreateAsync(
+                    userId,
+                    actionId,
+                    testContext.CancellationToken));
 
-                testContext.MemoryCache.TryGetValue(AuthenticationService.MakeUserActiveTicketIdCacheKey(userId), out var cacheValue)
-                    .ShouldBeTrue();
-                cacheValue.ShouldBe(newTicketId);
+            testContext.MemoryCache.TryGetValue(AuthenticationService.MakeUserActiveTicketIdCacheKey(userId), out var cacheValue)
+                .ShouldBeTrue();
+            cacheValue.ShouldBe(newTicketId);
 
-                testContext.MockTransactionScopes.First().ShouldHaveReceived(x => x
-                    .Complete());
-                testContext.MockTransactionScopes.First().ShouldHaveReceived(x => x
-                    .Dispose());
-            }
+            testContext.MockTransactionScopes.First().ShouldHaveReceived(x => x
+                .Complete());
+            testContext.MockTransactionScopes.First().ShouldHaveReceived(x => x
+                .Dispose());
         }
 
         #endregion OnNotificationPublishedAsync(UserUpdatingNotification) Tests

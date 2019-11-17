@@ -27,21 +27,12 @@ namespace Sokan.Yastah.Api
                 : TranslateOperationError(result.Error);
 
         private IActionResult TranslateOperationError(IOperationError error)
-        {
-            switch (error)
+            => error switch
             {
-                case UnauthenticatedUserError _:
-                    return Unauthorized(error);
-
-                case InsufficientPermissionsError _:
-                    return Forbid(error);
-
-                case DataNotFoundError _:
-                    return NotFound(error);
-
-                default:
-                    return BadRequest(error);
-            }
-        }
+                UnauthenticatedUserError _      => Unauthorized(error),
+                InsufficientPermissionsError _  => Forbid(error),
+                DataNotFoundError _             => NotFound(error),
+                _                               => BadRequest(error),
+            };
     }
 }

@@ -105,7 +105,7 @@ namespace Sokan.Yastah.Common.Test.Extensions.System
         public void EnumerateValuesAndDescriptions_TEnumIsValid_EnumeratesEnumValues(Type tEnum)
             => GetType()
                 .GetMethod(
-                    nameof(EnumerateValues_TEnumIsAnEnum_EnumeratesEnumValues),
+                    nameof(EnumerateValuesAndDescriptions_TEnumIsValid_EnumeratesEnumValues),
                     BindingFlags.NonPublic | BindingFlags.Static)!
                 .MakeGenericMethod(tEnum)
                 .Invoke(null, Array.Empty<object>());

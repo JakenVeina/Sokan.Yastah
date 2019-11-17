@@ -76,25 +76,24 @@ namespace Sokan.Yastah.Business.Users
             ulong userId,
             CancellationToken cancellationToken)
         {
-            using (var transactionScope = _transactionScopeFactory.CreateScope())
-            {
-                if (_authorizationConfigurationOptions.Value.AdminUserIds.Contains(userId))
-                    return (await _permissionsService.GetIdentitiesAsync(cancellationToken))
-                        .ToSuccess();
+            using var transactionScope = _transactionScopeFactory.CreateScope();
 
-                var userExists = await _usersRepository.AnyAsync(
-                    userId: userId,
-                    cancellationToken: cancellationToken);
-
-                if (!userExists)
-                    return new DataNotFoundError($"User ID {userId}")
-                        .ToError<IReadOnlyCollection<PermissionIdentityViewModel>>();
-
-                return (await _usersRepository.AsyncEnumerateGrantedPermissionIdentities(userId)
-                            .ToArrayAsync(cancellationToken)
-                        as IReadOnlyCollection<PermissionIdentityViewModel>)
+            if (_authorizationConfigurationOptions.Value.AdminUserIds.Contains(userId))
+                return (await _permissionsService.GetIdentitiesAsync(cancellationToken))
                     .ToSuccess();
-            }
+
+            var userExists = await _usersRepository.AnyAsync(
+                userId: userId,
+                cancellationToken: cancellationToken);
+
+            if (!userExists)
+                return new DataNotFoundError($"User ID {userId}")
+                    .ToError<IReadOnlyCollection<PermissionIdentityViewModel>>();
+
+            return (await _usersRepository.AsyncEnumerateGrantedPermissionIdentities(userId)
+                        .ToArrayAsync(cancellationToken)
+                    as IReadOnlyCollection<PermissionIdentityViewModel>)
+                .ToSuccess();
         }
 
         public ValueTask<IReadOnlyCollection<ulong>> GetRoleMemberIdsAsync(
@@ -117,59 +116,58 @@ namespace Sokan.Yastah.Business.Users
             string avatarHash,
             CancellationToken cancellationToken)
         {
-            using (var transactionScope = _transactionScopeFactory.CreateScope())
-            {
-                var now = _systemClock.UtcNow;
+            using var transactionScope = _transactionScopeFactory.CreateScope();
+            
+            var now = _systemClock.UtcNow;
 
-                var result = await _usersRepository.MergeAsync(
+            var result = await _usersRepository.MergeAsync(
+                userId,
+                username,
+                discriminator,
+                avatarHash,
+                firstSeen: now,
+                lastSeen: now,
+                cancellationToken);
+
+            if (result.RowsInserted > 0)
+            {
+                var actionId = await _administrationActionsRepository.CreateAsync(
+                    (int)UserManagementAdministrationActionType.UserCreated,
+                    now,
                     userId,
-                    username,
-                    discriminator,
-                    avatarHash,
-                    firstSeen: now,
-                    lastSeen: now,
                     cancellationToken);
 
-                if(result.RowsInserted > 0)
-                {
-                    var actionId = await _administrationActionsRepository.CreateAsync(
-                        (int)UserManagementAdministrationActionType.UserCreated,
-                        now,
+                var defaultPermissionIds = await _usersRepository
+                        .AsyncEnumerateDefaultPermissionIds()
+                    .ToArrayAsync(cancellationToken);
+
+                if (defaultPermissionIds.Any())
+                    await _usersRepository.CreatePermissionMappingsAsync(
                         userId,
+                        defaultPermissionIds,
+                        PermissionMappingType.Granted,
+                        actionId,
                         cancellationToken);
 
-                    var defaultPermissionIds = await _usersRepository
-                            .AsyncEnumerateDefaultPermissionIds()
-                        .ToArrayAsync(cancellationToken);
+                var defaultRoleIds = await _usersRepository
+                        .AsyncEnumerateDefaultRoleIds()
+                    .ToArrayAsync(cancellationToken);
 
-                    if (defaultPermissionIds.Any())
-                        await _usersRepository.CreatePermissionMappingsAsync(
-                            userId,
-                            defaultPermissionIds,
-                            PermissionMappingType.Granted,
-                            actionId,
-                            cancellationToken);
-
-                    var defaultRoleIds = await _usersRepository
-                            .AsyncEnumerateDefaultRoleIds()
-                        .ToArrayAsync(cancellationToken);
-
-                    if (defaultRoleIds.Any())
-                        await _usersRepository.CreateRoleMappingsAsync(
-                            userId,
-                            defaultRoleIds,
-                            actionId,
-                            cancellationToken);
-
-                    await _messenger.PublishNotificationAsync(
-                        new UserInitializingNotification(
-                            userId,
-                            actionId),
+                if (defaultRoleIds.Any())
+                    await _usersRepository.CreateRoleMappingsAsync(
+                        userId,
+                        defaultRoleIds,
+                        actionId,
                         cancellationToken);
-                }
 
-                transactionScope.Complete();
+                await _messenger.PublishNotificationAsync(
+                    new UserInitializingNotification(
+                        userId,
+                        actionId),
+                    cancellationToken);
             }
+
+            transactionScope.Complete();
         }
 
         public async Task<OperationResult> UpdateAsync(
@@ -178,88 +176,87 @@ namespace Sokan.Yastah.Business.Users
             ulong performedById,
             CancellationToken cancellationToken)
         {
-            using (var transactionScope = _transactionScopeFactory.CreateScope())
-            {
-                var permissionIdsValidationResult = await _permissionsService.ValidateIdsAsync(
-                    updateModel.GrantedPermissionIds
-                        .Union(updateModel.DeniedPermissionIds)
-                        .ToArray(),
-                    cancellationToken);
-                if (permissionIdsValidationResult.IsFailure)
-                    return permissionIdsValidationResult;
+            using var transactionScope = _transactionScopeFactory.CreateScope();
 
-                var assignedRoleIdsValidationResult = await _rolesService.ValidateIdsAsync(updateModel.AssignedRoleIds, cancellationToken);
-                if (assignedRoleIdsValidationResult.IsFailure)
-                    return assignedRoleIdsValidationResult;
+            var permissionIdsValidationResult = await _permissionsService.ValidateIdsAsync(
+                updateModel.GrantedPermissionIds
+                    .Union(updateModel.DeniedPermissionIds)
+                    .ToArray(),
+                cancellationToken);
+            if (permissionIdsValidationResult.IsFailure)
+                return permissionIdsValidationResult;
 
-                var now = _systemClock.UtcNow;
+            var assignedRoleIdsValidationResult = await _rolesService.ValidateIdsAsync(updateModel.AssignedRoleIds, cancellationToken);
+            if (assignedRoleIdsValidationResult.IsFailure)
+                return assignedRoleIdsValidationResult;
 
-                var actionId = await _administrationActionsRepository.CreateAsync(
-                    (int)UserManagementAdministrationActionType.UserModified,
-                    now,
-                    performedById,
-                    cancellationToken);
+            var now = _systemClock.UtcNow;
 
-                var anyChanges = false;
+            var actionId = await _administrationActionsRepository.CreateAsync(
+                (int)UserManagementAdministrationActionType.UserModified,
+                now,
+                performedById,
+                cancellationToken);
 
-                var permissionMappings = await _usersRepository.AsyncEnumeratePermissionMappingIdentities(
-                        userId: userId,
-                        isDeleted: false)
-                    .ToArrayAsync(cancellationToken);
+            var anyChanges = false;
 
-                anyChanges |= await HandleRemovedPermissionMappings(
-                    permissionMappings,
-                    updateModel.GrantedPermissionIds,
-                    updateModel.DeniedPermissionIds,
-                    actionId,
-                    cancellationToken);
+            var permissionMappings = await _usersRepository.AsyncEnumeratePermissionMappingIdentities(
+                    userId: userId,
+                    isDeleted: false)
+                .ToArrayAsync(cancellationToken);
 
-                anyChanges |= await HandleAddedGrantedPermissions(
-                    permissionMappings,
-                    updateModel.GrantedPermissionIds,
+            anyChanges |= await HandleRemovedPermissionMappings(
+                permissionMappings,
+                updateModel.GrantedPermissionIds,
+                updateModel.DeniedPermissionIds,
+                actionId,
+                cancellationToken);
+
+            anyChanges |= await HandleAddedGrantedPermissions(
+                permissionMappings,
+                updateModel.GrantedPermissionIds,
+                userId,
+                actionId,
+                cancellationToken);
+
+            anyChanges |= await HandleAddedDeniedPermissions(
+                permissionMappings,
+                updateModel.DeniedPermissionIds,
+                userId,
+                actionId,
+                cancellationToken);
+
+            var roleMappings = await _usersRepository.AsyncEnumerateRoleMappingIdentities(
+                    userId: userId,
+                    isDeleted: false)
+                .ToArrayAsync(cancellationToken);
+
+            anyChanges |= await HandleRemovedRoleMappings(
+                roleMappings,
+                updateModel.AssignedRoleIds,
+                actionId,
+                cancellationToken);
+
+            anyChanges |= await HandleAddedRoles(
+                roleMappings,
+                updateModel.AssignedRoleIds,
+                userId,
+                actionId,
+                cancellationToken);
+
+            if(!anyChanges)
+                return new NoChangesGivenError($"User ID {userId}")
+                    .ToError();
+
+            await _messenger.PublishNotificationAsync(
+                new UserUpdatingNotification(
                     userId,
-                    actionId,
-                    cancellationToken);
+                    actionId),
+                cancellationToken);
 
-                anyChanges |= await HandleAddedDeniedPermissions(
-                    permissionMappings,
-                    updateModel.DeniedPermissionIds,
-                    userId,
-                    actionId,
-                    cancellationToken);
+            transactionScope.Complete();
 
-                var roleMappings = await _usersRepository.AsyncEnumerateRoleMappingIdentities(
-                        userId: userId,
-                        isDeleted: false)
-                    .ToArrayAsync(cancellationToken);
-
-                anyChanges |= await HandleRemovedRoleMappings(
-                    roleMappings,
-                    updateModel.AssignedRoleIds,
-                    actionId,
-                    cancellationToken);
-
-                anyChanges |= await HandleAddedRoles(
-                    roleMappings,
-                    updateModel.AssignedRoleIds,
-                    userId,
-                    actionId,
-                    cancellationToken);
-
-                if(!anyChanges)
-                    return new NoChangesGivenError($"User ID {userId}")
-                        .ToError();
-
-                await _messenger.PublishNotificationAsync(
-                    new UserUpdatingNotification(
-                        userId,
-                        actionId),
-                    cancellationToken);
-
-                transactionScope.Complete();
-
-                return OperationResult.Success;
-            }
+            return OperationResult.Success;
         }
 
         private async Task<bool> HandleAddedDeniedPermissions(

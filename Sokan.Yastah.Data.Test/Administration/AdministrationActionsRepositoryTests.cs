@@ -38,40 +38,39 @@ namespace Sokan.Yastah.Data.Test.Administration
             ulong performedById,
             long id)
         {
-            using (var testContext = new AsyncMethodTestContext())
-            {
-                var mockContext = new Mock<YastahDbContext>(
-                    new Mock<IConcurrencyResolutionService>().Object);
-                mockContext
-                    .Setup(x => x.AddAsync(It.IsAny<AdministrationActionEntity>(), It.IsAny<CancellationToken>()))
-                    .Callback<AdministrationActionEntity, CancellationToken>((x, y) => x.Id = id);
+            using var testContext = new AsyncMethodTestContext();
+            
+            var mockContext = new Mock<YastahDbContext>(
+                new Mock<IConcurrencyResolutionService>().Object);
+            mockContext
+                .Setup(x => x.AddAsync(It.IsAny<AdministrationActionEntity>(), It.IsAny<CancellationToken>()))
+                .Callback<AdministrationActionEntity, CancellationToken>((x, y) => x.Id = id);
 
-                var uut = new AdministrationActionsRepository(
-                    mockContext.Object);
+            var uut = new AdministrationActionsRepository(
+                mockContext.Object);
 
-                var result = await uut.CreateAsync(
-                    typeId,
-                    performed,
-                    performedById,
-                    testContext.CancellationToken);
+            var result = await uut.CreateAsync(
+                typeId,
+                performed,
+                performedById,
+                testContext.CancellationToken);
 
-                mockContext
-                    .ShouldHaveReceived(x => x.AddAsync(It.IsNotNull<AdministrationActionEntity>(), testContext.CancellationToken));
-                mockContext
-                    .ShouldHaveReceived(x => x.SaveChangesAsync(testContext.CancellationToken));
+            mockContext
+                .ShouldHaveReceived(x => x.AddAsync(It.IsNotNull<AdministrationActionEntity>(), testContext.CancellationToken));
+            mockContext
+                .ShouldHaveReceived(x => x.SaveChangesAsync(testContext.CancellationToken));
 
-                var entity = mockContext
-                    .Invocations
-                    .Where(x => x.Method.Name == nameof(YastahDbContext.AddAsync))
-                    .Select(x => (AdministrationActionEntity)x.Arguments[0])
-                    .First();
+            var entity = mockContext
+                .Invocations
+                .Where(x => x.Method.Name == nameof(YastahDbContext.AddAsync))
+                .Select(x => (AdministrationActionEntity)x.Arguments[0])
+                .First();
 
-                entity.TypeId.ShouldBe(typeId);
-                entity.Performed.ShouldBe(performed);
-                entity.PerformedById.ShouldBe(performedById);
+            entity.TypeId.ShouldBe(typeId);
+            entity.Performed.ShouldBe(performed);
+            entity.PerformedById.ShouldBe(performedById);
 
-                result.ShouldBe(id);
-            }
+            result.ShouldBe(id);
         }
 
         #endregion CreateAsync() Tests

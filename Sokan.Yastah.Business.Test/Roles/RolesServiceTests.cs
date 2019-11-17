@@ -30,7 +30,7 @@ namespace Sokan.Yastah.Business.Test.Roles
     {
         #region Test Context
 
-        public class TestContext
+        internal class TestContext
             : AsyncMethodTestContext
         {
             public TestContext()
@@ -178,48 +178,47 @@ namespace Sokan.Yastah.Business.Test.Roles
             ulong performedById,
             string name)
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext();
+            
+            testContext.SetIsNameInUse(true);
+            testContext.SetCurrentIdentitiesCache();
+
+            var uut = testContext.BuildUut();
+
+            var creationModel = new RoleCreationModel()
             {
-                testContext.SetIsNameInUse(true);
-                testContext.SetCurrentIdentitiesCache();
+                Name = name
+            };
 
-                var uut = testContext.BuildUut();
+            var result = await uut.CreateAsync(
+                creationModel,
+                performedById,
+                testContext.CancellationToken);
 
-                var creationModel = new RoleCreationModel()
-                {
-                    Name = name
-                };
+            testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
+                .CreateScope(default));
 
-                var result = await uut.CreateAsync(
-                    creationModel,
-                    performedById,
-                    testContext.CancellationToken);
+            testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                .AnyVersionsAsync(
+                    testContext.CancellationToken,
+                    default,
+                    name,
+                    false,
+                    true));
 
-                testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
-                    .CreateScope(default));
+            testContext.MockMessenger.Invocations.ShouldBeEmpty();
 
-                testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .AnyVersionsAsync(
-                        testContext.CancellationToken,
-                        default,
-                        name,
-                        false,
-                        true));
+            testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
+                .ShouldBeTrue();
 
-                testContext.MockMessenger.Invocations.ShouldBeEmpty();
+            testContext.MockTransactionScope.ShouldNotHaveReceived(x => x
+                .Complete());
+            testContext.MockTransactionScope.ShouldHaveReceived(x => x
+                .Dispose());
 
-                testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
-                    .ShouldBeTrue();
-
-                testContext.MockTransactionScope.ShouldNotHaveReceived(x => x
-                    .Complete());
-                testContext.MockTransactionScope.ShouldHaveReceived(x => x
-                    .Dispose());
-
-                result.IsFailure.ShouldBeTrue();
-                var error = result.Error.ShouldBeOfType<NameInUseError>();
-                error.Message.Contains(name);
-            }
+            result.IsFailure.ShouldBeTrue();
+            var error = result.Error.ShouldBeOfType<NameInUseError>();
+            error.Message.Contains(name);
         }
 
         public static readonly IReadOnlyList<TestCaseData> CreateAsync_InvalidPermissionIds_TestCaseData
@@ -239,48 +238,47 @@ namespace Sokan.Yastah.Business.Test.Roles
             string name,
             IReadOnlyList<int> grantedPermissionIds)
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext();
+            
+            testContext.SetIsNameInUse(false);
+            testContext.SetCurrentIdentitiesCache();
+
+            var mockError = new Mock<IOperationError>();
+            testContext.SetValidatePermissionIdsResult(mockError.Object);
+
+            var uut = testContext.BuildUut();
+
+            var creationModel = new RoleCreationModel()
             {
-                testContext.SetIsNameInUse(false);
-                testContext.SetCurrentIdentitiesCache();
+                Name = name,
+                GrantedPermissionIds = grantedPermissionIds
+            };
 
-                var mockError = new Mock<IOperationError>();
-                testContext.SetValidatePermissionIdsResult(mockError.Object);
+            var result = await uut.CreateAsync(
+                creationModel,
+                performedById,
+                testContext.CancellationToken);
 
-                var uut = testContext.BuildUut();
+            testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
+                .CreateScope(default));
 
-                var creationModel = new RoleCreationModel()
-                {
-                    Name = name,
-                    GrantedPermissionIds = grantedPermissionIds
-                };
+            testContext.MockPermissionsService.ShouldHaveReceived(x => x
+                .ValidateIdsAsync(
+                    It.Is<IReadOnlyCollection<int>>(y => (y != null) && y.SetEquals(grantedPermissionIds)),
+                    testContext.CancellationToken));
 
-                var result = await uut.CreateAsync(
-                    creationModel,
-                    performedById,
-                    testContext.CancellationToken);
+            testContext.MockMessenger.Invocations.ShouldBeEmpty();
 
-                testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
-                    .CreateScope(default));
+            testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
+                .ShouldBeTrue();
 
-                testContext.MockPermissionsService.ShouldHaveReceived(x => x
-                    .ValidateIdsAsync(
-                        It.Is<IReadOnlyCollection<int>>(y => (y != null) && y.SetEquals(grantedPermissionIds)),
-                        testContext.CancellationToken));
-                
-                testContext.MockMessenger.Invocations.ShouldBeEmpty();
+            testContext.MockTransactionScope.ShouldNotHaveReceived(x => x
+                .Complete());
+            testContext.MockTransactionScope.ShouldHaveReceived(x => x
+                .Dispose());
 
-                testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
-                    .ShouldBeTrue();
-
-                testContext.MockTransactionScope.ShouldNotHaveReceived(x => x
-                    .Complete());
-                testContext.MockTransactionScope.ShouldHaveReceived(x => x
-                    .Dispose());
-
-                result.IsFailure.ShouldBeTrue();
-                result.Error.ShouldBeSameAs(mockError.Object);
-            }
+            result.IsFailure.ShouldBeTrue();
+            result.Error.ShouldBeSameAs(mockError.Object);
         }
 
         public static readonly IReadOnlyList<TestCaseData> CreateAsync_Success_TestCaseData
@@ -303,74 +301,74 @@ namespace Sokan.Yastah.Business.Test.Roles
             IReadOnlyList<int> grantedPermissionIds,
             long roleId)
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext()
             {
-                testContext.UtcNow = performed;
-                testContext.NextAdministrationActionId = actionId;
-                testContext.NextRoleId = roleId;
+                UtcNow = performed,
+                NextAdministrationActionId = actionId,
+                NextRoleId = roleId
+            };
 
-                testContext.SetIsNameInUse(false);
-                testContext.SetCurrentIdentitiesCache();
-                testContext.SetValidatePermissionIdsResult();
+            testContext.SetIsNameInUse(false);
+            testContext.SetCurrentIdentitiesCache();
+            testContext.SetValidatePermissionIdsResult();
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var creationModel = new RoleCreationModel()
-                {
-                    Name = name,
-                    GrantedPermissionIds = grantedPermissionIds
-                };
+            var creationModel = new RoleCreationModel()
+            {
+                Name = name,
+                GrantedPermissionIds = grantedPermissionIds
+            };
 
-                var result = await uut.CreateAsync(
-                    creationModel,
+            var result = await uut.CreateAsync(
+                creationModel,
+                performedById,
+                testContext.CancellationToken);
+
+            testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
+                .CreateScope(default));
+
+            testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                .AnyVersionsAsync(
+                    testContext.CancellationToken,
+                    default,
+                    name,
+                    false,
+                    true));
+
+            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+                .CreateAsync(
+                    (int)RoleManagementAdministrationActionType.RoleCreated,
+                    performed,
                     performedById,
-                    testContext.CancellationToken);
+                    testContext.CancellationToken));
 
-                testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
-                    .CreateScope(default));
+            testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                .CreateAsync(
+                    name,
+                    actionId,
+                    testContext.CancellationToken));
 
+            foreach (var permissionId in grantedPermissionIds)
                 testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .AnyVersionsAsync(
-                        testContext.CancellationToken,
-                        default,
-                        name,
-                        false,
-                        true));
-
-                testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
-                    .CreateAsync(
-                        (int)RoleManagementAdministrationActionType.RoleCreated,
-                        performed,
-                        performedById,
-                        testContext.CancellationToken));
-
-                testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .CreateAsync(
-                        name,
+                    .CreatePermissionMappingsAsync(
+                        roleId,
+                        It.Is<IEnumerable<int>>(y => (y != null) && y.SetEquals(grantedPermissionIds)),
                         actionId,
                         testContext.CancellationToken));
-                
-                foreach(var permissionId in grantedPermissionIds)
-                    testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                        .CreatePermissionMappingsAsync(
-                            roleId,
-                            It.Is<IEnumerable<int>>(y => (y != null) && y.SetEquals(grantedPermissionIds)),
-                            actionId,
-                            testContext.CancellationToken));
 
-                testContext.MockMessenger.Invocations.ShouldBeEmpty();
+            testContext.MockMessenger.Invocations.ShouldBeEmpty();
 
-                testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
-                    .ShouldBeFalse();
+            testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
+                .ShouldBeFalse();
 
-                testContext.MockTransactionScope.ShouldHaveReceived(x => x
-                    .Complete());
-                testContext.MockTransactionScope.ShouldHaveReceived(x => x
-                    .Dispose());
+            testContext.MockTransactionScope.ShouldHaveReceived(x => x
+                .Complete());
+            testContext.MockTransactionScope.ShouldHaveReceived(x => x
+                .Dispose());
 
-                result.IsSuccess.ShouldBeTrue();
-                result.Value.ShouldBe(roleId);
-            }
+            result.IsSuccess.ShouldBeTrue();
+            result.Value.ShouldBe(roleId);
         }
 
         #endregion CreateAsync() Tests
@@ -395,54 +393,54 @@ namespace Sokan.Yastah.Business.Test.Roles
             DateTimeOffset performed,
             ulong performedById)
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext()
             {
-                testContext.UtcNow = performed;
-                testContext.NextAdministrationActionId = actionId;
+                UtcNow = performed,
+                NextAdministrationActionId = actionId
+            };
 
-                testContext.SetCurrentIdentitiesCache();
+            testContext.SetCurrentIdentitiesCache();
 
-                var mockError = new Mock<IOperationError>();
-                testContext.SetRoleUpdateError(mockError.Object);
+            var mockError = new Mock<IOperationError>();
+            testContext.SetRoleUpdateError(mockError.Object);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.DeleteAsync(
-                    roleId,
+            var result = await uut.DeleteAsync(
+                roleId,
+                performedById,
+                testContext.CancellationToken);
+
+            testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
+                .CreateScope(default));
+
+            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+                .CreateAsync(
+                    (int)RoleManagementAdministrationActionType.RoleDeleted,
+                    performed,
                     performedById,
-                    testContext.CancellationToken);
+                    testContext.CancellationToken));
 
-                testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
-                    .CreateScope(default));
+            testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                .UpdateAsync(
+                    testContext.CancellationToken,
+                    roleId,
+                    actionId,
+                    Optional<string>.Unspecified,
+                    true));
 
-                testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
-                    .CreateAsync(
-                        (int)RoleManagementAdministrationActionType.RoleDeleted,
-                        performed,
-                        performedById,
-                        testContext.CancellationToken));
+            testContext.MockMessenger.Invocations.ShouldBeEmpty();
 
-                testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .UpdateAsync(
-                        testContext.CancellationToken,
-                        roleId,
-                        actionId,
-                        Optional<string>.Unspecified,
-                        true));
+            testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
+                .ShouldBeTrue();
 
-                testContext.MockMessenger.Invocations.ShouldBeEmpty();
+            testContext.MockTransactionScope.ShouldNotHaveReceived(x => x
+                .Complete());
+            testContext.MockTransactionScope.ShouldHaveReceived(x => x
+                .Dispose());
 
-                testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
-                    .ShouldBeTrue();
-
-                testContext.MockTransactionScope.ShouldNotHaveReceived(x => x
-                    .Complete());
-                testContext.MockTransactionScope.ShouldHaveReceived(x => x
-                    .Dispose());
-
-                result.IsFailure.ShouldBeTrue();
-                result.Error.ShouldBeSameAs(mockError.Object);
-            }
+            result.IsFailure.ShouldBeTrue();
+            result.Error.ShouldBeSameAs(mockError.Object);
         }
 
         public static readonly IReadOnlyList<TestCaseData> DeleteAsync_Success_TestCaseData
@@ -464,51 +462,51 @@ namespace Sokan.Yastah.Business.Test.Roles
             ulong performedById,
             long versionId)
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext()
             {
-                testContext.UtcNow = performed;
-                testContext.NextAdministrationActionId = actionId;
+                UtcNow = performed,
+                NextAdministrationActionId = actionId
+            };
 
-                testContext.SetRoleUpdateVersionId(versionId);
-                testContext.SetCurrentIdentitiesCache();
+            testContext.SetRoleUpdateVersionId(versionId);
+            testContext.SetCurrentIdentitiesCache();
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.DeleteAsync(
-                    roleId,
+            var result = await uut.DeleteAsync(
+                roleId,
+                performedById,
+                testContext.CancellationToken);
+
+            testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
+                .CreateScope(default));
+
+            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+                .CreateAsync(
+                    (int)RoleManagementAdministrationActionType.RoleDeleted,
+                    performed,
                     performedById,
-                    testContext.CancellationToken);
+                    testContext.CancellationToken));
 
-                testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
-                    .CreateScope(default));
+            testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                .UpdateAsync(
+                    testContext.CancellationToken,
+                    roleId,
+                    actionId,
+                    Optional<string>.Unspecified,
+                    true));
 
-                testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
-                    .CreateAsync(
-                        (int)RoleManagementAdministrationActionType.RoleDeleted,
-                        performed,
-                        performedById,
-                        testContext.CancellationToken));
+            testContext.MockMessenger.Invocations.ShouldBeEmpty();
 
-                testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .UpdateAsync(
-                        testContext.CancellationToken,
-                        roleId,
-                        actionId,
-                        Optional<string>.Unspecified,
-                        true));
+            testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
+                .ShouldBeFalse();
 
-                testContext.MockMessenger.Invocations.ShouldBeEmpty();
+            testContext.MockTransactionScope.ShouldHaveReceived(x => x
+                .Complete());
+            testContext.MockTransactionScope.ShouldHaveReceived(x => x
+                .Dispose());
 
-                testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
-                    .ShouldBeFalse();
-
-                testContext.MockTransactionScope.ShouldHaveReceived(x => x
-                    .Complete());
-                testContext.MockTransactionScope.ShouldHaveReceived(x => x
-                    .Dispose());
-
-                result.IsSuccess.ShouldBeTrue();
-            }
+            result.IsSuccess.ShouldBeTrue();
         }
 
         #endregion DeleteAsync() Tests
@@ -518,56 +516,54 @@ namespace Sokan.Yastah.Business.Test.Roles
         [Test]
         public async Task GetCurrentIdentitiesAsync_IdentitiesAreNotCached_ReadsIdentities()
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext();
+            
+            var identities = new RoleIdentityViewModel[]
             {
-                var identities = new RoleIdentityViewModel[]
-                {
-                    new RoleIdentityViewModel(
-                        id:     default,
-                        name:   string.Empty)
-                };
+                new RoleIdentityViewModel(
+                    id:     default,
+                    name:   string.Empty)
+            };
 
-                testContext.MockRolesRepository
-                    .Setup(x => x.AsyncEnumerateIdentities(
-                        It.IsAny<Optional<bool>>()))
-                    .Returns(identities.ToAsyncEnumerable());
+            testContext.MockRolesRepository
+                .Setup(x => x.AsyncEnumerateIdentities(
+                    It.IsAny<Optional<bool>>()))
+                .Returns(identities.ToAsyncEnumerable());
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.GetCurrentIdentitiesAsync(
-                    testContext.CancellationToken);
+            var result = await uut.GetCurrentIdentitiesAsync(
+                testContext.CancellationToken);
 
-                testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .AsyncEnumerateIdentities(false));
+            testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                .AsyncEnumerateIdentities(false));
 
-                testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out var cacheValue)
-                    .ShouldBeTrue();
-                cacheValue.ShouldBeAssignableTo<IReadOnlyCollection<RoleIdentityViewModel>>()
-                    .ShouldBeSetEqualTo(identities);
+            testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out var cacheValue)
+                .ShouldBeTrue();
+            cacheValue.ShouldBeAssignableTo<IReadOnlyCollection<RoleIdentityViewModel>>()
+                .ShouldBeSetEqualTo(identities);
 
-                result.ShouldBeSameAs(cacheValue);
-            }
+            result.ShouldBeSameAs(cacheValue);
         }
 
         [Test]
         public async Task GetCurrentIdentitiesAsync_IdentitiesAreCached_DoesNotReadIdentities()
         {
-            using (var testContext = new TestContext())
-            {
-                var identities = new RoleIdentityViewModel[] { };
+            using var testContext = new TestContext();
+            
+            var identities = new RoleIdentityViewModel[0];
 
-                testContext.SetCurrentIdentitiesCache(identities);
+            testContext.SetCurrentIdentitiesCache(identities);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.GetCurrentIdentitiesAsync(
-                    testContext.CancellationToken);
+            var result = await uut.GetCurrentIdentitiesAsync(
+                testContext.CancellationToken);
 
-                testContext.MockRolesRepository.ShouldNotHaveReceived(x => x
-                    .AsyncEnumerateIdentities(It.IsAny<Optional<bool>>()));
+            testContext.MockRolesRepository.ShouldNotHaveReceived(x => x
+                .AsyncEnumerateIdentities(It.IsAny<Optional<bool>>()));
 
-                result.ShouldBeSameAs(identities);
-            }
+            result.ShouldBeSameAs(identities);
         }
 
         #endregion GetCurrentIdentitiesAsync() Tests
@@ -592,50 +588,49 @@ namespace Sokan.Yastah.Business.Test.Roles
             IReadOnlyList<int> grantedPermissionIds,
             ulong performedById)
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext();
+            
+            testContext.SetIsNameInUse(true);
+            testContext.SetCurrentIdentitiesCache();
+
+            var uut = testContext.BuildUut();
+
+            var updateModel = new RoleUpdateModel()
             {
-                testContext.SetIsNameInUse(true);
-                testContext.SetCurrentIdentitiesCache();
+                Name = name,
+                GrantedPermissionIds = grantedPermissionIds
+            };
 
-                var uut = testContext.BuildUut();
+            var result = await uut.UpdateAsync(
+                roleId,
+                updateModel,
+                performedById,
+                testContext.CancellationToken);
 
-                var updateModel = new RoleUpdateModel()
-                {
-                    Name = name,
-                    GrantedPermissionIds = grantedPermissionIds
-                };
+            testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
+                .CreateScope(default));
 
-                var result = await uut.UpdateAsync(
-                    roleId,
-                    updateModel,
-                    performedById,
-                    testContext.CancellationToken);
+            testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                .AnyVersionsAsync(
+                    testContext.CancellationToken,
+                    It.Is<Optional<IEnumerable<long>>>(y => y.IsSpecified && (y.Value != null) && y.Value.SetEquals(roleId.ToEnumerable())),
+                    name,
+                    false,
+                    true));
 
-                testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
-                    .CreateScope(default));
+            testContext.MockMessenger.Invocations.ShouldBeEmpty();
 
-                testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .AnyVersionsAsync(
-                        testContext.CancellationToken,
-                        It.Is<Optional<IEnumerable<long>>>(y => y.IsSpecified && (y.Value != null) && y.Value.SetEquals(roleId.ToEnumerable())),
-                        name,
-                        false,
-                        true));
+            testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
+                .ShouldBeTrue();
 
-                testContext.MockMessenger.Invocations.ShouldBeEmpty();
+            testContext.MockTransactionScope.ShouldNotHaveReceived(x => x
+                .Complete());
+            testContext.MockTransactionScope.ShouldHaveReceived(x => x
+                .Dispose());
 
-                testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
-                    .ShouldBeTrue();
-
-                testContext.MockTransactionScope.ShouldNotHaveReceived(x => x
-                    .Complete());
-                testContext.MockTransactionScope.ShouldHaveReceived(x => x
-                    .Dispose());
-
-                result.IsFailure.ShouldBeTrue();
-                result.Error.ShouldBeOfType<NameInUseError>();
-                result.Error.Message.ShouldContain(name);
-            }
+            result.IsFailure.ShouldBeTrue();
+            result.Error.ShouldBeOfType<NameInUseError>();
+            result.Error.Message.ShouldContain(name);
         }
 
         public static readonly IReadOnlyList<TestCaseData> UpdateAsync_InvalidPermissionIds_TestCaseData
@@ -656,57 +651,56 @@ namespace Sokan.Yastah.Business.Test.Roles
             IReadOnlyList<int> grantedPermissionIds,
             ulong performedById)
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext();
+            
+            testContext.SetIsNameInUse(false);
+            testContext.SetCurrentIdentitiesCache();
+
+            var mockError = new Mock<IOperationError>();
+            testContext.SetValidatePermissionIdsResult(mockError.Object);
+
+            var uut = testContext.BuildUut();
+
+            var updateModel = new RoleUpdateModel()
             {
-                testContext.SetIsNameInUse(false);
-                testContext.SetCurrentIdentitiesCache();
+                Name = name,
+                GrantedPermissionIds = grantedPermissionIds
+            };
 
-                var mockError = new Mock<IOperationError>();
-                testContext.SetValidatePermissionIdsResult(mockError.Object);
+            var result = await uut.UpdateAsync(
+                roleId,
+                updateModel,
+                performedById,
+                testContext.CancellationToken);
 
-                var uut = testContext.BuildUut();
+            testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
+                .CreateScope(default));
 
-                var updateModel = new RoleUpdateModel()
-                {
-                    Name = name,
-                    GrantedPermissionIds = grantedPermissionIds
-                };
+            testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                .AnyVersionsAsync(
+                    testContext.CancellationToken,
+                    It.Is<Optional<IEnumerable<long>>>(y => y.IsSpecified && (y.Value.Count() == 1) && (y.Value.First() == roleId)),
+                    name,
+                    false,
+                    true));
 
-                var result = await uut.UpdateAsync(
-                    roleId,
-                    updateModel,
-                    performedById,
-                    testContext.CancellationToken);
+            testContext.MockPermissionsService.ShouldHaveReceived(x => x
+                .ValidateIdsAsync(
+                    It.Is<IReadOnlyCollection<int>>(y => (y != null) && y.SetEquals(grantedPermissionIds)),
+                    testContext.CancellationToken));
 
-                testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
-                    .CreateScope(default));
+            testContext.MockMessenger.Invocations.ShouldBeEmpty();
 
-                testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .AnyVersionsAsync(
-                        testContext.CancellationToken,
-                        It.Is<Optional<IEnumerable<long>>>(y => y.IsSpecified && (y.Value.Count() == 1) && (y.Value.First() == roleId)),
-                        name,
-                        false,
-                        true));
+            testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
+                .ShouldBeTrue();
 
-                testContext.MockPermissionsService.ShouldHaveReceived(x => x
-                    .ValidateIdsAsync(
-                        It.Is<IReadOnlyCollection<int>>(y => (y != null) && y.SetEquals(grantedPermissionIds)),
-                        testContext.CancellationToken));
+            testContext.MockTransactionScope.ShouldNotHaveReceived(x => x
+                .Complete());
+            testContext.MockTransactionScope.ShouldHaveReceived(x => x
+                .Dispose());
 
-                testContext.MockMessenger.Invocations.ShouldBeEmpty();
-
-                testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
-                    .ShouldBeTrue();
-
-                testContext.MockTransactionScope.ShouldNotHaveReceived(x => x
-                    .Complete());
-                testContext.MockTransactionScope.ShouldHaveReceived(x => x
-                    .Dispose());
-
-                result.IsFailure.ShouldBeTrue();
-                result.Error.ShouldBeSameAs(mockError.Object);
-            }
+            result.IsFailure.ShouldBeTrue();
+            result.Error.ShouldBeSameAs(mockError.Object);
         }
 
         public static readonly IReadOnlyList<TestCaseData> UpdateAsync_UpdateFailure_TestCaseData
@@ -729,76 +723,76 @@ namespace Sokan.Yastah.Business.Test.Roles
             ulong performedById,
             long actionId)
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext()
             {
-                testContext.UtcNow = performed;
-                testContext.NextAdministrationActionId = actionId;
+                UtcNow = performed,
+                NextAdministrationActionId = actionId
+            };
 
-                testContext.SetIsNameInUse(false);
-                testContext.SetValidatePermissionIdsResult();
-                testContext.SetCurrentIdentitiesCache();
+            testContext.SetIsNameInUse(false);
+            testContext.SetValidatePermissionIdsResult();
+            testContext.SetCurrentIdentitiesCache();
 
-                var mockError = new Mock<IOperationError>();
-                testContext.SetRoleUpdateError(mockError.Object);
+            var mockError = new Mock<IOperationError>();
+            testContext.SetRoleUpdateError(mockError.Object);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var updateModel = new RoleUpdateModel()
-                {
-                    Name = name,
-                    GrantedPermissionIds = grantedPermissionIds
-                };
+            var updateModel = new RoleUpdateModel()
+            {
+                Name = name,
+                GrantedPermissionIds = grantedPermissionIds
+            };
 
-                var result = await uut.UpdateAsync(
-                    roleId,
-                    updateModel,
+            var result = await uut.UpdateAsync(
+                roleId,
+                updateModel,
+                performedById,
+                testContext.CancellationToken);
+
+            testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
+                .CreateScope(default));
+
+            testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                .AnyVersionsAsync(
+                    testContext.CancellationToken,
+                    It.Is<Optional<IEnumerable<long>>>(y => y.IsSpecified && (y.Value != null) && y.Value.SetEquals(roleId.ToEnumerable())),
+                    name,
+                    false,
+                    true));
+
+            testContext.MockPermissionsService.ShouldHaveReceived(x => x
+                .ValidateIdsAsync(
+                    It.Is<IReadOnlyCollection<int>>(y => (y != null) && y.SetEquals(grantedPermissionIds)),
+                    testContext.CancellationToken));
+
+            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+                .CreateAsync(
+                    (int)RoleManagementAdministrationActionType.RoleModified,
+                    performed,
                     performedById,
-                    testContext.CancellationToken);
+                    testContext.CancellationToken));
 
-                testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
-                    .CreateScope(default));
+            testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                .UpdateAsync(
+                    testContext.CancellationToken,
+                    roleId,
+                    actionId,
+                    name,
+                    default));
 
-                testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .AnyVersionsAsync(
-                        testContext.CancellationToken,
-                        It.Is<Optional<IEnumerable<long>>>(y => y.IsSpecified && (y.Value != null) && y.Value.SetEquals(roleId.ToEnumerable())),
-                        name,
-                        false,
-                        true));
+            testContext.MockMessenger.Invocations.ShouldBeEmpty();
 
-                testContext.MockPermissionsService.ShouldHaveReceived(x => x
-                    .ValidateIdsAsync(
-                        It.Is<IReadOnlyCollection<int>>(y => (y != null) && y.SetEquals(grantedPermissionIds)),
-                        testContext.CancellationToken));
+            testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
+                .ShouldBeTrue();
 
-                testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
-                    .CreateAsync(
-                        (int)RoleManagementAdministrationActionType.RoleModified,
-                        performed,
-                        performedById,
-                        testContext.CancellationToken));
+            testContext.MockTransactionScope.ShouldNotHaveReceived(x => x
+                .Complete());
+            testContext.MockTransactionScope.ShouldHaveReceived(x => x
+                .Dispose());
 
-                testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .UpdateAsync(
-                        testContext.CancellationToken,
-                        roleId,
-                        actionId,
-                        name,
-                        default));
-
-                testContext.MockMessenger.Invocations.ShouldBeEmpty();
-
-                testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
-                    .ShouldBeTrue();
-
-                testContext.MockTransactionScope.ShouldNotHaveReceived(x => x
-                    .Complete());
-                testContext.MockTransactionScope.ShouldHaveReceived(x => x
-                    .Dispose());
-
-                result.IsFailure.ShouldBeTrue();
-                result.Error.ShouldBeSameAs(mockError.Object);
-            }
+            result.IsFailure.ShouldBeTrue();
+            result.Error.ShouldBeSameAs(mockError.Object);
         }
 
         public static readonly IReadOnlyList<TestCaseData> UpdateAsync_NoChanges_TestCaseData
@@ -821,81 +815,81 @@ namespace Sokan.Yastah.Business.Test.Roles
             long actionId,
             IReadOnlyList<(long mappingId, int permissionId)> permissionMappings)
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext()
             {
-                testContext.UtcNow = performed;
-                testContext.NextAdministrationActionId = actionId;
+                UtcNow = performed,
+                NextAdministrationActionId = actionId
+            };
 
-                testContext.SetIsNameInUse(false);
-                testContext.SetValidatePermissionIdsResult();
-                testContext.SetRoleUpdateError(new NoChangesGivenError(string.Empty));
-                testContext.SetPermissionMappingIdentities(roleId, permissionMappings);
-                testContext.SetCurrentIdentitiesCache();
+            testContext.SetIsNameInUse(false);
+            testContext.SetValidatePermissionIdsResult();
+            testContext.SetRoleUpdateError(new NoChangesGivenError(string.Empty));
+            testContext.SetPermissionMappingIdentities(roleId, permissionMappings);
+            testContext.SetCurrentIdentitiesCache();
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var updateModel = new RoleUpdateModel()
-                {
-                    Name = name,
-                    GrantedPermissionIds = permissionMappings.Select(x => x.permissionId).ToArray()
-                };
+            var updateModel = new RoleUpdateModel()
+            {
+                Name = name,
+                GrantedPermissionIds = permissionMappings.Select(x => x.permissionId).ToArray()
+            };
 
-                var result = await uut.UpdateAsync(
-                    roleId,
-                    updateModel,
+            var result = await uut.UpdateAsync(
+                roleId,
+                updateModel,
+                performedById,
+                testContext.CancellationToken);
+
+            testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
+                .CreateScope(default));
+
+            testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                .AnyVersionsAsync(
+                    testContext.CancellationToken,
+                    It.Is<Optional<IEnumerable<long>>>(y => y.IsSpecified && (y.Value != null) && y.Value.SetEquals(roleId.ToEnumerable())),
+                    name,
+                    false,
+                    true));
+
+            testContext.MockPermissionsService.ShouldHaveReceived(x => x
+                .ValidateIdsAsync(
+                    It.Is<IReadOnlyCollection<int>>(y => (y != null) && y.SetEquals(updateModel.GrantedPermissionIds)),
+                    testContext.CancellationToken));
+
+            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+                .CreateAsync(
+                    (int)RoleManagementAdministrationActionType.RoleModified,
+                    performed,
                     performedById,
-                    testContext.CancellationToken);
+                    testContext.CancellationToken));
 
-                testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
-                    .CreateScope(default));
+            testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                .UpdateAsync(
+                    testContext.CancellationToken,
+                    roleId,
+                    actionId,
+                    name,
+                    default));
 
-                testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .AnyVersionsAsync(
-                        testContext.CancellationToken,
-                        It.Is<Optional<IEnumerable<long>>>(y => y.IsSpecified && (y.Value != null) && y.Value.SetEquals(roleId.ToEnumerable())),
-                        name,
-                        false,
-                        true));
+            testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                .AsyncEnumeratePermissionMappingIdentities(
+                    roleId,
+                    false));
 
-                testContext.MockPermissionsService.ShouldHaveReceived(x => x
-                    .ValidateIdsAsync(
-                        It.Is<IReadOnlyCollection<int>>(y => (y != null) && y.SetEquals(updateModel.GrantedPermissionIds)),
-                        testContext.CancellationToken));
+            testContext.MockMessenger.Invocations.ShouldBeEmpty();
 
-                testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
-                    .CreateAsync(
-                        (int)RoleManagementAdministrationActionType.RoleModified,
-                        performed,
-                        performedById,
-                        testContext.CancellationToken));
+            testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
+                .ShouldBeTrue();
 
-                testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .UpdateAsync(
-                        testContext.CancellationToken,
-                        roleId,
-                        actionId,
-                        name,
-                        default));
+            testContext.MockTransactionScope.ShouldNotHaveReceived(x => x
+                .Complete());
+            testContext.MockTransactionScope.ShouldHaveReceived(x => x
+                .Dispose());
 
-                testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .AsyncEnumeratePermissionMappingIdentities(
-                        roleId,
-                        false));
-
-                testContext.MockMessenger.Invocations.ShouldBeEmpty();
-
-                testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
-                    .ShouldBeTrue();
-
-                testContext.MockTransactionScope.ShouldNotHaveReceived(x => x
-                    .Complete());
-                testContext.MockTransactionScope.ShouldHaveReceived(x => x
-                    .Dispose());
-
-                result.IsFailure.ShouldBeTrue();
-                result.Error.ShouldBeOfType<NoChangesGivenError>();
-                result.Error.Message.ShouldContain(roleId.ToString());
-            }
+            result.IsFailure.ShouldBeTrue();
+            result.Error.ShouldBeOfType<NoChangesGivenError>();
+            result.Error.Message.ShouldContain(roleId.ToString());
         }
 
         public static readonly IReadOnlyList<TestCaseData> UpdateAsync_NameHasChanged_TestCaseData
@@ -919,95 +913,95 @@ namespace Sokan.Yastah.Business.Test.Roles
             long versionId,
             IReadOnlyList<(long mappingId, int permissionId)> permissionMappings)
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext()
             {
-                testContext.UtcNow = performed;
-                testContext.NextAdministrationActionId = actionId;
+                UtcNow = performed,
+                NextAdministrationActionId = actionId
+            };
 
-                testContext.SetIsNameInUse(false);
-                testContext.SetValidatePermissionIdsResult();
-                testContext.SetRoleUpdateVersionId(versionId);
-                testContext.SetPermissionMappingIdentities(roleId, permissionMappings);
-                testContext.SetCurrentIdentitiesCache();
+            testContext.SetIsNameInUse(false);
+            testContext.SetValidatePermissionIdsResult();
+            testContext.SetRoleUpdateVersionId(versionId);
+            testContext.SetPermissionMappingIdentities(roleId, permissionMappings);
+            testContext.SetCurrentIdentitiesCache();
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var updateModel = new RoleUpdateModel()
-                {
-                    Name = name,
-                    GrantedPermissionIds = permissionMappings.Select(x => x.permissionId).ToArray()
-                };
+            var updateModel = new RoleUpdateModel()
+            {
+                Name = name,
+                GrantedPermissionIds = permissionMappings.Select(x => x.permissionId).ToArray()
+            };
 
-                var result = await uut.UpdateAsync(
-                    roleId,
-                    updateModel,
+            var result = await uut.UpdateAsync(
+                roleId,
+                updateModel,
+                performedById,
+                testContext.CancellationToken);
+
+            testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
+                .CreateScope(default));
+
+            testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                .AnyVersionsAsync(
+                    testContext.CancellationToken,
+                    It.Is<Optional<IEnumerable<long>>>(y => y.IsSpecified && (y.Value != null) && y.Value.SetEquals(roleId.ToEnumerable())),
+                    name,
+                    false,
+                    true));
+
+            testContext.MockPermissionsService.ShouldHaveReceived(x => x
+                .ValidateIdsAsync(
+                    It.Is<IReadOnlyCollection<int>>(y => (y != null) && y.SetEquals(updateModel.GrantedPermissionIds)),
+                    testContext.CancellationToken));
+
+            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+                .CreateAsync(
+                    (int)RoleManagementAdministrationActionType.RoleModified,
+                    performed,
                     performedById,
-                    testContext.CancellationToken);
+                    testContext.CancellationToken));
 
-                testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
-                    .CreateScope(default));
+            testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                .UpdateAsync(
+                    testContext.CancellationToken,
+                    roleId,
+                    actionId,
+                    name,
+                    default));
 
-                testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .AnyVersionsAsync(
-                        testContext.CancellationToken,
-                        It.Is<Optional<IEnumerable<long>>>(y => y.IsSpecified && (y.Value != null) && y.Value.SetEquals(roleId.ToEnumerable())),
-                        name,
-                        false,
-                        true));
+            testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                .AsyncEnumeratePermissionMappingIdentities(
+                    roleId,
+                    false));
 
-                testContext.MockPermissionsService.ShouldHaveReceived(x => x
-                    .ValidateIdsAsync(
-                        It.Is<IReadOnlyCollection<int>>(y => (y != null) && y.SetEquals(updateModel.GrantedPermissionIds)),
-                        testContext.CancellationToken));
+            testContext.MockRolesRepository.ShouldNotHaveReceived(x => x
+                .CreatePermissionMappingsAsync(
+                    It.IsAny<long>(),
+                    It.IsAny<IEnumerable<int>>(),
+                    It.IsAny<long>(),
+                    It.IsAny<CancellationToken>()));
 
-                testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
-                    .CreateAsync(
-                        (int)RoleManagementAdministrationActionType.RoleModified,
-                        performed,
-                        performedById,
-                        testContext.CancellationToken));
+            testContext.MockRolesRepository.ShouldNotHaveReceived(x => x
+                .UpdatePermissionMappingsAsync(
+                    It.IsAny<IEnumerable<long>>(),
+                    It.IsAny<long>(),
+                    It.IsAny<CancellationToken>()));
 
-                testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .UpdateAsync(
-                        testContext.CancellationToken,
-                        roleId,
-                        actionId,
-                        name,
-                        default));
+            testContext.MockMessenger.ShouldHaveReceived(x => x
+                .PublishNotificationAsync(
+                    It.Is<RoleUpdatingNotification>(y => (y != null) && (y.RoleId == roleId) && (y.ActionId == actionId)),
+                    testContext.CancellationToken));
 
-                testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .AsyncEnumeratePermissionMappingIdentities(
-                        roleId,
-                        false));
+            testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
+                .ShouldBeFalse();
 
-                testContext.MockRolesRepository.ShouldNotHaveReceived(x => x
-                    .CreatePermissionMappingsAsync(
-                        It.IsAny<long>(),
-                        It.IsAny<IEnumerable<int>>(),
-                        It.IsAny<long>(),
-                        It.IsAny<CancellationToken>()));
+            testContext.MockTransactionScope.ShouldHaveReceived(x => x
+                .Complete());
+            testContext.MockTransactionScope.ShouldHaveReceived(x => x
+                .Dispose());
 
-                testContext.MockRolesRepository.ShouldNotHaveReceived(x => x
-                    .UpdatePermissionMappingsAsync(
-                        It.IsAny<IEnumerable<long>>(),
-                        It.IsAny<long>(),
-                        It.IsAny<CancellationToken>()));
-
-                testContext.MockMessenger.ShouldHaveReceived(x => x
-                    .PublishNotificationAsync(
-                        It.Is<RoleUpdatingNotification>(y => (y != null) && (y.RoleId == roleId) && (y.ActionId == actionId)),
-                        testContext.CancellationToken));
-
-                testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
-                    .ShouldBeFalse();
-
-                testContext.MockTransactionScope.ShouldHaveReceived(x => x
-                    .Complete());
-                testContext.MockTransactionScope.ShouldHaveReceived(x => x
-                    .Dispose());
-
-                result.IsSuccess.ShouldBeTrue();
-            }
+            result.IsSuccess.ShouldBeTrue();
         }
 
         public static readonly IReadOnlyList<TestCaseData> UpdateAsync_PermissionMappingsHaveChanged_TestCaseData
@@ -1035,110 +1029,110 @@ namespace Sokan.Yastah.Business.Test.Roles
             IReadOnlyList<int> addedPermissionIds,
             IReadOnlyList<long> deletedMappingIds)
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext()
             {
-                testContext.UtcNow = performed;
-                testContext.NextAdministrationActionId = actionId;
+                UtcNow = performed,
+                NextAdministrationActionId = actionId
+            };
 
-                testContext.SetIsNameInUse(false);
-                testContext.SetValidatePermissionIdsResult();
-                testContext.SetRoleUpdateError(new NoChangesGivenError(string.Empty));
-                testContext.SetPermissionMappingIdentities(roleId, permissionMappings);
-                testContext.SetCurrentIdentitiesCache();
+            testContext.SetIsNameInUse(false);
+            testContext.SetValidatePermissionIdsResult();
+            testContext.SetRoleUpdateError(new NoChangesGivenError(string.Empty));
+            testContext.SetPermissionMappingIdentities(roleId, permissionMappings);
+            testContext.SetCurrentIdentitiesCache();
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var updateModel = new RoleUpdateModel()
-                {
-                    Name = name,
-                    GrantedPermissionIds = grantedPermissionIds
-                };
+            var updateModel = new RoleUpdateModel()
+            {
+                Name = name,
+                GrantedPermissionIds = grantedPermissionIds
+            };
 
-                var result = await uut.UpdateAsync(
-                    roleId,
-                    updateModel,
+            var result = await uut.UpdateAsync(
+                roleId,
+                updateModel,
+                performedById,
+                testContext.CancellationToken);
+
+            testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
+                .CreateScope(default));
+
+            testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                .AnyVersionsAsync(
+                    testContext.CancellationToken,
+                    It.Is<Optional<IEnumerable<long>>>(y => y.IsSpecified && (y.Value != null) && y.Value.SetEquals(roleId.ToEnumerable())),
+                    name,
+                    false,
+                    true));
+
+            testContext.MockPermissionsService.ShouldHaveReceived(x => x
+                .ValidateIdsAsync(
+                    It.Is<IReadOnlyCollection<int>>(y => (y != null) && y.SetEquals(updateModel.GrantedPermissionIds)),
+                    testContext.CancellationToken));
+
+            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+                .CreateAsync(
+                    (int)RoleManagementAdministrationActionType.RoleModified,
+                    performed,
                     performedById,
-                    testContext.CancellationToken);
+                    testContext.CancellationToken));
 
-                testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
-                    .CreateScope(default));
+            testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                .UpdateAsync(
+                    testContext.CancellationToken,
+                    roleId,
+                    actionId,
+                    name,
+                    default));
 
+            testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                .AsyncEnumeratePermissionMappingIdentities(
+                    roleId,
+                    false));
+
+            if (addedPermissionIds.Any())
                 testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .AnyVersionsAsync(
-                        testContext.CancellationToken,
-                        It.Is<Optional<IEnumerable<long>>>(y => y.IsSpecified && (y.Value != null) && y.Value.SetEquals(roleId.ToEnumerable())),
-                        name,
-                        false,
-                        true));
-
-                testContext.MockPermissionsService.ShouldHaveReceived(x => x
-                    .ValidateIdsAsync(
-                        It.Is<IReadOnlyCollection<int>>(y => (y != null) && y.SetEquals(updateModel.GrantedPermissionIds)),
-                        testContext.CancellationToken));
-
-                testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
-                    .CreateAsync(
-                        (int)RoleManagementAdministrationActionType.RoleModified,
-                        performed,
-                        performedById,
-                        testContext.CancellationToken));
-
-                testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .UpdateAsync(
-                        testContext.CancellationToken,
+                    .CreatePermissionMappingsAsync(
                         roleId,
+                        It.Is<IEnumerable<int>>(y => (y != null) && y.SetEquals(addedPermissionIds)),
                         actionId,
-                        name,
-                        default));
-
-                testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .AsyncEnumeratePermissionMappingIdentities(
-                        roleId,
-                        false));
-
-                if (addedPermissionIds.Any())
-                    testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                        .CreatePermissionMappingsAsync(
-                            roleId,
-                            It.Is<IEnumerable<int>>(y => (y != null) && y.SetEquals(addedPermissionIds)),
-                            actionId,
-                            testContext.CancellationToken));
-                else
-                    testContext.MockRolesRepository.ShouldNotHaveReceived(x => x
-                        .CreatePermissionMappingsAsync(
-                            It.IsAny<long>(),
-                            It.IsAny<IEnumerable<int>>(),
-                            It.IsAny<long>(),
-                            It.IsAny<CancellationToken>()));
-
-                if (deletedMappingIds.Any())
-                    testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                        .UpdatePermissionMappingsAsync(
-                            It.Is<IEnumerable<long>>(y => (y != null) && y.SetEquals(deletedMappingIds)),
-                            actionId,
-                            testContext.CancellationToken));
-                else
-                    testContext.MockRolesRepository.ShouldNotHaveReceived(x => x
-                        .UpdatePermissionMappingsAsync(
-                            It.IsAny<IEnumerable<long>>(),
-                            It.IsAny<long>(),
-                            It.IsAny<CancellationToken>()));
-
-                testContext.MockMessenger.ShouldHaveReceived(x => x
-                    .PublishNotificationAsync(
-                        It.Is<RoleUpdatingNotification>(y => (y != null) && (y.RoleId == roleId) && (y.ActionId == actionId)),
                         testContext.CancellationToken));
+            else
+                testContext.MockRolesRepository.ShouldNotHaveReceived(x => x
+                    .CreatePermissionMappingsAsync(
+                        It.IsAny<long>(),
+                        It.IsAny<IEnumerable<int>>(),
+                        It.IsAny<long>(),
+                        It.IsAny<CancellationToken>()));
 
-                testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
-                    .ShouldBeFalse();
+            if (deletedMappingIds.Any())
+                testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                    .UpdatePermissionMappingsAsync(
+                        It.Is<IEnumerable<long>>(y => (y != null) && y.SetEquals(deletedMappingIds)),
+                        actionId,
+                        testContext.CancellationToken));
+            else
+                testContext.MockRolesRepository.ShouldNotHaveReceived(x => x
+                    .UpdatePermissionMappingsAsync(
+                        It.IsAny<IEnumerable<long>>(),
+                        It.IsAny<long>(),
+                        It.IsAny<CancellationToken>()));
 
-                testContext.MockTransactionScope.ShouldHaveReceived(x => x
-                    .Complete());
-                testContext.MockTransactionScope.ShouldHaveReceived(x => x
-                    .Dispose());
+            testContext.MockMessenger.ShouldHaveReceived(x => x
+                .PublishNotificationAsync(
+                    It.Is<RoleUpdatingNotification>(y => (y != null) && (y.RoleId == roleId) && (y.ActionId == actionId)),
+                    testContext.CancellationToken));
 
-                result.IsSuccess.ShouldBeTrue();
-            }
+            testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
+                .ShouldBeFalse();
+
+            testContext.MockTransactionScope.ShouldHaveReceived(x => x
+                .Complete());
+            testContext.MockTransactionScope.ShouldHaveReceived(x => x
+                .Dispose());
+
+            result.IsSuccess.ShouldBeTrue();
         }
 
         #endregion UpdateAsync() Tests
@@ -1148,16 +1142,15 @@ namespace Sokan.Yastah.Business.Test.Roles
         [Test]
         public async Task ValidateIdsAsync_RoleIdsIsEmpty_ReturnsSuccess()
         {
-            using (var testContext = new TestContext())
-            {
-                var uut = testContext.BuildUut();
+            using var testContext = new TestContext();
+            
+            var uut = testContext.BuildUut();
 
-                var result = await uut.ValidateIdsAsync(
-                    Array.Empty<long>(),
-                    testContext.CancellationToken);
+            var result = await uut.ValidateIdsAsync(
+                Array.Empty<long>(),
+                testContext.CancellationToken);
 
-                result.IsSuccess.ShouldBeTrue();
-            }
+            result.IsSuccess.ShouldBeTrue();
         }
 
         public static readonly IReadOnlyList<TestCaseData> ValidateIdsAsync_RoleIdsHasInvalidIds_TestCaseData
@@ -1177,21 +1170,20 @@ namespace Sokan.Yastah.Business.Test.Roles
             IReadOnlyList<long> validRoleIds,
             IReadOnlyList<long> invalidRoleIds)
         {
-            using (var testContext = new TestContext())
-            {
-                testContext.SetCurrentIdentitiesCache(validRoleIds);
+            using var testContext = new TestContext();
+            
+            testContext.SetCurrentIdentitiesCache(validRoleIds);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.ValidateIdsAsync(
-                    roleIds,
-                    testContext.CancellationToken);
+            var result = await uut.ValidateIdsAsync(
+                roleIds,
+                testContext.CancellationToken);
 
-                result.IsFailure.ShouldBeTrue();
-                result.Error.ShouldBeOfType<DataNotFoundError>();
-                foreach (var invalidRoleId in invalidRoleIds)
-                    result.Error.Message.ShouldContain(invalidRoleId.ToString());
-            }
+            result.IsFailure.ShouldBeTrue();
+            result.Error.ShouldBeOfType<DataNotFoundError>();
+            foreach (var invalidRoleId in invalidRoleIds)
+                result.Error.Message.ShouldContain(invalidRoleId.ToString());
         }
 
         public static readonly IReadOnlyList<TestCaseData> ValidateIdsAsync_RoleIdsDoesNotHaveInvalidIds_TestCaseData
@@ -1210,18 +1202,17 @@ namespace Sokan.Yastah.Business.Test.Roles
             IReadOnlyList<long> roleIds,
             IReadOnlyList<long> validRoleIds)
         {
-            using (var testContext = new TestContext())
-            {
-                testContext.SetCurrentIdentitiesCache(validRoleIds);
+            using var testContext = new TestContext();
+            
+            testContext.SetCurrentIdentitiesCache(validRoleIds);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.ValidateIdsAsync(
-                    roleIds,
-                    testContext.CancellationToken);
+            var result = await uut.ValidateIdsAsync(
+                roleIds,
+                testContext.CancellationToken);
 
-                result.IsSuccess.ShouldBeTrue();
-            }
+            result.IsSuccess.ShouldBeTrue();
         }
 
         [TestCaseSource(nameof(ValidateIdsAsync_RoleIdsDoesNotHaveInvalidIds_TestCaseData))]
@@ -1229,31 +1220,30 @@ namespace Sokan.Yastah.Business.Test.Roles
             IReadOnlyList<long> roleIds,
             IReadOnlyList<long> validRoleIds)
         {
-            using (var testContext = new TestContext())
-            {
-                var identities = roleIds
-                    .Select(x => new RoleIdentityViewModel(
-                        id:     x,
-                        name:   $"Role {x}"))
-                    .ToArray();
+            using var testContext = new TestContext();
 
-                testContext.MockRolesRepository
-                    .Setup(x => x.AsyncEnumerateIdentities(
-                        It.IsAny<Optional<bool>>()))
-                    .Returns(identities.ToAsyncEnumerable());
+            var identities = roleIds
+                .Select(x => new RoleIdentityViewModel(
+                    id: x,
+                    name: $"Role {x}"))
+                .ToArray();
 
-                var uut = testContext.BuildUut();
+            testContext.MockRolesRepository
+                .Setup(x => x.AsyncEnumerateIdentities(
+                    It.IsAny<Optional<bool>>()))
+                .Returns(identities.ToAsyncEnumerable());
 
-                var result = await uut.ValidateIdsAsync(
-                    roleIds,
-                    testContext.CancellationToken);
+            var uut = testContext.BuildUut();
 
-                result.IsSuccess.ShouldBeTrue();
+            var result = await uut.ValidateIdsAsync(
+                roleIds,
+                testContext.CancellationToken);
 
-                testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                    .AsyncEnumerateIdentities(
-                        false));
-            }
+            result.IsSuccess.ShouldBeTrue();
+
+            testContext.MockRolesRepository.ShouldHaveReceived(x => x
+                .AsyncEnumerateIdentities(
+                    false));
         }
 
         [TestCaseSource(nameof(ValidateIdsAsync_RoleIdsDoesNotHaveInvalidIds_TestCaseData))]
@@ -1261,22 +1251,21 @@ namespace Sokan.Yastah.Business.Test.Roles
             IReadOnlyList<long> roleIds,
             IReadOnlyList<long> validRoleIds)
         {
-            using (var testContext = new TestContext())
-            {
-                testContext.SetCurrentIdentitiesCache(roleIds);
+            using var testContext = new TestContext();
+            
+            testContext.SetCurrentIdentitiesCache(roleIds);
 
-                var uut = testContext.BuildUut();
+            var uut = testContext.BuildUut();
 
-                var result = await uut.ValidateIdsAsync(
-                    roleIds,
-                    testContext.CancellationToken);
+            var result = await uut.ValidateIdsAsync(
+                roleIds,
+                testContext.CancellationToken);
 
-                result.IsSuccess.ShouldBeTrue();
+            result.IsSuccess.ShouldBeTrue();
 
-                testContext.MockRolesRepository.ShouldNotHaveReceived(x => x
-                    .AsyncEnumerateIdentities(
-                        It.IsAny<Optional<bool>>()));
-            }
+            testContext.MockRolesRepository.ShouldNotHaveReceived(x => x
+                .AsyncEnumerateIdentities(
+                    It.IsAny<Optional<bool>>()));
         }
 
         #endregion ValidateIdsAsync() Tests

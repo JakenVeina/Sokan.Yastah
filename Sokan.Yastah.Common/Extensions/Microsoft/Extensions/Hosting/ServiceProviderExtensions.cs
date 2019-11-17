@@ -10,11 +10,10 @@ namespace Microsoft.Extensions.Hosting
     {
         public static async Task HandleStartupAsync(this IServiceProvider serviceProvider, CancellationToken cancellationToken)
         {
-            using (var serviceScope = serviceProvider.CreateScope())
-            {
-                foreach (var startupHandler in serviceScope.ServiceProvider.GetServices<IStartupHandler>())
-                    await startupHandler.OnStartupAsync(cancellationToken);
-            }
+            using var serviceScope = serviceProvider.CreateScope();
+            
+            foreach (var startupHandler in serviceScope.ServiceProvider.GetServices<IStartupHandler>())
+                await startupHandler.OnStartupAsync(cancellationToken);
         }
     }
 }

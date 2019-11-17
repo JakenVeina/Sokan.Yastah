@@ -71,39 +71,38 @@ namespace Sokan.Yastah.Business.Roles
             ulong performedById,
             CancellationToken cancellationToken)
         {
-            using (var transactionScope = _transactionScopeFactory.CreateScope())
-            {
-                var nameValidationResult = await ValidateNameAsync(creationModel.Name, null, cancellationToken);
-                if (nameValidationResult.IsFailure)
-                    return nameValidationResult.Error.ToError<long>();
+            using var transactionScope = _transactionScopeFactory.CreateScope();
 
-                var grantedPermissionIdsValidationResult = await _permissionsService.ValidateIdsAsync(creationModel.GrantedPermissionIds, cancellationToken);
-                if (grantedPermissionIdsValidationResult.IsFailure)
-                    return grantedPermissionIdsValidationResult.Error.ToError<long>();
+            var nameValidationResult = await ValidateNameAsync(creationModel.Name, null, cancellationToken);
+            if (nameValidationResult.IsFailure)
+                return nameValidationResult.Error.ToError<long>();
 
-                var actionId = await _administrationActionsRepository.CreateAsync(
-                    (int)RoleManagementAdministrationActionType.RoleCreated,
-                    _systemClock.UtcNow,
-                    performedById,
-                    cancellationToken);
+            var grantedPermissionIdsValidationResult = await _permissionsService.ValidateIdsAsync(creationModel.GrantedPermissionIds, cancellationToken);
+            if (grantedPermissionIdsValidationResult.IsFailure)
+                return grantedPermissionIdsValidationResult.Error.ToError<long>();
 
-                var roleId = await _rolesRepository.CreateAsync(
-                    creationModel.Name,
-                    actionId,
-                    cancellationToken);
+            var actionId = await _administrationActionsRepository.CreateAsync(
+                (int)RoleManagementAdministrationActionType.RoleCreated,
+                _systemClock.UtcNow,
+                performedById,
+                cancellationToken);
 
-                await _rolesRepository.CreatePermissionMappingsAsync(
-                    roleId,
-                    creationModel.GrantedPermissionIds,
-                    actionId,
-                    cancellationToken);
+            var roleId = await _rolesRepository.CreateAsync(
+                creationModel.Name,
+                actionId,
+                cancellationToken);
 
-                _memoryCache.Remove(_getCurrentIdentitiesCacheKey);
+            await _rolesRepository.CreatePermissionMappingsAsync(
+                roleId,
+                creationModel.GrantedPermissionIds,
+                actionId,
+                cancellationToken);
 
-                transactionScope.Complete();
+            _memoryCache.Remove(_getCurrentIdentitiesCacheKey);
 
-                return roleId.ToSuccess();
-            }
+            transactionScope.Complete();
+
+            return roleId.ToSuccess();
         }
 
         public async Task<OperationResult> DeleteAsync(
@@ -111,28 +110,27 @@ namespace Sokan.Yastah.Business.Roles
             ulong performedById,
             CancellationToken cancellationToken)
         {
-            using (var transactionScope = _transactionScopeFactory.CreateScope())
+            using var transactionScope = _transactionScopeFactory.CreateScope();
+
+            var actionId = await _administrationActionsRepository.CreateAsync(
+                (int)RoleManagementAdministrationActionType.RoleDeleted,
+                _systemClock.UtcNow,
+                performedById,
+                cancellationToken);
+
+            var updateResult = await _rolesRepository.UpdateAsync(
+                roleId: roleId,
+                actionId: actionId,
+                isDeleted: true,
+                cancellationToken: cancellationToken);
+
+            if(updateResult.IsSuccess)
             {
-                var actionId = await _administrationActionsRepository.CreateAsync(
-                    (int)RoleManagementAdministrationActionType.RoleDeleted,
-                    _systemClock.UtcNow,
-                    performedById,
-                    cancellationToken);
-
-                var updateResult = await _rolesRepository.UpdateAsync(
-                    roleId: roleId,
-                    actionId: actionId,
-                    isDeleted: true,
-                    cancellationToken: cancellationToken);
-
-                if(updateResult.IsSuccess)
-                {
-                    transactionScope.Complete();
-                    _memoryCache.Remove(_getCurrentIdentitiesCacheKey);
-                }
-
-                return updateResult;
+                transactionScope.Complete();
+                _memoryCache.Remove(_getCurrentIdentitiesCacheKey);
             }
+
+            return updateResult;
         }
 
         public ValueTask<IReadOnlyCollection<RoleIdentityViewModel>> GetCurrentIdentitiesAsync(
@@ -153,68 +151,67 @@ namespace Sokan.Yastah.Business.Roles
             ulong performedById,
             CancellationToken cancellationToken)
         {
-            using (var transactionScope = _transactionScopeFactory.CreateScope())
-            {
-                var nameValidationResult = await ValidateNameAsync(updateModel.Name, roleId, cancellationToken);
-                if (nameValidationResult.IsFailure)
-                    return nameValidationResult;
+            using var transactionScope = _transactionScopeFactory.CreateScope();
 
-                var grantedPermissionIdsValidationResult = await _permissionsService.ValidateIdsAsync(updateModel.GrantedPermissionIds, cancellationToken);
-                if (grantedPermissionIdsValidationResult.IsFailure)
-                    return grantedPermissionIdsValidationResult;
+            var nameValidationResult = await ValidateNameAsync(updateModel.Name, roleId, cancellationToken);
+            if (nameValidationResult.IsFailure)
+                return nameValidationResult;
 
-                var now = _systemClock.UtcNow;
+            var grantedPermissionIdsValidationResult = await _permissionsService.ValidateIdsAsync(updateModel.GrantedPermissionIds, cancellationToken);
+            if (grantedPermissionIdsValidationResult.IsFailure)
+                return grantedPermissionIdsValidationResult;
 
-                var actionId = await _administrationActionsRepository.CreateAsync(
-                    (int)RoleManagementAdministrationActionType.RoleModified,
-                    now,
-                    performedById,
-                    cancellationToken);
+            var now = _systemClock.UtcNow;
 
-                var updateResult = await _rolesRepository.UpdateAsync(
+            var actionId = await _administrationActionsRepository.CreateAsync(
+                (int)RoleManagementAdministrationActionType.RoleModified,
+                now,
+                performedById,
+                cancellationToken);
+
+            var updateResult = await _rolesRepository.UpdateAsync(
+                roleId: roleId,
+                actionId: actionId,
+                name: updateModel.Name,
+                cancellationToken: cancellationToken);
+            if (updateResult.IsFailure && !(updateResult.Error is NoChangesGivenError))
+                return updateResult;
+
+            var anyChanges = updateResult.IsSuccess;
+
+            var permissionMappings = await _rolesRepository.AsyncEnumeratePermissionMappingIdentities(
                     roleId: roleId,
-                    actionId: actionId,
-                    name: updateModel.Name,
-                    cancellationToken: cancellationToken);
-                if (updateResult.IsFailure && !(updateResult.Error is NoChangesGivenError))
-                    return updateResult;
+                    isDeleted: false)
+                .ToArrayAsync(cancellationToken);
 
-                var anyChanges = updateResult.IsSuccess;
+            anyChanges |= await HandleRemovedPermissionMappings(
+                permissionMappings,
+                updateModel.GrantedPermissionIds,
+                actionId,
+                cancellationToken);
 
-                var permissionMappings = await _rolesRepository.AsyncEnumeratePermissionMappingIdentities(
-                        roleId: roleId,
-                        isDeleted: false)
-                    .ToArrayAsync(cancellationToken);
+            anyChanges |= await HandleAddedPermissions(
+                permissionMappings,
+                updateModel.GrantedPermissionIds,
+                roleId,
+                actionId,
+                cancellationToken);
 
-                anyChanges |= await HandleRemovedPermissionMappings(
-                    permissionMappings,
-                    updateModel.GrantedPermissionIds,
-                    actionId,
-                    cancellationToken);
+            if (!anyChanges)
+                return new NoChangesGivenError($"Role ID {roleId}")
+                    .ToError();
 
-                anyChanges |= await HandleAddedPermissions(
-                    permissionMappings,
-                    updateModel.GrantedPermissionIds,
+            await _messenger.PublishNotificationAsync(
+                new RoleUpdatingNotification(
                     roleId,
-                    actionId,
-                    cancellationToken);
+                    actionId),
+                cancellationToken);
 
-                if (!anyChanges)
-                    return new NoChangesGivenError($"Role ID {roleId}")
-                        .ToError();
+            transactionScope.Complete();
 
-                await _messenger.PublishNotificationAsync(
-                    new RoleUpdatingNotification(
-                        roleId,
-                        actionId),
-                    cancellationToken);
+            _memoryCache.Remove(_getCurrentIdentitiesCacheKey);
 
-                transactionScope.Complete();
-
-                _memoryCache.Remove(_getCurrentIdentitiesCacheKey);
-
-                return OperationResult.Success;
-            }
+            return OperationResult.Success;
         }
 
         public async ValueTask<OperationResult> ValidateIdsAsync(

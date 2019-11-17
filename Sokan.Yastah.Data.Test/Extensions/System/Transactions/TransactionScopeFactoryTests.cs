@@ -27,11 +27,10 @@ namespace Sokan.Yastah.Data.Test.Extensions.System.Transactions
         {
             var uut = new TransactionScopeFactory();
 
-            using (var result = uut.CreateScope(isolationLevel))
-            {
-                result.Options.IsolationLevel.ShouldBe(expectedIsolationLevel);
-                result.Options.Timeout.ShouldBe(TimeSpan.FromSeconds(30));
-            }
+            using var result = uut.CreateScope(isolationLevel);
+            
+            result.Options.IsolationLevel.ShouldBe(expectedIsolationLevel);
+            result.Options.Timeout.ShouldBe(TimeSpan.FromSeconds(30));
         }
 
         [Test]

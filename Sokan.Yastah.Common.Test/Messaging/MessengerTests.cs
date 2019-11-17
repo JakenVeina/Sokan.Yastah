@@ -16,18 +16,16 @@ namespace Sokan.Yastah.Common.Test.Messaging
     {
         #region Test Cases
 
-        public static readonly IReadOnlyList<TestCaseData> TestContextTestCaseData
+        public static readonly IReadOnlyList<TestCaseData> NotificationHandlerCount_TestCaseData
             = new[]
             {
-                new TestCaseData(new TestContext(0))
-                    .SetName("{m}(0 Notification Handlers)"),
-                new TestCaseData(new TestContext(1))
-                    .SetName("{m}(1 Notification Handler)"),
-                new TestCaseData(new TestContext(5))
-                    .SetName("{m}(5 Notification Handlers)")
+                /*                  notificationHandlerCount    */
+                new TestCaseData(   0                           ).SetName("{m}(0 Notification Handlers)"),
+                new TestCaseData(   1                           ).SetName("{m}(1 Notification Handler)"),
+                new TestCaseData(   5                           ).SetName("{m}(5 Notification Handlers)")
             };
 
-        public class TestContext
+        internal class TestContext
             : AsyncMethodTestContext
         {
             public TestContext(int notificationHandlerCount)
@@ -59,10 +57,12 @@ namespace Sokan.Yastah.Common.Test.Messaging
 
         #region PublishNotificationAsync() Tests
 
-        [TestCaseSource(nameof(TestContextTestCaseData))]
+        [TestCaseSource(nameof(NotificationHandlerCount_TestCaseData))]
         public async Task PublishNotificationAsync_Always_PublishesNotificationToEachHandler(
-            TestContext testContext)
+            int notificationHandlerCount)
         {
+            using var testContext = new TestContext(notificationHandlerCount);
+
             var uut = testContext.BuildUut();
 
             var notification = new object();

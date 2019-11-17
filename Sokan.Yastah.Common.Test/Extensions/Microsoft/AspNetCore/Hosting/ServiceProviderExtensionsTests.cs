@@ -28,7 +28,7 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.AspNetCore.Hosting
                     .SetName("{m}(5 Startup Handlers)")
             };
 
-        public class TestContext
+        internal class TestContext
             : AsyncMethodTestContext
         {
             public TestContext(int startupHandlerCount)
@@ -79,20 +79,19 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.AspNetCore.Hosting
         public async Task HandleStartupAsync_Always_InvokesOnStartupAsyncForAllStartupHandlers(
             int startupHandlerCount)
         {
-            using (var testContext = new TestContext(startupHandlerCount))
-            {
-                await testContext.MockServiceProvider.Object.HandleStartupAsync(
-                    testContext.CancellationToken);
+            using var testContext = new TestContext(startupHandlerCount);
+            
+            await testContext.MockServiceProvider.Object.HandleStartupAsync(
+                testContext.CancellationToken);
 
-                testContext.MockServiceScopeFactory
-                    .ShouldHaveReceived(x => x.CreateScope());
+            testContext.MockServiceScopeFactory
+                .ShouldHaveReceived(x => x.CreateScope());
 
-                testContext.MockStartupHandlers
-                    .ForEach(sh => sh.ShouldHaveReceived(x => x.OnStartupAsync(testContext.CancellationToken)));
+            testContext.MockStartupHandlers
+                .ForEach(sh => sh.ShouldHaveReceived(x => x.OnStartupAsync(testContext.CancellationToken)));
 
-                testContext.MockServiceScope
-                    .ShouldHaveReceived(x => x.Dispose());
-            }
+            testContext.MockServiceScope
+                .ShouldHaveReceived(x => x.Dispose());
         }
 
         #endregion HandleStartupAsync() Tests

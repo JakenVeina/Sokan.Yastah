@@ -36,40 +36,39 @@ namespace Sokan.Yastah.Data.Test.Permissions
         [Test]
         public async Task AsyncEnumerateDescriptions_Always_ReturnsAllDescriptions()
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext();
+            
+            var uut = testContext.BuildUut();
+
+            var results = await uut.AsyncEnumerateDescriptions()
+                .ToArrayAsync();
+
+            results.ShouldNotBeNull();
+            results.ForEach(result => result.ShouldNotBeNull());
+            results.Select(x => x.Id).ShouldBeSetEqualTo(
+                testContext.Entities.PermissionCategories.Select(x => x.Id));
+            results.ForEach(result =>
             {
-                var uut = testContext.BuildUut();
+                var entity = testContext.Entities.PermissionCategories.First(x => x.Id == result.Id);
 
-                var results = await uut.AsyncEnumerateDescriptions()
-                    .ToArrayAsync();
+                result.Name.ShouldBe(entity.Name);
+                result.Description.ShouldBe(entity.Description);
 
-                results.ShouldNotBeNull();
-                results.ForEach(result => result.ShouldNotBeNull());
-                results.Select(x => x.Id).ShouldBeSetEqualTo(
-                    testContext.Entities.PermissionCategories.Select(x => x.Id));
-                results.ForEach(result =>
+                result.Permissions.ShouldNotBeNull();
+                result.Permissions.ForEach(permission => permission.ShouldNotBeNull());
+                result.Permissions.Select(x => x.Id).ShouldBeSetEqualTo(
+                    entity.Permissions.Select(x => x.PermissionId));
+
+                result.Permissions.ForEach(permission =>
                 {
-                    var entity = testContext.Entities.PermissionCategories.First(x => x.Id == result.Id);
+                    var permissionEntity = entity.Permissions.First(x => x.PermissionId == permission.Id);
 
-                    result.Name.ShouldBe(entity.Name);
-                    result.Description.ShouldBe(entity.Description);
-
-                    result.Permissions.ShouldNotBeNull();
-                    result.Permissions.ForEach(permission => permission.ShouldNotBeNull());
-                    result.Permissions.Select(x => x.Id).ShouldBeSetEqualTo(
-                        entity.Permissions.Select(x => x.PermissionId));
-
-                    result.Permissions.ForEach(permission =>
-                    {
-                        var permissionEntity = entity.Permissions.First(x => x.PermissionId == permission.Id);
-
-                        permission.Name.ShouldBe(permissionEntity.Name);
-                        permission.Description.ShouldBe(permissionEntity.Description);
-                    });
+                    permission.Name.ShouldBe(permissionEntity.Name);
+                    permission.Description.ShouldBe(permissionEntity.Description);
                 });
+            });
 
-                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
-            }
+            testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
         }
 
         #endregion AsyncEnumerateDescriptions() Tests
@@ -79,27 +78,26 @@ namespace Sokan.Yastah.Data.Test.Permissions
         [Test]
         public async Task AsyncEnumerateIdentities_Always_ReturnsAllDescriptions()
         {
-            using (var testContext = new TestContext())
+            using var testContext = new TestContext();
+            
+            var uut = testContext.BuildUut();
+
+            var results = await uut.AsyncEnumerateIdentities()
+                .ToArrayAsync();
+
+            results.ShouldNotBeNull();
+            results.ForEach(result => result.ShouldNotBeNull());
+            results.Select(x => x.Id).ShouldBeSetEqualTo(
+                testContext.Entities.Permissions.Select(x => x.PermissionId));
+            results.ForEach(result =>
             {
-                var uut = testContext.BuildUut();
+                var entity = testContext.Entities.Permissions.First(x => x.PermissionId == result.Id);
 
-                var results = await uut.AsyncEnumerateIdentities()
-                    .ToArrayAsync();
+                result.Name.ShouldContain(entity.Name);
+                result.Name.ShouldContain(entity.Category.Name);
+            });
 
-                results.ShouldNotBeNull();
-                results.ForEach(result => result.ShouldNotBeNull());
-                results.Select(x => x.Id).ShouldBeSetEqualTo(
-                    testContext.Entities.Permissions.Select(x => x.PermissionId));
-                results.ForEach(result =>
-                {
-                    var entity = testContext.Entities.Permissions.First(x => x.PermissionId == result.Id);
-
-                    result.Name.ShouldContain(entity.Name);
-                    result.Name.ShouldContain(entity.Category.Name);
-                });
-
-                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
-            }
+            testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
         }
 
         #endregion AsyncEnumerateIdentities() Tests
@@ -126,18 +124,17 @@ namespace Sokan.Yastah.Data.Test.Permissions
             Optional<IReadOnlyCollection<int>> permissionIds,
             IReadOnlyList<int> expectedResult)
         {
-            using (var testContext = new TestContext())
-            {
-                var uut = testContext.BuildUut();
+            using var testContext = new TestContext();
+            
+            var uut = testContext.BuildUut();
 
-                var result = await uut.AsyncEnumeratePermissionIds(
-                        permissionIds)
-                    .ToArrayAsync();
+            var result = await uut.AsyncEnumeratePermissionIds(
+                    permissionIds)
+                .ToArrayAsync();
 
-                result.ShouldBeSetEqualTo(expectedResult);
+            result.ShouldBeSetEqualTo(expectedResult);
 
-                testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
-            }
+            testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
         }
 
         #endregion AsyncEnumeratePermissionIds() Tests

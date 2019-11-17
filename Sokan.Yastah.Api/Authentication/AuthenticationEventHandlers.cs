@@ -141,7 +141,7 @@ namespace Sokan.Yastah.Api.Authentication
                     .Property("id").Value.ToString()));
         }
 
-        private static JsonSerializerSettings _jsonSerializerSettings
+        private static readonly JsonSerializerSettings _jsonSerializerSettings
             = new JsonSerializerSettings()
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
