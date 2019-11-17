@@ -97,7 +97,7 @@ namespace Sokan.Yastah.Business.Users
         private readonly IUsersService _usersService;
 
         [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public static void OnConfigureServices(IServiceCollection services)
             => services.AddScoped<IUsersOperations, UsersOperations>();
     }
 }

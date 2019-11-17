@@ -64,7 +64,7 @@ namespace Sokan.Yastah.Business.Authorization
         private readonly IPermissionsService _permissionsService;
 
         [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public static void OnConfigureServices(IServiceCollection services)
             => services.AddScoped<IAuthorizationService, AuthorizationService>();
     }
 }

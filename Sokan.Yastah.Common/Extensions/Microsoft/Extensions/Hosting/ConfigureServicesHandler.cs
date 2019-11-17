@@ -1,7 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Extensions.Hosting
 {
-    public delegate void ConfigureServicesHandler(IServiceCollection services, IConfiguration configuration);
+    public delegate void ConfigureServicesHandler(IServiceCollection services);
 }

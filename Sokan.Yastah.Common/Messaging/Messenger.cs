@@ -38,7 +38,7 @@ namespace Sokan.Yastah.Common.Messaging
         private readonly IServiceProvider _serviceProvider;
 
         [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public static void OnConfigureServices(IServiceCollection services)
             => services
                 .AddScoped<IMessenger, Messenger>();
     }

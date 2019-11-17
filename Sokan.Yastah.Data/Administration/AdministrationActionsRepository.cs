@@ -47,7 +47,7 @@ namespace Sokan.Yastah.Data.Administration
         private readonly YastahDbContext _context;
 
         [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public static void OnConfigureServices(IServiceCollection services)
             => services.AddScoped<IAdministrationActionsRepository, AdministrationActionsRepository>();
 
     }

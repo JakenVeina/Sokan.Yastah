@@ -13,7 +13,12 @@ namespace Microsoft.Extensions.Hosting
                 .EnumerateAttachedMethods(assembly);
 
             foreach (var handler in handlers)
-                handler.Invoke(services, configuration);
+            {
+                if (handler is ConfigureServicesHandler csh)
+                    csh.Invoke(services);
+                else if(handler is ConfigureServicesWithConfigurationHandler cswch)
+                    cswch.Invoke(services, configuration);
+            }
 
             return services;
         }

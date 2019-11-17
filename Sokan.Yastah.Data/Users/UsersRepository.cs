@@ -356,7 +356,7 @@ namespace Sokan.Yastah.Data.Users
         private readonly ITransactionScopeFactory _transactionScopeFactory;
 
         [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public static void OnConfigureServices(IServiceCollection services)
             => services.AddScoped<IUsersRepository, UsersRepository>();
     }
 }

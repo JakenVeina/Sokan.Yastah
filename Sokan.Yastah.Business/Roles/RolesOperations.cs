@@ -136,7 +136,7 @@ namespace Sokan.Yastah.Business.Roles
         private readonly IRolesService _rolesService;
 
         [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public static void OnConfigureServices(IServiceCollection services)
             => services.AddScoped<IRolesOperations, RolesOperations>();
     }
 }

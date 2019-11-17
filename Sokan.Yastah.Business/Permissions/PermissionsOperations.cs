@@ -47,7 +47,7 @@ namespace Sokan.Yastah.Business.Permissions
         private readonly IPermissionsService _permissionsService;
 
         [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public static void OnConfigureServices(IServiceCollection services)
             => services.AddScoped<IPermissionsOperations, PermissionsOperations>();
     }
 }

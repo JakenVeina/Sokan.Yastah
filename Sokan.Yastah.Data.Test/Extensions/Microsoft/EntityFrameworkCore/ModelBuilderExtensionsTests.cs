@@ -27,17 +27,14 @@ namespace Sokan.Yastah.Data.Test.Extensions.Microsoft.EntityFrameworkCore
                         .AddDefinedType(ti => ti
                             .AddDeclaredMethod(mi => mi
                                 .AddCustomAttribute(cad => cad
-                                    .SetConstructor(ci => ci
-                                        .SetDeclaringType(typeof(OnModelCreatingAttribute)))))
+                                    .SetAttributeType(typeof(OnModelCreatingAttribute))))
                             .AddDeclaredMethod(mi => mi
                                 .AddCustomAttribute(cad => cad
-                                    .SetConstructor(ci => ci
-                                        .SetDeclaringType(typeof(OnModelCreatingAttribute))))))
+                                    .SetAttributeType(typeof(OnModelCreatingAttribute)))))
                         .AddDefinedType(ti => ti
                             .AddDeclaredMethod(mi => mi
                                 .AddCustomAttribute(cad => cad
-                                    .SetConstructor(ci => ci
-                                        .SetDeclaringType(typeof(OnModelCreatingAttribute)))))))
+                                    .SetAttributeType(typeof(OnModelCreatingAttribute))))))
                     .SetName("{m}(Assembly contains OnModelCreatingAttribute methods)")
         };
 

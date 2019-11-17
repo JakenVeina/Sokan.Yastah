@@ -31,7 +31,7 @@ namespace Sokan.Yastah.Api.Antiforgery
         private readonly AntiforgeryConfiguration _antiforgeryConfiguration;
 
         [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public static void OnConfigureServices(IServiceCollection services)
             => services
                 .AddTransient<IPostConfigureOptions<AntiforgeryOptions>, AntiforgeryOptionsConfigurator>();
     }

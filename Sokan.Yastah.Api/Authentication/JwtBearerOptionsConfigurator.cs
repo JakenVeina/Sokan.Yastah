@@ -24,7 +24,7 @@ namespace Sokan.Yastah.Api.Authentication
         private readonly AuthenticationConfiguration _authenticationConfiguration;
 
         [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public static void OnConfigureServices(IServiceCollection services)
             => services
                 .AddTransient<IPostConfigureOptions<JwtBearerOptions>, JwtBearerOptionsConfigurator>();
     }

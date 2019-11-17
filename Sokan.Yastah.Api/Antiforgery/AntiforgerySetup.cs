@@ -8,7 +8,7 @@ namespace Sokan.Yastah.Api.Antiforgery
     public static class AntiforgerySetup
     {
         [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public static void OnConfigureServices(IServiceCollection services)
             => services.AddAntiforgery();
 
         public static IApplicationBuilder UseAntiforgery(this IApplicationBuilder applicationBuilder)

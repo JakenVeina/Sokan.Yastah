@@ -41,48 +41,35 @@ namespace Sokan.Yastah.Data.Test.Extensions.Microsoft.EntityFrameworkCore
                         .AddDefinedType()
                         .AddDefinedType(ti => ti
                             .AddDeclaredMethod(mi => mi
-                                .AddCustomAttribute(cad => cad
-                                    .SetConstructor())))
+                                .AddCustomAttribute()))
                         .AddDefinedType(ti => ti
                             .AddDeclaredMethod(mi => mi
-                                .AddCustomAttribute(cad => cad
-                                    .SetConstructor())
-                                .AddCustomAttribute(cad => cad
-                                    .SetConstructor()))
+                                .AddCustomAttribute()
+                                .AddCustomAttribute())
                             .AddDeclaredMethod(mi => mi
-                                .AddCustomAttribute(cad => cad
-                                    .SetConstructor())
-                                .AddCustomAttribute(cad => cad
-                                    .SetConstructor())
-                                .AddCustomAttribute(cad => cad
-                                    .SetConstructor()))))
+                                .AddCustomAttribute()
+                                .AddCustomAttribute()
+                                .AddCustomAttribute())))
                     .SetName("{m}(CustomAttributes does not contain OnModelCreatingAttribute)"),
 
                 new TestCaseData(new MockAssembly()
                         .AddDefinedType()
                         .AddDefinedType(ti => ti
                             .AddDeclaredMethod(mi => mi
-                                .AddCustomAttribute(cad => cad
-                                    .SetConstructor()))
+                                .AddCustomAttribute())
                             .AddDeclaredMethod(mi => mi
                                 .AddCustomAttribute(cad => cad
-                                    .SetConstructor(ci => ci
-                                        .SetDeclaringType(typeof(OnModelCreatingAttribute))))))
+                                    .SetAttributeType(typeof(OnModelCreatingAttribute)))))
                         .AddDefinedType(ti => ti
                             .AddDeclaredMethod(mi => mi
+                                .AddCustomAttribute()
                                 .AddCustomAttribute(cad => cad
-                                    .SetConstructor())
-                                .AddCustomAttribute(cad => cad
-                                    .SetConstructor(ci => ci
-                                        .SetDeclaringType(typeof(OnModelCreatingAttribute)))))
+                                    .SetAttributeType(typeof(OnModelCreatingAttribute))))
                             .AddDeclaredMethod(mi => mi
+                                .AddCustomAttribute()
                                 .AddCustomAttribute(cad => cad
-                                    .SetConstructor())
-                                .AddCustomAttribute(cad => cad
-                                    .SetConstructor(ci => ci
-                                        .SetDeclaringType(typeof(OnModelCreatingAttribute))))
-                                .AddCustomAttribute(cad => cad
-                                    .SetConstructor()))))
+                                    .SetAttributeType(typeof(OnModelCreatingAttribute)))
+                                .AddCustomAttribute())))
                     .SetName("{m}(CustomAttributes contains OnModelCreatingAttribute)")
         };
 

@@ -214,7 +214,7 @@ namespace Sokan.Yastah.Business.Authentication
         private AuthenticationTicket? _currentTicket;
 
         [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public static void OnConfigureServices(IServiceCollection services)
             => services
                 .AddScoped<AuthenticationService>()
                 .AddScoped<IAuthenticationService>(x => x.GetRequiredService<AuthenticationService>())

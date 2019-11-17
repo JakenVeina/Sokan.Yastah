@@ -49,7 +49,7 @@ namespace System.Transactions
         }
 
         [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public static void OnConfigureServices(IServiceCollection services)
             => services.AddSingleton<ITransactionScopeFactory, TransactionScopeFactory>();
     }
 }

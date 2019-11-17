@@ -52,7 +52,7 @@ namespace Sokan.Yastah.Api.Authentication
         private readonly ISystemClock _systemClock;
 
         [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public static void OnConfigureServices(IServiceCollection services)
             => services
                 .AddSingleton<IApiAuthenticationTokenBuilder, ApiAuthenticationTokenBuilder>();
     }

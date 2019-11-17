@@ -58,7 +58,7 @@ namespace Sokan.Yastah.Data.Permissions
         private readonly YastahDbContext _context;
 
         [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public static void OnConfigureServices(IServiceCollection services)
             => services.AddScoped<IPermissionsRepository, PermissionsRepository>();
     }
 }

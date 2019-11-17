@@ -13,7 +13,7 @@ namespace Sokan.Yastah.Api.Authentication
     public static class AuthenticationSetup
     {
         [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public static void OnConfigureServices(IServiceCollection services)
         {
             services
                 .AddAuthentication(ApiAuthenticationDefaults.AuthenticationScheme)

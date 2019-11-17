@@ -23,7 +23,7 @@ namespace Sokan.Yastah.Data
         private readonly YastahDbContext _yastahDbContext;
 
         [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public static void OnConfigureServices(IServiceCollection services)
             => services.AddTransient<IStartupHandler, StartupAutoMigrationBehavior>();
     }
 }

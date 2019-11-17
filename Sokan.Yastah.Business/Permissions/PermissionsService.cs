@@ -89,7 +89,7 @@ namespace Sokan.Yastah.Business.Permissions
             = nameof(PermissionsService) + "." + nameof(GetIdentitiesAsync);
 
         [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public static void OnConfigureServices(IServiceCollection services)
             => services
                 .AddScoped<IPermissionsService, PermissionsService>();
     }

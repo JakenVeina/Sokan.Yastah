@@ -305,7 +305,7 @@ namespace Sokan.Yastah.Business.Roles
             = nameof(RolesService) + "." + nameof(GetCurrentIdentitiesAsync);
 
         [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public static void OnConfigureServices(IServiceCollection services)
             => services
                 .AddScoped<IRolesService, RolesService>();
     }

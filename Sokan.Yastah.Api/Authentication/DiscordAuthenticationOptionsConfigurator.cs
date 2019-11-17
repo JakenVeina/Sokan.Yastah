@@ -27,7 +27,7 @@ namespace Sokan.Yastah.Api.Authentication
         private readonly DiscordClientConfiguration _discordClientConfiguration;
 
         [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public static void OnConfigureServices(IServiceCollection services)
             => services
                 .AddTransient<IPostConfigureOptions<DiscordAuthenticationOptions>, DiscordAuthenticationOptionsConfigurator>();
     }
