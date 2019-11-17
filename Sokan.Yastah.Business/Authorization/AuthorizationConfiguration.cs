@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,11 +11,11 @@ namespace Sokan.Yastah.Business.Authorization
     public class AuthorizationConfiguration
     {
         [Required]
-        public ulong[] AdminUserIds { get; set; }
+        public IReadOnlyList<ulong> AdminUserIds { get; set; }
             = null!;
 
         [Required]
-        public ulong[] MemberGuildIds { get; set; }
+        public IReadOnlyList<ulong> MemberGuildIds { get; set; }
             = null!;
 
         [OnConfigureServices]
