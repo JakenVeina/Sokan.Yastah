@@ -102,7 +102,7 @@ namespace Sokan.Yastah.Business.Test.Permissions
         {
             using var testContext = new TestContext();
             
-            var descriptions = new PermissionCategoryDescriptionViewModel[0];
+            var descriptions = TestArray.Unique<PermissionCategoryDescriptionViewModel>();
 
             testContext.MemoryCache.Set(PermissionsService._getDescriptionsCacheKey, descriptions);
 
@@ -158,7 +158,7 @@ namespace Sokan.Yastah.Business.Test.Permissions
         {
             using var testContext = new TestContext();
             
-            var identities = new PermissionIdentityViewModel[0];
+            var identities = TestArray.Unique<PermissionIdentityViewModel>();
 
             testContext.MemoryCache.Set(PermissionsService._getIdentitiesCacheKey, identities);
 

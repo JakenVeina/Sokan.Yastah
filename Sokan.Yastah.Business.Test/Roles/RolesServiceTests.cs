@@ -557,7 +557,7 @@ namespace Sokan.Yastah.Business.Test.Roles
         {
             using var testContext = new TestContext();
             
-            var identities = new RoleIdentityViewModel[0];
+            var identities = TestArray.Unique<RoleIdentityViewModel>();
 
             testContext.SetCurrentIdentitiesCache(identities);
 
@@ -1192,6 +1192,17 @@ namespace Sokan.Yastah.Business.Test.Roles
                 result.Error.Message.ShouldContain(invalidRoleId.ToString());
         }
 
+        public static readonly IReadOnlyList<TestCaseData> ValidateIdsAsync_RoleIds_TestCaseData
+            = new[]
+            {
+                /*                  roleIds                 */
+                new TestCaseData(   new[] { long.MinValue } ).SetName("{m}(Min Values)"),
+                new TestCaseData(   new[] { 1L }            ).SetName("{m}(Unique Value Set 1)"),
+                new TestCaseData(   new[] { 2L, 3L }        ).SetName("{m}(Unique Value Set 2)"),
+                new TestCaseData(   new[] { 4L, 5L, 6L }    ).SetName("{m}(Unique Value Set 3)"),
+                new TestCaseData(   new[] { long.MaxValue } ).SetName("{m}(Max Values)")
+            };
+
         public static readonly IReadOnlyList<TestCaseData> ValidateIdsAsync_RoleIdsDoesNotHaveInvalidIds_TestCaseData
             = new[]
             {
@@ -1221,10 +1232,9 @@ namespace Sokan.Yastah.Business.Test.Roles
             result.IsSuccess.ShouldBeTrue();
         }
 
-        [TestCaseSource(nameof(ValidateIdsAsync_RoleIdsDoesNotHaveInvalidIds_TestCaseData))]
+        [TestCaseSource(nameof(ValidateIdsAsync_RoleIds_TestCaseData))]
         public async Task ValidateIdsAsync_CurrentIdentitiesAreNotCached_ReadsIdentities(
-            IReadOnlyList<long> roleIds,
-            IReadOnlyList<long> validRoleIds)
+            IReadOnlyList<long> roleIds)
         {
             using var testContext = new TestContext();
 
@@ -1252,10 +1262,9 @@ namespace Sokan.Yastah.Business.Test.Roles
                     false));
         }
 
-        [TestCaseSource(nameof(ValidateIdsAsync_RoleIdsDoesNotHaveInvalidIds_TestCaseData))]
+        [TestCaseSource(nameof(ValidateIdsAsync_RoleIds_TestCaseData))]
         public async Task ValidateIdsAsync_CurrentIdentitiesAreCached_DoesNotReadIdentities(
-            IReadOnlyList<long> roleIds,
-            IReadOnlyList<long> validRoleIds)
+            IReadOnlyList<long> roleIds)
         {
             using var testContext = new TestContext();
             

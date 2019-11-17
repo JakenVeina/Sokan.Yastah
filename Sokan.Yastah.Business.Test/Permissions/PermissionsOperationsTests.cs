@@ -78,7 +78,7 @@ namespace Sokan.Yastah.Business.Test.Permissions
                 .Setup(x => x.RequirePermissionsAsync(It.IsAny<CancellationToken>(), It.IsAny<int[]>()))
                 .ReturnsAsync(OperationResult.Success);
 
-            var descriptions = new PermissionCategoryDescriptionViewModel[0];
+            var descriptions = TestArray.Unique<PermissionCategoryDescriptionViewModel>();
 
             testContext.MockPermissionsService
                 .Setup(x => x.GetDescriptionsAsync(It.IsAny<CancellationToken>()))

@@ -217,7 +217,7 @@ namespace Sokan.Yastah.Business.Test.Users
             
             testContext.AuthorizationConfiguration.AdminUserIds = adminUserIds.ToArray();
 
-            var identities = new PermissionIdentityViewModel[0];
+            var identities = TestArray.Unique<PermissionIdentityViewModel>();
 
             testContext.MockPermissionsService
                 .Setup(x => x.GetIdentitiesAsync(It.IsAny<CancellationToken>()))
@@ -379,7 +379,7 @@ namespace Sokan.Yastah.Business.Test.Users
         {
             using var testContext = new TestContext();
             
-            var memberIds = new ulong[0];
+            var memberIds = TestArray.Unique<ulong>();
 
             testContext.SetRoleMemberIdsCache(roleId, memberIds);
 

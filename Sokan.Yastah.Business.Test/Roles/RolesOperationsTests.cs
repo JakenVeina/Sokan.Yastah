@@ -336,7 +336,7 @@ namespace Sokan.Yastah.Business.Test.Roles
         {
             using var testContext = new TestContext();
             
-            var identities = new RoleIdentityViewModel[0];
+            var identities = TestArray.Unique<RoleIdentityViewModel>();
 
             testContext.MockRolesService
                 .Setup(x => x.GetCurrentIdentitiesAsync(It.IsAny<CancellationToken>()))

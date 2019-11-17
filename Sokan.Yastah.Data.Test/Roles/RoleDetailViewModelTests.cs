@@ -5,6 +5,8 @@ using Shouldly;
 
 using Sokan.Yastah.Data.Roles;
 
+using Sokan.Yastah.Common.Test;
+
 namespace Sokan.Yastah.Data.Test.Roles
 {
     [TestFixture]
@@ -16,12 +18,12 @@ namespace Sokan.Yastah.Data.Test.Roles
             = new[]
             {
                 /*                  id,             name,           grantedPermissionIds    */
-                new TestCaseData(   default(long),  string.Empty,   new int[0]              ).SetName("{m}(Default Values"),
-                new TestCaseData(   long.MinValue,  string.Empty,   new int[0]              ).SetName("{m}(Min Values)"),
-                new TestCaseData(   1L,             "name 2",       new int[0]              ).SetName("{m}(Unique Value Set 1)"),
-                new TestCaseData(   3L,             "name 4",       new int[0]              ).SetName("{m}(Unique Value Set 2)"),
-                new TestCaseData(   5L,             "name 6",       new int[0]              ).SetName("{m}(Unique Value Set 3)"),
-                new TestCaseData(   long.MaxValue,  "Max Value",    new int[0]              ).SetName("{m}(Max Values)")
+                new TestCaseData(   default(long),  string.Empty,   TestArray.Unique<int>() ).SetName("{m}(Default Values"),
+                new TestCaseData(   long.MinValue,  string.Empty,   TestArray.Unique<int>() ).SetName("{m}(Min Values)"),
+                new TestCaseData(   1L,             "name 2",       TestArray.Unique<int>() ).SetName("{m}(Unique Value Set 1)"),
+                new TestCaseData(   3L,             "name 4",       TestArray.Unique<int>() ).SetName("{m}(Unique Value Set 2)"),
+                new TestCaseData(   5L,             "name 6",       TestArray.Unique<int>() ).SetName("{m}(Unique Value Set 3)"),
+                new TestCaseData(   long.MaxValue,  "Max Value",    TestArray.Unique<int>() ).SetName("{m}(Max Values)")
             };
 
         [TestCaseSource(nameof(Constructor_TestCaseData))]
