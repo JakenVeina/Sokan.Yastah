@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Sokan.Yastah.Data
 {
     public struct MergeResult
+        : IEquatable<MergeResult>
     {
         public static readonly MergeResult SingleInsert
             = new MergeResult(1, 0);
@@ -27,8 +29,24 @@ namespace Sokan.Yastah.Data
         public int RowsUpdated
             => _rowsUpdated;
 
-        private readonly int _rowsInserted;
+        public override bool Equals(object? obj)
+            => (obj is MergeResult other)
+                && Equals(other);
 
+        public bool Equals(MergeResult other)
+            => EqualityComparer<int>.Default.Equals(_rowsInserted, other._rowsInserted)
+                && EqualityComparer<int>.Default.Equals(_rowsUpdated, other._rowsUpdated);
+
+        public override int GetHashCode()
+            => HashCode.Combine(_rowsInserted, _rowsUpdated);
+
+        public static bool operator ==(MergeResult x, MergeResult y)
+            => x.Equals(y);
+
+        public static bool operator !=(MergeResult x, MergeResult y)
+            => !x.Equals(y);
+
+        private readonly int _rowsInserted;
         private readonly int _rowsUpdated;
     }
 }

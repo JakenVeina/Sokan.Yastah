@@ -14,12 +14,33 @@ namespace Sokan.Yastah.Common.Test.OperationModel
     {
         #region Test Cases
 
-        public static readonly IReadOnlyList<string?> ValueTestCases
+        public static readonly IReadOnlyList<string?> Value_TestCaseData
             = new[]
             {
                 null,
                 "Value"
             };
+
+        public static readonly IReadOnlyList<TestCaseData> OperationResult_TestCaseData
+            = new[]
+            {
+                /*                  value,      error           */
+                new TestCaseData(   "value",    null            ).SetName("{m}(Success)"),
+                new TestCaseData(   null,       MakeFakeError() ).SetName("{m}(Failure)")
+            };
+
+        public static readonly IReadOnlyList<TestCaseData> OperationResultsAreNotEqual_TestCaseData
+            = new[]
+            {
+                /*                  xValue,     xError,             yValue,     yError          */
+                new TestCaseData(   "value 1",  null,               "value 2",  MakeFakeError() ).SetName("{m}(Both Success, Different Value)"),
+                new TestCaseData(   null,       MakeFakeError(),    null,       MakeFakeError() ).SetName("{m}(Both Failure, Different Error)"),
+                new TestCaseData(   "value 3",  null,               null,       MakeFakeError() ).SetName("{m}(Success, Failure)"),
+                new TestCaseData(   null,       MakeFakeError(),    "value 4",  null            ).SetName("{m}(Failure, Success)"),
+            };
+
+        private static IOperationError MakeFakeError()
+            => new Mock<IOperationError>().Object;
 
         #endregion Test Cases
 
@@ -92,7 +113,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
 
         #region FromValue() Tests
 
-        [TestCaseSource(nameof(ValueTestCases))]
+        [TestCaseSource(nameof(Value_TestCaseData))]
         public void FromValue_Always_IsSuccess(
             string? value)
         {
@@ -102,7 +123,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
             result.IsFailure.ShouldBeFalse();
         }
 
-        [TestCaseSource(nameof(ValueTestCases))]
+        [TestCaseSource(nameof(Value_TestCaseData))]
         public void FromValue_Always_ErrorThrowsException(
             string? value)
         {
@@ -114,7 +135,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
             });
         }
 
-        [TestCaseSource(nameof(ValueTestCases))]
+        [TestCaseSource(nameof(Value_TestCaseData))]
         public void FromValue_Always_ValueIsGiven(
             string? value)
         {
@@ -127,7 +148,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
 
         #region (OperationResult)OperationResult<T> Tests
 
-        [TestCaseSource(nameof(ValueTestCases))]
+        [TestCaseSource(nameof(Value_TestCaseData))]
         public void Operator_CastToOperationResult_OperationResultIsSuccess_ResultIsSuccess(
             string? value)
         {
@@ -155,7 +176,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
 
         #region (OperationResult<T>)T Tests
 
-        [TestCaseSource(nameof(ValueTestCases))]
+        [TestCaseSource(nameof(Value_TestCaseData))]
         public void Operator_CastFromValue_Always_ResultIsFromValue(
             string? value)
         {
@@ -166,5 +187,200 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         }
 
         #endregion (OperationResult<T>)T Tests
+
+        #region Equals() Tests
+
+        [TestCaseSource(nameof(OperationResult_TestCaseData))]
+        public void Equals_NonGeneric_ObjIsNull_ReturnsFalse(
+            string? value,
+            IOperationError? error)
+        {
+            var uut = (error is null)
+                ? OperationResult<string>.FromValue(value!)
+                : OperationResult<string>.FromError(error);
+
+            uut.Equals(null as object).ShouldBeFalse();
+        }
+
+        [TestCaseSource(nameof(OperationResult_TestCaseData))]
+        public void Equals_NonGeneric_ObjIsNotOperationResult_ReturnsFalse(
+            string? value,
+            IOperationError? error)
+        {
+            var uut = (error is null)
+                ? OperationResult<string>.FromValue(value!)
+                : OperationResult<string>.FromError(error);
+
+            uut.Equals("obj" as object).ShouldBeFalse();
+        }
+
+        [TestCaseSource(nameof(OperationResult_TestCaseData))]
+        public void Equals_NonGeneric_ObjIsEqual_ReturnsTrue(
+            string? value,
+            IOperationError? error)
+        {
+            var (uut, obj) = (error is null)
+                ? (OperationResult<string>.FromValue(value!),   OperationResult<string>.FromValue(value!) as object)
+                : (OperationResult<string>.FromError(error),    OperationResult<string>.FromError(error) as object);
+
+            uut.Equals(obj).ShouldBeTrue();
+        }
+
+        [TestCaseSource(nameof(OperationResultsAreNotEqual_TestCaseData))]
+        public void Equals_NonGeneric_ObjIsNotEqual_ReturnsFalse(
+            string xValue,
+            IOperationError? xError,
+            string yValue,
+            IOperationError? yError)
+        {
+            var uut = (xError is null)
+                ? OperationResult<string>.FromValue(xValue!)
+                : OperationResult<string>.FromError(xError);
+
+            var obj = (yError is null)
+                    ? OperationResult<string>.FromValue(yValue!)
+                    : OperationResult<string>.FromError(yError)
+                as object;
+
+            uut.Equals(obj).ShouldBeFalse();
+        }
+
+        #endregion Equals() Tests
+
+        #region Equals<T>() Tests
+
+        [TestCaseSource(nameof(OperationResult_TestCaseData))]
+        public void Equals_Generic_OtherIsEqual_ReturnsTrue(
+            string? value,
+            IOperationError? error)
+        {
+            var (uut, other) = (error is null)
+                ? (OperationResult<string>.FromValue(value!),   OperationResult<string>.FromValue(value!) as object)
+                : (OperationResult<string>.FromError(error),    OperationResult<string>.FromError(error) as object);
+
+            uut.Equals(other).ShouldBeTrue();
+        }
+
+        [TestCaseSource(nameof(OperationResultsAreNotEqual_TestCaseData))]
+        public void Equals_Generic_OtherIsNotEqual_ReturnsFalse(
+            string xValue,
+            IOperationError? xError,
+            string yValue,
+            IOperationError? yError)
+        {
+            var uut = (xError is null)
+                ? OperationResult<string>.FromValue(xValue!)
+                : OperationResult<string>.FromError(xError);
+
+            var other = (yError is null)
+                ? OperationResult<string>.FromValue(yValue!)
+                : OperationResult<string>.FromError(yError);
+
+            uut.Equals(other).ShouldBeFalse();
+        }
+
+        #endregion Equals<T>() Tests
+
+        #region GetHashCode() Tests
+
+        [TestCaseSource(nameof(OperationResult_TestCaseData))]
+        public void GetHashCode_UnitsAreEqual_HashCodesAreEqual(
+            string? value,
+            IOperationError? error)
+        {
+            var (uut, other) = (error is null)
+                ? (OperationResult<string>.FromValue(value!),   OperationResult<string>.FromValue(value!))
+                : (OperationResult<string>.FromError(error),    OperationResult<string>.FromError(error));
+
+            uut.GetHashCode().ShouldBe(other.GetHashCode());
+        }
+
+        [TestCaseSource(nameof(OperationResultsAreNotEqual_TestCaseData))]
+        public void GetHashCode_UnitsAreNotEqual_HashCodesAreNotEqual(
+            string xValue,
+            IOperationError? xError,
+            string yValue,
+            IOperationError? yError)
+        {
+            var uut = (xError is null)
+                ? OperationResult<string>.FromValue(xValue!)
+                : OperationResult<string>.FromError(xError);
+
+            var other = (yError is null)
+                ? OperationResult<string>.FromValue(yValue!)
+                : OperationResult<string>.FromError(yError);
+
+            uut.GetHashCode().ShouldNotBe(other.GetHashCode());
+        }
+
+        #endregion GetHashCode() Tests
+
+        #region == Tests
+
+        [TestCaseSource(nameof(OperationResult_TestCaseData))]
+        public void Operator_Equals_XAndYAreEqual_ReturnsTrue(
+            string? value,
+            IOperationError? error)
+        {
+            var (x, y) = (error is null)
+                ? (OperationResult<string>.FromValue(value!),   OperationResult<string>.FromValue(value!))
+                : (OperationResult<string>.FromError(error),    OperationResult<string>.FromError(error));
+
+            (x == y).ShouldBeTrue();
+        }
+
+        [TestCaseSource(nameof(OperationResultsAreNotEqual_TestCaseData))]
+        public void Operator_Equals_XAndYAreNotEqual_ReturnsFalse(
+            string xValue,
+            IOperationError? xError,
+            string yValue,
+            IOperationError? yError)
+        {
+            var x = (xError is null)
+                ? OperationResult<string>.FromValue(xValue!)
+                : OperationResult<string>.FromError(xError);
+
+            var y = (yError is null)
+                ? OperationResult<string>.FromValue(yValue!)
+                : OperationResult<string>.FromError(yError);
+
+            (x == y).ShouldBeFalse();
+        }
+
+        #endregion == Tests
+
+        #region != Tests
+
+        [TestCaseSource(nameof(OperationResult_TestCaseData))]
+        public void Operator_NotEquals_XAndYAreEqual_ReturnsFalse(
+            string? value,
+            IOperationError? error)
+        {
+            var (x, y) = (error is null)
+                ? (OperationResult<string>.FromValue(value!),   OperationResult<string>.FromValue(value!))
+                : (OperationResult<string>.FromError(error),    OperationResult<string>.FromError(error));
+            
+            (x != y).ShouldBeFalse();
+        }
+
+        [TestCaseSource(nameof(OperationResultsAreNotEqual_TestCaseData))]
+        public void Operator_NotEquals_XAndYAreNotEqual_ReturnsTrue(
+            string xValue,
+            IOperationError? xError,
+            string yValue,
+            IOperationError? yError)
+        {
+            var x = (xError is null)
+                ? OperationResult<string>.FromValue(xValue!)
+                : OperationResult<string>.FromError(xError);
+
+            var y = (yError is null)
+                ? OperationResult<string>.FromValue(yValue!)
+                : OperationResult<string>.FromError(yError);
+
+            (x != y).ShouldBeTrue();
+        }
+
+        #endregion != Tests
     }
 }
