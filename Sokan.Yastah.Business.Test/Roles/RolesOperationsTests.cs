@@ -275,7 +275,10 @@ namespace Sokan.Yastah.Business.Test.Roles
                 grantedPermissionIds: Array.Empty<int>());
 
             testContext.MockRolesRepository
-                .Setup(x => x.ReadDetailAsync(It.IsAny<CancellationToken>(), It.IsAny<long>(), It.IsAny<Optional<bool>>()))
+                .Setup(x => x.ReadDetailAsync(
+                    It.IsAny<long>(),
+                    It.IsAny<Optional<bool>>(),
+                    It.IsAny<CancellationToken>()))
                 .ReturnsAsync(detail);
 
             var uut = testContext.BuildUut();
@@ -293,7 +296,7 @@ namespace Sokan.Yastah.Business.Test.Roles
                     It.Is<int[]>(y => (y != null) && (y.Length != 0))));
 
             testContext.MockRolesRepository.ShouldHaveReceived(x => x
-                .ReadDetailAsync(testContext.CancellationToken, roleId, false));
+                .ReadDetailAsync(roleId, false, testContext.CancellationToken));
 
             testContext.MockRolesService.Invocations.ShouldBeEmpty();
         }

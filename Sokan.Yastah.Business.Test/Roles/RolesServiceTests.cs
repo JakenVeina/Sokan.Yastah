@@ -107,21 +107,21 @@ namespace Sokan.Yastah.Business.Test.Roles
             public void SetRoleUpdateError(IOperationError error)
                 => MockRolesRepository
                     .Setup(x => x.UpdateAsync(
-                        It.IsAny<CancellationToken>(),
                         It.IsAny<long>(),
                         It.IsAny<long>(),
                         It.IsAny<Optional<string>>(),
-                        It.IsAny<Optional<bool>>()))
+                        It.IsAny<Optional<bool>>(),
+                        It.IsAny<CancellationToken>()))
                     .ReturnsAsync(error.ToError<long>());
 
             public void SetRoleUpdateVersionId(long versionId)
                 => MockRolesRepository
                     .Setup(x => x.UpdateAsync(
-                        It.IsAny<CancellationToken>(),
                         It.IsAny<long>(),
                         It.IsAny<long>(),
                         It.IsAny<Optional<string>>(),
-                        It.IsAny<Optional<bool>>()))
+                        It.IsAny<Optional<bool>>(),
+                        It.IsAny<CancellationToken>()))
                     .ReturnsAsync(versionId);
 
             public void SetPermissionMappingIdentities(long roleId, IEnumerable<(
@@ -429,11 +429,11 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockRolesRepository.ShouldHaveReceived(x => x
                 .UpdateAsync(
-                    testContext.CancellationToken,
                     roleId,
                     actionId,
                     Optional<string>.Unspecified,
-                    true));
+                    true,
+                    testContext.CancellationToken));
 
             testContext.MockMessenger.Invocations.ShouldBeEmpty();
 
@@ -496,11 +496,11 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockRolesRepository.ShouldHaveReceived(x => x
                 .UpdateAsync(
-                    testContext.CancellationToken,
                     roleId,
                     actionId,
                     Optional<string>.Unspecified,
-                    true));
+                    true,
+                    testContext.CancellationToken));
 
             testContext.MockMessenger.Invocations.ShouldBeEmpty();
 
@@ -781,11 +781,11 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockRolesRepository.ShouldHaveReceived(x => x
                 .UpdateAsync(
-                    testContext.CancellationToken,
                     roleId,
                     actionId,
                     name,
-                    default));
+                    default,
+                    testContext.CancellationToken));
 
             testContext.MockMessenger.Invocations.ShouldBeEmpty();
 
@@ -872,11 +872,11 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockRolesRepository.ShouldHaveReceived(x => x
                 .UpdateAsync(
-                    testContext.CancellationToken,
                     roleId,
                     actionId,
                     name,
-                    default));
+                    default,
+                    testContext.CancellationToken));
 
             testContext.MockRolesRepository.ShouldHaveReceived(x => x
                 .AsyncEnumeratePermissionMappingIdentities(
@@ -970,11 +970,11 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockRolesRepository.ShouldHaveReceived(x => x
                 .UpdateAsync(
-                    testContext.CancellationToken,
                     roleId,
                     actionId,
                     name,
-                    default));
+                    default,
+                    testContext.CancellationToken));
 
             testContext.MockRolesRepository.ShouldHaveReceived(x => x
                 .AsyncEnumeratePermissionMappingIdentities(
@@ -1086,11 +1086,11 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockRolesRepository.ShouldHaveReceived(x => x
                 .UpdateAsync(
-                    testContext.CancellationToken,
                     roleId,
                     actionId,
                     name,
-                    default));
+                    default,
+                    testContext.CancellationToken));
 
             testContext.MockRolesRepository.ShouldHaveReceived(x => x
                 .AsyncEnumeratePermissionMappingIdentities(

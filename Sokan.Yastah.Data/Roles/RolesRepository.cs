@@ -42,16 +42,16 @@ namespace Sokan.Yastah.Data.Roles
             CancellationToken cancellationToken);
 
         Task<OperationResult<RoleDetailViewModel>> ReadDetailAsync(
-            CancellationToken cancellationToken,
             long roleId,
-            Optional<bool> isDeleted = default);
+            Optional<bool> isDeleted = default,
+            CancellationToken cancellationToken = default);
 
         Task<OperationResult<long>> UpdateAsync(
-            CancellationToken cancellationToken,
             long roleId,
             long actionId,
             Optional<string> name = default,
-            Optional<bool> isDeleted = default);
+            Optional<bool> isDeleted = default,
+            CancellationToken cancellationToken = default);
 
         Task UpdatePermissionMappingsAsync(
             IEnumerable<long> mappingIds,
@@ -184,9 +184,9 @@ namespace Sokan.Yastah.Data.Roles
         }
 
         public async Task<OperationResult<RoleDetailViewModel>> ReadDetailAsync(
-            CancellationToken cancellationToken,
             long roleId,
-            Optional<bool> isDeleted = default)
+            Optional<bool> isDeleted = default,
+            CancellationToken cancellationToken = default)
         {
             var query = _context.Set<RoleVersionEntity>()
                 .AsQueryable()
@@ -206,11 +206,11 @@ namespace Sokan.Yastah.Data.Roles
         }
 
         public async Task<OperationResult<long>> UpdateAsync(
-            CancellationToken cancellationToken,
             long roleId,
             long actionId,
             Optional<string> name = default,
-            Optional<bool> isDeleted = default)
+            Optional<bool> isDeleted = default,
+            CancellationToken cancellationToken = default)
         {
             using var transactionScope = _transactionScopeFactory.CreateScope();
             

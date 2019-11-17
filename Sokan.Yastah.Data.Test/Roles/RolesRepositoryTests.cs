@@ -371,9 +371,9 @@ namespace Sokan.Yastah.Data.Test.Roles
             var uut = testContext.BuildUut();
 
             var result = await uut.ReadDetailAsync(
-                testContext.CancellationToken,
                 roleId,
-                isDeleted);
+                isDeleted,
+                testContext.CancellationToken);
 
             result.IsFailure.ShouldBeTrue();
             result.Error.ShouldBeOfType<DataNotFoundError>();
@@ -404,9 +404,9 @@ namespace Sokan.Yastah.Data.Test.Roles
             var uut = testContext.BuildUut();
 
             var result = await uut.ReadDetailAsync(
-                testContext.CancellationToken,
                 roleId,
-                isDeleted);
+                isDeleted,
+                testContext.CancellationToken);
 
             result.IsSuccess.ShouldBeTrue();
             result.Value.ShouldNotBeNull();
@@ -447,11 +447,11 @@ namespace Sokan.Yastah.Data.Test.Roles
             var uut = testContext.BuildUut();
 
             var result = await uut.UpdateAsync(
-                testContext.CancellationToken,
                 roleId,
                 actionId,
                 name,
-                isDeleted);
+                isDeleted,
+                testContext.CancellationToken);
 
             testContext.MockTransactionScopeFactory
                 .ShouldHaveReceived(x => x.CreateScope(default));
@@ -495,11 +495,11 @@ namespace Sokan.Yastah.Data.Test.Roles
             var uut = testContext.BuildUut();
 
             var result = await uut.UpdateAsync(
-                testContext.CancellationToken,
                 roleId,
                 actionId,
                 name,
-                isDeleted);
+                isDeleted,
+                testContext.CancellationToken);
 
             testContext.MockTransactionScopeFactory
                 .ShouldHaveReceived(x => x.CreateScope(default));
@@ -553,11 +553,11 @@ namespace Sokan.Yastah.Data.Test.Roles
             var uut = testContext.BuildUut();
 
             var result = await uut.UpdateAsync(
-                testContext.CancellationToken,
                 roleId,
                 actionId,
                 name,
-                isDeleted);
+                isDeleted,
+                testContext.CancellationToken);
 
             testContext.MockTransactionScopeFactory
                 .ShouldHaveReceived(x => x.CreateScope(default));
