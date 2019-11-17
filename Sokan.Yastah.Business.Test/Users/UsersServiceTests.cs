@@ -159,6 +159,12 @@ namespace Sokan.Yastah.Business.Test.Users
                     .ReturnsAsync((error is null)
                         ? OperationResult.Success
                         : error.ToError());
+
+            public override void Dispose()
+            {
+                base.Dispose();
+                MemoryCache?.Dispose();
+            }
         }
 
         #endregion Test Context

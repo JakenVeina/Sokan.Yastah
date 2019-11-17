@@ -13,7 +13,7 @@ namespace Sokan.Yastah.Common.Test
         public CancellationToken CancellationToken
             => CancellationTokenSource.Token;
 
-        public void Dispose()
+        public virtual void Dispose()
             => CancellationTokenSource.Dispose();
     }
     #pragma warning restore CA1063

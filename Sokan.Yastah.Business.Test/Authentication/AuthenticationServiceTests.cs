@@ -133,6 +133,12 @@ namespace Sokan.Yastah.Business.Test.Authentication
                         It.IsAny<long>(),
                         It.IsAny<CancellationToken>()))
                     .ReturnsAsync(roleMemberIds);
+
+            public override void Dispose()
+            {
+                base.Dispose();
+                MemoryCache?.Dispose();
+            }
         }
 
         #endregion Test Context

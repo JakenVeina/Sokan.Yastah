@@ -51,6 +51,12 @@ namespace Sokan.Yastah.Business.Test.Permissions
                         id:     x,
                         name:   $"Permission {x}"))
                     .ToArray());
+
+            public override void Dispose()
+            {
+                base.Dispose();
+                MemoryCache?.Dispose();
+            }
         }
 
         #endregion Test Context
