@@ -56,7 +56,7 @@ namespace Sokan.Yastah.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
                 },
                 constraints: table =>
                 {
@@ -129,7 +129,7 @@ namespace Sokan.Yastah.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     TypeId = table.Column<int>(nullable: false),
                     Performed = table.Column<DateTimeOffset>(nullable: false),
                     PerformedById = table.Column<long>(nullable: false)
@@ -159,7 +159,7 @@ namespace Sokan.Yastah.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserId = table.Column<long>(nullable: false),
                     CreationId = table.Column<long>(nullable: false),
                     DeletionId = table.Column<long>(nullable: true)
@@ -196,7 +196,7 @@ namespace Sokan.Yastah.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     RoleId = table.Column<long>(nullable: false),
                     PermissionId = table.Column<int>(nullable: false),
                     CreationId = table.Column<long>(nullable: false),
@@ -241,7 +241,7 @@ namespace Sokan.Yastah.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     RoleId = table.Column<long>(nullable: false),
                     Name = table.Column<string>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
@@ -288,7 +288,7 @@ namespace Sokan.Yastah.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     PermissionId = table.Column<int>(nullable: false),
                     CreationId = table.Column<long>(nullable: false),
                     DeletionId = table.Column<long>(nullable: true)
@@ -325,7 +325,7 @@ namespace Sokan.Yastah.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     RoleId = table.Column<long>(nullable: false),
                     CreationId = table.Column<long>(nullable: false),
                     DeletionId = table.Column<long>(nullable: true)
@@ -362,7 +362,7 @@ namespace Sokan.Yastah.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserId = table.Column<long>(nullable: false),
                     PermissionId = table.Column<int>(nullable: false),
                     IsDenied = table.Column<bool>(nullable: false),
@@ -408,7 +408,7 @@ namespace Sokan.Yastah.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserId = table.Column<long>(nullable: false),
                     RoleId = table.Column<long>(nullable: false),
                     CreationId = table.Column<long>(nullable: false),
@@ -474,7 +474,8 @@ namespace Sokan.Yastah.Data.Migrations
                     { 3, 1, "RoleDeleted" },
                     { 4, 1, "RoleRestored" },
                     { 20, 2, "UserCreated" },
-                    { 21, 2, "UserModified" }
+                    { 21, 2, "UserModified" },
+                    { 22, 2, "DefaultsModified" }
                 });
 
             migrationBuilder.InsertData(

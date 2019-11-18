@@ -10,23 +10,25 @@ using Sokan.Yastah.Data;
 namespace Sokan.Yastah.Data.Migrations
 {
     [DbContext(typeof(YastahDbContext))]
-    [Migration("20190827052102_Initial")]
+    [Migration("20191118054914_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
-                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
+                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
+                .HasAnnotation("ProductVersion", "3.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("Sokan.Yastah.Data.Administration.AdministrationActionCategoryEntity", b =>
                 {
-                    b.Property<int>("Id");
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -51,13 +53,18 @@ namespace Sokan.Yastah.Data.Migrations
             modelBuilder.Entity("Sokan.Yastah.Data.Administration.AdministrationActionEntity", b =>
                 {
                     b.Property<long>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<DateTimeOffset>("Performed");
+                    b.Property<DateTimeOffset>("Performed")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<long>("PerformedById");
+                    b.Property<long>("PerformedById")
+                        .HasColumnType("bigint");
 
-                    b.Property<int>("TypeId");
+                    b.Property<int>("TypeId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -70,12 +77,15 @@ namespace Sokan.Yastah.Data.Migrations
 
             modelBuilder.Entity("Sokan.Yastah.Data.Administration.AdministrationActionTypeEntity", b =>
                 {
-                    b.Property<int>("Id");
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("CategoryId");
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -98,6 +108,12 @@ namespace Sokan.Yastah.Data.Migrations
                             Id = 21,
                             CategoryId = 2,
                             Name = "UserModified"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            CategoryId = 2,
+                            Name = "DefaultsModified"
                         },
                         new
                         {
@@ -128,13 +144,18 @@ namespace Sokan.Yastah.Data.Migrations
             modelBuilder.Entity("Sokan.Yastah.Data.Authentication.AuthenticationTicketEntity", b =>
                 {
                     b.Property<long>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<long>("CreationId");
+                    b.Property<long>("CreationId")
+                        .HasColumnType("bigint");
 
-                    b.Property<long?>("DeletionId");
+                    b.Property<long?>("DeletionId")
+                        .HasColumnType("bigint");
 
-                    b.Property<long>("UserId");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -149,13 +170,16 @@ namespace Sokan.Yastah.Data.Migrations
 
             modelBuilder.Entity("Sokan.Yastah.Data.Permissions.PermissionCategoryEntity", b =>
                 {
-                    b.Property<int>("Id");
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Description")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -175,15 +199,19 @@ namespace Sokan.Yastah.Data.Migrations
 
             modelBuilder.Entity("Sokan.Yastah.Data.Permissions.PermissionEntity", b =>
                 {
-                    b.Property<int>("PermissionId");
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("CategoryId");
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Description")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("PermissionId");
 
@@ -219,7 +247,9 @@ namespace Sokan.Yastah.Data.Migrations
             modelBuilder.Entity("Sokan.Yastah.Data.Roles.RoleEntity", b =>
                 {
                     b.Property<long>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.HasKey("Id");
 
@@ -229,15 +259,21 @@ namespace Sokan.Yastah.Data.Migrations
             modelBuilder.Entity("Sokan.Yastah.Data.Roles.RolePermissionMappingEntity", b =>
                 {
                     b.Property<long>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<long>("CreationId");
+                    b.Property<long>("CreationId")
+                        .HasColumnType("bigint");
 
-                    b.Property<long?>("DeletionId");
+                    b.Property<long?>("DeletionId")
+                        .HasColumnType("bigint");
 
-                    b.Property<int>("PermissionId");
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("integer");
 
-                    b.Property<long>("RoleId");
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -255,20 +291,28 @@ namespace Sokan.Yastah.Data.Migrations
             modelBuilder.Entity("Sokan.Yastah.Data.Roles.RoleVersionEntity", b =>
                 {
                     b.Property<long>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<long>("ActionId");
+                    b.Property<long>("ActionId")
+                        .HasColumnType("bigint");
 
-                    b.Property<bool>("IsDeleted");
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<long?>("NextVersionId");
+                    b.Property<long?>("NextVersionId")
+                        .HasColumnType("bigint");
 
-                    b.Property<long?>("PreviousVersionId");
+                    b.Property<long?>("PreviousVersionId")
+                        .HasColumnType("bigint");
 
-                    b.Property<long>("RoleId");
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -288,13 +332,18 @@ namespace Sokan.Yastah.Data.Migrations
             modelBuilder.Entity("Sokan.Yastah.Data.Users.DefaultPermissionMappingEntity", b =>
                 {
                     b.Property<long>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<long>("CreationId");
+                    b.Property<long>("CreationId")
+                        .HasColumnType("bigint");
 
-                    b.Property<long?>("DeletionId");
+                    b.Property<long?>("DeletionId")
+                        .HasColumnType("bigint");
 
-                    b.Property<int>("PermissionId");
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -310,13 +359,18 @@ namespace Sokan.Yastah.Data.Migrations
             modelBuilder.Entity("Sokan.Yastah.Data.Users.DefaultRoleMappingEntity", b =>
                 {
                     b.Property<long>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<long>("CreationId");
+                    b.Property<long>("CreationId")
+                        .HasColumnType("bigint");
 
-                    b.Property<long?>("DeletionId");
+                    b.Property<long?>("DeletionId")
+                        .HasColumnType("bigint");
 
-                    b.Property<long>("RoleId");
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -331,19 +385,25 @@ namespace Sokan.Yastah.Data.Migrations
 
             modelBuilder.Entity("Sokan.Yastah.Data.Users.UserEntity", b =>
                 {
-                    b.Property<long>("Id");
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
 
-                    b.Property<string>("AvatarHash");
+                    b.Property<string>("AvatarHash")
+                        .HasColumnType("text");
 
                     b.Property<string>("Discriminator")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<DateTimeOffset>("FirstSeen");
+                    b.Property<DateTimeOffset>("FirstSeen")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTimeOffset>("LastSeen");
+                    b.Property<DateTimeOffset>("LastSeen")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Username")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -353,17 +413,24 @@ namespace Sokan.Yastah.Data.Migrations
             modelBuilder.Entity("Sokan.Yastah.Data.Users.UserPermissionMappingEntity", b =>
                 {
                     b.Property<long>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<long>("CreationId");
+                    b.Property<long>("CreationId")
+                        .HasColumnType("bigint");
 
-                    b.Property<long?>("DeletionId");
+                    b.Property<long?>("DeletionId")
+                        .HasColumnType("bigint");
 
-                    b.Property<bool>("IsDenied");
+                    b.Property<bool>("IsDenied")
+                        .HasColumnType("boolean");
 
-                    b.Property<int>("PermissionId");
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("integer");
 
-                    b.Property<long>("UserId");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -381,15 +448,21 @@ namespace Sokan.Yastah.Data.Migrations
             modelBuilder.Entity("Sokan.Yastah.Data.Users.UserRoleMappingEntity", b =>
                 {
                     b.Property<long>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<long>("CreationId");
+                    b.Property<long>("CreationId")
+                        .HasColumnType("bigint");
 
-                    b.Property<long?>("DeletionId");
+                    b.Property<long?>("DeletionId")
+                        .HasColumnType("bigint");
 
-                    b.Property<long>("RoleId");
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint");
 
-                    b.Property<long>("UserId");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -409,12 +482,14 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasOne("Sokan.Yastah.Data.Users.UserEntity", "PerformedBy")
                         .WithMany()
                         .HasForeignKey("PerformedById")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionTypeEntity", "Type")
                         .WithMany()
                         .HasForeignKey("TypeId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Sokan.Yastah.Data.Administration.AdministrationActionTypeEntity", b =>
@@ -422,7 +497,8 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionCategoryEntity", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Sokan.Yastah.Data.Authentication.AuthenticationTicketEntity", b =>
@@ -430,7 +506,8 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
                         .WithMany()
                         .HasForeignKey("CreationId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Deletion")
                         .WithMany()
@@ -439,7 +516,8 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasOne("Sokan.Yastah.Data.Users.UserEntity", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Sokan.Yastah.Data.Permissions.PermissionEntity", b =>
@@ -447,7 +525,8 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasOne("Sokan.Yastah.Data.Permissions.PermissionCategoryEntity", "Category")
                         .WithMany("Permissions")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Sokan.Yastah.Data.Roles.RolePermissionMappingEntity", b =>
@@ -455,7 +534,8 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
                         .WithMany()
                         .HasForeignKey("CreationId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Deletion")
                         .WithMany()
@@ -464,12 +544,14 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasOne("Sokan.Yastah.Data.Permissions.PermissionEntity", "Permission")
                         .WithMany()
                         .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Sokan.Yastah.Data.Roles.RoleEntity", "Role")
                         .WithMany("PermissionMappings")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Sokan.Yastah.Data.Roles.RoleVersionEntity", b =>
@@ -477,7 +559,8 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Action")
                         .WithMany()
                         .HasForeignKey("ActionId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Sokan.Yastah.Data.Roles.RoleVersionEntity", "NextVersion")
                         .WithOne()
@@ -490,7 +573,8 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasOne("Sokan.Yastah.Data.Roles.RoleEntity", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Sokan.Yastah.Data.Users.DefaultPermissionMappingEntity", b =>
@@ -498,7 +582,8 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
                         .WithMany()
                         .HasForeignKey("CreationId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Deletion")
                         .WithMany()
@@ -507,7 +592,8 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasOne("Sokan.Yastah.Data.Permissions.PermissionEntity", "Permission")
                         .WithMany()
                         .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Sokan.Yastah.Data.Users.DefaultRoleMappingEntity", b =>
@@ -515,7 +601,8 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
                         .WithMany()
                         .HasForeignKey("CreationId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Deletion")
                         .WithMany()
@@ -524,7 +611,8 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasOne("Sokan.Yastah.Data.Roles.RoleEntity", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Sokan.Yastah.Data.Users.UserPermissionMappingEntity", b =>
@@ -532,7 +620,8 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
                         .WithMany()
                         .HasForeignKey("CreationId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Deletion")
                         .WithMany()
@@ -541,12 +630,14 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasOne("Sokan.Yastah.Data.Permissions.PermissionEntity", "Permission")
                         .WithMany()
                         .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Sokan.Yastah.Data.Users.UserEntity", "User")
                         .WithMany("PermissionMappings")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Sokan.Yastah.Data.Users.UserRoleMappingEntity", b =>
@@ -554,7 +645,8 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
                         .WithMany()
                         .HasForeignKey("CreationId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Deletion")
                         .WithMany()
@@ -563,12 +655,14 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasOne("Sokan.Yastah.Data.Roles.RoleEntity", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Sokan.Yastah.Data.Users.UserEntity", "User")
                         .WithMany("RoleMappings")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
