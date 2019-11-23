@@ -1,10 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using Microsoft.EntityFrameworkCore;
+
 using Sokan.Yastah.Data.Administration;
 
 namespace Sokan.Yastah.Data.Characters
 {
+    [Table("CharacterGuildDivisionVersions", Schema = "Characters")]
     internal class CharacterGuildDivisionVersionEntity
     {
         public CharacterGuildDivisionVersionEntity(
@@ -46,14 +49,35 @@ namespace Sokan.Yastah.Data.Characters
         public AdministrationActionEntity Creation { get; internal set; }
             = null!;
 
-        [ForeignKey(nameof(PreviousVersion))]
         public long? PreviousVersionId { get; set; }
 
         public CharacterGuildDivisionVersionEntity? PreviousVersion { get; set; }
 
-        [ForeignKey(nameof(NextVersion))]
         public long? NextVersionId { get; set; }
 
         public CharacterGuildDivisionVersionEntity? NextVersion { get; set; }
+
+        [OnModelCreating]
+        public static void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<CharacterGuildDivisionVersionEntity>(entityBuilder =>
+            {
+                entityBuilder
+                    .Property(x => x.Name);
+
+                entityBuilder
+                    .Property(x => x.IsDeleted);
+
+                entityBuilder
+                    .HasOne(x => x.PreviousVersion)
+                    .WithOne()
+                    .HasForeignKey<CharacterGuildDivisionVersionEntity>(x => x.PreviousVersionId)
+                    .HasConstraintName("FK_CharacterGuildDivisionVersions_PreviousVersion"); // Auto-generated name hits max length, and collides
+
+                entityBuilder
+                    .HasOne(x => x.NextVersion)
+                    .WithOne()
+                    .HasForeignKey<CharacterGuildDivisionVersionEntity>(x => x.NextVersionId)
+                    .HasConstraintName("FK_CharacterGuildDivisionVersions_NextVersion"); // Auto-generated name hits max length, and collides
+            });
     }
 }

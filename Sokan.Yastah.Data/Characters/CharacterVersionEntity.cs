@@ -1,10 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using Microsoft.EntityFrameworkCore;
+
 using Sokan.Yastah.Data.Administration;
 
 namespace Sokan.Yastah.Data.Characters
 {
+    [Table("CharacterVersions", Schema = "Characters")]
     internal class CharacterVersionEntity
     {
         public CharacterVersionEntity(
@@ -75,5 +78,28 @@ namespace Sokan.Yastah.Data.Characters
         public long? NextVersionId { get; set; }
 
         public CharacterVersionEntity? NextVersion { get; set; }
+
+        [OnModelCreating]
+        public static void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<CharacterVersionEntity>(entityBuilder =>
+            {
+                entityBuilder
+                    .Property(x => x.Name);
+
+                entityBuilder
+                    .Property(x => x.DivisionId);
+
+                entityBuilder
+                    .Property(x => x.ExperiencePoints);
+
+                entityBuilder
+                    .Property(x => x.GoldAmount);
+
+                entityBuilder
+                    .Property(x => x.SanityValue);
+
+                entityBuilder
+                    .Property(x => x.IsDeleted);
+            });
     }
 }

@@ -45,6 +45,11 @@ namespace Sokan.Yastah.Data.Migrations
                         {
                             Id = 2,
                             Name = "UserManagement"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "CharacterManagement"
                         });
                 });
 
@@ -136,6 +141,78 @@ namespace Sokan.Yastah.Data.Migrations
                             Id = 4,
                             CategoryId = 1,
                             Name = "RoleRestored"
+                        },
+                        new
+                        {
+                            Id = 400,
+                            CategoryId = 3,
+                            Name = "GuildCreated"
+                        },
+                        new
+                        {
+                            Id = 401,
+                            CategoryId = 3,
+                            Name = "GuildModified"
+                        },
+                        new
+                        {
+                            Id = 402,
+                            CategoryId = 3,
+                            Name = "GuildDeleted"
+                        },
+                        new
+                        {
+                            Id = 403,
+                            CategoryId = 3,
+                            Name = "GuildRestored"
+                        },
+                        new
+                        {
+                            Id = 420,
+                            CategoryId = 3,
+                            Name = "DivisionCreated"
+                        },
+                        new
+                        {
+                            Id = 421,
+                            CategoryId = 3,
+                            Name = "DivisionModified"
+                        },
+                        new
+                        {
+                            Id = 422,
+                            CategoryId = 3,
+                            Name = "DivisionDeleted"
+                        },
+                        new
+                        {
+                            Id = 423,
+                            CategoryId = 3,
+                            Name = "DivisionRestored"
+                        },
+                        new
+                        {
+                            Id = 440,
+                            CategoryId = 3,
+                            Name = "CharacterCreated"
+                        },
+                        new
+                        {
+                            Id = 441,
+                            CategoryId = 3,
+                            Name = "CharacterModified"
+                        },
+                        new
+                        {
+                            Id = 442,
+                            CategoryId = 3,
+                            Name = "CharacterDeleted"
+                        },
+                        new
+                        {
+                            Id = 443,
+                            CategoryId = 3,
+                            Name = "CharacterRestored"
                         });
                 });
 
@@ -164,6 +241,235 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("AuthenticationTickets","Authentication");
+                });
+
+            modelBuilder.Entity("Sokan.Yastah.Data.Characters.CharacterEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<long>("OwnerId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.ToTable("Characters","Characters");
+                });
+
+            modelBuilder.Entity("Sokan.Yastah.Data.Characters.CharacterGuildDivisionEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<long>("GuildId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GuildId");
+
+                    b.ToTable("CharacterGuildDivisions","Characters");
+                });
+
+            modelBuilder.Entity("Sokan.Yastah.Data.Characters.CharacterGuildDivisionVersionEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<long>("CreationId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("DivisionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long?>("NextVersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("PreviousVersionId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreationId");
+
+                    b.HasIndex("DivisionId");
+
+                    b.HasIndex("NextVersionId")
+                        .IsUnique();
+
+                    b.HasIndex("PreviousVersionId")
+                        .IsUnique();
+
+                    b.ToTable("CharacterGuildDivisionVersions","Characters");
+                });
+
+            modelBuilder.Entity("Sokan.Yastah.Data.Characters.CharacterGuildEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CharacterGuilds","Characters");
+                });
+
+            modelBuilder.Entity("Sokan.Yastah.Data.Characters.CharacterGuildVersionEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<long>("CreationId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("GuildId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long?>("NextVersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("PreviousVersionId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreationId");
+
+                    b.HasIndex("GuildId");
+
+                    b.HasIndex("NextVersionId")
+                        .IsUnique();
+
+                    b.HasIndex("PreviousVersionId");
+
+                    b.ToTable("CharacterGuildVersions","Characters");
+                });
+
+            modelBuilder.Entity("Sokan.Yastah.Data.Characters.CharacterLevelDefinitionEntity", b =>
+                {
+                    b.Property<int>("Level")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Level");
+
+                    b.ToTable("CharacterLevelDefinitions","Characters");
+                });
+
+            modelBuilder.Entity("Sokan.Yastah.Data.Characters.CharacterLevelDefinitionVersionEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<long>("CreationId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("ExperienceThreshold")
+                        .HasColumnType("numeric");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("NextVersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("PreviousVersionId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreationId");
+
+                    b.HasIndex("Level");
+
+                    b.HasIndex("NextVersionId")
+                        .IsUnique();
+
+                    b.HasIndex("PreviousVersionId")
+                        .IsUnique();
+
+                    b.ToTable("CharacterLevelDefinitionVersions","Characters");
+                });
+
+            modelBuilder.Entity("Sokan.Yastah.Data.Characters.CharacterVersionEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CreationId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("DivisionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("ExperiencePoints")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("GoldAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long?>("NextVersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("PreviousVersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("SanityValue")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacterId");
+
+                    b.HasIndex("CreationId");
+
+                    b.HasIndex("NextVersionId")
+                        .IsUnique();
+
+                    b.HasIndex("PreviousVersionId");
+
+                    b.ToTable("CharacterVersions","Characters");
                 });
 
             modelBuilder.Entity("Sokan.Yastah.Data.Permissions.PermissionCategoryEntity", b =>
@@ -516,6 +822,120 @@ namespace Sokan.Yastah.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Sokan.Yastah.Data.Characters.CharacterEntity", b =>
+                {
+                    b.HasOne("Sokan.Yastah.Data.Users.UserEntity", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Sokan.Yastah.Data.Characters.CharacterGuildDivisionEntity", b =>
+                {
+                    b.HasOne("Sokan.Yastah.Data.Characters.CharacterGuildEntity", "Guild")
+                        .WithMany()
+                        .HasForeignKey("GuildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Sokan.Yastah.Data.Characters.CharacterGuildDivisionVersionEntity", b =>
+                {
+                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
+                        .WithMany()
+                        .HasForeignKey("CreationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sokan.Yastah.Data.Characters.CharacterGuildDivisionEntity", "Division")
+                        .WithMany()
+                        .HasForeignKey("DivisionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sokan.Yastah.Data.Characters.CharacterGuildDivisionVersionEntity", "NextVersion")
+                        .WithOne()
+                        .HasForeignKey("Sokan.Yastah.Data.Characters.CharacterGuildDivisionVersionEntity", "NextVersionId")
+                        .HasConstraintName("FK_CharacterGuildDivisionVersions_NextVersion");
+
+                    b.HasOne("Sokan.Yastah.Data.Characters.CharacterGuildDivisionVersionEntity", "PreviousVersion")
+                        .WithOne()
+                        .HasForeignKey("Sokan.Yastah.Data.Characters.CharacterGuildDivisionVersionEntity", "PreviousVersionId")
+                        .HasConstraintName("FK_CharacterGuildDivisionVersions_PreviousVersion");
+                });
+
+            modelBuilder.Entity("Sokan.Yastah.Data.Characters.CharacterGuildVersionEntity", b =>
+                {
+                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
+                        .WithMany()
+                        .HasForeignKey("CreationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sokan.Yastah.Data.Characters.CharacterGuildEntity", "Guild")
+                        .WithMany()
+                        .HasForeignKey("GuildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sokan.Yastah.Data.Characters.CharacterGuildVersionEntity", "NextVersion")
+                        .WithOne()
+                        .HasForeignKey("Sokan.Yastah.Data.Characters.CharacterGuildVersionEntity", "NextVersionId");
+
+                    b.HasOne("Sokan.Yastah.Data.Characters.CharacterGuildVersionEntity", "PreviousVersion")
+                        .WithMany()
+                        .HasForeignKey("PreviousVersionId");
+                });
+
+            modelBuilder.Entity("Sokan.Yastah.Data.Characters.CharacterLevelDefinitionVersionEntity", b =>
+                {
+                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
+                        .WithMany()
+                        .HasForeignKey("CreationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sokan.Yastah.Data.Characters.CharacterLevelDefinitionEntity", "Definition")
+                        .WithMany()
+                        .HasForeignKey("Level")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sokan.Yastah.Data.Characters.CharacterLevelDefinitionVersionEntity", "NextVersion")
+                        .WithOne()
+                        .HasForeignKey("Sokan.Yastah.Data.Characters.CharacterLevelDefinitionVersionEntity", "NextVersionId")
+                        .HasConstraintName("FK_CharacterLevelDefinitionVersions_NextVersion");
+
+                    b.HasOne("Sokan.Yastah.Data.Characters.CharacterLevelDefinitionVersionEntity", "PreviousVersion")
+                        .WithOne()
+                        .HasForeignKey("Sokan.Yastah.Data.Characters.CharacterLevelDefinitionVersionEntity", "PreviousVersionId")
+                        .HasConstraintName("FK_CharacterLevelDefinitionVersions_PreviousVersion");
+                });
+
+            modelBuilder.Entity("Sokan.Yastah.Data.Characters.CharacterVersionEntity", b =>
+                {
+                    b.HasOne("Sokan.Yastah.Data.Characters.CharacterEntity", "Character")
+                        .WithMany()
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
+                        .WithMany()
+                        .HasForeignKey("CreationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sokan.Yastah.Data.Characters.CharacterVersionEntity", "NextVersion")
+                        .WithOne()
+                        .HasForeignKey("Sokan.Yastah.Data.Characters.CharacterVersionEntity", "NextVersionId");
+
+                    b.HasOne("Sokan.Yastah.Data.Characters.CharacterVersionEntity", "PreviousVersion")
+                        .WithMany()
+                        .HasForeignKey("PreviousVersionId");
                 });
 
             modelBuilder.Entity("Sokan.Yastah.Data.Permissions.PermissionEntity", b =>

@@ -1,10 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using Microsoft.EntityFrameworkCore;
+
 using Sokan.Yastah.Data.Administration;
 
 namespace Sokan.Yastah.Data.Characters
 {
+    [Table("CharacterGuildVersions", Schema = "Characters")]
     internal class CharacterGuildVersionEntity
     {
         public CharacterGuildVersionEntity(
@@ -55,5 +58,16 @@ namespace Sokan.Yastah.Data.Characters
         public long? NextVersionId { get; set; }
 
         public CharacterGuildVersionEntity? NextVersion { get; set; }
+
+        [OnModelCreating]
+        public static void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<CharacterGuildVersionEntity>(entityBuilder =>
+            {
+                entityBuilder
+                    .Property(x => x.Name);
+                
+                entityBuilder
+                    .Property(x => x.IsDeleted);
+            });
     }
 }

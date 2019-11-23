@@ -1,8 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace Sokan.Yastah.Data.Characters
 {
+    [Table("CharacterGuildDivisions", Schema = "Characters")]
     internal class CharacterGuildDivisionEntity
     {
         public CharacterGuildDivisionEntity(
@@ -22,5 +25,9 @@ namespace Sokan.Yastah.Data.Characters
 
         public CharacterGuildEntity Guild { get; internal set; }
             = null!;
+
+        [OnModelCreating]
+        public static void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<CharacterGuildDivisionEntity>();
     }
 }

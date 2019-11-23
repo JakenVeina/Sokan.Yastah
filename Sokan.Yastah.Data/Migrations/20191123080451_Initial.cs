@@ -15,6 +15,9 @@ namespace Sokan.Yastah.Data.Migrations
                 name: "Authentication");
 
             migrationBuilder.EnsureSchema(
+                name: "Characters");
+
+            migrationBuilder.EnsureSchema(
                 name: "Permissions");
 
             migrationBuilder.EnsureSchema(
@@ -34,6 +37,31 @@ namespace Sokan.Yastah.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AdministrationActionCategories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CharacterGuilds",
+                schema: "Characters",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CharacterGuilds", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CharacterLevelDefinitions",
+                schema: "Characters",
+                columns: table => new
+                {
+                    Level = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CharacterLevelDefinitions", x => x.Level);
                 });
 
             migrationBuilder.CreateTable(
@@ -102,6 +130,27 @@ namespace Sokan.Yastah.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CharacterGuildDivisions",
+                schema: "Characters",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    GuildId = table.Column<long>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CharacterGuildDivisions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CharacterGuildDivisions_CharacterGuilds_GuildId",
+                        column: x => x.GuildId,
+                        principalSchema: "Characters",
+                        principalTable: "CharacterGuilds",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Permissions",
                 schema: "Permissions",
                 columns: table => new
@@ -119,6 +168,27 @@ namespace Sokan.Yastah.Data.Migrations
                         column: x => x.CategoryId,
                         principalSchema: "Permissions",
                         principalTable: "PermissionCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Characters",
+                schema: "Characters",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    OwnerId = table.Column<long>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Characters", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Characters_Users_OwnerId",
+                        column: x => x.OwnerId,
+                        principalSchema: "Users",
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -188,6 +258,198 @@ namespace Sokan.Yastah.Data.Migrations
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CharacterGuildDivisionVersions",
+                schema: "Characters",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    DivisionId = table.Column<long>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    CreationId = table.Column<long>(nullable: false),
+                    PreviousVersionId = table.Column<long>(nullable: true),
+                    NextVersionId = table.Column<long>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CharacterGuildDivisionVersions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CharacterGuildDivisionVersions_AdministrationActions_Creati~",
+                        column: x => x.CreationId,
+                        principalSchema: "Administration",
+                        principalTable: "AdministrationActions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CharacterGuildDivisionVersions_CharacterGuildDivisions_Divi~",
+                        column: x => x.DivisionId,
+                        principalSchema: "Characters",
+                        principalTable: "CharacterGuildDivisions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CharacterGuildDivisionVersions_NextVersion",
+                        column: x => x.NextVersionId,
+                        principalSchema: "Characters",
+                        principalTable: "CharacterGuildDivisionVersions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CharacterGuildDivisionVersions_PreviousVersion",
+                        column: x => x.PreviousVersionId,
+                        principalSchema: "Characters",
+                        principalTable: "CharacterGuildDivisionVersions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CharacterGuildVersions",
+                schema: "Characters",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    GuildId = table.Column<long>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    CreationId = table.Column<long>(nullable: false),
+                    PreviousVersionId = table.Column<long>(nullable: true),
+                    NextVersionId = table.Column<long>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CharacterGuildVersions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CharacterGuildVersions_AdministrationActions_CreationId",
+                        column: x => x.CreationId,
+                        principalSchema: "Administration",
+                        principalTable: "AdministrationActions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CharacterGuildVersions_CharacterGuilds_GuildId",
+                        column: x => x.GuildId,
+                        principalSchema: "Characters",
+                        principalTable: "CharacterGuilds",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CharacterGuildVersions_CharacterGuildVersions_NextVersionId",
+                        column: x => x.NextVersionId,
+                        principalSchema: "Characters",
+                        principalTable: "CharacterGuildVersions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CharacterGuildVersions_CharacterGuildVersions_PreviousVersi~",
+                        column: x => x.PreviousVersionId,
+                        principalSchema: "Characters",
+                        principalTable: "CharacterGuildVersions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CharacterLevelDefinitionVersions",
+                schema: "Characters",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Level = table.Column<int>(nullable: false),
+                    ExperienceThreshold = table.Column<decimal>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    CreationId = table.Column<long>(nullable: false),
+                    PreviousVersionId = table.Column<long>(nullable: true),
+                    NextVersionId = table.Column<long>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CharacterLevelDefinitionVersions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CharacterLevelDefinitionVersions_AdministrationActions_Crea~",
+                        column: x => x.CreationId,
+                        principalSchema: "Administration",
+                        principalTable: "AdministrationActions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CharacterLevelDefinitionVersions_CharacterLevelDefinitions_~",
+                        column: x => x.Level,
+                        principalSchema: "Characters",
+                        principalTable: "CharacterLevelDefinitions",
+                        principalColumn: "Level",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CharacterLevelDefinitionVersions_NextVersion",
+                        column: x => x.NextVersionId,
+                        principalSchema: "Characters",
+                        principalTable: "CharacterLevelDefinitionVersions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CharacterLevelDefinitionVersions_PreviousVersion",
+                        column: x => x.PreviousVersionId,
+                        principalSchema: "Characters",
+                        principalTable: "CharacterLevelDefinitionVersions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CharacterVersions",
+                schema: "Characters",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CharacterId = table.Column<long>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
+                    DivisionId = table.Column<long>(nullable: false),
+                    ExperiencePoints = table.Column<decimal>(nullable: false),
+                    GoldAmount = table.Column<decimal>(nullable: false),
+                    SanityValue = table.Column<decimal>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    CreationId = table.Column<long>(nullable: false),
+                    PreviousVersionId = table.Column<long>(nullable: true),
+                    NextVersionId = table.Column<long>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CharacterVersions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CharacterVersions_Characters_CharacterId",
+                        column: x => x.CharacterId,
+                        principalSchema: "Characters",
+                        principalTable: "Characters",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CharacterVersions_AdministrationActions_CreationId",
+                        column: x => x.CreationId,
+                        principalSchema: "Administration",
+                        principalTable: "AdministrationActions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CharacterVersions_CharacterVersions_NextVersionId",
+                        column: x => x.NextVersionId,
+                        principalSchema: "Characters",
+                        principalTable: "CharacterVersions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CharacterVersions_CharacterVersions_PreviousVersionId",
+                        column: x => x.PreviousVersionId,
+                        principalSchema: "Characters",
+                        principalTable: "CharacterVersions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -454,7 +716,8 @@ namespace Sokan.Yastah.Data.Migrations
                 values: new object[,]
                 {
                     { 1, "RoleManagement" },
-                    { 2, "UserManagement" }
+                    { 2, "UserManagement" },
+                    { 3, "CharacterManagement" }
                 });
 
             migrationBuilder.InsertData(
@@ -470,12 +733,24 @@ namespace Sokan.Yastah.Data.Migrations
                 values: new object[,]
                 {
                     { 1, 1, "RoleCreated" },
-                    { 2, 1, "RoleModified" },
-                    { 3, 1, "RoleDeleted" },
-                    { 4, 1, "RoleRestored" },
-                    { 20, 2, "UserCreated" },
+                    { 443, 3, "CharacterRestored" },
+                    { 442, 3, "CharacterDeleted" },
+                    { 441, 3, "CharacterModified" },
+                    { 440, 3, "CharacterCreated" },
+                    { 423, 3, "DivisionRestored" },
+                    { 422, 3, "DivisionDeleted" },
+                    { 421, 3, "DivisionModified" },
+                    { 420, 3, "DivisionCreated" },
+                    { 403, 3, "GuildRestored" },
+                    { 401, 3, "GuildModified" },
+                    { 400, 3, "GuildCreated" },
+                    { 22, 2, "DefaultsModified" },
                     { 21, 2, "UserModified" },
-                    { 22, 2, "DefaultsModified" }
+                    { 20, 2, "UserCreated" },
+                    { 4, 1, "RoleRestored" },
+                    { 3, 1, "RoleDeleted" },
+                    { 2, 1, "RoleModified" },
+                    { 402, 3, "GuildDeleted" }
                 });
 
             migrationBuilder.InsertData(
@@ -484,8 +759,8 @@ namespace Sokan.Yastah.Data.Migrations
                 columns: new[] { "PermissionId", "CategoryId", "Description", "Name" },
                 values: new object[,]
                 {
-                    { 1, 1, "Allows management of application permissions", "ManagePermissions" },
                     { 2, 1, "Allows management of application roles", "ManageRoles" },
+                    { 1, 1, "Allows management of application permissions", "ManagePermissions" },
                     { 3, 1, "Allows management of application users", "ManageUsers" }
                 });
 
@@ -538,6 +813,120 @@ namespace Sokan.Yastah.Data.Migrations
                 schema: "Authentication",
                 table: "AuthenticationTickets",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CharacterGuildDivisions_GuildId",
+                schema: "Characters",
+                table: "CharacterGuildDivisions",
+                column: "GuildId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CharacterGuildDivisionVersions_CreationId",
+                schema: "Characters",
+                table: "CharacterGuildDivisionVersions",
+                column: "CreationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CharacterGuildDivisionVersions_DivisionId",
+                schema: "Characters",
+                table: "CharacterGuildDivisionVersions",
+                column: "DivisionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CharacterGuildDivisionVersions_NextVersionId",
+                schema: "Characters",
+                table: "CharacterGuildDivisionVersions",
+                column: "NextVersionId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CharacterGuildDivisionVersions_PreviousVersionId",
+                schema: "Characters",
+                table: "CharacterGuildDivisionVersions",
+                column: "PreviousVersionId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CharacterGuildVersions_CreationId",
+                schema: "Characters",
+                table: "CharacterGuildVersions",
+                column: "CreationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CharacterGuildVersions_GuildId",
+                schema: "Characters",
+                table: "CharacterGuildVersions",
+                column: "GuildId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CharacterGuildVersions_NextVersionId",
+                schema: "Characters",
+                table: "CharacterGuildVersions",
+                column: "NextVersionId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CharacterGuildVersions_PreviousVersionId",
+                schema: "Characters",
+                table: "CharacterGuildVersions",
+                column: "PreviousVersionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CharacterLevelDefinitionVersions_CreationId",
+                schema: "Characters",
+                table: "CharacterLevelDefinitionVersions",
+                column: "CreationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CharacterLevelDefinitionVersions_Level",
+                schema: "Characters",
+                table: "CharacterLevelDefinitionVersions",
+                column: "Level");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CharacterLevelDefinitionVersions_NextVersionId",
+                schema: "Characters",
+                table: "CharacterLevelDefinitionVersions",
+                column: "NextVersionId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CharacterLevelDefinitionVersions_PreviousVersionId",
+                schema: "Characters",
+                table: "CharacterLevelDefinitionVersions",
+                column: "PreviousVersionId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Characters_OwnerId",
+                schema: "Characters",
+                table: "Characters",
+                column: "OwnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CharacterVersions_CharacterId",
+                schema: "Characters",
+                table: "CharacterVersions",
+                column: "CharacterId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CharacterVersions_CreationId",
+                schema: "Characters",
+                table: "CharacterVersions",
+                column: "CreationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CharacterVersions_NextVersionId",
+                schema: "Characters",
+                table: "CharacterVersions",
+                column: "NextVersionId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CharacterVersions_PreviousVersionId",
+                schema: "Characters",
+                table: "CharacterVersions",
+                column: "PreviousVersionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PermissionCategories_Name",
@@ -695,6 +1084,22 @@ namespace Sokan.Yastah.Data.Migrations
                 schema: "Authentication");
 
             migrationBuilder.DropTable(
+                name: "CharacterGuildDivisionVersions",
+                schema: "Characters");
+
+            migrationBuilder.DropTable(
+                name: "CharacterGuildVersions",
+                schema: "Characters");
+
+            migrationBuilder.DropTable(
+                name: "CharacterLevelDefinitionVersions",
+                schema: "Characters");
+
+            migrationBuilder.DropTable(
+                name: "CharacterVersions",
+                schema: "Characters");
+
+            migrationBuilder.DropTable(
                 name: "RolePermissionMappings",
                 schema: "Roles");
 
@@ -719,6 +1124,18 @@ namespace Sokan.Yastah.Data.Migrations
                 schema: "Users");
 
             migrationBuilder.DropTable(
+                name: "CharacterGuildDivisions",
+                schema: "Characters");
+
+            migrationBuilder.DropTable(
+                name: "CharacterLevelDefinitions",
+                schema: "Characters");
+
+            migrationBuilder.DropTable(
+                name: "Characters",
+                schema: "Characters");
+
+            migrationBuilder.DropTable(
                 name: "Permissions",
                 schema: "Permissions");
 
@@ -729,6 +1146,10 @@ namespace Sokan.Yastah.Data.Migrations
             migrationBuilder.DropTable(
                 name: "Roles",
                 schema: "Roles");
+
+            migrationBuilder.DropTable(
+                name: "CharacterGuilds",
+                schema: "Characters");
 
             migrationBuilder.DropTable(
                 name: "PermissionCategories",
