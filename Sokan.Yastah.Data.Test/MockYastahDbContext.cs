@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Sokan.Yastah.Data.Administration;
 using Sokan.Yastah.Data.Authentication;
+using Sokan.Yastah.Data.Characters;
 using Sokan.Yastah.Data.Concurrency;
 using Sokan.Yastah.Data.Permissions;
 using Sokan.Yastah.Data.Roles;
@@ -40,7 +41,39 @@ namespace Sokan.Yastah.Data.Test
 
             MockAuthenticationTicketSet = SetupMockSet(
                 entities.AuthenticationTickets,
-                (keys, entity) => entity.Id == (long)keys[0]); 
+                (keys, entity) => entity.Id == (long)keys[0]);
+
+            MockCharacterGuildSet = SetupMockSet(
+                entities.CharacterGuilds,
+                (keys, entity) => entity.Id == (long)keys[0]);
+
+            MockCharacterGuildDivisionSet = SetupMockSet(
+                entities.CharacterGuildDivisions,
+                (keys, entity) => entity.Id == (long)keys[0]);
+
+            MockCharacterGuildDivisionVersionSet = SetupMockSet(
+                entities.CharacterGuildDivisionVersions,
+                (keys, entity) => entity.Id == (long)keys[0]);
+
+            MockCharacterGuildVersionSet = SetupMockSet(
+                entities.CharacterGuildVersions,
+                (keys, entity) => entity.Id == (long)keys[0]);
+
+            MockCharacterLevelDefinitionSet = SetupMockSet(
+                entities.CharacterLevelDefinitions,
+                (keys, entity) => entity.Level == (int)keys[0]);
+
+            MockCharacterLevelDefinitionVersionSet = SetupMockSet(
+                entities.CharacterLevelDefinitionVersions,
+                (keys, entity) => entity.Id == (long)keys[0]);
+
+            MockCharacterSet = SetupMockSet(
+                entities.Characters,
+                (keys, entity) => entity.Id == (long)keys[0]);
+
+            MockCharacterVersionSet = SetupMockSet(
+                entities.CharacterVersions,
+                (keys, entity) => entity.Id == (long)keys[0]);
 
             MockPermissionCategorySet = SetupMockSet(
                 entities.PermissionCategories,
@@ -98,6 +131,26 @@ namespace Sokan.Yastah.Data.Test
         public readonly Mock<DbSet<AuthenticationTicketEntity>> MockAuthenticationTicketSet;
 
         #endregion Authentication
+
+        #region Characters
+
+        public readonly Mock<DbSet<CharacterGuildEntity>> MockCharacterGuildSet;
+
+        public readonly Mock<DbSet<CharacterGuildDivisionEntity>> MockCharacterGuildDivisionSet;
+
+        public readonly Mock<DbSet<CharacterGuildDivisionVersionEntity>> MockCharacterGuildDivisionVersionSet;
+
+        public readonly Mock<DbSet<CharacterGuildVersionEntity>> MockCharacterGuildVersionSet;
+
+        public readonly Mock<DbSet<CharacterLevelDefinitionEntity>> MockCharacterLevelDefinitionSet;
+
+        public readonly Mock<DbSet<CharacterLevelDefinitionVersionEntity>> MockCharacterLevelDefinitionVersionSet;
+
+        public readonly Mock<DbSet<CharacterEntity>> MockCharacterSet;
+
+        public readonly Mock<DbSet<CharacterVersionEntity>> MockCharacterVersionSet;
+
+        #endregion Characters
 
         #region Permission
 

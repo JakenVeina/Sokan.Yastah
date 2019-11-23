@@ -1,0 +1,26 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Sokan.Yastah.Data.Characters
+{
+    internal class CharacterGuildDivisionEntity
+    {
+        public CharacterGuildDivisionEntity(
+            long id,
+            long guildId)
+        {
+            Id = id;
+            GuildId = guildId;
+        }
+
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id { get; internal set; }
+
+        [ForeignKey(nameof(Guild))]
+        public long GuildId { get; }
+
+        public CharacterGuildEntity Guild { get; internal set; }
+            = null!;
+    }
+}

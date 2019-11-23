@@ -8,6 +8,7 @@ namespace Sokan.Yastah.Data.Administration
     {
         RoleManagement = 1,
         UserManagement = 2,
+        CharacterManagement = 3
     }
 
     public static class AdministrationActionCategoryModelBuilder

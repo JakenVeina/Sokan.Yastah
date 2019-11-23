@@ -1,0 +1,59 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+using Sokan.Yastah.Data.Administration;
+
+namespace Sokan.Yastah.Data.Characters
+{
+    internal class CharacterGuildVersionEntity
+    {
+        public CharacterGuildVersionEntity(
+            long id,
+            long guildId,
+            string name,
+            bool isDeleted,
+            long creationId,
+            long? previousVersionId,
+            long? nextVersionId)
+        {
+            Id = id;
+            GuildId = guildId;
+            Name = name;
+            IsDeleted = isDeleted;
+            CreationId = creationId;
+            PreviousVersionId = previousVersionId;
+            NextVersionId = nextVersionId;
+        }
+
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id { get; internal set; }
+
+        [ForeignKey(nameof(Guild))]
+        public long GuildId { get; }
+
+        public CharacterGuildEntity Guild { get; internal set; }
+            = null!;
+
+        [Required]
+        public string Name { get; }
+
+        public bool IsDeleted { get; }
+
+        [ForeignKey(nameof(Creation))]
+        public long CreationId { get; }
+
+        public AdministrationActionEntity Creation { get; internal set; }
+            = null!;
+
+        [ForeignKey(nameof(PreviousVersion))]
+        public long? PreviousVersionId { get; set; }
+
+        public CharacterGuildVersionEntity? PreviousVersion { get; set; }
+
+        [ForeignKey(nameof(NextVersion))]
+        public long? NextVersionId { get; set; }
+
+        public CharacterGuildVersionEntity? NextVersion { get; set; }
+    }
+}
