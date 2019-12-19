@@ -1,0 +1,17 @@
+﻿<div>
+    <character-guild-update-form
+        [guild-identity]="guildIdentity | async"
+        [guild-identities]="guildIdentities | async"
+        (deleted)="onDeleted()"
+        (resetting)="onResetting()">
+    </character-guild-update-form>
+    <hr />
+    <ul *ngIf="(guildIdentity | async) != null">
+        <li>
+            <h4><a [routerLink]="['divisions']">Divisions</a></h4>
+        </li>
+    </ul>
+</div>
+<div>
+    <router-outlet></router-outlet>
+</div>

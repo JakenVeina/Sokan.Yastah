@@ -1,0 +1,16 @@
+﻿<form [formGroup]="form" (ngSubmit)="save()">
+    <dl>
+        <dt><label for="name">Name</label></dt>
+        <dd>
+            <input id="name" formControlName="name" />
+            <span *ngIf="form.controls.name.invalid">
+                <span *ngIf="form.controls.name.errors.required">Cannot be empty</span>
+                <span *ngIf="form.controls.name.errors.duplicate">Already in use</span>
+                <span *ngIf="form.controls.name.errors.uninitialized">Form has not yet initialized</span>
+            </span>
+        </dd>
+    </dl>
+    <button type="button" (click)="reset()" [disabled]="!canReset">Reset</button>
+    <button type="submit" [disabled]="!canSave">Save</button>
+    <div *ngIf="saveError != null">An error occurred while creating the role: {{saveError.message}}</div>
+</form>

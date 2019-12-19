@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
 using Microsoft.EntityFrameworkCore;
+
 using Sokan.Yastah.Data.Administration;
 
 namespace Sokan.Yastah.Data.Characters
@@ -46,12 +48,10 @@ namespace Sokan.Yastah.Data.Characters
         public AdministrationActionEntity Creation { get; internal set; }
             = null!;
 
-        [ForeignKey(nameof(PreviousVersion))]
         public long? PreviousVersionId { get; set; }
 
         public CharacterLevelDefinitionVersionEntity? PreviousVersion { get; set; }
 
-        [ForeignKey(nameof(NextVersion))]
         public long? NextVersionId { get; set; }
 
         public CharacterLevelDefinitionVersionEntity? NextVersion { get; set; }

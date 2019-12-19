@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,6 +41,242 @@ namespace Sokan.Yastah.Data.Test.Characters
                     MockContext.Object,
                     MockTransactionScopeFactory.Object);
         }
+
+        #region AnyDivisionVersionsAsync() Tests
+
+        internal static IReadOnlyList<TestCaseData> AnyDivisionVersionsAsync_TestCaseData
+            => new[]
+            {
+                /*                  guildId,                        excludedDivisionIds,                                                                            name,                                                           isDeleted,                          isLatestVersion                     expectedResult  */
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}()"),
+                new TestCaseData(   Optional<long>.FromValue(1),    Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(guildId: 1)"),
+                new TestCaseData(   Optional<long>.FromValue(2),    Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(guildId: 2)"),
+                new TestCaseData(   Optional<long>.FromValue(3),    Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(guildId: 3)"),
+                new TestCaseData(   Optional<long>.FromValue(4),    Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         false           ).SetName("{m}(guildId: 4)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(Array.Empty<long>()),                                     Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedRoleIds: Empty)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] {     1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L      }),   Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         false           ).SetName("{m}(excludedRoleIds: 1, 2, 3, 4, 5, 6, 7, 8, 9)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] { 0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L }),   Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         false           ).SetName("{m}(excludedRoleIds: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] { 0L                                          }),   Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedRoleIds: 0)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] {     1L                                      }),   Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedRoleIds: 1)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] {         2L                                  }),   Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedRoleIds: 2)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] {             3L                              }),   Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedRoleIds: 3)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] {                 4L                          }),   Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedRoleIds: 4)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] {                     5L                      }),   Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedRoleIds: 5)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] {                         6L                  }),   Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedRoleIds: 6)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] {                             7L              }),   Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedRoleIds: 7)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] {                                 8L          }),   Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedRoleIds: 8)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] {                                     9L      }),   Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedRoleIds: 9)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] {                                         10L }),   Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedRoleIds: 10)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] {     1L,     3L,     5L,     7L,     9L      }),   Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedRoleIds: 1, 3, 5, 7, 9)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] { 0L,     2L,     4L,     6L,     8L,     10L }),   Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedRoleIds: 0, 2, 4, 6, 8, 10)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.FromValue("Character Guild 1, Division 1"),    Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(name: Character Guild 1, Division 1)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.FromValue("Character Guild 1, Division 1a"),   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(name: Character Guild 1, Division 1a)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.FromValue("Character Guild 2, Division 2"),    Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(name: Character Guild 2, Division 2)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.FromValue("Character Guild 2, Division 2a"),   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         false           ).SetName("{m}(name: Character Guild 2, Division 2a)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.FromValue("Character Guild 2, Division 3"),    Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(name: Character Guild 2, Division 3)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.FromValue("Character Guild 2, Division 3a"),   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(name: Character Guild 2, Division 3a)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.FromValue("Character Guild 2, Division 3b"),   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         false           ).SetName("{m}(name: Character Guild 2, Division 3b)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.FromValue("Character Guild 3, Division 4"),    Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         false           ).SetName("{m}(name: Character Guild 3, Division 4)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.Unspecified,                                   Optional<bool>.FromValue(true),     Optional<bool>.Unspecified,         true            ).SetName("{m}(isDeleted: true)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.Unspecified,                                   Optional<bool>.FromValue(false),    Optional<bool>.Unspecified,         true            ).SetName("{m}(isDeleted: false)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.FromValue(true),     true            ).SetName("{m}(isLatestVersion: true)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.Unspecified,                                   Optional<bool>.Unspecified,         Optional<bool>.FromValue(false),    true            ).SetName("{m}(isLatestVersion: false)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.FromValue("Character Guild 1, Division 1a"),   Optional<bool>.FromValue(true),     Optional<bool>.Unspecified,         true            ).SetName("{m}(Division has deleted version)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.FromValue("Character Guild 1, Division 1"),    Optional<bool>.FromValue(true),     Optional<bool>.Unspecified,         false           ).SetName("{m}(Division does not have deleted version)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.FromValue("Character Guild 1, Division 2"),    Optional<bool>.FromValue(false),    Optional<bool>.Unspecified,         true            ).SetName("{m}(Division has undeleted version)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.FromValue("Character Guild 2, Division 3"),    Optional<bool>.Unspecified,         Optional<bool>.FromValue(true),     true            ).SetName("{m}(Division has current version)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.FromValue("Character Guild 2, Division 3a"),   Optional<bool>.Unspecified,         Optional<bool>.FromValue(true),     false           ).SetName("{m}(Division does not have current version)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.FromValue("Character Guild 1, Division 2"),    Optional<bool>.Unspecified,         Optional<bool>.FromValue(false),    true            ).SetName("{m}(Division has prior versions)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                                        Optional<string>.FromValue("Character Guild 2, Division 1"),    Optional<bool>.Unspecified,         Optional<bool>.FromValue(false),    false           ).SetName("{m}(Division does not have prior versions)"),
+                new TestCaseData(   Optional<long>.FromValue(0),    Optional<IEnumerable<long>>.FromValue(new[] { 1L }),                                            Optional<string>.FromValue("name 2"),                           Optional<bool>.FromValue(true),     Optional<bool>.FromValue(false),    false           ).SetName("{m}(All criteria specified)")
+            };
+
+        [TestCaseSource(nameof(AnyDivisionVersionsAsync_TestCaseData))]
+        public async Task AnyDivisionVersionsAsync_Always_ResultIsExpected(
+            Optional<long> guildId,
+            Optional<IEnumerable<long>> excludedDivisionIds,
+            Optional<string> name,
+            Optional<bool> isDeleted,
+            Optional<bool> isLatestVersion,
+            bool expectedResult)
+        {
+            using var testContext = new TestContext();
+
+            var uut = testContext.BuildUut();
+
+            var result = await uut.AnyDivisionVersionsAsync(
+                guildId,
+                excludedDivisionIds,
+                name,
+                isDeleted,
+                isLatestVersion,
+                testContext.CancellationToken);
+
+            result.ShouldBe(expectedResult);
+
+            testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
+        }
+
+        #endregion AnyDivisionVersionsAsync() Tests
+
+        #region AnyVersionsAsync() Tests
+
+        internal static IReadOnlyList<TestCaseData> AnyVersionsAsync_Always_TestCaseData
+            => new[]
+            {
+                /*                  guildId,                        excludedRoleIds,                                                        name,                                               isDeleted,                          isLatestVersion                     expectedResult  */
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.Unspecified,                       Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}()"),
+                new TestCaseData(   Optional<long>.FromValue(1),    Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.Unspecified,                       Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(guildId: 1)"),
+                new TestCaseData(   Optional<long>.FromValue(2),    Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.Unspecified,                       Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(guildId: 2)"),
+                new TestCaseData(   Optional<long>.FromValue(3),    Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.Unspecified,                       Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(guildId: 3)"),
+                new TestCaseData(   Optional<long>.FromValue(4),    Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.Unspecified,                       Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         false           ).SetName("{m}(guildId: 4)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(Array.Empty<long>()),             Optional<string>.Unspecified,                       Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedGuildIds: Empty)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] {     1L, 2L, 3L     }),    Optional<string>.Unspecified,                       Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         false           ).SetName("{m}(excludedGuildIds: 1, 2, 3)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] { 0L, 1L, 2L, 3L, 4L }),    Optional<string>.Unspecified,                       Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         false           ).SetName("{m}(excludedGuildIds: 0, 1, 2, 3, 4)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] { 0L                 }),    Optional<string>.Unspecified,                       Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedGuildIds: 0)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] {     1L             }),    Optional<string>.Unspecified,                       Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedGuildIds: 1)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] {         2L         }),    Optional<string>.Unspecified,                       Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedGuildIds: 2)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] {             3L     }),    Optional<string>.Unspecified,                       Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedGuildIds: 3)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] {                 4L }),    Optional<string>.Unspecified,                       Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedGuildIds: 4)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] {     1L,     3L,    }),    Optional<string>.Unspecified,                       Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedGuildIds: 1, 3)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.FromValue(new[] { 0L,     2L,     4L }),    Optional<string>.Unspecified,                       Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(excludedGuildIds: 0, 2, 4)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.FromValue("Character Guild 1"),    Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(name: Character Guild 1)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.FromValue("Character Guild 1a"),   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(name: Character Guild 1)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.FromValue("Character Guild 2"),    Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(name: Character Guild 2)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.FromValue("Character Guild 2a"),   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         false           ).SetName("{m}(name: Character Guild 2a)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.FromValue("Character Guild 3"),    Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(name: Character Guild 3)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.FromValue("Character Guild 3a"),   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         true            ).SetName("{m}(name: Character Guild 3a)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.FromValue("Character Guild 3b"),   Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         false           ).SetName("{m}(name: Character Guild 3b)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.FromValue("Character Guild 4"),    Optional<bool>.Unspecified,         Optional<bool>.Unspecified,         false           ).SetName("{m}(name: Character Guild 4)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.Unspecified,                       Optional<bool>.FromValue(true),     Optional<bool>.Unspecified,         true            ).SetName("{m}(isDeleted: true)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.Unspecified,                       Optional<bool>.FromValue(false),    Optional<bool>.Unspecified,         true            ).SetName("{m}(isDeleted: false)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.Unspecified,                       Optional<bool>.Unspecified,         Optional<bool>.FromValue(true),     true            ).SetName("{m}(isLatestVersion: true)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.Unspecified,                       Optional<bool>.Unspecified,         Optional<bool>.FromValue(false),    true            ).SetName("{m}(isLatestVersion: false)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.FromValue("Character Guild 2"),    Optional<bool>.FromValue(true),     Optional<bool>.Unspecified,         true            ).SetName("{m}(Guild has deleted version)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.FromValue("Character Guild 1"),    Optional<bool>.FromValue(true),     Optional<bool>.Unspecified,         false           ).SetName("{m}(Guild does not have deleted version)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.FromValue("Character Guild 1"),    Optional<bool>.FromValue(false),    Optional<bool>.Unspecified,         true            ).SetName("{m}(Guild has undeleted version)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.FromValue("Character Guild 1"),    Optional<bool>.Unspecified,         Optional<bool>.FromValue(true),     true            ).SetName("{m}(Guild has current version)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.FromValue("Character Guild 3"),    Optional<bool>.Unspecified,         Optional<bool>.FromValue(true),     false           ).SetName("{m}(Guild does not have current version)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<IEnumerable<long>>.Unspecified,                                Optional<string>.FromValue("Character Guild 1a"),   Optional<bool>.Unspecified,         Optional<bool>.FromValue(false),    true            ).SetName("{m}(Guild has prior versions)"),
+                new TestCaseData(   Optional<long>.FromValue(0),    Optional<IEnumerable<long>>.FromValue(new[] { 0L }),                    Optional<string>.FromValue("name"),                 Optional<bool>.FromValue(true),     Optional<bool>.FromValue(false),    false           ).SetName("{m}(All criteria specified)")
+            };
+
+        [TestCaseSource(nameof(AnyVersionsAsync_Always_TestCaseData))]
+        public async Task AnyVersionsAsync_Always_ResultIsExpected(
+            Optional<long> guildId,
+            Optional<IEnumerable<long>> excludedGuildIds,
+            Optional<string> name,
+            Optional<bool> isDeleted,
+            Optional<bool> isLatestVersion,
+            bool expectedResult)
+        {
+            using var testContext = new TestContext();
+
+            var uut = testContext.BuildUut();
+
+            var result = await uut.AnyVersionsAsync(
+                guildId,
+                excludedGuildIds,
+                name,
+                isDeleted,
+                isLatestVersion,
+                testContext.CancellationToken);
+
+            result.ShouldBe(expectedResult);
+
+            testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
+        }
+
+        #endregion AnyVersionsAsync() Tests
+
+        #region AsyncEnumerateDivisionIdentities() Tests
+
+        public static IReadOnlyList<TestCaseData> AsyncEnumerateDivisionIdentities_TestCaseData
+            => new[]
+            {
+                /*                  guildId,                        isDeleted                           versionIds                                          */
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<bool>.Unspecified,         new[] { 2L, 3L, 5L, 8L, 11L, 12L, 14L, 16L, 18L }   ).SetName("{m}(All Guilds, All current versions)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<bool>.FromValue(true),     new[] {         5L                              }   ).SetName("{m}(All Guilds, Deleted current versions)"),
+                new TestCaseData(   Optional<long>.Unspecified,     Optional<bool>.FromValue(false),    new[] { 2L, 3L,     8L, 11L, 12L, 14L, 16L, 18L }   ).SetName("{m}(All Guilds, Undeleted current versions)"),
+                new TestCaseData(   Optional<long>.FromValue(1),    Optional<bool>.Unspecified,         new[] {         5L,          12L, 14L           }   ).SetName("{m}(Guild 1, All current versions)"),
+                new TestCaseData(   Optional<long>.FromValue(1),    Optional<bool>.FromValue(true),     new[] {         5L                              }   ).SetName("{m}(Guild 1, Deleted current versions)"),
+                new TestCaseData(   Optional<long>.FromValue(1),    Optional<bool>.FromValue(false),    new[] {                      12L, 14L           }   ).SetName("{m}(Guild 1, Undeleted current versions)"),
+                new TestCaseData(   Optional<long>.FromValue(2),    Optional<bool>.Unspecified,         new[] { 2L, 3L,                             18L }   ).SetName("{m}(Guild 2, All current versions)"),
+                new TestCaseData(   Optional<long>.FromValue(2),    Optional<bool>.FromValue(true),     Array.Empty<long>()                                 ).SetName("{m}(Guild 2, Deleted current versions)"),
+                new TestCaseData(   Optional<long>.FromValue(2),    Optional<bool>.FromValue(false),    new[] { 2L, 3L,                             18L }   ).SetName("{m}(Guild 2, Undeleted current versions)"),
+                new TestCaseData(   Optional<long>.FromValue(3),    Optional<bool>.Unspecified,         new[] {             8L, 11L,           16L      }   ).SetName("{m}(Guild 3, All current versions)"),
+                new TestCaseData(   Optional<long>.FromValue(3),    Optional<bool>.FromValue(true),     Array.Empty<long>()                                 ).SetName("{m}(Guild 3, Deleted current versions)"),
+                new TestCaseData(   Optional<long>.FromValue(3),    Optional<bool>.FromValue(false),    new[] {             8L, 11L,           16L      }   ).SetName("{m}(Guild 3, Undeleted current versions)")
+            };
+
+        [TestCaseSource(nameof(AsyncEnumerateDivisionIdentities_TestCaseData))]
+        public async Task AsyncEnumerateDivisionIdentities_Always_ReturnsMatchingIdentities(
+            Optional<long> guildId,
+            Optional<bool> isDeleted,
+            IReadOnlyList<long> versionIds)
+        {
+            using var testContext = new TestContext();
+
+            var uut = testContext.BuildUut();
+
+            var results = await uut.AsyncEnumerateDivisionIdentities(
+                    guildId,
+                    isDeleted)
+                .ToArrayAsync();
+
+            results.ShouldNotBeNull();
+            results.ForEach(result => result.ShouldNotBeNull());
+            results.Select(x => x?.Id).ShouldBeSetEqualTo(versionIds.Select(x => (long?)testContext.Entities.CharacterGuildDivisionVersions.First(y => y.Id == x).DivisionId));
+            foreach (var result in results)
+            {
+                var entity = testContext.Entities.CharacterGuildDivisionVersions.First(y => (y.DivisionId == result.Id) && versionIds.Contains(y.Id));
+
+                result.Name.ShouldBe(result.Name);
+            }
+
+            testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
+        }
+
+        #endregion AsyncEnumerateDivisionIdentities() Tests
+
+        #region AsyncEnumerateIdentities() Tests
+
+        public static IReadOnlyList<TestCaseData> AsyncEnumerateIdentities_TestCaseData
+            => new[]
+            {
+                /*                  isDeleted                           versionIds              */
+                new TestCaseData(   Optional<bool>.Unspecified,         new[] { 5L, 8L, 9L }    ).SetName("{m}(All current versions)"),
+                new TestCaseData(   Optional<bool>.FromValue(true),     new[] { 5L }            ).SetName("{m}(Deleted current versions)"),
+                new TestCaseData(   Optional<bool>.FromValue(false),    new[] { 8L, 9L }        ).SetName("{m}(Undeleted current versions)")
+            };
+
+        [TestCaseSource(nameof(AsyncEnumerateIdentities_TestCaseData))]
+        public async Task AsyncEnumerateIdentities_Always_ReturnsMatchingIdentities(
+            Optional<bool> isDeleted,
+            IReadOnlyList<long> versionIds)
+        {
+            using var testContext = new TestContext();
+
+            var uut = testContext.BuildUut();
+
+            var results = await uut.AsyncEnumerateIdentities(
+                    isDeleted)
+                .ToArrayAsync();
+
+            results.ShouldNotBeNull();
+            results.ForEach(result => result.ShouldNotBeNull());
+            results.Select(x => x?.Id).ShouldBeSetEqualTo(versionIds.Select(x => (long?)testContext.Entities.CharacterGuildVersions.First(y => y.Id == x).GuildId));
+            foreach (var result in results)
+            {
+                var entity = testContext.Entities.CharacterGuildVersions.First(y => (y.GuildId == result.Id) && versionIds.Contains(y.Id));
+
+                result.Name.ShouldBe(result.Name);
+            }
+
+            testContext.MockContext.ShouldNotHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
+        }
+
+        #endregion AsyncEnumerateIdentities() Tests
 
         #region CreateAsync() Tests
 
@@ -120,7 +357,7 @@ namespace Sokan.Yastah.Data.Test.Characters
         }
 
         #endregion CreateAsync() Tests
-
+        
         #region CreateDivisionAsync() Tests
 
         public static IReadOnlyList<TestCaseData> CreateDivisionAsync_TestCaseData
@@ -202,6 +439,147 @@ namespace Sokan.Yastah.Data.Test.Characters
         }
 
         #endregion CreateDivisionAsync() Tests
+
+        #region ReadDivisionIdentityAsync() Tests
+
+        public static IReadOnlyList<TestCaseData> ReadDivisionIdentityAsync_MatchDoesNotExist_TestCaseData
+            = new[] {
+                /*                  divisionId,     guildId,                                    isDeleted                           */
+                new TestCaseData(   default(long),  default(Optional<long>),                    default(Optional<bool>)             ).SetName("{m}(Unspecified Values)"),
+                new TestCaseData(   default(long),  Optional<long>.FromValue(default),          Optional<bool>.FromValue(default)   ).SetName("{m}(Default Values)"),
+                new TestCaseData(   long.MinValue,  Optional<long>.FromValue(long.MinValue),    Optional<bool>.FromValue(false)     ).SetName("{m}(Min Values)"),
+                new TestCaseData(   1L,             Optional<long>.FromValue(2),                Optional<bool>.FromValue(false)     ).SetName("{m}(Unique Value Set 1)"),
+                new TestCaseData(   3L,             Optional<long>.FromValue(4),                Optional<bool>.FromValue(true)      ).SetName("{m}(Unique Value Set 2)"),
+                new TestCaseData(   5L,             Optional<long>.FromValue(6),                Optional<bool>.FromValue(false)     ).SetName("{m}(Unique Value Set 3)"),
+                new TestCaseData(   long.MaxValue,  Optional<long>.FromValue(long.MaxValue),    Optional<bool>.FromValue(true)      ).SetName("{m}(Max Values)"),
+                new TestCaseData(   10L,            Optional<long>.Unspecified,                 Optional<bool>.Unspecified          ).SetName("{m}(Division does not exist)"),
+                new TestCaseData(   1L,             Optional<long>.FromValue(2),                Optional<bool>.Unspecified          ).SetName("{m}(Division belongs to different Guild)"),
+                new TestCaseData(   4L,             Optional<long>.Unspecified,                 Optional<bool>.FromValue(false)     ).SetName("{m}(Division is deleted)"),
+                new TestCaseData(   5L,             Optional<long>.Unspecified,                 Optional<bool>.FromValue(true)      ).SetName("{m}(Division is not deleted)")
+            };
+
+        [TestCaseSource(nameof(ReadDivisionIdentityAsync_MatchDoesNotExist_TestCaseData))]
+        public async Task ReadDivisionIdentityAsync_MatchDoesNotExist_ReturnsDataNotFoundError(
+            long divisionId,
+            Optional<long> guildId,
+            Optional<bool> isDeleted)
+        {
+            using var testContext = new TestContext();
+
+            var uut = testContext.BuildUut();
+
+            var result = await uut.ReadDivisionIdentityAsync(
+                divisionId,
+                guildId,
+                isDeleted,
+                testContext.CancellationToken);
+
+            result.IsFailure.ShouldBeTrue();
+            var error = result.Error.ShouldBeOfType<DataNotFoundError>();
+            error.Message.ShouldContain(divisionId.ToString());
+            if (guildId.IsSpecified)
+                error.Message.ShouldContain(guildId.Value.ToString());
+        }
+
+        public static IReadOnlyList<TestCaseData> ReadDivisionIdentityAsync_MatchExists_TestCaseData
+            = new[] {
+                /*                  divisionId, guildId,                        isDeleted,                          versionId   */
+                new TestCaseData(   1L,         Optional<long>.Unspecified,     Optional<bool>.Unspecified,         14L         ).SetName("{m}(Division Exists)"),
+                new TestCaseData(   3L,         Optional<long>.FromValue(2),    Optional<bool>.Unspecified,         3L          ).SetName("{m}(Division belongs to Guild)"),
+                new TestCaseData(   5L,         Optional<long>.Unspecified,     Optional<bool>.FromValue(false),    8L          ).SetName("{m}(Division is not deleted)"),
+                new TestCaseData(   4L,         Optional<long>.Unspecified,     Optional<bool>.FromValue(true),     4L          ).SetName("{m}(Division is deleted)")
+            };
+
+        [TestCaseSource(nameof(ReadDivisionIdentityAsync_MatchExists_TestCaseData))]
+        public async Task ReadDivisionIdentityAsync_MatchExists_ReturnsMatch(
+            long divisionId,
+            Optional<long> guildId,
+            Optional<bool> isDeleted,
+            long versionId)
+        {
+            using var testContext = new TestContext();
+
+            var uut = testContext.BuildUut();
+
+            var result = await uut.ReadDivisionIdentityAsync(
+                divisionId,
+                guildId,
+                isDeleted,
+                testContext.CancellationToken);
+
+            result.IsSuccess.ShouldBeTrue();
+            result.Value.Id.ShouldBe(divisionId);
+
+            var entity = testContext.Entities.CharacterGuildDivisionVersions.First(x => x.Id == versionId);
+            result.Value.Name.ShouldBe(entity.Name);
+        }
+
+        #endregion ReadDivisionIdentityAsync() Tests
+
+        #region ReadIdentityAsync() Tests
+
+        public static IReadOnlyList<TestCaseData> ReadIdentityAsync_MatchDoesNotExist_TestCaseData
+            = new[] {
+                /*                  guildId,        isDeleted                           */
+                new TestCaseData(   default(long),  default(Optional<bool>)             ).SetName("{m}(Unspecified Values)"),
+                new TestCaseData(   default(long),  Optional<bool>.FromValue(default)   ).SetName("{m}(Default Values)"),
+                new TestCaseData(   long.MinValue,  Optional<bool>.FromValue(false)     ).SetName("{m}(Min Values)"),
+                new TestCaseData(   long.MaxValue,  Optional<bool>.FromValue(true)      ).SetName("{m}(Max Values)"),
+                new TestCaseData(   4L,             Optional<bool>.Unspecified          ).SetName("{m}(Guild does not exist)"),
+                new TestCaseData(   2L,             Optional<bool>.FromValue(false)     ).SetName("{m}(Guild is deleted)"),
+                new TestCaseData(   3L,             Optional<bool>.FromValue(true)      ).SetName("{m}(Guild is not deleted)")
+            };
+
+        [TestCaseSource(nameof(ReadIdentityAsync_MatchDoesNotExist_TestCaseData))]
+        public async Task ReadIdentityAsync_MatchDoesNotExist_ReturnsDataNotFoundError(
+            long guildId,
+            Optional<bool> isDeleted)
+        {
+            using var testContext = new TestContext();
+
+            var uut = testContext.BuildUut();
+
+            var result = await uut.ReadIdentityAsync(
+                guildId,
+                isDeleted,
+                testContext.CancellationToken);
+
+            result.IsFailure.ShouldBeTrue();
+            var error = result.Error.ShouldBeOfType<DataNotFoundError>();
+            error.Message.ShouldContain(guildId.ToString());
+        }
+
+        public static IReadOnlyList<TestCaseData> ReadIdentityAsync_MatchExists_TestCaseData
+            = new[] {
+                /*                  guildId,    isDeleted,                          versionId   */
+                new TestCaseData(   1L,         Optional<bool>.Unspecified,         9L          ).SetName("{m}(Guild Exists)"),
+                new TestCaseData(   3L,         Optional<bool>.FromValue(false),    8L          ).SetName("{m}(Guild is not deleted)"),
+                new TestCaseData(   2L,         Optional<bool>.FromValue(true),     5L          ).SetName("{m}(Guild is deleted)")
+            };
+
+        [TestCaseSource(nameof(ReadIdentityAsync_MatchExists_TestCaseData))]
+        public async Task ReadIdentityAsync_MatchExists_ReturnsMatch(
+            long guildId,
+            Optional<bool> isDeleted,
+            long versionId)
+        {
+            using var testContext = new TestContext();
+
+            var uut = testContext.BuildUut();
+
+            var result = await uut.ReadIdentityAsync(
+                guildId,
+                isDeleted,
+                testContext.CancellationToken);
+
+            result.IsSuccess.ShouldBeTrue();
+            result.Value.Id.ShouldBe(guildId);
+
+            var entity = testContext.Entities.CharacterGuildVersions.First(x => x.Id == versionId);
+            result.Value.Name.ShouldBe(entity.Name);
+        }
+
+        #endregion ReadIdentityAsync() Tests
 
         #region UpdateAsync() Tests
 

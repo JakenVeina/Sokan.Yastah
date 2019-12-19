@@ -29,6 +29,10 @@
                     </li>
                 </ul>
             </li>
+            <li *ngIf="hasCharacterGuilds | async" class="menu-item">
+                <span class="material-icons">assignment</span>
+                <h5><a [routerLink]="['/characters/guilds']">Guilds</a></h5>
+            </li>
         </ul>
     </nav>
 </header>

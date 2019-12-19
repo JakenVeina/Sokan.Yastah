@@ -1,6 +1,6 @@
 ﻿using Sokan.Yastah.Common.OperationModel;
 
-namespace Sokan.Yastah.Business.Roles
+namespace Sokan.Yastah.Business
 {
     public class NameInUseError
         : OperationErrorBase

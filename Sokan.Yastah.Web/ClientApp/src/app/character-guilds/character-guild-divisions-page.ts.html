@@ -1,0 +1,12 @@
+﻿<div>
+    <ul>
+        <li><h2><a [routerLink]="['new']">New</a></h2></li>
+    </ul>
+    <hr />
+    <ul>
+        <li *ngFor="let division of (divisions | async); trackBy: divisionTrackByFn"><h4><a [routerLink]="[division.id]">{{division.name}}</a></h4></li>
+    </ul>
+</div>
+<div>
+    <router-outlet></router-outlet>
+</div>

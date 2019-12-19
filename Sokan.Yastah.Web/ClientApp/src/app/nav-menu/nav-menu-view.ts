@@ -53,6 +53,10 @@ export class NavMenuView {
         return this._authorizationService.hasAdminManageUsers;
     }
 
+    public get hasCharacterGuilds(): Observable<boolean> {
+        return this._authorizationService.hasCharacterAdminManageGuilds;
+    }
+
     public get hasHome(): Observable<boolean> {
         return this._authorizationService.hasAnyPermissions;
     }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,9 @@ namespace Sokan.Yastah.Data.Characters
         public long GuildId { get; }
 
         public CharacterGuildEntity Guild { get; internal set; }
+            = null!;
+
+        public ICollection<CharacterGuildDivisionVersionEntity> Versions { get; internal set; }
             = null!;
 
         [OnModelCreating]

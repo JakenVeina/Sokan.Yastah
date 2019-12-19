@@ -176,6 +176,7 @@ namespace Sokan.Yastah.Data.Test
                 .Append(new CharacterGuildEntity(   id: 1   ))
                 .Append(new CharacterGuildEntity(   id: 2   ))
                 .Append(new CharacterGuildEntity(   id: 3   ))
+                .Do(cg => cg.Divisions = new List<CharacterGuildDivisionEntity>())
                 .ToArray();
 
             CharacterGuildVersions = Enumerable.Empty<CharacterGuildVersionEntity>()
@@ -207,6 +208,8 @@ namespace Sokan.Yastah.Data.Test
                 .Append(new CharacterGuildDivisionEntity(   id: 8,  guildId: 1   ))
                 .Append(new CharacterGuildDivisionEntity(   id: 9,  guildId: 3   ))
                 .Do(cgd => cgd.Guild = CharacterGuilds.First(cg => cg.Id == cgd.GuildId))
+                .Do(cgd => cgd.Versions = new List<CharacterGuildDivisionVersionEntity>())
+                .Do(cgd => cgd.Guild.Divisions.Add(cgd))
                 .ToArray();
 
             CharacterGuildDivisionVersions = Enumerable.Empty<CharacterGuildDivisionVersionEntity>()
@@ -214,7 +217,7 @@ namespace Sokan.Yastah.Data.Test
                 .Append(new CharacterGuildDivisionVersionEntity(    id: 2,  divisionId: 2,  name: "Character Guild 2, Division 1",  isDeleted: false,   creationId: 50, previousVersionId: null, nextVersionId: null    ))
                 .Append(new CharacterGuildDivisionVersionEntity(    id: 3,  divisionId: 3,  name: "Character Guild 2, Division 2",  isDeleted: false,   creationId: 51, previousVersionId: null, nextVersionId: null    ))
                 .Append(new CharacterGuildDivisionVersionEntity(    id: 4,  divisionId: 4,  name: "Character Guild 1, Division 2",  isDeleted: false,   creationId: 52, previousVersionId: null, nextVersionId: 5       ))
-                .Append(new CharacterGuildDivisionVersionEntity(    id: 5,  divisionId: 4,  name: "Character Guild 1, Division 2",  isDeleted: true,    creationId: 53, previousVersionId: 5,    nextVersionId: null    ))
+                .Append(new CharacterGuildDivisionVersionEntity(    id: 5,  divisionId: 4,  name: "Character Guild 1, Division 2",  isDeleted: true,    creationId: 53, previousVersionId: 4,    nextVersionId: null    ))
                 .Append(new CharacterGuildDivisionVersionEntity(    id: 6,  divisionId: 1,  name: "Character Guild 1, Division 1a", isDeleted: false,   creationId: 54, previousVersionId: 1,    nextVersionId: 10      ))
                 .Append(new CharacterGuildDivisionVersionEntity(    id: 7,  divisionId: 5,  name: "Character Guild 3, Division 1",  isDeleted: false,   creationId: 55, previousVersionId: null, nextVersionId: 8       ))
                 .Append(new CharacterGuildDivisionVersionEntity(    id: 8,  divisionId: 5,  name: "Character Guild 3, Division 1a", isDeleted: false,   creationId: 56, previousVersionId: 7,    nextVersionId: null    ))
@@ -230,6 +233,7 @@ namespace Sokan.Yastah.Data.Test
                 .Append(new CharacterGuildDivisionVersionEntity(    id: 18, divisionId: 6,  name: "Character Guild 2, Division 3",  isDeleted: false,   creationId: 66, previousVersionId: 17,   nextVersionId: null    ))
                 .Do(cgdv => cgdv.Division = CharacterGuildDivisions.First(cgd => cgd.Id == cgdv.DivisionId))
                 .Do(cgdv => cgdv.Creation = AdministrationActions.First(aa => aa.Id == cgdv.CreationId))
+                .Do(cgdv => cgdv.Division.Versions.Add(cgdv))
                 .ToArray();
             CharacterGuildDivisionVersions
                 .Do(cgdv => cgdv.PreviousVersion = (cgdv.PreviousVersionId is null) ? null : CharacterGuildDivisionVersions.First(pv => pv.Id == cgdv.PreviousVersionId))

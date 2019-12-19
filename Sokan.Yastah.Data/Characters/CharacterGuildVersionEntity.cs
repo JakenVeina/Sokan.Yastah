@@ -49,12 +49,10 @@ namespace Sokan.Yastah.Data.Characters
         public AdministrationActionEntity Creation { get; internal set; }
             = null!;
 
-        [ForeignKey(nameof(PreviousVersion))]
         public long? PreviousVersionId { get; set; }
 
         public CharacterGuildVersionEntity? PreviousVersion { get; set; }
 
-        [ForeignKey(nameof(NextVersion))]
         public long? NextVersionId { get; set; }
 
         public CharacterGuildVersionEntity? NextVersion { get; set; }
@@ -68,6 +66,16 @@ namespace Sokan.Yastah.Data.Characters
                 
                 entityBuilder
                     .Property(x => x.IsDeleted);
+
+                entityBuilder
+                    .HasOne(x => x.PreviousVersion)
+                    .WithOne()
+                    .HasForeignKey<CharacterGuildVersionEntity>(x => x.PreviousVersionId);
+
+                entityBuilder
+                    .HasOne(x => x.NextVersion)
+                    .WithOne()
+                    .HasForeignKey<CharacterGuildVersionEntity>(x => x.NextVersionId);
             });
     }
 }

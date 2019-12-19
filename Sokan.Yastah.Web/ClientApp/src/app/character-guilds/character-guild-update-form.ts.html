@@ -1,0 +1,18 @@
+﻿<form [formGroup]="form" (ngSubmit)="save()">
+    <dl>
+        <dt><label for="name">Name</label></dt>
+        <dd>
+            <input id="name" formControlName="name" />
+            <span *ngIf="form.controls.name.invalid">
+                <span *ngIf="form.controls.name.errors.required" class="alert">Cannot be empty</span>
+                <span *ngIf="form.controls.name.errors.duplicate" class="alert">Already in use</span>
+                <span *ngIf="form.controls.name.errors.uninitialized">Form has not yet initialized</span>
+            </span>
+        </dd>
+    </dl>
+    <button type="button" (click)="reset()" [disabled]="!canReset">Reset</button>
+    <button type="submit" [disabled]="!canSave">Save</button>
+    <button type="button" (click)="delete()" [disabled]="!canDelete">Delete</button>
+    <div *ngIf="saveError != null">An error occurred while saving changes: {{saveError.message}}</div>
+    <div *ngIf="hasSaved">Changes saved successfully</div>
+</form>

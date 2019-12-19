@@ -1,9 +1,7 @@
 ﻿using NUnit.Framework;
 using Shouldly;
 
-using Sokan.Yastah.Business.Roles;
-
-namespace Sokan.Yastah.Business.Test.Roles
+namespace Sokan.Yastah.Business.Test
 {
     [TestFixture]
     public class NameInUseErrorTests

@@ -31,6 +31,22 @@
 
   <ItemGroup>
     <None Remove="ClientApp\src\app\admin\actions.ts" />
+    <None Remove="ClientApp\src\app\character-guilds\actions.ts" />
+    <None Remove="ClientApp\src\app\character-guilds\character-guild-creation-form.ts" />
+    <None Remove="ClientApp\src\app\character-guilds\character-guild-creation-page.ts" />
+    <None Remove="ClientApp\src\app\character-guilds\character-guild-division-creation-form.ts" />
+    <None Remove="ClientApp\src\app\character-guilds\character-guild-division-creation-page.ts" />
+    <None Remove="ClientApp\src\app\character-guilds\character-guild-division-update-form.ts" />
+    <None Remove="ClientApp\src\app\character-guilds\character-guild-division-update-page.ts" />
+    <None Remove="ClientApp\src\app\character-guilds\character-guild-divisions-page.ts" />
+    <None Remove="ClientApp\src\app\character-guilds\character-guild-update-form.ts" />
+    <None Remove="ClientApp\src\app\character-guilds\character-guild-update-page.ts" />
+    <None Remove="ClientApp\src\app\character-guilds\character-guilds-page.ts" />
+    <None Remove="ClientApp\src\app\character-guilds\effects.ts" />
+    <None Remove="ClientApp\src\app\character-guilds\models.ts" />
+    <None Remove="ClientApp\src\app\character-guilds\reducers.ts" />
+    <None Remove="ClientApp\src\app\character-guilds\service.ts" />
+    <None Remove="ClientApp\src\app\character-guilds\state.ts" />
     <None Remove="ClientApp\src\app\admin\guards.ts" />
     <None Remove="ClientApp\src\app\admin\module.ts" />
     <None Remove="ClientApp\src\app\admin\permissions\actions.ts" />
@@ -77,6 +93,8 @@
     <None Remove="ClientApp\src\app\guards.ts" />
     <None Remove="ClientApp\src\app\routes.ts" />
     <None Remove="ClientApp\src\app\state.ts" />
+    <None Remove="ClientApp\src\app\subscriber-component-base.ts" />
+    <None Remove="ClientApp\src\app\validators.ts" />
     <None Remove="ClientApp\src\tsconfig.app.json" />
     <None Remove="ClientApp\src\tsconfig.server.json" />
     <None Remove="ClientApp\src\tsconfig.spec.json" />
@@ -106,6 +124,22 @@
 
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\app\admin\actions.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\actions.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-creation-form.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-creation-page.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-division-creation-form.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-division-creation-page.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-division-update-form.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-division-update-page.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-divisions-page.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-update-page.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guilds-page.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\effects.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\models.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\reducers.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-update-form.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\service.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\state.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\admin\guards.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\admin\permissions\actions.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\admin\permissions\effects.ts" />
@@ -146,11 +180,13 @@
     <TypeScriptCompile Include="ClientApp\src\app\authentication\reducers.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\authentication\state.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\authentication\utils.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\subscriber-component-base.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\guards.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\routes.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\authentication\authentication-service.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\authorization\authorization-service.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\state.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\validators.ts" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

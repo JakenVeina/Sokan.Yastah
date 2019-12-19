@@ -1,0 +1,7 @@
+﻿<character-guild-division-update-form
+    [guild-id]="guildId | async"
+    [division-identity]="divisionIdentity | async"
+    [division-identities]="divisionIdentities | async"
+    (deleted)="onDeleted()"
+    (resetting)="onResetting()">
+</character-guild-division-update-form>

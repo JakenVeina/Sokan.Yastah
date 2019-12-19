@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -13,6 +14,29 @@ namespace Sokan.Yastah.Data.Characters
 {
     public interface ICharacterGuildsRepository
     {
+        Task<bool> AnyDivisionVersionsAsync(
+            Optional<long> guildId = default,
+            Optional<IEnumerable<long>> excludedDivisionIds = default,
+            Optional<string> name = default,
+            Optional<bool> isDeleted = default,
+            Optional<bool> isLatestVersion = default,
+            CancellationToken cancellationToken = default);
+
+        Task<bool> AnyVersionsAsync(
+            Optional<long> guildId = default,
+            Optional<IEnumerable<long>> excludedGuildIds = default,
+            Optional<string> name = default,
+            Optional<bool> isDeleted = default,
+            Optional<bool> isLatestVersion = default,
+            CancellationToken cancellationToken = default);
+
+        IAsyncEnumerable<CharacterGuildDivisionIdentityViewModel> AsyncEnumerateDivisionIdentities(
+            Optional<long> guildId = default,
+            Optional<bool> isDeleted = default);
+
+        IAsyncEnumerable<CharacterGuildIdentityViewModel> AsyncEnumerateIdentities(
+            Optional<bool> isDeleted = default);
+
         Task<long> CreateAsync(
             string name,
             long creationId,
@@ -23,6 +47,17 @@ namespace Sokan.Yastah.Data.Characters
             string name,
             long creationId,
             CancellationToken cancellationToken);
+
+        Task<OperationResult<CharacterGuildDivisionIdentityViewModel>> ReadDivisionIdentityAsync(
+            long divisionId,
+            Optional<long> guildId = default,
+            Optional<bool> isDeleted = default,
+            CancellationToken cancellationToken = default);
+
+        Task<OperationResult<CharacterGuildIdentityViewModel>> ReadIdentityAsync(
+            long guildId,
+            Optional<bool> isDeleted = default,
+            CancellationToken cancellationToken = default);
 
         Task<OperationResult<long>> UpdateAsync(
             long guildId,
@@ -48,6 +83,102 @@ namespace Sokan.Yastah.Data.Characters
         {
             _context = context;
             _transactionScopeFactory = transactionScopeFactory;
+        }
+
+        public Task<bool> AnyDivisionVersionsAsync(
+            Optional<long> guildId = default,
+            Optional<IEnumerable<long>> excludedDivisionIds = default,
+            Optional<string> name = default,
+            Optional<bool> isDeleted = default,
+            Optional<bool> isLatestVersion = default,
+            CancellationToken cancellationToken = default)
+        {
+            var query = _context.Set<CharacterGuildDivisionVersionEntity>()
+                .AsQueryable();
+
+            if (guildId.IsSpecified)
+                query = query.Where(x => x.Division.GuildId == guildId.Value);
+
+            if (excludedDivisionIds.IsSpecified)
+                query = query.Where(x => !excludedDivisionIds.Value.Contains(x.DivisionId));
+
+            if (name.IsSpecified)
+                query = query.Where(x => x.Name == name.Value);
+
+            if (isDeleted.IsSpecified)
+                query = query.Where(x => x.IsDeleted == isDeleted.Value);
+
+            if (isLatestVersion.IsSpecified)
+                query = isLatestVersion.Value
+                    ? query.Where(x => x.NextVersionId == null)
+                    : query.Where(x => x.NextVersionId != null);
+
+            return query.AnyAsync(cancellationToken);
+        }
+
+        public Task<bool> AnyVersionsAsync(
+            Optional<long> guildId = default,
+            Optional<IEnumerable<long>> excludedGuildIds = default,
+            Optional<string> name = default,
+            Optional<bool> isDeleted = default,
+            Optional<bool> isLatestVersion = default,
+            CancellationToken cancellationToken = default)
+        {
+            var query = _context.Set<CharacterGuildVersionEntity>()
+                .AsQueryable();
+
+            if (guildId.IsSpecified)
+                query = query.Where(x => x.GuildId == guildId.Value);
+
+            if (excludedGuildIds.IsSpecified)
+                query = query.Where(x => !excludedGuildIds.Value.Contains(x.GuildId));
+
+            if (name.IsSpecified)
+                query = query.Where(x => x.Name == name.Value);
+
+            if (isDeleted.IsSpecified)
+                query = query.Where(x => x.IsDeleted == isDeleted.Value);
+
+            if (isLatestVersion.IsSpecified)
+                query = isLatestVersion.Value
+                    ? query.Where(x => x.NextVersionId == null)
+                    : query.Where(x => x.NextVersionId != null);
+
+            return query.AnyAsync(cancellationToken);
+        }
+
+        public IAsyncEnumerable<CharacterGuildDivisionIdentityViewModel> AsyncEnumerateDivisionIdentities(
+                Optional<long> guildId = default,
+                Optional<bool> isDeleted = default)
+        {
+            var query = _context.Set<CharacterGuildDivisionVersionEntity>()
+                .AsQueryable()
+                .Where(x => x.NextVersionId == null);
+
+            if (guildId.IsSpecified)
+                query = query.Where(x => x.Division.GuildId == guildId.Value);
+
+            if (isDeleted.IsSpecified)
+                query = query.Where(x => x.IsDeleted == isDeleted.Value);
+
+            return query
+                .Select(CharacterGuildDivisionIdentityViewModel.FromVersionEntityProjection)
+                .AsAsyncEnumerable();
+        }
+
+        public IAsyncEnumerable<CharacterGuildIdentityViewModel> AsyncEnumerateIdentities(
+                Optional<bool> isDeleted = default)
+        {
+            var query = _context.Set<CharacterGuildVersionEntity>()
+                .AsQueryable()
+                .Where(x => x.NextVersionId == null);
+
+            if (isDeleted.IsSpecified)
+                query = query.Where(x => x.IsDeleted == isDeleted.Value);
+
+            return query
+                .Select(CharacterGuildIdentityViewModel.FromVersionEntityProjection)
+                .AsAsyncEnumerable();
         }
 
         public async Task<long> CreateAsync(
@@ -110,6 +241,56 @@ namespace Sokan.Yastah.Data.Characters
             transactionScope.Complete();
 
             return division.Id;
+        }
+
+        public async Task<OperationResult<CharacterGuildDivisionIdentityViewModel>> ReadDivisionIdentityAsync(
+            long divisionId,
+            Optional<long> guildId = default,
+            Optional<bool> isDeleted = default,
+            CancellationToken cancellationToken = default)
+        {
+            var query = _context.Set<CharacterGuildDivisionVersionEntity>()
+                .AsQueryable()
+                .Where(x => x.NextVersionId == null)
+                .Where(x => x.DivisionId == divisionId);
+
+            if (guildId.IsSpecified)
+                query = query.Where(x => x.Division.GuildId == guildId.Value);
+
+            if (isDeleted.IsSpecified)
+                query = query.Where(x => x.IsDeleted == isDeleted.Value);
+
+            var result = await query
+                .Select(CharacterGuildDivisionIdentityViewModel.FromVersionEntityProjection)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            return (result is null)
+                ? guildId.IsSpecified
+                    ? new DataNotFoundError($"Guild ID {guildId.Value}, Division ID {divisionId}").ToError<CharacterGuildDivisionIdentityViewModel>()
+                    : new DataNotFoundError($"Division ID {divisionId}").ToError<CharacterGuildDivisionIdentityViewModel>()
+                : result.ToSuccess();
+        }
+
+        public async Task<OperationResult<CharacterGuildIdentityViewModel>> ReadIdentityAsync(
+            long guildId,
+            Optional<bool> isDeleted = default,
+            CancellationToken cancellationToken = default)
+        {
+            var query = _context.Set<CharacterGuildVersionEntity>()
+                .AsQueryable()
+                .Where(x => x.NextVersionId == null)
+                .Where(x => x.GuildId == guildId);
+
+            if (isDeleted.IsSpecified)
+                query = query.Where(x => x.IsDeleted == isDeleted.Value);
+
+            var result = await query
+                .Select(CharacterGuildIdentityViewModel.FromVersionEntityProjection)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            return (result is null)
+                ? new DataNotFoundError($"Guild ID {guildId}").ToError<CharacterGuildIdentityViewModel>()
+                : result.ToSuccess();
         }
 
         public async Task<OperationResult<long>> UpdateAsync(

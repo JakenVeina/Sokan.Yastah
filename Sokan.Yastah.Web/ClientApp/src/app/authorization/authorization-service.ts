@@ -34,6 +34,10 @@ export class AuthorizationService {
         this._hasAnyPermissions = currentTicket
             .pipe(map(t => (t != null)
                 && (Object.keys(t.grantedPermissions).length > 0)));
+
+        this._hasCharacterAdminManageGuilds = currentTicket
+            .pipe(map(t => (t != null)
+                && Object.values(t.grantedPermissions).some(p => p === "CharacterAdministration.ManageGuilds")));
     }
 
     public get hasAdmin(): Observable<boolean> {
@@ -56,9 +60,14 @@ export class AuthorizationService {
         return this._hasAnyPermissions;
     }
 
+    public get hasCharacterAdminManageGuilds(): Observable<boolean> {
+        return this._hasCharacterAdminManageGuilds;
+    }
+
     private readonly _hasAdmin: Observable<boolean>;
     private readonly _hasAdminManagePermissions: Observable<boolean>;
     private readonly _hasAdminManageRoles: Observable<boolean>;
     private readonly _hasAdminManageUsers: Observable<boolean>;
     private readonly _hasAnyPermissions: Observable<boolean>;
+    private readonly _hasCharacterAdminManageGuilds;
 }

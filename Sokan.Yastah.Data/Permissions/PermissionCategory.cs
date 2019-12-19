@@ -8,7 +8,10 @@ namespace Sokan.Yastah.Data.Permissions
     public enum PermissionCategory
     {
         [Description("Permissions related to administration of the application")]
-        Administration = 1
+        Administration = 1,
+        
+        [Description("Permissions related to administration of game characters")]
+        CharacterAdministration = 2,
     }
 
     public static class PermissionCategoryModelBuilder

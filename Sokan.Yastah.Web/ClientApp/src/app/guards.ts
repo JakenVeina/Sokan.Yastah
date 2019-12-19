@@ -20,3 +20,20 @@ export class PortalGuard
 
     private readonly _authorizationService: AuthorizationService;
 }
+
+@Injectable({
+    providedIn: "root"
+})
+export class CharacterGuildsGuard
+    implements CanActivate {
+    public constructor(
+        authorizationService: AuthorizationService) {
+        this._authorizationService = authorizationService;
+    }
+
+    public canActivate(): Observable<boolean> {
+        return this._authorizationService.hasCharacterAdminManageGuilds;
+    }
+
+    private readonly _authorizationService: AuthorizationService;
+}
