@@ -22,7 +22,7 @@ namespace Sokan.Yastah.Data.Roles
         public IReadOnlyList<int> GrantedPermissionIds { get; }
 
         internal static Expression<Func<RoleVersionEntity, RoleDetailViewModel>> FromVersionEntityExpression
-            => ve => new RoleDetailViewModel(
+            = ve => new RoleDetailViewModel(
                 ve.RoleId,
                 ve.Name,
                 ve.Role.PermissionMappings

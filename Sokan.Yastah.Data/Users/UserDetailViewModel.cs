@@ -36,7 +36,7 @@ namespace Sokan.Yastah.Data.Users
         public IReadOnlyList<long> AssignedRoleIds { get; }
 
         new internal static Expression<Func<UserEntity, UserDetailViewModel>> FromEntityProjection
-            => e => new UserDetailViewModel(
+            = e => new UserDetailViewModel(
                 e.Id,
                 e.Username,
                 e.Discriminator,
