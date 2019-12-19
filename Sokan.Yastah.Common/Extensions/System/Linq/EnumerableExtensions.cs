@@ -15,7 +15,7 @@ namespace System.Linq
 
         public static void Enumerate<T>(this IEnumerable<T> sequence)
         {
-            foreach (var item in sequence) ;
+            foreach (var _ in sequence) ;
         }
 
         public static void ForEach<T>(this IEnumerable<T> sequence, Action<T> action)
