@@ -10,7 +10,7 @@ using Sokan.Yastah.Data;
 namespace Sokan.Yastah.Data.Migrations
 {
     [DbContext(typeof(YastahDbContext))]
-    [Migration("20191123080451_Initial")]
+    [Migration("20191219220227_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -367,7 +367,8 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasIndex("NextVersionId")
                         .IsUnique();
 
-                    b.HasIndex("PreviousVersionId");
+                    b.HasIndex("PreviousVersionId")
+                        .IsUnique();
 
                     b.ToTable("CharacterGuildVersions","Characters");
                 });
@@ -469,7 +470,8 @@ namespace Sokan.Yastah.Data.Migrations
                     b.HasIndex("NextVersionId")
                         .IsUnique();
 
-                    b.HasIndex("PreviousVersionId");
+                    b.HasIndex("PreviousVersionId")
+                        .IsUnique();
 
                     b.ToTable("CharacterVersions","Characters");
                 });
@@ -500,6 +502,12 @@ namespace Sokan.Yastah.Data.Migrations
                             Id = 1,
                             Description = "Permissions related to administration of the application",
                             Name = "Administration"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Permissions related to administration of game characters",
+                            Name = "CharacterAdministration"
                         });
                 });
 
@@ -527,6 +535,13 @@ namespace Sokan.Yastah.Data.Migrations
                     b.ToTable("Permissions","Permissions");
 
                     b.HasData(
+                        new
+                        {
+                            PermissionId = 100,
+                            CategoryId = 2,
+                            Description = "Allows management of character guilds",
+                            Name = "ManageGuilds"
+                        },
                         new
                         {
                             PermissionId = 1,
@@ -838,7 +853,7 @@ namespace Sokan.Yastah.Data.Migrations
             modelBuilder.Entity("Sokan.Yastah.Data.Characters.CharacterGuildDivisionEntity", b =>
                 {
                     b.HasOne("Sokan.Yastah.Data.Characters.CharacterGuildEntity", "Guild")
-                        .WithMany()
+                        .WithMany("Divisions")
                         .HasForeignKey("GuildId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -853,7 +868,7 @@ namespace Sokan.Yastah.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("Sokan.Yastah.Data.Characters.CharacterGuildDivisionEntity", "Division")
-                        .WithMany()
+                        .WithMany("Versions")
                         .HasForeignKey("DivisionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -888,8 +903,8 @@ namespace Sokan.Yastah.Data.Migrations
                         .HasForeignKey("Sokan.Yastah.Data.Characters.CharacterGuildVersionEntity", "NextVersionId");
 
                     b.HasOne("Sokan.Yastah.Data.Characters.CharacterGuildVersionEntity", "PreviousVersion")
-                        .WithMany()
-                        .HasForeignKey("PreviousVersionId");
+                        .WithOne()
+                        .HasForeignKey("Sokan.Yastah.Data.Characters.CharacterGuildVersionEntity", "PreviousVersionId");
                 });
 
             modelBuilder.Entity("Sokan.Yastah.Data.Characters.CharacterLevelDefinitionVersionEntity", b =>
@@ -936,8 +951,8 @@ namespace Sokan.Yastah.Data.Migrations
                         .HasForeignKey("Sokan.Yastah.Data.Characters.CharacterVersionEntity", "NextVersionId");
 
                     b.HasOne("Sokan.Yastah.Data.Characters.CharacterVersionEntity", "PreviousVersion")
-                        .WithMany()
-                        .HasForeignKey("PreviousVersionId");
+                        .WithOne()
+                        .HasForeignKey("Sokan.Yastah.Data.Characters.CharacterVersionEntity", "PreviousVersionId");
                 });
 
             modelBuilder.Entity("Sokan.Yastah.Data.Permissions.PermissionEntity", b =>

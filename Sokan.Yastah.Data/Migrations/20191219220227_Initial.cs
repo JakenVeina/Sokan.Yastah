@@ -724,7 +724,11 @@ namespace Sokan.Yastah.Data.Migrations
                 schema: "Permissions",
                 table: "PermissionCategories",
                 columns: new[] { "Id", "Description", "Name" },
-                values: new object[] { 1, "Permissions related to administration of the application", "Administration" });
+                values: new object[,]
+                {
+                    { 1, "Permissions related to administration of the application", "Administration" },
+                    { 2, "Permissions related to administration of game characters", "CharacterAdministration" }
+                });
 
             migrationBuilder.InsertData(
                 schema: "Administration",
@@ -740,8 +744,8 @@ namespace Sokan.Yastah.Data.Migrations
                     { 423, 3, "DivisionRestored" },
                     { 422, 3, "DivisionDeleted" },
                     { 421, 3, "DivisionModified" },
-                    { 420, 3, "DivisionCreated" },
                     { 403, 3, "GuildRestored" },
+                    { 420, 3, "DivisionCreated" },
                     { 401, 3, "GuildModified" },
                     { 400, 3, "GuildCreated" },
                     { 22, 2, "DefaultsModified" },
@@ -759,9 +763,10 @@ namespace Sokan.Yastah.Data.Migrations
                 columns: new[] { "PermissionId", "CategoryId", "Description", "Name" },
                 values: new object[,]
                 {
-                    { 2, 1, "Allows management of application roles", "ManageRoles" },
+                    { 3, 1, "Allows management of application users", "ManageUsers" },
                     { 1, 1, "Allows management of application permissions", "ManagePermissions" },
-                    { 3, 1, "Allows management of application users", "ManageUsers" }
+                    { 2, 1, "Allows management of application roles", "ManageRoles" },
+                    { 100, 2, "Allows management of character guilds", "ManageGuilds" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -869,7 +874,8 @@ namespace Sokan.Yastah.Data.Migrations
                 name: "IX_CharacterGuildVersions_PreviousVersionId",
                 schema: "Characters",
                 table: "CharacterGuildVersions",
-                column: "PreviousVersionId");
+                column: "PreviousVersionId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_CharacterLevelDefinitionVersions_CreationId",
@@ -926,7 +932,8 @@ namespace Sokan.Yastah.Data.Migrations
                 name: "IX_CharacterVersions_PreviousVersionId",
                 schema: "Characters",
                 table: "CharacterVersions",
-                column: "PreviousVersionId");
+                column: "PreviousVersionId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_PermissionCategories_Name",
