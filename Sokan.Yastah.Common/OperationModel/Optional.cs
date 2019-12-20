@@ -40,6 +40,11 @@ namespace Sokan.Yastah.Common.OperationModel
         public override int GetHashCode()
             => HashCode.Combine(_isSpecified, _value);
 
+        public override string ToString()
+            => IsSpecified
+                ? $"{{{_value?.ToString() ?? "null"}}}"
+                : "{Unspecified}";
+
         public static implicit operator Optional<T>(T value)
             => FromValue(value);
 

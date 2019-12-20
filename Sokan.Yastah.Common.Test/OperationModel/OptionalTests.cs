@@ -45,7 +45,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [Test]
         public void Default_Always_IsUnspecified()
         {
-            var result = default(Optional<string>);
+            var result = default(Optional<string?>);
 
             result.IsSpecified.ShouldBeFalse();
             result.IsUnspecified.ShouldBeTrue();
@@ -56,7 +56,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         {
             Should.Throw<InvalidOperationException>(() =>
             {
-                _ = default(Optional<string>).Value;
+                _ = default(Optional<string?>).Value;
             });
         }
 
@@ -67,7 +67,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [Test]
         public void Unspecified_Always_IsUnspecified()
         {
-            var result = Optional<string>.Unspecified;
+            var result = Optional<string?>.Unspecified;
 
             result.IsSpecified.ShouldBeFalse();
             result.IsUnspecified.ShouldBeTrue();
@@ -78,7 +78,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         {
             Should.Throw<InvalidOperationException>(() =>
             {
-                _ = Optional<string>.Unspecified.Value;
+                _ = Optional<string?>.Unspecified.Value;
             });
         }
 
@@ -126,11 +126,11 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(Optional_TestCaseData))]
         public void Equals_NonGeneric_ObjIsNull_ReturnsFalse(
             bool isSpecified,
-            string value)
+            string? value)
         {
             var uut = isSpecified
-                ? Optional<string>.FromValue(value!)
-                : Optional<string>.Unspecified;
+                ? Optional<string?>.FromValue(value)
+                : Optional<string?>.Unspecified;
 
             uut.Equals(null as object).ShouldBeFalse();
         }
@@ -138,11 +138,11 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(Optional_TestCaseData))]
         public void Equals_NonGeneric_ObjIsNotOptional_ReturnsFalse(
             bool isSpecified,
-            string value)
+            string? value)
         {
             var uut = isSpecified
-                ? Optional<string>.FromValue(value!)
-                : Optional<string>.Unspecified;
+                ? Optional<string?>.FromValue(value!)
+                : Optional<string?>.Unspecified;
 
             uut.Equals("obj" as object).ShouldBeFalse();
         }
@@ -150,11 +150,11 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(Optional_TestCaseData))]
         public void Equals_NonGeneric_ObjIsEqual_ReturnsTrue(
             bool isSpecified,
-            string value)
+            string? value)
         {
             var (uut, obj) = isSpecified
-                ? (Optional<string>.FromValue(value!),  Optional<string>.FromValue(value!) as object)
-                : (Optional<string>.Unspecified,        Optional<string>.Unspecified as object);
+                ? (Optional<string?>.FromValue(value!),  Optional<string?>.FromValue(value!) as object)
+                : (Optional<string?>.Unspecified,        Optional<string?>.Unspecified as object);
 
             uut.Equals(obj).ShouldBeTrue();
         }
@@ -162,17 +162,17 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(OptionalsAreNotEqual_TestCaseData))]
         public void Equals_NonGeneric_ObjIsNotEqual_ReturnsFalse(
             bool xIsSpecified,
-            string xValue,
+            string? xValue,
             bool yIsSpecified,
-            string yValue)
+            string? yValue)
         {
             var uut = xIsSpecified
-                ? Optional<string>.FromValue(xValue!)
-                : Optional<string>.Unspecified;
+                ? Optional<string?>.FromValue(xValue!)
+                : Optional<string?>.Unspecified;
 
             var obj = yIsSpecified
-                    ? Optional<string>.FromValue(yValue!)
-                    : Optional<string>.Unspecified
+                    ? Optional<string?>.FromValue(yValue!)
+                    : Optional<string?>.Unspecified
                 as object;
 
             uut.Equals(obj).ShouldBeFalse();
@@ -185,11 +185,11 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(Optional_TestCaseData))]
         public void Equals_Generic_OtherIsEqual_ReturnsTrue(
             bool isSpecified,
-            string value)
+            string? value)
         {
             var (uut, other) = isSpecified
-                ? (Optional<string>.FromValue(value!),  Optional<string>.FromValue(value!))
-                : (Optional<string>.Unspecified,        Optional<string>.Unspecified);
+                ? (Optional<string?>.FromValue(value!),  Optional<string?>.FromValue(value!))
+                : (Optional<string?>.Unspecified,        Optional<string?>.Unspecified);
 
             uut.Equals(other).ShouldBeTrue();
         }
@@ -197,17 +197,17 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(OptionalsAreNotEqual_TestCaseData))]
         public void Equals_Generic_OtherIsNotEqual_ReturnsFalse(
             bool xIsSpecified,
-            string xValue,
+            string? xValue,
             bool yIsSpecified,
-            string yValue)
+            string? yValue)
         {
             var uut = xIsSpecified
-                ? Optional<string>.FromValue(xValue!)
-                : Optional<string>.Unspecified;
+                ? Optional<string?>.FromValue(xValue!)
+                : Optional<string?>.Unspecified;
 
             var other = yIsSpecified
-                ? Optional<string>.FromValue(yValue!)
-                : Optional<string>.Unspecified;
+                ? Optional<string?>.FromValue(yValue!)
+                : Optional<string?>.Unspecified;
 
             uut.Equals(other).ShouldBeFalse();
         }
@@ -219,11 +219,11 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(Optional_TestCaseData))]
         public void GetHashCode_UnitsAreEqual_HashCodesAreEqual(
             bool isSpecified,
-            string value)
+            string? value)
         {
             var (uut, other) = isSpecified
-                ? (Optional<string>.FromValue(value!),  Optional<string>.FromValue(value!))
-                : (Optional<string>.Unspecified,        Optional<string>.Unspecified);
+                ? (Optional<string?>.FromValue(value!),  Optional<string?>.FromValue(value!))
+                : (Optional<string?>.Unspecified,        Optional<string?>.Unspecified);
 
             uut.GetHashCode().ShouldBe(other.GetHashCode());
         }
@@ -231,33 +231,59 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(OptionalsAreNotEqual_TestCaseData))]
         public void GetHashCode_UnitsAreNotEqual_HashCodesAreNotEqual(
             bool xIsSpecified,
-            string xValue,
+            string? xValue,
             bool yIsSpecified,
-            string yValue)
+            string? yValue)
         {
             var uut = xIsSpecified
-                ? Optional<string>.FromValue(xValue!)
-                : Optional<string>.Unspecified;
+                ? Optional<string?>.FromValue(xValue!)
+                : Optional<string?>.Unspecified;
 
             var other = yIsSpecified
-                ? Optional<string>.FromValue(yValue!)
-                : Optional<string>.Unspecified;
+                ? Optional<string?>.FromValue(yValue!)
+                : Optional<string?>.Unspecified;
 
             uut.GetHashCode().ShouldNotBe(other.GetHashCode());
         }
 
         #endregion GetHashCode() Tests
 
+        #region ToString() Tests
+
+        [Test]
+        public void ToString_UnitIsUnspecified_ResultContainsUnspecified()
+        {
+            var result = Optional<string?>.Unspecified
+                .ToString();
+
+            result.ShouldContain(nameof(Optional<string?>.Unspecified));
+        }
+
+        [TestCaseSource(nameof(Value_TestCaseData))]
+        public void ToString_UnitIsSpecified_ResultContainsValue(
+            string? value)
+        {
+            var result = Optional<string?>.FromValue(value)
+                .ToString();
+
+            if (value is null)
+                result.ShouldContain("null");
+            else
+                result.ShouldContain(value);
+        }
+
+        #endregion ToString() Tests
+
         #region == Tests
 
         [TestCaseSource(nameof(Optional_TestCaseData))]
         public void Operator_Equals_XAndYAreEqual_ReturnsTrue(
             bool isSpecified,
-            string value)
+            string? value)
         {
             var (x, y) = isSpecified
-                ? (Optional<string>.FromValue(value!),  Optional<string>.FromValue(value!))
-                : (Optional<string>.Unspecified,        Optional<string>.Unspecified);
+                ? (Optional<string?>.FromValue(value!),  Optional<string?>.FromValue(value!))
+                : (Optional<string?>.Unspecified,        Optional<string?>.Unspecified);
 
             (x == y).ShouldBeTrue();
         }
@@ -265,17 +291,17 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(OptionalsAreNotEqual_TestCaseData))]
         public void Operator_Equals_XAndYAreNotEqual_ReturnsFalse(
             bool xIsSpecified,
-            string xValue,
+            string? xValue,
             bool yIsSpecified,
-            string yValue)
+            string? yValue)
         {
             var x = xIsSpecified
-                ? Optional<string>.FromValue(xValue!)
-                : Optional<string>.Unspecified;
+                ? Optional<string?>.FromValue(xValue!)
+                : Optional<string?>.Unspecified;
 
             var y = yIsSpecified
-                ? Optional<string>.FromValue(yValue!)
-                : Optional<string>.Unspecified;
+                ? Optional<string?>.FromValue(yValue!)
+                : Optional<string?>.Unspecified;
 
             (x == y).ShouldBeFalse();
         }
@@ -287,11 +313,11 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(Optional_TestCaseData))]
         public void Operator_NotEquals_XAndYAreEqual_ReturnsFalse(
             bool isSpecified,
-            string value)
+            string? value)
         {
             var (x, y) = isSpecified
-                ? (Optional<string>.FromValue(value!),  Optional<string>.FromValue(value!))
-                : (Optional<string>.Unspecified,        Optional<string>.Unspecified);
+                ? (Optional<string?>.FromValue(value!),  Optional<string?>.FromValue(value!))
+                : (Optional<string?>.Unspecified,        Optional<string?>.Unspecified);
 
             (x != y).ShouldBeFalse();
         }
@@ -299,17 +325,17 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(OptionalsAreNotEqual_TestCaseData))]
         public void Operator_NotEquals_XAndYAreNotEqual_ReturnsTrue(
             bool xIsSpecified,
-            string xValue,
+            string? xValue,
             bool yIsSpecified,
-            string yValue)
+            string? yValue)
         {
             var x = xIsSpecified
-                ? Optional<string>.FromValue(xValue!)
-                : Optional<string>.Unspecified;
+                ? Optional<string?>.FromValue(xValue!)
+                : Optional<string?>.Unspecified;
 
             var y = yIsSpecified
-                ? Optional<string>.FromValue(yValue!)
-                : Optional<string>.Unspecified;
+                ? Optional<string?>.FromValue(yValue!)
+                : Optional<string?>.Unspecified;
 
             (x != y).ShouldBeTrue();
         }

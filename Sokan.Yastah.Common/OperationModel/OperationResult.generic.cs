@@ -43,6 +43,11 @@ namespace Sokan.Yastah.Common.OperationModel
         public override int GetHashCode()
             => HashCode.Combine(_value, _error);
 
+        public override string ToString()
+            => @$"{{{(IsSuccess
+                ? _value?.ToString() ?? "null"
+                : _error!.ToString())}}}";
+
         public static implicit operator OperationResult(OperationResult<T> result)
             => result.IsSuccess
                 ? OperationResult.Success

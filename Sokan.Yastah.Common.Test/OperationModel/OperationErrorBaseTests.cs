@@ -23,6 +23,12 @@ namespace Sokan.Yastah.Common.Test.OperationModel
                 "This is only a message"
             };
 
+        internal static Mock<OperationErrorBase> BuildMockUut(string message)
+            => new Mock<OperationErrorBase>(message)
+            {
+                CallBase = true
+            };
+
         #endregion Test Cases
 
         #region Constructor Tests
@@ -31,7 +37,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         public void Constructor_Always_CodeIsTypeName(
             string message)
         {
-            var uut = new Mock<OperationErrorBase>(message).Object;
+            var uut = BuildMockUut(message).Object;
 
             uut.Code.ShouldBe(uut.GetType().Name);
         }
@@ -40,11 +46,27 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         public void Constructor_Always_MessageIsGiven(
             string message)
         {
-            var uut = new Mock<OperationErrorBase>(message).Object;
+            var uut = BuildMockUut(message).Object;
 
             uut.Message.ShouldBe(message);
         }
 
         #endregion Constructor Tests
+
+        #region ToString() Tests
+
+        [TestCaseSource(nameof(ValidMessageTestCases))]
+        public void ToString_Always_ResultContainsCodeAndMessage(
+            string message)
+        {
+            var uut = BuildMockUut(message).Object;
+
+            var result = uut.ToString();
+
+            result.ShouldContain(uut.Code);
+            result.ShouldContain(uut.Message);
+        }
+
+        #endregion ToString() Tests
     }
 }

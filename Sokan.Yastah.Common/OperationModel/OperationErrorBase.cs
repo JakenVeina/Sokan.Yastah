@@ -16,6 +16,9 @@ namespace Sokan.Yastah.Common.OperationModel
         public string Message
             => _message;
 
+        public override string ToString()
+            => $"{Code}: {_message}";
+
         private readonly string _message;
     }
 }

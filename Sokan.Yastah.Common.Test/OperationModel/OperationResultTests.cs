@@ -119,7 +119,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         {
             var error = new Mock<IOperationError>().Object;
 
-            var result = OperationResult.FromError<string>(error);
+            var result = OperationResult.FromError<string?>(error);
 
             result.IsSuccess.ShouldBeFalse();
             result.IsFailure.ShouldBeTrue();
@@ -130,7 +130,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         {
             var error = new Mock<IOperationError>().Object;
 
-            var result = OperationResult.FromError<string>(error);
+            var result = OperationResult.FromError<string?>(error);
 
             result.Error.ShouldBeSameAs(error);
         }
@@ -140,7 +140,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         {
             var error = new Mock<IOperationError>().Object;
 
-            var result = OperationResult.FromError<string>(error);
+            var result = OperationResult.FromError<string?>(error);
 
             Should.Throw<InvalidOperationException>(() =>
             {
@@ -300,6 +300,37 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         }
 
         #endregion GetHashCode() Tests
+
+        #region ToString() Tests
+
+        [Test]
+        public void ToString_UnitIsSuccess_ResultContainsSuccess()
+        {
+            var result = OperationResult.Success
+                .ToString();
+
+            result.ShouldContain(nameof(OperationResult.Success));
+        }
+
+        [Test]
+        public void ToString_UnitIsFailure_ResultContainsError()
+        {
+            var mockError = new Mock<IOperationError>();
+
+            var errorToString = nameof(mockError);
+            mockError
+                .Setup(x => x.ToString())
+                .Returns(errorToString);
+
+            var result = OperationResult.FromError(mockError.Object)
+                .ToString();
+
+            mockError.ShouldHaveReceived(x => x.ToString());
+
+            result.ShouldContain(errorToString);
+        }
+
+        #endregion ToString() Tests
 
         #region == Tests
 
