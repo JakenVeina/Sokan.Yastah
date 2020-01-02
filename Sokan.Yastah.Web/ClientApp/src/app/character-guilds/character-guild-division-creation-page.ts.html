@@ -1,5 +1,4 @@
 ﻿<character-guild-division-creation-form
-    [guildId]="guildId | async"
-    [divisions]="divisions | async"
-    (saved)="onSaved($event)">
+    [division-identities]="divisionIdentities | async"
+    [on-saving]="onSaving | async">
 </character-guild-division-creation-form>

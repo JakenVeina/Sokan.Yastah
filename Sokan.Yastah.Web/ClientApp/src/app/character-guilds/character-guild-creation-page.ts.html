@@ -1,4 +1,4 @@
 ﻿<character-guild-creation-form
-    [guilds]="guilds | async"
-    (saved)="onSaved($event)">
+    [guild-identities]="guildIdentities | async"
+    [on-saving]="onSaving">
 </character-guild-creation-form>

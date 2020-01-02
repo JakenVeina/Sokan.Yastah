@@ -1,13 +1,15 @@
 ﻿import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
-import { combineLatest, merge, Observable, Subject } from "rxjs";
-import { map, switchMap, takeUntil } from "rxjs/operators";
+import { combineLatest, Observable } from "rxjs";
+import { filter, map, skipWhile, switchMap, take, takeUntil } from "rxjs/operators";
 
+import { FormOnDeletingHandler, FormOnResettingHandler, FormOnSavingHandler } from "../common/types";
 import { SubscriberComponentBase } from "../subscriber-component-base";
 
-import { ICharacterGuildIdentityViewModel } from "./models";
-import { CharacterGuildsService } from "./service";
+import { ICharacterGuildIdentityViewModel, ICharacterGuildUpdateModel } from "./models";
+import { CharacterGuildsService } from "./services";
+
 
 @Component({
     selector: "character-guild-update-page",
@@ -23,53 +25,56 @@ export class CharacterGuildUpdatePage
             router: Router) {
         super();
 
-        this._resetting = new Subject();
-
-        this._activatedRoute = activatedRoute;
-        this._router = router;
-
-        this._guildIdentities = characterGuildsService.identities;
-
-        let guildId = this._activatedRoute.paramMap
+        let guildId = activatedRoute.paramMap
             .pipe(map(x => Number(x.get("id"))));
 
-        this._guildIdentity = merge(
-            guildId
-                .pipe(switchMap(guildId => characterGuildsService.observeIdentity(guildId))),
-            this._resetting
-                .pipe(map(() => null)));
-
-        combineLatest(
+        this._otherGuildIdentities = combineLatest(
                 guildId,
-                this._resetting)
-            .pipe(takeUntil(this.destroying))
-            .subscribe(([guildId]) => characterGuildsService.reloadIdentity(guildId));
+                characterGuildsService.observeIdentities())
+            .pipe(map(([guildId, identities]) => identities.filter(identity => identity.id !== guildId)));
+
+        this._onDeleting = guildId
+            .pipe(map(guildId =>
+                () => characterGuildsService.delete(guildId)));
+
+        this._onResetting = guildId
+            .pipe(map(guildId =>
+                (isInit) => (isInit
+                    ? characterGuildsService.observeIdentity(guildId)
+                        .pipe(
+                            filter(identity => identity != null),
+                            take(1))
+                        .toPromise()
+                    : characterGuildsService.fetchIdentity(guildId))));
+
+        this._onSaving = guildId
+            .pipe(map(guildId =>
+                (model) => characterGuildsService.update(guildId, model)));
+
+        guildId
+            .pipe(
+                switchMap(guildId => characterGuildsService.observeIdentity(guildId)
+                    .pipe(skipWhile(identity => identity == null))),
+                filter(identity => identity == null),
+                takeUntil(this.destroying))
+            .subscribe(() => router.navigate(["../"], { relativeTo: activatedRoute }));
     }
 
-    public get guildIdentity(): Observable<ICharacterGuildIdentityViewModel> {
-        return this._guildIdentity;
+    public get otherGuildIdentities(): Observable<ICharacterGuildIdentityViewModel[]> {
+        return this._otherGuildIdentities;
     }
-    public get guildIdentities(): Observable<ICharacterGuildIdentityViewModel[]> {
-        return this._guildIdentities;
+    public get onDeleting(): Observable<FormOnDeletingHandler> {
+        return this._onDeleting;
     }
-
-    public onDeleted(): void {
-        this._router.navigate(["../"], { relativeTo: this._activatedRoute });
+    public get onResetting(): Observable<FormOnResettingHandler<ICharacterGuildUpdateModel>> {
+        return this._onResetting;
     }
-
-    public onResetting(): void {
-        this._resetting.next();
+    public get onSaving(): Observable<FormOnSavingHandler<ICharacterGuildUpdateModel>> {
+        return this._onSaving;
     }
 
-    public ngOnDestroy(): void {
-        super.ngOnDestroy();
-
-        this._resetting.complete();
-    }
-
-    private readonly _activatedRoute: ActivatedRoute;
-    private readonly _guildIdentity: Observable<ICharacterGuildIdentityViewModel>;
-    private readonly _guildIdentities: Observable<ICharacterGuildIdentityViewModel[]>;
-    private readonly _resetting: Subject<void>;
-    private readonly _router: Router;
+    private readonly _otherGuildIdentities: Observable<ICharacterGuildIdentityViewModel[]>;
+    private readonly _onDeleting: Observable<FormOnDeletingHandler>;
+    private readonly _onResetting: Observable<FormOnResettingHandler<ICharacterGuildUpdateModel>>;
+    private readonly _onSaving: Observable<FormOnSavingHandler<ICharacterGuildUpdateModel>>;
 }

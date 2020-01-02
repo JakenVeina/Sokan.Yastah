@@ -3,8 +3,11 @@ import { ActivatedRoute, Router } from "@angular/router";
 
 import { Observable } from "rxjs";
 
-import { ICharacterGuildIdentityViewModel } from "./models";
-import { CharacterGuildsService } from "./service";
+import { FormOnSavingHandler } from "../common/types";
+
+import { ICharacterGuildCreationModel, ICharacterGuildIdentityViewModel } from "./models";
+import { CharacterGuildsService } from "./services";
+
 
 @Component({
     selector: "character-guild-creation-page",
@@ -18,21 +21,26 @@ export class CharacterGuildCreationPage {
             characterGuildsService: CharacterGuildsService,
             router: Router) {
 
-        this._activatedRoute = activatedRoute;
-        this._router = router;
+        this._guildIdentities = characterGuildsService.observeIdentities();
 
-        this._guilds = characterGuildsService.identities;
+        this._onSaving = async (model) => {
+            let result = await characterGuildsService.create(model);
+
+            if (result.guildId != null) {
+                router.navigate([`../${result.guildId}`], { relativeTo: activatedRoute })
+            }
+
+            return result.error;
+        };
     }
 
-    public get guilds(): Observable<ICharacterGuildIdentityViewModel[]> {
-        return this._guilds;
+    public get guildIdentities(): Observable<ICharacterGuildIdentityViewModel[]> {
+        return this._guildIdentities;
+    }
+    public get onSaving(): FormOnSavingHandler<ICharacterGuildCreationModel> {
+        return this._onSaving;
     }
 
-    public onSaved(guildId: number) {
-        this._router.navigate([`../${guildId}`], { relativeTo: this._activatedRoute });
-    }
-
-    private readonly _activatedRoute: ActivatedRoute;
-    private readonly _guilds: Observable<ICharacterGuildIdentityViewModel[]>;
-    private readonly _router: Router;
+    private readonly _guildIdentities: Observable<ICharacterGuildIdentityViewModel[]>;
+    private readonly _onSaving: FormOnSavingHandler<ICharacterGuildCreationModel>;
 }

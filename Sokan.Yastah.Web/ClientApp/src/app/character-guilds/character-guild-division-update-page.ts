@@ -1,13 +1,15 @@
 ﻿import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
-import { combineLatest, merge, Observable, Subject } from "rxjs";
-import { map, switchMap, takeUntil } from "rxjs/operators";
+import { combineLatest, Observable } from "rxjs";
+import { filter, map, skipWhile, switchMap, take, takeUntil } from "rxjs/operators";
 
+import { FormOnDeletingHandler, FormOnResettingHandler, FormOnSavingHandler } from "../common/types";
 import { SubscriberComponentBase } from "../subscriber-component-base";
 
-import { ICharacterGuildDivisionIdentityViewModel } from "./models";
-import { CharacterGuildsService } from "./service";
+import { ICharacterGuildDivisionIdentityViewModel, ICharacterGuildDivisionUpdateModel } from "./models";
+import { CharacterGuildDivisionsService } from "./services";
+
 
 @Component({
     selector: "character-guild-division-update-page",
@@ -19,66 +21,69 @@ export class CharacterGuildDivisionUpdatePage
 
     public constructor(
             activatedRoute: ActivatedRoute,
-            characterGuildsService: CharacterGuildsService,
+            characterGuildDivisionsService: CharacterGuildDivisionsService,
             router: Router) {
         super();
 
-        this._resetting = new Subject();
-
-        this._activatedRoute = activatedRoute;
-        this._router = router;
-
-        this._guildId = this._activatedRoute.parent.parent.paramMap
+        let guildId = activatedRoute.parent.parent.paramMap
             .pipe(map(x => Number(x.get("id"))));
 
-        this._divisionIdentities = this._guildId
-            .pipe(switchMap(guildId => characterGuildsService.observeDivisionIdentities(guildId)));
+        let divisionId = activatedRoute.paramMap
+            .pipe(map(x => Number(x.get("id"))));
 
         let guildIdAndDivisionId = combineLatest(
-            this._guildId,
-            this._activatedRoute.paramMap
-                .pipe(map(x => Number(x.get("id")))));
+            guildId,
+            divisionId);
 
-        this._divisionIdentity = merge(
-            guildIdAndDivisionId
-                .pipe(switchMap(([guildId, divisionId]) => characterGuildsService.observeDivisionIdentity(guildId, divisionId))),
-            this._resetting
-                .pipe(map(() => null)));
+        this._otherDivisionIdentities = combineLatest(
+                divisionId,
+                guildId
+                    .pipe(switchMap(guildId => characterGuildDivisionsService.observeIdentities(guildId))))
+            .pipe(map(([divisionId, identities]) => identities.filter(identity => identity.id !== divisionId)));
 
-        combineLatest(
-                guildIdAndDivisionId,
-                this._resetting)
-            .pipe(takeUntil(this.destroying))
-            .subscribe(([[guildId, divisionId]]) => characterGuildsService.reloadDivisionIdentity(guildId, divisionId));
+        this._onDeleting = guildIdAndDivisionId
+            .pipe(map(([guildId, divisionId]) =>
+                () => characterGuildDivisionsService.delete(guildId, divisionId)));
+
+        this._onResetting = guildIdAndDivisionId
+            .pipe(
+                map(([guildId, divisionId]) =>
+                    (isInit) => (isInit
+                        ? characterGuildDivisionsService.observeIdentity(guildId, divisionId)
+                            .pipe(
+                                filter(identity => identity != null),
+                                take(1))
+                            .toPromise()
+                        : characterGuildDivisionsService.fetchIdentity(guildId, divisionId))));
+
+        this._onSaving = guildIdAndDivisionId
+            .pipe(map(([guildId, divisionId]) =>
+                (model) => characterGuildDivisionsService.update(guildId, divisionId, model)));
+
+        guildIdAndDivisionId
+            .pipe(
+                switchMap(([guildId, divisionId]) => characterGuildDivisionsService.observeIdentity(guildId, divisionId)
+                    .pipe(skipWhile(identity => identity == null))),
+                filter(identity => identity == null),
+                takeUntil(this.destroying))
+            .subscribe(() => router.navigate(["../"], { relativeTo: activatedRoute }));
     }
 
-    public get divisionIdentity(): Observable<ICharacterGuildDivisionIdentityViewModel> {
-        return this._divisionIdentity;
+    public get otherDivisionIdentities(): Observable<ICharacterGuildDivisionIdentityViewModel[]> {
+        return this._otherDivisionIdentities;
     }
-    public get divisionIdentities(): Observable<ICharacterGuildDivisionIdentityViewModel[]> {
-        return this._divisionIdentities;
+    public get onDeleting(): Observable<FormOnDeletingHandler> {
+        return this._onDeleting;
     }
-    public get guildId(): Observable<number> {
-        return this._guildId;
+    public get onResetting(): Observable<FormOnResettingHandler<ICharacterGuildDivisionUpdateModel>> {
+        return this._onResetting;
     }
-
-    public onDeleted(): void {
-        this._router.navigate(["../"], { relativeTo: this._activatedRoute });
-    }
-
-    public onResetting(): void {
-        this._resetting.next();
+    public get onSaving(): Observable<FormOnSavingHandler<ICharacterGuildDivisionUpdateModel>> {
+        return this._onSaving;
     }
 
-    public ngOnDestroy(): void {
-        this._resetting.complete();
-        super.ngOnDestroy();
-    }
-
-    private readonly _activatedRoute: ActivatedRoute;
-    private readonly _divisionIdentity: Observable<ICharacterGuildDivisionIdentityViewModel>;
-    private readonly _divisionIdentities: Observable<ICharacterGuildDivisionIdentityViewModel[]>;
-    private readonly _guildId: Observable<number>;
-    private readonly _resetting: Subject<void>;
-    private readonly _router: Router;
+    private readonly _otherDivisionIdentities: Observable<ICharacterGuildDivisionIdentityViewModel[]>;
+    private readonly _onDeleting: Observable<FormOnDeletingHandler>;
+    private readonly _onResetting: Observable<FormOnResettingHandler<ICharacterGuildDivisionUpdateModel>>;
+    private readonly _onSaving: Observable<FormOnSavingHandler<ICharacterGuildDivisionUpdateModel>>;
 }

@@ -1,15 +1,14 @@
-﻿import { Component, EventEmitter, Input, Output } from "@angular/core";
+﻿import { Component, Input } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { combineLatest } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 
+import { FormOnDeletingHandler, FormOnResettingHandler, FormOnSavingHandler, IOperationError } from "../common/types";
 import { SubscriberComponentBase } from "../subscriber-component-base";
 import { AppValidators } from "../validators";
 
-import { ApiOperationError } from "../api/api-operation-error";
+import { ICharacterGuildDivisionIdentityViewModel, ICharacterGuildDivisionUpdateModel } from "./models";
 
-import { CharacterGuildModelConverter, ICharacterGuildDivisionIdentityViewModel } from "./models";
-import { CharacterGuildsService } from "./service";
 
 @Component({
     selector: "character-guild-division-update-form",
@@ -19,14 +18,10 @@ export class CharacterGuildDivisionUpdateForm
         extends SubscriberComponentBase {
 
     public constructor(
-            characterGuildsService: CharacterGuildsService,
             formBuilder: FormBuilder) {
         super();
 
-        this._deleted = new EventEmitter<void>();
-        this._resetting = new EventEmitter<void>();
-
-        this._characterGuildsService = characterGuildsService;
+        this._hasSaved = false;
 
         this._form = formBuilder.group(
             {
@@ -34,13 +29,11 @@ export class CharacterGuildDivisionUpdateForm
                     null,
                     [
                         Validators.required,
-                        AppValidators.notDuplicated(() => this._divisionIdentities && this._divisionIdentities
-                            .filter(x => x.id !== this._divisionId)
-                            .map(x => x.name))
+                        AppValidators.notDuplicated(() => this._otherDivisionIdentities && this._otherDivisionIdentities.map(x => x.name))
                     ])
             },
             {
-                validators: () => (this._guildId == null)
+                validators: () => (this._otherDivisionIdentities == null)
                     ? { "uninitialized": true }
                     : null
             });
@@ -55,50 +48,36 @@ export class CharacterGuildDivisionUpdateForm
             })
     }
 
-    @Input("division-identity")
-    public set divisionIdentity(value: ICharacterGuildDivisionIdentityViewModel | null) {
-        if (value == null) {
-            this._form.reset(CharacterGuildModelConverter.toUpdate(null));
-            this._form.disable();
-
-            this._divisionId = null;
+    @Input("other-division-identities")
+    public set otherDivisionIdentities(value: ICharacterGuildDivisionIdentityViewModel[] | null) {
+        this._otherDivisionIdentities = value;
+        this._form.updateValueAndValidity();
+    }
+    @Input("on-deleting")
+    public set onDeleting(value: FormOnDeletingHandler | null) {
+        this._onDeleting = value;
+    }
+    @Input("on-resetting")
+    public set onResetting(value: FormOnResettingHandler<ICharacterGuildDivisionUpdateModel> | null) {
+        this._onResetting = value;
+        if (value != null) {
+            this.reset(true);
         }
-        else {
-            this._divisionId = value.id;
-
-            this._form.enable();
-            this._form.reset(CharacterGuildModelConverter.toUpdate(value));
-        }
     }
-    @Input("division-identities")
-    public set divisionIdentities(value: ICharacterGuildDivisionIdentityViewModel[] | null) {
-        this._divisionIdentities = value;
-    }
-    @Input("guild-id")
-    public set guildId(value: number | null) {
-        this._guildId = value;
-    }
-
-    @Output()
-    public get deleted(): EventEmitter<void> {
-        return this._deleted;
-    }
-    @Output()
-    public get resetting(): EventEmitter<void> {
-        return this._resetting;
+    @Input("on-saving")
+    public set onSaving(value: FormOnSavingHandler<ICharacterGuildDivisionUpdateModel> | null) {
+        this._onSaving = value;
+        this._hasSaved = false;
     }
 
     public get canDelete(): boolean {
-        return this._form.enabled;
+        return this._form.enabled && (this._onDeleting != null);
     }
     public get canReset(): boolean {
-        return this._form.enabled;
+        return this._form.enabled && (this._onResetting != null);
     }
     public get canSave(): boolean {
-        return this._form.valid && this._form.dirty && !this._hasSaved;
-    }
-    public get deleteError(): ApiOperationError {
-        return this._deleteError;
+        return this._form.valid && this._form.dirty && !this._hasSaved && (this._onSaving != null);
     }
     public get form(): FormGroup {
         return this._form;
@@ -106,55 +85,38 @@ export class CharacterGuildDivisionUpdateForm
     public get hasSaved(): boolean {
         return this._hasSaved;
     }
-    public get saveError(): ApiOperationError | null {
+    public get saveError(): IOperationError | null {
         return this._saveError;
     }
 
-    public delete(): void {
-        this._form.disable();
-        this._characterGuildsService.deleteDivision(this._guildId, this._divisionId)
-            .pipe(takeUntil(this.destroying))
-            .subscribe(
-                () => {
-                    this._deleteError = null;
-                    this._deleted.emit();
-                },
-                xhr => {
-                    this._deleteError = xhr.error;
-                    this._form.enable();
-                });
-    }
-
-    public reset(): void {
-        this._resetting.emit();
-    }
-
-    public save(): void {
+    public async delete(): Promise<void> {
         this._form.disable();
 
-        this._characterGuildsService.updateDivision(this._guildId, this._divisionId, this._form.value)
-            .pipe(takeUntil(this.destroying))
-            .subscribe(
-                () => {
-                    this._form.enable();
-                    this._hasSaved = true;
-                    this._saveError = null;
-                },
-                xhr => {
-                    this._form.enable();
-                    this._saveError = xhr.error;
-                });
+        await this._onDeleting();
+    }
+    public async reset(isInit: boolean = false): Promise<void> {
+        this._form.disable();
+
+        let model = await this._onResetting(isInit);
+
+        this._form.enable();
+        this._form.reset(model);
+    }
+    public async save(): Promise<void> {
+        this._form.disable();
+
+        this._saveError = await this._onSaving(this._form.value);
+        this._hasSaved = (this._saveError != null);
+
+        this._form.enable();
     }
 
-    private readonly _characterGuildsService: CharacterGuildsService;
-    private readonly _deleted: EventEmitter<void>;
     private readonly _form: FormGroup;
-    private readonly _resetting: EventEmitter<void>;
 
-    private _deleteError: ApiOperationError | null;
-    private _divisionId: number | null;
-    private _divisionIdentities: ICharacterGuildDivisionIdentityViewModel[] | null;
-    private _guildId: number | null;
     private _hasSaved: boolean;
-    private _saveError: ApiOperationError | null;
+    private _onDeleting: FormOnDeletingHandler | null;
+    private _onResetting: FormOnResettingHandler<ICharacterGuildDivisionUpdateModel> | null;
+    private _onSaving: FormOnSavingHandler<ICharacterGuildDivisionUpdateModel> | null;
+    private _otherDivisionIdentities: ICharacterGuildDivisionIdentityViewModel[] | null;
+    private _saveError: IOperationError | null;
 }

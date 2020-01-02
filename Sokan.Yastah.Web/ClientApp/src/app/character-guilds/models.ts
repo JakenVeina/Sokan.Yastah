@@ -31,17 +31,3 @@ export interface ICharacterIdentityViewModel {
     readonly name: string;
     readonly owner: IUserIdentityViewModel;
 }
-
-export namespace CharacterGuildModelConverter {
-    export function toUpdate(
-                guildIdentity: ICharacterGuildIdentityViewModel | null):
-            ICharacterGuildUpdateModel {
-        return (guildIdentity == null)
-            ? {
-                name: null
-            }
-            : {
-                name: guildIdentity.name
-            };
-    }
-}

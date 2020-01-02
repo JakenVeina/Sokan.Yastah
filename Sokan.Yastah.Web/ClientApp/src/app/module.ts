@@ -11,8 +11,7 @@ import { AdminModule } from "./admin/module";
 import { AuthenticationEffects } from "./authentication/effects";
 import { authenticationStateReducer } from "./authentication/reducers";
 
-import { CharacterGuildsEffects } from "./character-guilds/effects";
-import { characterGuildsStateReducer } from "./character-guilds/reducers";
+import { characterGuildsStateReducer } from "./character-guilds/state.reducers";
 
 import { CharacterGuildsPage } from "./character-guilds/character-guilds-page";
 import { CharacterGuildCreationForm } from "./character-guilds/character-guild-creation-form";
@@ -36,8 +35,7 @@ import { AuthenticationInterceptor } from "./authentication/interceptor";
     imports: [
         BrowserModule.withServerTransition({ appId: "ng-cli-universal" }),
         EffectsModule.forRoot([
-            AuthenticationEffects,
-            CharacterGuildsEffects,
+            AuthenticationEffects
         ]),
         FormsModule,
         HttpClientModule,

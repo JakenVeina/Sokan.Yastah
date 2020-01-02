@@ -1,15 +1,15 @@
-﻿import { Component, EventEmitter, Input, Output } from "@angular/core";
+﻿import { Component, Input } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+
 import { combineLatest } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 
+import { FormOnSavingHandler, IOperationError } from "../common/types";
 import { SubscriberComponentBase } from "../subscriber-component-base";
 import { AppValidators } from "../validators";
 
-import { ApiOperationError } from "../api/api-operation-error";
-
 import { ICharacterGuildCreationModel, ICharacterGuildIdentityViewModel } from "./models";
-import { CharacterGuildsService } from "./service";
+
 
 @Component({
     selector: "character-guild-creation-form",
@@ -19,54 +19,60 @@ export class CharacterGuildCreationForm
         extends SubscriberComponentBase {
 
     public constructor(
-            characterGuildsService: CharacterGuildsService,
             formBuilder: FormBuilder) {
         super();
 
-        this._saved = new EventEmitter<number>();
+        this._hasSaved = false;
 
-        this._characterGuildsService = characterGuildsService;
-
-        this._form = formBuilder.group({
-            name: formBuilder.control(
-                null,
-                [
-                    Validators.required,
-                    AppValidators.notDuplicated(() => this._guilds && this._guilds.map(x => x.name))
-                ])
-        });
+        this._form = formBuilder.group(
+            {
+                name: formBuilder.control(
+                    null,
+                    [
+                        Validators.required,
+                        AppValidators.notDuplicated(() => this._guildIdentities && this._guildIdentities.map(x => x.name))
+                    ])
+            },
+            {
+                validators: () => (this._guildIdentities == null)
+                    ? { "uninitialized": true }
+                    : null
+            });
 
         combineLatest(
                 this._form.statusChanges,
                 this._form.valueChanges)
             .pipe(takeUntil(this.destroying))
             .subscribe(() => {
+                this._hasSaved = false;
                 this._saveError = null;
             });
 
         this.reset();
     }
 
-    @Input()
-    public set guilds(value: ICharacterGuildIdentityViewModel[]) {
-        this._guilds = value;
+    @Input("guild-identities")
+    public set guildIdentities(value: ICharacterGuildIdentityViewModel[]) {
+        this._guildIdentities = value;
     }
-
-    @Output()
-    public get saved(): EventEmitter<number> {
-        return this._saved;
+    @Input("on-saving")
+    public set onSaving(value: FormOnSavingHandler<ICharacterGuildCreationModel> | null) {
+        this._onSaving = value;
     }
 
     public get canReset(): boolean {
         return this._form.enabled;
     }
     public get canSave(): boolean {
-        return this._form.valid;
+        return this._form.valid && (this._onSaving != null);
     }
     public get form(): FormGroup {
         return this._form;
     }
-    public get saveError(): ApiOperationError | null {
+    public get hasSaved(): boolean {
+        return this._hasSaved;
+    }
+    public get saveError(): IOperationError | null {
         return this._saveError;
     }
 
@@ -75,26 +81,19 @@ export class CharacterGuildCreationForm
             name: "New Guild"
         });
     }
-
-    public save(): void {
+    public async save(): Promise<void> {
         this._form.disable();
-        this._characterGuildsService.create(this._form.value)
-            .pipe(takeUntil(this.destroying))
-            .subscribe(
-                guildId => {
-                    this._saveError = null;
-                    this._saved.emit(guildId);
-                },
-                xhr => {
-                    this._form.enable();
-                    this._saveError = xhr.error;
-                });
+
+        this._saveError = await this._onSaving(this._form.value);
+        (this._saveError == null)
+            ? this._hasSaved = true
+            : this._form.enable();
     }
 
-    private readonly _characterGuildsService: CharacterGuildsService;
     private readonly _form: FormGroup;
-    private readonly _saved: EventEmitter<number>;
 
-    private _guilds: ICharacterGuildIdentityViewModel[] | null;
-    private _saveError: ApiOperationError | null;
+    private _guildIdentities: ICharacterGuildIdentityViewModel[] | null;
+    private _hasSaved: boolean;
+    private _onSaving: FormOnSavingHandler<ICharacterGuildCreationModel> | null;
+    private _saveError: IOperationError | null;
 }
