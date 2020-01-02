@@ -3,21 +3,22 @@ import { CanActivate } from "@angular/router";
 
 import { Observable } from "rxjs";
 
-import { AuthorizationService } from "./authorization/authorization-service";
+import { AuthorizationService } from "../authorization/authorization-service";
 
 
 @Injectable({
     providedIn: "root"
 })
-export class PortalGuard
+export class CharacterGuildsGuard
         implements CanActivate {
+
     public constructor(
             authorizationService: AuthorizationService) {
         this._authorizationService = authorizationService;
     }
 
     public canActivate(): Observable<boolean> {
-        return this._authorizationService.hasAnyPermissions;
+        return this._authorizationService.hasCharacterAdminManageGuilds;
     }
 
     private readonly _authorizationService: AuthorizationService;

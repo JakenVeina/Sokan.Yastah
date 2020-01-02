@@ -43,6 +43,9 @@
     <None Remove="ClientApp\src\app\character-guilds\character-guild-update-page.ts" />
     <None Remove="ClientApp\src\app\character-guilds\character-guilds-page.ts" />
     <None Remove="ClientApp\src\app\character-guilds\models.ts" />
+    <None Remove="ClientApp\src\app\character-guilds\module.ts" />
+    <None Remove="ClientApp\src\app\character-guilds\routes.guards.ts" />
+    <None Remove="ClientApp\src\app\character-guilds\routes.ts" />
     <None Remove="ClientApp\src\app\character-guilds\services.ts" />
     <None Remove="ClientApp\src\app\admin\guards.ts" />
     <None Remove="ClientApp\src\app\admin\module.ts" />
@@ -137,6 +140,9 @@
     <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-divisions-page.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-update-page.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guilds-page.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\module.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\routes.guards.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\routes.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\character-guilds\state.actions.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\character-guilds\models.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-update-form.ts" />
