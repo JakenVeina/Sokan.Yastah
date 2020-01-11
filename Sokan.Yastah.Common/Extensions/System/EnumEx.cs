@@ -10,14 +10,14 @@ namespace System
         public static IEnumerable<TEnum> EnumerateValues<TEnum>()
                 where TEnum : struct, IConvertible
             => EnumerateEnumValueFields<TEnum>()
-                .Select(x => (TEnum)x.GetValue(null));
+                .Select(x => (TEnum)x.GetValue(null)!);
 
         public static IEnumerable<(TEnum value, string description)> EnumerateValuesWithDescriptions<TEnum>()
                 where TEnum : struct, IConvertible
             => EnumerateEnumValueFields<TEnum>()
                 .Select(x =>
                 {
-                    var value = (TEnum)x.GetValue(null);
+                    var value = (TEnum)x.GetValue(null)!;
                     var description = x.GetCustomAttribute<DescriptionAttribute>()
                             ?.Description
                         ?? throw new ArgumentException($"Enum value {typeof(TEnum).Name}.{value.ToString()} does not have an attached {nameof(DescriptionAttribute)}", nameof(TEnum));

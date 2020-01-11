@@ -36,7 +36,7 @@ namespace Microsoft.Extensions.Hosting
                             break;
                     }
 
-                    throw new ArgumentException($"Method {x.DeclaringType.FullName}.{x.Name} is tagged with {typeof(OnConfigureServicesAttribute).FullName} but does have a compatible signature. The signature must match either {typeof(ConfigureServicesHandler).FullName} or {typeof(ConfigureServicesWithConfigurationHandler).FullName}", nameof(assembly));
+                    throw new ArgumentException($"Method {x.DeclaringType!.FullName}.{x.Name} is tagged with {typeof(OnConfigureServicesAttribute).FullName} but does have a compatible signature. The signature must match either {typeof(ConfigureServicesHandler).FullName} or {typeof(ConfigureServicesWithConfigurationHandler).FullName}", nameof(assembly));
                 });
     }
 }
