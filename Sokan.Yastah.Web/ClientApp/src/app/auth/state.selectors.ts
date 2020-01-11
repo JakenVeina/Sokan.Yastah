@@ -12,7 +12,7 @@ const authenticationState
 
 export namespace AuthenticationSelectors {
 
-    const currentTicket: MemoizedSelector<IAppState, IAuthenticationTicket>
+    const currentTicket: MemoizedSelector<IAppState, IAuthenticationTicket | null>
         = createSelector(
             authenticationState,
             state => state.currentTicket);

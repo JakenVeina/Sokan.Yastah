@@ -3,6 +3,7 @@ import { FormGroup, FormBuilder } from "@angular/forms";
 
 import { FormComponentBase } from "../../common/form-component-base";
 import { FormGroupExtensions } from "../../common/form-group-extensions";
+import { INativeHashTable } from "../../common/types";
 
 import { IPermissionCategoryDescriptionViewModel, PermissionCategoryDescriptionViewModel } from "../permissions/models";
 
@@ -11,9 +12,12 @@ import { IRoleIdentityViewModel } from "../roles/models";
 import { IUserDetailViewModel, IUserUpdateModel } from "./models";
 
 
+export type UserPermissionMapping
+    = "granted" | "unmapped" | "denied"
+
 export interface IUserUpdateFormModel {
     readonly permissionMappings: {
-        readonly [id: number]: "granted" | "unmapped" | "denied";
+        readonly [id: number]: UserPermissionMapping;
     };
     readonly roleMappings: {
         readonly [id: number]: boolean;
@@ -36,14 +40,14 @@ export namespace UserUpdateFormModel {
                             : "unmapped";
                         return mappings;
                     },
-                    {}),
+                    <INativeHashTable<UserPermissionMapping>>{}),
             roleMappings: roleIds
                 .reduce(
                     (mappings, id) => {
                         mappings[id] = detail.assignedRoleIds.includes(id);
                         return mappings;
                     },
-                    {})
+                    <INativeHashTable<boolean>>{})
         };
     }
 
@@ -78,6 +82,9 @@ export class UserUpdateForm
         super();
 
         this._formBuilder = formBuilder;
+
+        this._permissionDescriptions = null;
+        this._roleIdentities = null;
 
         this._permissionMappings = this._formBuilder.group({});
         this._roleMappings = this._formBuilder.group({});
@@ -150,6 +157,6 @@ export class UserUpdateForm
     private readonly _permissionMappings: FormGroup;
     private readonly _roleMappings: FormGroup;
 
-    private _permissionDescriptions: IPermissionCategoryDescriptionViewModel[];
-    private _roleIdentities: IRoleIdentityViewModel[];
+    private _permissionDescriptions: IPermissionCategoryDescriptionViewModel[] | null;
+    private _roleIdentities: IRoleIdentityViewModel[] | null;
 }

@@ -69,7 +69,7 @@ export class AuthenticationService {
             .find(cookie => cookie.startsWith(`${authenticationTicketHeaderAndPayloadCookieName}=`));
 
         if (headerAndPayloadCookie == null) {
-            return null;
+            return;
         }
 
         let headerAndPayload = headerAndPayloadCookie
@@ -78,7 +78,7 @@ export class AuthenticationService {
         let rawTicket = JwtDecode<IRawAuthenticationTicket>(headerAndPayload);
 
         if (rawTicket.exp < (new Date().valueOf() / 1000)) {
-            return null;
+            return;
         }
 
         this._appState.dispatch(AuthenticationActionFactory.storeTicket({

@@ -3,7 +3,7 @@
     readonly userId: number;
     readonly username: string;
     readonly discriminator: string;
-    readonly avatarHash: string;
+    readonly avatarHash: string | null;
     readonly grantedPermissions: {
         readonly [id: number]: string;
     };
@@ -33,7 +33,7 @@ export namespace RawAuthenticationTicket {
             userId: rawTicket.nameid,
             username: rawTicket.unique_name,
             discriminator: rawTicket.dscm,
-            avatarHash: rawTicket.avtr,
+            avatarHash: rawTicket.avtr || null,
             grantedPermissions: rawTicket.prms
         };
     }

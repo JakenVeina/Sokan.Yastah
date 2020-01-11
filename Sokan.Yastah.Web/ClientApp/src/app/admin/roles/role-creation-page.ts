@@ -41,7 +41,7 @@ export class RoleCreationPage {
                 router.navigate([`../${result.roleId}`], { relativeTo: activatedRoute })
             }
 
-            return result.error;
+            return result.error || null;
         };
 
         this._roleIdentities = rolesService.observeIdentities();

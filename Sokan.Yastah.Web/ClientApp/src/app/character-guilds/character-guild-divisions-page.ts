@@ -19,7 +19,7 @@ export class CharacterGuildDivisionsPage {
             activatedRoute: ActivatedRoute,
             characterGuildDivisionsService: CharacterGuildDivisionsService) {
 
-        this._divisions = activatedRoute.parent.paramMap
+        this._divisions = activatedRoute.parent!.paramMap
             .pipe(
                 map(x => Number(x.get("id"))),
                 tap(guildId => setTimeout(() => characterGuildDivisionsService.fetchIdentities(guildId))),

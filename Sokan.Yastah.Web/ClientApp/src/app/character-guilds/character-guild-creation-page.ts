@@ -34,7 +34,7 @@ export class CharacterGuildCreationPage {
                 router.navigate([`../${result.guildId}`], { relativeTo: activatedRoute })
             }
 
-            return result.error;
+            return result.error || null;
         };
     }
 

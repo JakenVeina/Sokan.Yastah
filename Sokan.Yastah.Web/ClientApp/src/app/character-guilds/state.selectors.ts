@@ -62,13 +62,13 @@ export namespace CharacterGuildDivisionsSelectors {
             MemoizedSelector<IAppState, ICharacterGuildIdentityViewModel | null>{
         return createSelector(
             divisionsState(guildId),
-            state => state.identities.value && state.identities.value.find(identity => identity.id === divisionId));
+            state => state.identities.value && state.identities.value.find(identity => identity.id === divisionId) || null);
     }
 }
 
 export namespace CharacterGuildsSelectors {
 
-    export const identities: MemoizedSelector<IAppState, ICharacterGuildIdentityViewModel[]>
+    export const identities: MemoizedSelector<IAppState, ICharacterGuildIdentityViewModel[] | null>
         = createSelector(
             guildsState,
             state => state.identities.value);
@@ -88,6 +88,6 @@ export namespace CharacterGuildsSelectors {
             MemoizedSelector<IAppState, ICharacterGuildIdentityViewModel | null>{
         return createSelector(
             guildsState,
-            state => state.identities.value && state.identities.value.find(identity => identity.id === guildId));
+            state => state.identities.value && state.identities.value.find(identity => identity.id === guildId) || null);
     }
 }

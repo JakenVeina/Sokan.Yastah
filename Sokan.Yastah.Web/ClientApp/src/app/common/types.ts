@@ -1,4 +1,7 @@
-﻿export interface AsyncSelector<T, U> {
+﻿import { isNullOrUndefined } from "util";
+
+
+export interface AsyncSelector<T, U> {
     (value: T): Promise<U>;
 }
 
@@ -14,4 +17,11 @@ export interface IOperationError {
 
 export interface Reducer<T> {
     (value: T): T;
+}
+
+
+export function isNotNullOrUndefined<T>(
+            value: T | null | undefined):
+        value is T {
+    return value != null;
 }

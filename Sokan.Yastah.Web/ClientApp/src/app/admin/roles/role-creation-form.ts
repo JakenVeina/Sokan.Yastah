@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 
 import { FormComponentBase } from "../../common/form-component-base";
 import { FormGroupExtensions } from "../../common/form-group-extensions";
+import { INativeHashTable } from "../../common/types";
 import { AppValidators } from "../../common/validators";
 
 import { IPermissionCategoryDescriptionViewModel, PermissionCategoryDescriptionViewModel, IPermissionDescriptionViewModel } from "../permissions/models";
@@ -30,7 +31,7 @@ export namespace RoleCreationFormModel {
                         mappings[permission.id] = false;
                         return mappings;
                     },
-                    {})
+                    <INativeHashTable<boolean>>{})
         };
     }
 
@@ -59,6 +60,9 @@ export class RoleCreationForm
         super();
 
         this._formBuilder = formBuilder;
+
+        this._permissionDescriptions = null;
+        this._roleIdentities = null;
 
         this._permissionMappings = this._formBuilder.group({});
         this._form = this._formBuilder.group(

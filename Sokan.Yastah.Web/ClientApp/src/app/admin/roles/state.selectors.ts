@@ -31,6 +31,6 @@ export namespace RolesSelectors {
         return createSelector(
             AdminSelectors.rolesState,
             state => state.identities.value
-                && state.identities.value.find(identity => identity.id === roleId));
+                && state.identities.value.find(identity => identity.id === roleId) || null);
     }
 }

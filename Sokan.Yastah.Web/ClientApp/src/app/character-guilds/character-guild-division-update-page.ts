@@ -6,6 +6,7 @@ import { filter, map, switchMap, take, takeUntil } from "rxjs/operators";
 
 import { FormOnDeletingHandler, FormOnResettingHandler, FormOnSavingHandler } from "../common/form-component-base";
 import { SubscriberComponentBase } from "../common/subscriber-component-base";
+import { isNotNullOrUndefined } from "../common/types";
 
 import { ICharacterGuildDivisionIdentityViewModel, ICharacterGuildDivisionUpdateModel } from "./models";
 import { CharacterGuildDivisionsService } from "./services";
@@ -25,7 +26,7 @@ export class CharacterGuildDivisionUpdatePage
             router: Router) {
         super();
 
-        let guildId = activatedRoute.parent.parent.paramMap
+        let guildId = activatedRoute.parent!.parent!.paramMap
             .pipe(map(x => Number(x.get("id"))));
 
         let divisionId = activatedRoute.paramMap
@@ -53,7 +54,7 @@ export class CharacterGuildDivisionUpdatePage
                             .pipe(take(1))
                             .toPromise()
                         : from(characterGuildDivisionsService.fetchIdentity(guildId, divisionId))
-                            .pipe(filter(identity => identity != null))
+                            .pipe(filter(isNotNullOrUndefined))
                             .toPromise())));
 
         this._onSaving = guildIdAndDivisionId

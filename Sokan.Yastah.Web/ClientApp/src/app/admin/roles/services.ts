@@ -7,7 +7,7 @@ import { of, throwError, Observable, Subject } from "rxjs";
 import { catchError, filter, map, shareReplay, skip, switchMap, take, tap } from "rxjs/operators";
 
 import { ApiClient } from "../../common/api-client";
-import { IOperationError } from "../../common/types";
+import { isNotNullOrUndefined, IOperationError } from "../../common/types";
 import { IAppState } from "../../state";
 
 import { IRoleCreationModel, IRoleDetailViewModel, IRoleIdentityViewModel, IRoleUpdateModel } from "./models";
@@ -73,7 +73,8 @@ export class RolesService
                 tap(() => {
                     this._appState.dispatch(RolesActionFactory.scheduleFetchIdentities());
                     this._onDeleted.next(roleId);
-                }))
+                }),
+                map(() => void 0))
             .toPromise();
     }
 
@@ -104,7 +105,8 @@ export class RolesService
                             switchMap(() => this._apiClient.get<IRoleIdentityViewModel[]>(`${rolesApiPath}/identities`)),
                             tap(identities => this._appState.dispatch(RolesActionFactory.storeIdentities({
                                 identities
-                            }))))))
+                            }))))),
+                filter(isNotNullOrUndefined))
             .toPromise();
     }
 
@@ -116,7 +118,7 @@ export class RolesService
                     ? setTimeout(() => this.fetchIdentities())
                     : null),
                 switchMap(() => this._appState.select(RolesSelectors.identities)),
-                filter(identities => identities != null),
+                filter(isNotNullOrUndefined),
                 shareReplay());
     }
 
@@ -126,7 +128,7 @@ export class RolesService
         return this._onDeleted
             .pipe(
                 filter(deletedRoleId => deletedRoleId == roleId),
-                map(() => null));
+                map(() => void 0));
     }
 
     public update(

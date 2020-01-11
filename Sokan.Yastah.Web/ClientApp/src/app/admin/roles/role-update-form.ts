@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 
 import { FormComponentBase } from "../../common/form-component-base";
 import { FormGroupExtensions } from "../../common/form-group-extensions";
+import { INativeHashTable } from "../../common/types";
 import { AppValidators } from "../../common/validators";
 
 import { IPermissionCategoryDescriptionViewModel, IPermissionDescriptionViewModel, PermissionCategoryDescriptionViewModel } from "../permissions/models";
@@ -31,7 +32,7 @@ export namespace RoleUpdateFormModel {
                         mappings[permission.id] = detail.grantedPermissionIds.includes(permission.id);
                         return mappings;
                     },
-                    {})
+                    <INativeHashTable<boolean>>{})
         };
     }
 
@@ -60,6 +61,9 @@ export class RoleUpdateForm
         super();
 
         this._formBuilder = formBuilder;
+
+        this._otherRoleIdentities = null;
+        this._permissionDescriptions = null;
 
         this._permissionMappings = this._formBuilder.group({});
         this._form = this._formBuilder.group(

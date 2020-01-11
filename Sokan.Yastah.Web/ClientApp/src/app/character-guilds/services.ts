@@ -7,7 +7,7 @@ import { from, of, throwError, Observable, Subject } from "rxjs";
 import { catchError, filter, map, shareReplay, skip, switchMap, take, tap } from "rxjs/operators";
 
 import { ApiClient } from "../common/api-client";
-import { IOperationError } from "../common/types";
+import { isNotNullOrUndefined, IOperationError } from "../common/types";
 import { IAppState } from "../state";
 
 import {
@@ -105,13 +105,14 @@ export class CharacterGuildDivisionsService {
                 tap(() => this._onDeleted.next({
                     guildId,
                     divisionId,
-                })))
+                })),
+                map(() => void 0))
             .toPromise();
     }
 
     public fetchIdentities(
                 guildId: number):
-            Promise<ICharacterGuildDivisionIdentityViewModel[]> {
+            Promise<ICharacterGuildDivisionIdentityViewModel[] | null> {
         return this._appState.select(CharacterGuildDivisionsSelectors.identitiesIsFetching(guildId))
             .pipe(
                 take(1),
@@ -153,7 +154,7 @@ export class CharacterGuildDivisionsService {
                             skip(1),
                             take(1))
                     : from(this.fetchIdentities(guildId))
-                        .pipe(map(identities => identities.find(identity => identity.id === divisionId)))))
+                        .pipe(map(identities => identities && identities.find(identity => identity.id === divisionId) || null))))
             .toPromise();
     }
 
@@ -166,7 +167,7 @@ export class CharacterGuildDivisionsService {
                     ? setTimeout(() => this.fetchIdentities(guildId))
                     : null),
                 switchMap(() => this._appState.select(CharacterGuildDivisionsSelectors.identities(guildId))),
-                filter(identities => identities != null),
+                filter(isNotNullOrUndefined),
                 shareReplay());
     }
 
@@ -180,7 +181,7 @@ export class CharacterGuildDivisionsService {
                     ? setTimeout(() => this.fetchIdentities(guildId))
                     : null),
                 switchMap(() => this._appState.select(CharacterGuildDivisionsSelectors.identity(guildId, divisionId))),
-                filter(identity => identity != null),
+                filter(isNotNullOrUndefined),
                 shareReplay());
     }
 
@@ -191,7 +192,7 @@ export class CharacterGuildDivisionsService {
         return this._onDeleted
             .pipe(
                 filter(deleted => (deleted.guildId === guildId) && (deleted.divisionId === divisionId)),
-                map(() => null));
+                map(() => void 0));
     }
 
     public update(
@@ -262,7 +263,8 @@ export class CharacterGuildsService {
                 tap(() => this._appState.dispatch(CharacterGuildsActionFactory.remove({
                     guildId
                 }))),
-                tap(() => this._onDeleted.next(guildId)))
+                tap(() => this._onDeleted.next(guildId)),
+                map(() => void 0))
             .toPromise();
     }
 
@@ -282,7 +284,8 @@ export class CharacterGuildsService {
                             switchMap(() => this._apiClient.get<ICharacterGuildIdentityViewModel[]>(`${guildsApiPath}/identities`)),
                             tap(identities => this._appState.dispatch(CharacterGuildsActionFactory.storeIdentities({
                                 identities
-                            }))))))
+                            }))))),
+                filter(isNotNullOrUndefined))
             .toPromise();
     }
 
@@ -298,7 +301,7 @@ export class CharacterGuildsService {
                             skip(1),
                             take(1))
                     : from(this.fetchIdentities())
-                        .pipe(map(identities => identities.find(identity => identity.id === guildId)))))
+                        .pipe(map(identities => identities.find(identity => identity.id === guildId) || null))))
             .toPromise();
     }
 
@@ -310,7 +313,7 @@ export class CharacterGuildsService {
                     ? setTimeout(() => this.fetchIdentities())
                     : null),
                 switchMap(() => this._appState.select(CharacterGuildsSelectors.identities)),
-                filter(identities => identities != null),
+                filter(isNotNullOrUndefined),
                 shareReplay());
     }
 
@@ -323,7 +326,7 @@ export class CharacterGuildsService {
                     ? setTimeout(() => this.fetchIdentities())
                     : null),
                 switchMap(() => this._appState.select(CharacterGuildsSelectors.identity(guildId))),
-                filter(identity => identity != null),
+                filter(isNotNullOrUndefined),
                 shareReplay());
     }
 
@@ -333,7 +336,7 @@ export class CharacterGuildsService {
         return this._onDeleted
             .pipe(
                 filter(deletedGuildId => deletedGuildId == guildId),
-                map(() => null));
+                map(() => void 0));
     }
 
     public update(

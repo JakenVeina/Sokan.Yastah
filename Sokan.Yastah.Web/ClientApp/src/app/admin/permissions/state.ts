@@ -11,7 +11,7 @@ export interface IPermissionsState {
 
 
 export const initialPermissionsState: IPermissionsState = {
-    descriptions: FetchedValue.unfetched(undefined)
+    descriptions: FetchedValue.unfetched(null)
 };
 
 

@@ -1,11 +1,12 @@
 ﻿import { Injectable } from "@angular/core";
 
-import { of, Observable } from "rxjs";
+import { of, Observable,  } from "rxjs";
 import { filter, shareReplay, switchMap, tap } from "rxjs/operators";
 
 import { Store } from "@ngrx/store";
 
 import { ApiClient } from "../../common/api-client";
+import { isNotNullOrUndefined } from "../../common/types";
 import { IAppState } from "../../state";
 
 import { IPermissionCategoryDescriptionViewModel } from "./models";
@@ -41,7 +42,7 @@ export class PermissionsService {
                         .toPromise())
                     : null),
                 switchMap(() => this._appState.select(PermissionsSelectors.descriptions)),
-                filter(descriptions => descriptions != null),
+                filter(isNotNullOrUndefined),
                 shareReplay());
     }
 

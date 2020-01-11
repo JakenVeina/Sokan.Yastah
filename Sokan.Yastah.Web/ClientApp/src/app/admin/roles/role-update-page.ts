@@ -4,8 +4,9 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, from, Observable } from "rxjs";
 import { filter, map, switchMap, takeUntil } from "rxjs/operators";
 
-import { SubscriberComponentBase } from "../../common/subscriber-component-base";
 import { FormOnDeletingHandler, FormOnResettingHandler, FormOnSavingHandler } from "../../common/form-component-base";
+import { SubscriberComponentBase } from "../../common/subscriber-component-base";
+import { isNotNullOrUndefined } from "../../common/types";
 
 import { IPermissionCategoryDescriptionViewModel, PermissionCategoryDescriptionViewModel } from "../permissions/models";
 import { PermissionsService } from "../permissions/services";
@@ -51,7 +52,7 @@ export class RoleUpdatePage
             .pipe(map(([roleId, permissionDescriptions]) =>
                 () => from(rolesService.fetchDetail(roleId))
                     .pipe(
-                        filter(detail => detail != null),
+                        filter(isNotNullOrUndefined),
                         map(detail => RoleUpdateFormModel.fromDetail(
                             detail,
                             PermissionCategoryDescriptionViewModel.mapPermissions(permissionDescriptions))))

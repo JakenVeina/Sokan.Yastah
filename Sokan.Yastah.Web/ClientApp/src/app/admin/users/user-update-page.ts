@@ -5,6 +5,7 @@ import { combineLatest, from, Observable } from "rxjs";
 import { filter, map } from "rxjs/operators";
 
 import { FormOnResettingHandler, FormOnSavingHandler } from "../../common/form-component-base";
+import { isNotNullOrUndefined } from "../../common/types";
 
 import { IPermissionCategoryDescriptionViewModel, PermissionCategoryDescriptionViewModel } from "../permissions/models";
 import { PermissionsService } from "../permissions/services";
@@ -43,7 +44,7 @@ export class UserUpdatePage {
             .pipe(map(([userId, permissionDescriptions, roleIdentities]) =>
                 () => from(usersService.fetchDetail(userId))
                     .pipe(
-                        filter(detail => detail != null),
+                        filter(isNotNullOrUndefined),
                         map(detail => UserUpdateFormModel.fromDetail(
                             detail,
                             PermissionCategoryDescriptionViewModel.mapPermissions(permissionDescriptions)

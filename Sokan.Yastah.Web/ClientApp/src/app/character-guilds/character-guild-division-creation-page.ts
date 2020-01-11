@@ -22,7 +22,7 @@ export class CharacterGuildDivisionCreationPage {
             characterGuildDivisionsService: CharacterGuildDivisionsService,
             router: Router) {
 
-        let guildId = activatedRoute.parent.parent.paramMap
+        let guildId = activatedRoute.parent!.parent!.paramMap
             .pipe(map(x => Number(x.get("id"))));
 
         this._divisionIdentities = guildId
@@ -41,7 +41,7 @@ export class CharacterGuildDivisionCreationPage {
                         router.navigate([`../${result.divisionId}`], { relativeTo: activatedRoute })
                     }
 
-                    return result.error;
+                    return result.error || null;
                 }));
     }
 

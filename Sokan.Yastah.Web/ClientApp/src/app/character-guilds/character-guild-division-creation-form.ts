@@ -18,6 +18,8 @@ export class CharacterGuildDivisionCreationForm
             formBuilder: FormBuilder) {
         super();
 
+        this._divisionIdentities = null;
+
         this._form = formBuilder.group(
             {
                 name: formBuilder.control(

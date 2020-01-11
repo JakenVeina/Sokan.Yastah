@@ -6,6 +6,7 @@ import { filter, map, switchMap, take, takeUntil } from "rxjs/operators";
 
 import { FormOnDeletingHandler, FormOnResettingHandler, FormOnSavingHandler } from "../common/form-component-base";
 import { SubscriberComponentBase } from "../common/subscriber-component-base";
+import { isNotNullOrUndefined } from "../common/types";
 
 import { ICharacterGuildIdentityViewModel, ICharacterGuildUpdateModel } from "./models";
 import { CharacterGuildsService } from "./services";
@@ -44,7 +45,7 @@ export class CharacterGuildUpdatePage
                         .pipe(take(1))
                         .toPromise()
                     : from(characterGuildsService.fetchIdentity(guildId))
-                        .pipe(filter(identity => identity != null))
+                        .pipe(filter(isNotNullOrUndefined))
                         .toPromise()));
 
         this._onSaving = guildId

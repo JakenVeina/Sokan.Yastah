@@ -25,8 +25,12 @@ export abstract class FormComponentBase<TModel>
     constructor() {
         super();
 
+        this._onDeleting = null;
         this._hasNgInit = false;
         this._hasSaved = false;
+        this._onResetting = null;
+        this._onSaving = null;
+        this._saveError = null;
     }
 
     @Input("on-deleting")
@@ -68,7 +72,7 @@ export abstract class FormComponentBase<TModel>
     public async delete(): Promise<void> {
         this.form.disable();
 
-        await this._onDeleting();
+        await this._onDeleting!();
     }
     public reset(): Promise<void> {
         return this.resetInternal(false);
@@ -76,7 +80,7 @@ export abstract class FormComponentBase<TModel>
     public async save(): Promise<void> {
         this.form.disable();
 
-        let error = await this._onSaving(this.extractModel());
+        let error = await this._onSaving!(this.extractModel());
 
         this.form.enable();
         this.form.markAsPristine();
@@ -120,7 +124,7 @@ export abstract class FormComponentBase<TModel>
     private async resetInternal(isInit: boolean): Promise<void> {
         this.form.disable();
 
-        let model = await this._onResetting(isInit);
+        let model = await this._onResetting!(isInit);
 
         this.form.enable();
         this.loadModel(model);
