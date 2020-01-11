@@ -32,6 +32,7 @@
     <button type="button" (click)="reset()" [disabled]="!canReset">Reset</button>
     <button type="submit" [disabled]="!canSave">Save</button>
     <button type="button" (click)="delete()" [disabled]="!canDelete">Delete</button>
+    <div *ngIf="form.errors && form.errors.uninitialized">Form has not yet initialized</div>
     <div *ngIf="saveError != null">An error occurred while saving changes: {{saveError.message}}</div>
     <div *ngIf="hasSaved">Changes saved successfully</div>
 </form>

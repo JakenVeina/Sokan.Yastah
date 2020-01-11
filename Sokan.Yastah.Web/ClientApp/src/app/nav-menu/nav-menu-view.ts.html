@@ -1,38 +1,36 @@
-<header class="box-shadow">
-    <nav>
-        <h4>Yastah Game Portal</h4>
-        <hr />
-        <div *ngIf="isAuthenticated | async" class="menu-item">
-            <img src="{{avatarUri | async}}" width="32" height="32" />
-            <h5>{{username | async}}</h5>
-            <h6><a href="{{signoutUri}}">(Logout)</a></h6>
-        </div>
-        <hr *ngIf="isAuthenticated | async"/>
-        <ul>
-            <li *ngIf="hasHome | async" class="menu-item">
-                <span class="material-icons">home</span>
-                <h5><a [routerLink]="['/']">Home</a></h5>
-            </li>
-            <li *ngIf="hasAdmin | async" class="menu-item">
-                <span class="material-icons">security</span>
-                <h5><a (click)="adminSubmenu.hidden = !adminSubmenu.hidden">Administration</a></h5>
-            </li>
-            <li #adminSubmenu hidden class="menu-item">
-                <ul>
-                    <li *ngIf="hasAdminRoles | async" class="menu-item">
-                        <span class="material-icons">people</span>
-                        <h5><a [routerLink]="['/admin/roles']">Roles</a></h5>
-                    </li>
-                    <li *ngIf="hasAdminUsers | async" class="menu-item">
-                        <span class="material-icons">person</span>
-                        <h5><a [routerLink]="['/admin/users']">Users</a></h5>
-                    </li>
-                </ul>
-            </li>
-            <li *ngIf="hasCharacterGuilds | async" class="menu-item">
-                <span class="material-icons">assignment</span>
-                <h5><a [routerLink]="['/characters/guilds']">Guilds</a></h5>
-            </li>
-        </ul>
-    </nav>
-</header>
+<nav>
+    <h4>Yastah Game Portal</h4>
+    <hr />
+    <div *ngIf="isAuthenticated | async" class="user-bar">
+        <img src="{{avatarUri | async}}" width="32" height="32" />
+        <h5>{{username | async}}</h5>
+        <h6><a href="{{signoutUri}}">(Logout)</a></h6>
+    </div>
+    <hr *ngIf="isAuthenticated | async"/>
+    <ul>
+        <li *ngIf="hasHome | async">
+            <span class="material-icons">home</span>
+            <h5><a [routerLink]="['/home']" routerLinkActive="active-link">Home</a></h5>
+        </li>
+        <li *ngIf="hasAdmin | async">
+            <span class="material-icons">security</span>
+            <h5><a (click)="adminSubmenu.hidden = !adminSubmenu.hidden">Administration</a></h5>
+        </li>
+        <li #adminSubmenu *ngIf="hasAdmin | async">
+            <ul>
+                <li *ngIf="hasAdminRoles | async">
+                    <span class="material-icons">people</span>
+                    <h5><a [routerLink]="['/admin/roles']" routerLinkActive="active-link">Roles</a></h5>
+                </li>
+                <li *ngIf="hasAdminUsers | async">
+                    <span class="material-icons">person</span>
+                    <h5><a [routerLink]="['/admin/users']" routerLinkActive="active-link">Users</a></h5>
+                </li>
+            </ul>
+        </li>
+        <li *ngIf="hasCharacterGuilds | async">
+            <span class="material-icons">assignment</span>
+            <h5><a [routerLink]="['/characters/guilds']" routerLinkActive="active-link">Guilds</a></h5>
+        </li>
+    </ul>
+</nav>

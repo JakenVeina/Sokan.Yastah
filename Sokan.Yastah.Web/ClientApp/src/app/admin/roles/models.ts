@@ -1,48 +1,23 @@
 ﻿import { IUserIdentityViewModel } from "../users/models";
 
-export interface IRoleCreationModel {
-    name: string;
-    grantedPermissionIds: number[];
-}
 
-export interface IRoleCreationFormModel {
-    name: string;
-    permissionMappings: {
-        [id: number]: boolean;
-    };
+export interface IRoleCreationModel {
+    readonly name: string;
+    readonly grantedPermissionIds: number[];
 }
 
 export interface IRoleDetailViewModel
         extends IRoleIdentityViewModel {
-    grantedPermissionIds: number[];
-    members: IUserIdentityViewModel[];
+    readonly grantedPermissionIds: number[];
+    readonly members: IUserIdentityViewModel[];
 }
 
 export interface IRoleIdentityViewModel {
-    id: number;
-    name: string;
-}
-
-export interface IRoleUpdateFormModel {
-    id: number;
-    name: string;
-    permissionMappings: {
-        [id: number]: boolean;
-    };
+    readonly id: number;
+    readonly name: string;
 }
 
 export interface IRoleUpdateModel {
-    name: string;
-    grantedPermissionIds: number[];
+    readonly name: string;
+    readonly grantedPermissionIds: number[];
 }
-
-export const roleUpdateFormInitialState: IRoleUpdateFormModel = {
-    id: null,
-    name: null,
-    permissionMappings: {}
-};
-
-export const roleCreationFormInitialState: IRoleCreationFormModel = {
-    name: "New Role",
-    permissionMappings: {}
-};

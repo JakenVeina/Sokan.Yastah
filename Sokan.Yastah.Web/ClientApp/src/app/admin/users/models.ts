@@ -1,46 +1,24 @@
-﻿export interface IRawUserOverviewViewModel
-        extends IUserIdentityViewModel {
-    firstSeen: string,
-    lastSeen: string
-}
-
-export interface IUserDetailViewModel
+﻿export interface IUserDetailViewModel
         extends IUserOverviewViewModel {
-    grantedPermissionIds: number[],
-    deniedPermissionIds: number[],
-    assignedRoleIds: number[]
+    readonly grantedPermissionIds: number[],
+    readonly deniedPermissionIds: number[],
+    readonly assignedRoleIds: number[]
 }
 
 export interface IUserIdentityViewModel {
-    id: number;
-    username: string;
-    discriminator: string;
+    readonly id: number;
+    readonly username: string;
+    readonly discriminator: string;
 }
 
 export interface IUserOverviewViewModel
         extends IUserIdentityViewModel {
-    firstSeen: Date,
-    lastSeen: Date
-}
-
-export interface IUserUpdateFormModel {
-    id: number;
-    permissionMappings: {
-        [id: number]: "granted" | "unmapped" | "denied";
-    };
-    roleMappings: {
-        [id: number]: boolean;
-    };
+    readonly firstSeen: string,
+    readonly lastSeen: string
 }
 
 export interface IUserUpdateModel {
-    grantedPermissionIds: number[];
-    deniedPermissionIds: number[];
-    assignedRoleIds: number[];
+    readonly grantedPermissionIds: number[];
+    readonly deniedPermissionIds: number[];
+    readonly assignedRoleIds: number[];
 }
-
-export const userUpdateFormInitialState: IUserUpdateFormModel = {
-    id: null,
-    permissionMappings: {},
-    roleMappings: {}
-};

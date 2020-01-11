@@ -1,6 +1,4 @@
-﻿import { Selector } from "@ngrx/store";
-
-import { INativeHashTable, Reducer } from "./types";
+﻿import { Reducer } from "./types";
 
 
 export interface KeyValueMapping<TKey, TValue> {
@@ -47,6 +45,22 @@ export namespace ImmutableObject {
                 valueReducer: Reducer<TSource[TKey]>):
             Readonly<TSource> {
         return updateOne(source, key, valueReducer(source[key]));
+    }
+
+    export function removeOne<TSource, TKey extends keyof TSource>(
+                source: TSource,
+                key: TKey):
+            Readonly<Exclude<TSource, TKey>> {
+        if (typeof source[key] !== "undefined") {
+            return <Readonly<Exclude<TSource, TKey>>>source;
+        }
+
+        const {
+            [key]: _,
+            ...result
+        } = source;
+
+        return <Readonly<Exclude<TSource, TKey>>>result;
     }
 
     export function updateOne<TSource, TKey extends keyof TSource>(

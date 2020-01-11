@@ -1,10 +1,10 @@
 ﻿<div>
     <ul>
-        <li><h2><a [routerLink]="['new']">New</a></h2></li>
+        <li><h2><a [routerLink]="['new']" routerLinkActive="active-link">New</a></h2></li>
     </ul>
     <hr />
     <ul>
-        <li *ngFor="let guild of (guilds | async); trackBy: guildTrackByFn"><h4><a [routerLink]="[guild.id]">{{guild.name}}</a></h4></li>
+        <li *ngFor="let guild of (guilds | async); trackBy: guildTrackByFn"><h4><a [routerLink]="[guild.id]" routerLinkActive="active-link">{{guild.name}}</a></h4></li>
     </ul>
 </div>
 <div>

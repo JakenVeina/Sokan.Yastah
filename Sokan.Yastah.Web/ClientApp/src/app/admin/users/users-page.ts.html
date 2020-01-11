@@ -1,0 +1,21 @@
+﻿<div>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>First Seen</th>
+                <th>Last Seen</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let user of (users | async); let i = index; trackBy: userTrackByFn">
+                <td><a [routerLink]="[user.id]" routerLinkActive="active-link">{{user.username}}#{{user.discriminator}}</a></td>
+                <td>{{user.firstSeen | date:'y-MMM-d'}}</td>
+                <td>{{user.lastSeen | date:'y-MMM-d'}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div>
+    <router-outlet></router-outlet>
+</div>

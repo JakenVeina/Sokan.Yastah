@@ -3,7 +3,7 @@ import { CanActivate } from "@angular/router";
 
 import { Observable } from "rxjs";
 
-import { AuthorizationService } from "../authorization/authorization-service";
+import { AuthorizationService } from "../auth/services";
 
 
 @Injectable({
@@ -18,7 +18,7 @@ export class CharacterGuildsGuard
     }
 
     public canActivate(): Observable<boolean> {
-        return this._authorizationService.hasCharacterAdminManageGuilds;
+        return this._authorizationService.observeHasCharacterAdminManageGuilds;
     }
 
     private readonly _authorizationService: AuthorizationService;

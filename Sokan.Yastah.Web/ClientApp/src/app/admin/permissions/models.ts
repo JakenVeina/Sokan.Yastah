@@ -1,12 +1,24 @@
 ﻿export interface IPermissionCategoryDescriptionViewModel {
-    id: number;
-    name: string;
-    description: string;
-    permissions: IPermissionDescriptionViewModel[];
+    readonly id: number;
+    readonly name: string;
+    readonly description: string;
+    readonly permissions: IPermissionDescriptionViewModel[];
 }
 
 export interface IPermissionDescriptionViewModel {
-    id: number,
-    name: string,
-    description: string,
+    readonly id: number,
+    readonly name: string,
+    readonly description: string,
+}
+
+
+export namespace PermissionCategoryDescriptionViewModel {
+
+    export function mapPermissions(
+                descriptions: IPermissionCategoryDescriptionViewModel[]):
+            IPermissionDescriptionViewModel[] {
+        return descriptions
+            .map(category => category.permissions)
+            .reduce((flattened, permissions) => flattened.concat(permissions), []);
+    }
 }

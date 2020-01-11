@@ -860,55 +860,6 @@ namespace Sokan.Yastah.Business.Test.Characters
 
         #endregion GetCurrentDivisionIdentitiesAsync() Tests
 
-        #region GetCurrentDivisionIdentityAsync() Tests
-
-        public static readonly IReadOnlyList<TestCaseData> GetCurrentDivisionIdentityAsync_TestCaseData
-            = new[]
-            {
-                /*                  guildId,        divisionId      */
-                new TestCaseData(   default(long),  default(long)   ).SetName("{m}(Default Values)"),
-                new TestCaseData(   long.MinValue,  long.MinValue   ).SetName("{m}(Min Values)"),
-                new TestCaseData(   1L,             2L              ).SetName("{m}(Unique Value Set 1)"),
-                new TestCaseData(   3L,             4L              ).SetName("{m}(Unique Value Set 2)"),
-                new TestCaseData(   5L,             6L              ).SetName("{m}(Unique Value Set 3)"),
-                new TestCaseData(   long.MaxValue,  long.MaxValue   ).SetName("{m}(Max Values)")
-            };
-
-        [TestCaseSource(nameof(GetCurrentDivisionIdentityAsync_TestCaseData))]
-        public async Task GetCurrentDivisionIdentityAsync_Always_ReadsIdentity(
-            long guildId,
-            long divisionId)
-        {
-            using var testContext = new TestContext();
-
-            var identity = new CharacterGuildDivisionIdentityViewModel(
-                id: default,
-                name: string.Empty);
-
-            testContext.MockCharacterGuildsRepository
-                .Setup(x => x.ReadDivisionIdentityAsync(
-                    It.IsAny<long>(),
-                    It.IsAny<Optional<long>>(),
-                    It.IsAny<Optional<bool>>(),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(identity.ToSuccess());
-
-            var uut = testContext.BuildUut();
-
-            var result = await uut.GetCurrentDivisionIdentityAsync(
-                guildId,
-                divisionId,
-                testContext.CancellationToken);
-
-            testContext.MockCharacterGuildsRepository.ShouldHaveReceived(x => x
-                .ReadDivisionIdentityAsync(divisionId, guildId, false, testContext.CancellationToken));
-
-            result.IsSuccess.ShouldBeTrue();
-            result.Value.ShouldBeSameAs(identity);
-        }
-
-        #endregion GetCurrentDivisionIdentityAsync() Tests
-
         #region GetCurrentIdentitiesAsync() Tests
 
         [Test]
@@ -940,52 +891,6 @@ namespace Sokan.Yastah.Business.Test.Characters
         }
 
         #endregion GetCurrentIdentitiesAsync() Tests
-
-        #region GetCurrentIdentityAsync() Tests
-
-        public static readonly IReadOnlyList<TestCaseData> GetCurrentIdentityAsync_TestCaseData
-            = new[]
-            {
-                /*                  guildId         */
-                new TestCaseData(   default(long)   ).SetName("{m}(Default Values)"),
-                new TestCaseData(   long.MinValue   ).SetName("{m}(Min Values)"),
-                new TestCaseData(   1L              ).SetName("{m}(Unique Value Set 1)"),
-                new TestCaseData(   2L              ).SetName("{m}(Unique Value Set 2)"),
-                new TestCaseData(   3L              ).SetName("{m}(Unique Value Set 3)"),
-                new TestCaseData(   long.MaxValue   ).SetName("{m}(Max Values)")
-            };
-
-        [TestCaseSource(nameof(GetCurrentIdentityAsync_TestCaseData))]
-        public async Task GetCurrentIdentityAsync_Always_ReadsIdentity(
-            long guildId)
-        {
-            using var testContext = new TestContext();
-
-            var identity = new CharacterGuildIdentityViewModel(
-                id: default,
-                name: string.Empty);
-
-            testContext.MockCharacterGuildsRepository
-                .Setup(x => x.ReadIdentityAsync(
-                    It.IsAny<long>(),
-                    It.IsAny<Optional<bool>>(),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(identity.ToSuccess());
-
-            var uut = testContext.BuildUut();
-
-            var result = await uut.GetCurrentIdentityAsync(
-                guildId,
-                testContext.CancellationToken);
-
-            testContext.MockCharacterGuildsRepository.ShouldHaveReceived(x => x
-                .ReadIdentityAsync(guildId, false, testContext.CancellationToken));
-
-            result.IsSuccess.ShouldBeTrue();
-            result.Value.ShouldBeSameAs(identity);
-        }
-
-        #endregion GetCurrentIdentityAsync() Tests
 
         #region UpdateAsync() Tests
 

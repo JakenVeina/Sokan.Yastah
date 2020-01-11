@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 
 import { Observable } from "rxjs";
 
-import { FormOnSavingHandler } from "../common/types";
+import { FormOnResettingHandler, FormOnSavingHandler } from "../common/form-component-base";
 
 import { ICharacterGuildCreationModel, ICharacterGuildIdentityViewModel } from "./models";
 import { CharacterGuildsService } from "./services";
@@ -23,6 +23,10 @@ export class CharacterGuildCreationPage {
 
         this._guildIdentities = characterGuildsService.observeIdentities();
 
+        this._onResetting = () => Promise.resolve({
+            name: "New Guild"
+        });
+
         this._onSaving = async (model) => {
             let result = await characterGuildsService.create(model);
 
@@ -37,10 +41,14 @@ export class CharacterGuildCreationPage {
     public get guildIdentities(): Observable<ICharacterGuildIdentityViewModel[]> {
         return this._guildIdentities;
     }
+    public get onResetting(): FormOnResettingHandler<ICharacterGuildCreationModel> {
+        return this._onResetting;
+    }
     public get onSaving(): FormOnSavingHandler<ICharacterGuildCreationModel> {
         return this._onSaving;
     }
 
     private readonly _guildIdentities: Observable<ICharacterGuildIdentityViewModel[]>;
+    private readonly _onResetting: FormOnResettingHandler<ICharacterGuildCreationModel>;
     private readonly _onSaving: FormOnSavingHandler<ICharacterGuildCreationModel>;
 }

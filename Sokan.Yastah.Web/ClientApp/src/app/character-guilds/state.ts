@@ -1,4 +1,4 @@
-﻿import { deletedFetchedValueTableState, initialFetchedValueTableState, IFetchedValueTable } from "../common/fetching-utils";
+﻿import { FetchedValue, IFetchedValue } from "../common/fetching-utils";
 import { ImmutableObject } from "../common/immutable-utils";
 import { Reducer, INativeHashTable } from "../common/types";
 
@@ -9,29 +9,24 @@ import {
 
 
 export interface ICharacterGuildsState {
-    readonly identities: IFetchedValueTable<ICharacterGuildIdentityViewModel | null>;
-    readonly stateTable: Readonly<INativeHashTable<ICharacterGuildState | null>>;
+    readonly identities: IFetchedValue<ICharacterGuildIdentityViewModel[] | null>;
+    readonly stateTable: Readonly<INativeHashTable<ICharacterGuildState>>;
 }
 export interface ICharacterGuildState {
     readonly divisions: ICharacterGuildDivisionsState;
 }
 export interface ICharacterGuildDivisionsState {
-    readonly identities: IFetchedValueTable<ICharacterGuildDivisionIdentityViewModel | null>;
+    readonly identities: IFetchedValue<ICharacterGuildDivisionIdentityViewModel[] | null>;
 }
 
 
-export const deletedCharacterGuildState: ICharacterGuildState = {
-    divisions: {
-        identities: deletedFetchedValueTableState
-    }
-};
 export const initialCharacterGuildsState: ICharacterGuildsState = {
-    identities: initialFetchedValueTableState,
+    identities: FetchedValue.unfetched(null),
     stateTable: {}
 };
 export const initialCharacterGuildState: ICharacterGuildState = {
     divisions: {
-        identities: initialFetchedValueTableState
+        identities: FetchedValue.unfetched(null)
     }
 };
 
@@ -43,22 +38,6 @@ export namespace CharacterGuildsState {
                 identitiesReducer: Reducer<ICharacterGuildsState["identities"]>):
             ICharacterGuildsState {
         return ImmutableObject.mapOne(state, "identities", identitiesReducer);
-    }
-
-    export function mapIdentitiesAndStateTable(
-                state: ICharacterGuildsState,
-                identitiesReducer: Reducer<ICharacterGuildsState["identities"]>,
-                stateTableReducer: Reducer<ICharacterGuildsState["stateTable"]>):
-            ICharacterGuildsState {
-        return ImmutableObject.mapOrUpdateMany(state,
-            {
-                key: "identities",
-                reducer: identitiesReducer
-            },
-            {
-                key: "stateTable",
-                reducer: stateTableReducer
-            });
     }
 
     export function mapStateTable(

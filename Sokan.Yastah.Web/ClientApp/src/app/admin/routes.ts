@@ -1,14 +1,16 @@
 ﻿import { Routes } from "@angular/router";
 
-import { RolesView } from "./roles/roles-view";
-import { RoleCreationForm } from "./roles/role-creation-form";
-import { RoleUpdateForm } from "./roles/role-update-form";
+import { RolesPage } from "./roles/roles-page";
+import { RoleCreationPage } from "./roles/role-creation-page";
+import { RoleUpdatePage } from "./roles/role-update-page";
 
-import { UsersView } from "./users/users-view";
+import { UsersPage } from "./users/users-page";
+import { UserUpdatePage } from "./users/user-update-page";
 
-import { AdminGuard, RolesGuard, UsersGuard } from "./guards";
+import { AdminGuard, RolesGuard, UsersGuard } from "./routes.guards";
 
-export const AdminRoutes: Routes = [
+
+export const adminRoutes: Routes = [
     {
         path: "admin",
         canActivate: [AdminGuard],
@@ -16,22 +18,28 @@ export const AdminRoutes: Routes = [
             {
                 path: "roles",
                 canActivate: [RolesGuard],
-                component: RolesView,
+                component: RolesPage,
                 children: [
                     {
                         path: "new",
-                        component: RoleCreationForm
+                        component: RoleCreationPage
                     },
                     {
                         path: ":id",
-                        component: RoleUpdateForm
+                        component: RoleUpdatePage
                     }
                 ]
             },
             {
                 path: "users",
                 canActivate: [UsersGuard],
-                component: UsersView
+                component: UsersPage,
+                children: [
+                    {
+                        path: ":id",
+                        component: UserUpdatePage
+                    }
+                ]
             }
         ]
     }

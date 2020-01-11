@@ -1,10 +1,10 @@
 ﻿<div>
     <ul>
-        <li><h2><a [routerLink]="['new']">New</a></h2></li>
+        <li><h2><a [routerLink]="['new']" routerLinkActive="active-link">New</a></h2></li>
     </ul>
     <hr />
     <ul>
-        <li *ngFor="let division of (divisions | async); trackBy: divisionTrackByFn"><h4><a [routerLink]="[division.id]">{{division.name}}</a></h4></li>
+        <li *ngFor="let division of (divisions | async); trackBy: divisionTrackByFn"><h4><a [routerLink]="[division.id]" routerLinkActive="active-link">{{division.name}}</a></h4></li>
     </ul>
 </div>
 <div>

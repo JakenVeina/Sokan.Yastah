@@ -1,12 +1,8 @@
 import { Component } from "@angular/core";
-import { Store } from "@ngrx/store";
 import { Observable } from "rxjs";
-import { map } from "rxjs/operators";
 
-import { IAppState } from "../state";
+import { AuthenticationService, AuthorizationService } from "../auth/services";
 
-import { AuthenticationService } from "../authentication/authentication-service";
-import { AuthorizationService } from "../authorization/authorization-service";
 
 @Component({
   selector: "nav-menu-view",
@@ -15,62 +11,41 @@ import { AuthorizationService } from "../authorization/authorization-service";
 })
 export class NavMenuView {
     public constructor(
-            appState: Store<IAppState>,
             authenticationService: AuthenticationService,
             authorizationService: AuthorizationService) {
+
         this._authenticationService = authenticationService;
         this._authorizationService = authorizationService;
-
-        let currentTicket = appState
-            .select(x => x.authentication.currentTicket);
-
-        this._avatarUrl = currentTicket
-            .pipe(map(x => ((x && x.avatarHash) != null)
-                ? `https://cdn.discordapp.com/avatars/${x.userId}/${x.avatarHash}.png?size=32`
-                : `https://cdn.discordapp.com/embed/avatars/0.png`));
-
-        this._username = currentTicket
-            .pipe(map(x => x && x.username));
     }
 
-    public get avatarUri(): Observable<string> {
-        return this._avatarUrl;
+    public get avatarUri(): Observable<string | null> {
+        return this._authenticationService.observeAvatarUri;
     }
-
     public get isAuthenticated(): Observable<boolean> {
-        return this._authenticationService.isAuthenticated;
+        return this._authenticationService.observeIsAuthenticated;
     }
-
     public get hasAdmin(): Observable<boolean> {
-        return this._authorizationService.hasAdmin;
+        return this._authorizationService.observeHasAdmin;
     }
-
     public get hasAdminRoles(): Observable<boolean> {
-        return this._authorizationService.hasAdminManageRoles;
+        return this._authorizationService.observeHasAdminManageRoles;
     }
-
     public get hasAdminUsers(): Observable<boolean> {
-        return this._authorizationService.hasAdminManageUsers;
+        return this._authorizationService.observeHasAdminManageUsers;
     }
-
     public get hasCharacterGuilds(): Observable<boolean> {
-        return this._authorizationService.hasCharacterAdminManageGuilds;
+        return this._authorizationService.observeHasCharacterAdminManageGuilds;
     }
-
     public get hasHome(): Observable<boolean> {
-        return this._authorizationService.hasAnyPermissions;
+        return this._authorizationService.observeHasAnyPermissions;
     }
-
     public get signoutUri(): string {
         return this._authenticationService.signoutUri;
     }
-
-    public get username(): Observable<string> {
-        return this._username;
+    public get username(): Observable<string | null> {
+        return this._authenticationService.observeUsername;
     }
 
     private readonly _authenticationService: AuthenticationService;
     private readonly _authorizationService: AuthorizationService;
-    private readonly _avatarUrl: Observable<string>;
-    private readonly _username: Observable<string>;
 }

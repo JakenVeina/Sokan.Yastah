@@ -1,118 +1,124 @@
-﻿import { Component, OnDestroy } from "@angular/core";
+﻿import { Component, Input } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { Router, ActivatedRoute } from "@angular/router";
-import { Store } from "@ngrx/store";
-import { combineLatest, Subject } from "rxjs";
-import { takeUntil, tap } from "rxjs/operators";
 
-import { IAppState } from "../../state";
-import { ApiOperationError } from "../../api/api-operation-error";
+import { FormComponentBase } from "../../common/form-component-base";
+import { FormGroupExtensions } from "../../common/form-group-extensions";
+import { AppValidators } from "../../common/validators";
 
-import { LoadDescriptionsAction } from "../permissions/actions";
-import { IPermissionCategoryDescriptionViewModel } from "../permissions/models";
-import { buildPermissionMappingControls } from "../permissions/utils";
+import { IPermissionCategoryDescriptionViewModel, PermissionCategoryDescriptionViewModel, IPermissionDescriptionViewModel } from "../permissions/models";
 
-import { ReloadIdentitiesAction } from "./actions";
-import { roleCreationFormInitialState } from "./models";
-import { RolesService } from "./service";
-import { makeRoleDuplicateNameValidator, extractRoleCreation } from "./utils";
+import { IRoleCreationModel, IRoleIdentityViewModel } from "./models";
+
+
+export interface IRoleCreationFormModel {
+    readonly name: string;
+    readonly permissionMappings: {
+        readonly [id: number]: boolean;
+    };
+}
+
+export namespace RoleCreationFormModel {
+
+    export function empty(
+                permissions: IPermissionDescriptionViewModel[]):
+            IRoleCreationFormModel {
+        return {
+            name: "New Role",
+            permissionMappings: permissions
+                .reduce(
+                    (mappings, permission) => {
+                        mappings[permission.id] = false;
+                        return mappings;
+                    },
+                    {})
+        };
+    }
+
+    export function toCreation(
+                form: IRoleCreationFormModel):
+            IRoleCreationModel {
+        return {
+            name: form.name,
+            grantedPermissionIds: Object.keys(form.permissionMappings)
+                .map(x => Number(x))
+                .filter(id => form.permissionMappings[id])
+        };
+    }
+}
+
 
 @Component({
+    selector: "role-creation-form",
     templateUrl: "./role-creation-form.ts.html"
 })
 export class RoleCreationForm
-        implements OnDestroy {
+        extends FormComponentBase<IRoleCreationFormModel> {
 
     public constructor(
-            activatedRoute: ActivatedRoute,
-            appState: Store<IAppState>,
-            formBuilder: FormBuilder,
-            rolesService: RolesService,
-            router: Router) {
+            formBuilder: FormBuilder) {
+        super();
 
-        this._activatedRoute = activatedRoute;
-        this._appState = appState;
-        this._destroying = new Subject<void>();
-        this._rolesService = rolesService;
-        this._router = router;
+        this._formBuilder = formBuilder;
 
-        this._form = formBuilder.group({
-            name: formBuilder.control(null, Validators.required, makeRoleDuplicateNameValidator(this._appState)),
-            permissionMappings: formBuilder.group({})
-        });
-
-        combineLatest(
-                this._form.statusChanges,
-                this._form.valueChanges)
-            .pipe(takeUntil(this._destroying))
-            .subscribe(x => {
-                this._saveError = null;
+        this._permissionMappings = this._formBuilder.group({});
+        this._form = this._formBuilder.group(
+            {
+                name: this._formBuilder.control(
+                    null,
+                    [
+                        Validators.required, 
+                        AppValidators.notDuplicated(() => this._roleIdentities && this._roleIdentities.map(x => x.name))
+                    ]),
+                permissionMappings: this._permissionMappings
+            },
+            {
+                validators: () => (this._roleIdentities == null)
+                    ? { "uninitialized": true }
+                    : null
             });
-
-        appState.select(x => x.admin.permissions.descriptions)
-            .pipe(takeUntil(this._destroying))
-            .subscribe(x => {
-                this._permissionDescriptions = x;
-                buildPermissionMappingControls(x, this.form.controls.permissionMappings as FormGroup, formBuilder, false);
-            });
-
-        this._appState.dispatch(new LoadDescriptionsAction());
-        this.reset();
     }
 
-    public get canReset(): boolean {
-        return this._form.enabled;
+    @Input("role-identities")
+    public set roleIdentities(value: IRoleIdentityViewModel[] | null) {
+        this._roleIdentities = value;
+        this._form.updateValueAndValidity();
     }
+    @Input("permission-descriptions")
+    public get permissionDescriptions(): IPermissionCategoryDescriptionViewModel[] | null {
+        return this._permissionDescriptions;
+    }
+    public set permissionDescriptions(value: IPermissionCategoryDescriptionViewModel[] | null) {
+        if (value != null) {
+            PermissionCategoryDescriptionViewModel.mapPermissions(value)
+                .forEach(permission => this.tryAddPermissionMappingControl(permission.id.toString()));
+        }
+        this._permissionMappings.updateValueAndValidity();
 
-    public get canSave(): boolean {
-        return this._form.valid;
+        this._permissionDescriptions = value;
     }
 
     public get form(): FormGroup {
         return this._form;
     }
 
-    public get permissionDescriptions(): IPermissionCategoryDescriptionViewModel[] {
-        return this._permissionDescriptions;
+    protected loadModel(
+                model: IRoleCreationFormModel):
+            void {
+        Object.keys(model.permissionMappings)
+            .forEach(permissionId => this.tryAddPermissionMappingControl(permissionId));
+        super.loadModel(model);
     }
 
-    public get saveError(): ApiOperationError | null {
-        return this._saveError;
+    private tryAddPermissionMappingControl(
+                name: string):
+            void {
+        FormGroupExtensions.tryAddControl(this._permissionMappings, name, () => this._formBuilder.control(false));
     }
 
-    public reset(): void {
-        this.form.reset(roleCreationFormInitialState);
-    }
-
-    public save(): void {
-        this._form.disable();
-        this._rolesService.create(extractRoleCreation(this._form.value))
-            .pipe(
-                tap(() => this._appState.dispatch(new ReloadIdentitiesAction())),
-                takeUntil(this._destroying))
-            .subscribe(
-                roleId => {
-                    this._saveError = null;
-                    this._router.navigate([`../${roleId}`], { relativeTo: this._activatedRoute });
-                },
-                xhr => {
-                    this._form.enable();
-                    this._saveError = xhr.error;
-                });
-    }
-
-    public ngOnDestroy(): void {
-        this._destroying.next();
-        this._destroying.complete();
-    }
-
-    private readonly _activatedRoute: ActivatedRoute;
-    private readonly _appState: Store<IAppState>;
-    private readonly _destroying: Subject<void>;
     private readonly _form: FormGroup;
-    private readonly _rolesService: RolesService;
-    private readonly _router: Router;
+    private readonly _formBuilder: FormBuilder;
+    private readonly _permissionMappings: FormGroup;
 
-    private _permissionDescriptions: IPermissionCategoryDescriptionViewModel[];
-    private _saveError: ApiOperationError | null;
+    private _permissionDescriptions: IPermissionCategoryDescriptionViewModel[] | null;
+    private _roleIdentities: IRoleIdentityViewModel[] | null;
 }

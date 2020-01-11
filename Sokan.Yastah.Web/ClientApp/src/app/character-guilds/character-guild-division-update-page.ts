@@ -1,11 +1,11 @@
 ﻿import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
-import { combineLatest, Observable } from "rxjs";
-import { filter, map, skipWhile, switchMap, take, takeUntil } from "rxjs/operators";
+import { combineLatest, from, Observable } from "rxjs";
+import { filter, map, switchMap, take, takeUntil } from "rxjs/operators";
 
-import { FormOnDeletingHandler, FormOnResettingHandler, FormOnSavingHandler } from "../common/types";
-import { SubscriberComponentBase } from "../subscriber-component-base";
+import { FormOnDeletingHandler, FormOnResettingHandler, FormOnSavingHandler } from "../common/form-component-base";
+import { SubscriberComponentBase } from "../common/subscriber-component-base";
 
 import { ICharacterGuildDivisionIdentityViewModel, ICharacterGuildDivisionUpdateModel } from "./models";
 import { CharacterGuildDivisionsService } from "./services";
@@ -50,11 +50,11 @@ export class CharacterGuildDivisionUpdatePage
                 map(([guildId, divisionId]) =>
                     (isInit) => (isInit
                         ? characterGuildDivisionsService.observeIdentity(guildId, divisionId)
-                            .pipe(
-                                filter(identity => identity != null),
-                                take(1))
+                            .pipe(take(1))
                             .toPromise()
-                        : characterGuildDivisionsService.fetchIdentity(guildId, divisionId))));
+                        : from(characterGuildDivisionsService.fetchIdentity(guildId, divisionId))
+                            .pipe(filter(identity => identity != null))
+                            .toPromise())));
 
         this._onSaving = guildIdAndDivisionId
             .pipe(map(([guildId, divisionId]) =>
@@ -62,9 +62,7 @@ export class CharacterGuildDivisionUpdatePage
 
         guildIdAndDivisionId
             .pipe(
-                switchMap(([guildId, divisionId]) => characterGuildDivisionsService.observeIdentity(guildId, divisionId)
-                    .pipe(skipWhile(identity => identity == null))),
-                filter(identity => identity == null),
+                switchMap(([guildId, divisionId]) => characterGuildDivisionsService.onDeleted(guildId, divisionId)),
                 takeUntil(this.destroying))
             .subscribe(() => router.navigate(["../"], { relativeTo: activatedRoute }));
     }

@@ -36,16 +36,7 @@ namespace Sokan.Yastah.Business.Characters
             long guildId,
             CancellationToken cancellationToken);
 
-        Task<OperationResult<CharacterGuildDivisionIdentityViewModel>> GetDivisionIdentityAsync(
-            long guildId,
-            long divisionId,
-            CancellationToken cancellationToken);
-
         Task<OperationResult<IReadOnlyCollection<CharacterGuildIdentityViewModel>>> GetIdentitiesAsync(
-            CancellationToken cancellationToken);
-
-        Task<OperationResult<CharacterGuildIdentityViewModel>> GetIdentityAsync(
-            long guildId,
             CancellationToken cancellationToken);
 
         Task<OperationResult> UpdateAsync(
@@ -153,20 +144,6 @@ namespace Sokan.Yastah.Business.Characters
                     .ToSuccess();
         }
 
-        public async Task<OperationResult<CharacterGuildDivisionIdentityViewModel>> GetDivisionIdentityAsync(
-            long guildId,
-            long divisionId,
-            CancellationToken cancellationToken)
-        {
-            var authResult = await _authorizationService.RequirePermissionsAsync(
-                cancellationToken,
-                (int)CharacterAdministrationPermission.ManageGuilds);
-
-            return authResult.IsFailure
-                ? authResult.Error.ToError<CharacterGuildDivisionIdentityViewModel>()
-                : await _characterGuildsService.GetCurrentDivisionIdentityAsync(guildId, divisionId, cancellationToken);
-        }
-
         public async Task<OperationResult<IReadOnlyCollection<CharacterGuildIdentityViewModel>>> GetIdentitiesAsync(
             CancellationToken cancellationToken)
         {
@@ -178,19 +155,6 @@ namespace Sokan.Yastah.Business.Characters
                 ? authResult.Error.ToError<IReadOnlyCollection<CharacterGuildIdentityViewModel>>()
                 : (await _characterGuildsService.GetCurrentIdentitiesAsync(cancellationToken))
                     .ToSuccess();
-        }
-
-        public async Task<OperationResult<CharacterGuildIdentityViewModel>> GetIdentityAsync(
-            long guildId,
-            CancellationToken cancellationToken)
-        {
-            var authResult = await _authorizationService.RequirePermissionsAsync(
-                cancellationToken,
-                (int)CharacterAdministrationPermission.ManageGuilds);
-
-            return authResult.IsFailure
-                ? authResult.Error.ToError<CharacterGuildIdentityViewModel>()
-                : await _characterGuildsService.GetCurrentIdentityAsync(guildId, cancellationToken);
         }
 
         public async Task<OperationResult> UpdateAsync(

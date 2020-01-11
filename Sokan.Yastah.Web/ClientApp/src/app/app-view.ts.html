@@ -1,16 +1,10 @@
-<div class="root">
-    <div class="menu-container">
-        <nav-menu-view></nav-menu-view>
+<div>
+    <nav-menu-view></nav-menu-view>
+</div>
+<div>
+    <div *ngIf="(showLogin | async) || (showUnauthorized | async)" class="content-container">
+        <h1 *ngIf="showLogin | async"><a href="{{signinUri}}">Login</a></h1>
+        <h1 *ngIf="showUnauthorized | async">You are not a member of the Sokan Discord guild.</h1>
     </div>
-    <div class="body-container">
-        <div *ngIf="showLogin | async"
-             class="fill-screen-vertical horizontal-centering vertical-centering">
-            <h1><a href="{{signinUri}}">Login</a></h1>
-        </div>
-        <div *ngIf="!(showPortal | async)"
-             class="fill-screen-vertical horizontal-centering vertical-centering">
-            <h1>You are not a member of the Sokan Discord guild.</h1>
-        </div>
-        <router-outlet *ngIf="showPortal"></router-outlet>
-    </div>
+    <router-outlet *ngIf="showPortal | async"></router-outlet>
 </div>

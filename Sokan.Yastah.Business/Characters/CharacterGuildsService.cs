@@ -43,16 +43,7 @@ namespace Sokan.Yastah.Business.Characters
             long guildId,
             CancellationToken cancellationToken);
 
-        Task<OperationResult<CharacterGuildDivisionIdentityViewModel>> GetCurrentDivisionIdentityAsync(
-            long guildId,
-            long divisionId,
-            CancellationToken cancellationToken);
-
         Task<IReadOnlyCollection<CharacterGuildIdentityViewModel>> GetCurrentIdentitiesAsync(
-            CancellationToken cancellationToken);
-
-        Task<OperationResult<CharacterGuildIdentityViewModel>> GetCurrentIdentityAsync(
-            long guildId,
             CancellationToken cancellationToken);
 
         Task<OperationResult> UpdateAsync(
@@ -207,29 +198,11 @@ namespace Sokan.Yastah.Business.Characters
                     isDeleted: false)
                 .ToArrayAsync(cancellationToken);
 
-        public async Task<OperationResult<CharacterGuildDivisionIdentityViewModel>> GetCurrentDivisionIdentityAsync(
-                long guildId,
-                long divisionId,
-                CancellationToken cancellationToken)
-            => await _characterGuildsRepository.ReadDivisionIdentityAsync(
-                guildId: guildId,
-                divisionId: divisionId,
-                isDeleted: false,
-                cancellationToken: cancellationToken);
-
         public async Task<IReadOnlyCollection<CharacterGuildIdentityViewModel>> GetCurrentIdentitiesAsync(
                 CancellationToken cancellationToken)
             => await _characterGuildsRepository.AsyncEnumerateIdentities(
                     isDeleted: false)
                 .ToArrayAsync(cancellationToken);
-
-        public async Task<OperationResult<CharacterGuildIdentityViewModel>> GetCurrentIdentityAsync(
-                long guildId,
-                CancellationToken cancellationToken)
-            => await _characterGuildsRepository.ReadIdentityAsync(
-                guildId: guildId,
-                isDeleted: false,
-                cancellationToken: cancellationToken);
 
         public async Task<OperationResult> UpdateAsync(
             long guildId,

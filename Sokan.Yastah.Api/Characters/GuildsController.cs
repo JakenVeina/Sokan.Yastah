@@ -32,13 +32,6 @@ namespace Sokan.Yastah.Api.Characters
             => TranslateOperation(await _characterGuildsOperations.GetIdentitiesAsync(
                 cancellationToken: HttpContext.RequestAborted));
 
-        [HttpGet(DefaultAreaIdActionRouteTemplate)]
-        public async Task<IActionResult> Identity(
-                long id)
-            => TranslateOperation(await _characterGuildsOperations.GetIdentityAsync(
-                guildId: id,
-                cancellationToken: HttpContext.RequestAborted));
-
         [HttpPut(DefaultAreaRouteTemplate)]
         public async Task<IActionResult> Update(
                 long id,

@@ -1,15 +1,15 @@
 ﻿import { Routes } from "@angular/router";
 
-import { HomeView } from "./home/home-view";
+import { HomePage } from "./home/home-page";
 
-import { PortalGuard } from "./guards";
+import { PortalGuard } from "./routes.guards";
 
 
 export const AppRoutes: Routes = [
     {
         path: "home",
         canActivate: [PortalGuard],
-        component: HomeView
+        component: HomePage
     },
     {
         path: "",

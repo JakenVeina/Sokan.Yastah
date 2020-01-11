@@ -4,17 +4,15 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 
-import { EffectsModule } from "@ngrx/effects";
 import { StoreModule } from "@ngrx/store";
 
 import { AdminModule } from "./admin/module";
 import { CharacterGuildsModule } from "./character-guilds/module";
 
-import { AuthenticationEffects } from "./authentication/effects";
-import { AuthenticationInterceptor } from "./authentication/interceptor";
-import { authenticationStateReducer } from "./authentication/reducers";
+import { AuthenticationInterceptor } from "./auth/interceptor";
+import { authenticationStateReducer } from "./auth/state.reducers";
 
-import { HomeView } from "./home/home-view";
+import { HomePage } from "./home/home-page";
 import { NavMenuView } from "./nav-menu/nav-menu-view";
 import { AppView } from "./app-view";
 import { AppRoutes } from "./routes";
@@ -23,9 +21,6 @@ import { AppRoutes } from "./routes";
 @NgModule({
     imports: [
         BrowserModule.withServerTransition({ appId: "ng-cli-universal" }),
-        EffectsModule.forRoot([
-            AuthenticationEffects
-        ]),
         FormsModule,
         HttpClientModule,
         HttpClientXsrfModule.withOptions({
@@ -43,7 +38,7 @@ import { AppRoutes } from "./routes";
     ],
     declarations: [
         AppView,
-        HomeView,
+        HomePage,
         NavMenuView
     ],
     providers: [

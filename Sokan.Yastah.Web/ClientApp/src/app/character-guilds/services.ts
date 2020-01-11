@@ -3,10 +3,10 @@ import { Injectable } from "@angular/core";
 
 import { Store } from "@ngrx/store";
 
-import { of, Observable } from "rxjs";
-import { catchError, map, shareReplay, skip, switchMap, take, tap } from "rxjs/operators";
+import { from, of, throwError, Observable, Subject } from "rxjs";
+import { catchError, filter, map, shareReplay, skip, switchMap, take, tap } from "rxjs/operators";
 
-import { ApiClient } from "../api/api-client";
+import { ApiClient } from "../common/api-client";
 import { IOperationError } from "../common/types";
 import { IAppState } from "../state";
 
@@ -14,7 +14,8 @@ import {
     ICharacterGuildDivisionCreationModel,
     ICharacterGuildDivisionIdentityViewModel,
     ICharacterGuildCreationModel,
-    ICharacterGuildIdentityViewModel,    ICharacterGuildDivisionUpdateModel
+    ICharacterGuildIdentityViewModel,    ICharacterGuildDivisionUpdateModel,
+    ICharacterGuildUpdateModel
 } from "./models";
 import {
     CharacterGuildDivisionsActionFactory,
@@ -36,19 +37,19 @@ export interface ICharacterGuildCreationResult {
 const guildsApiPath = "characters/guilds";
 
 function divisionApiPath(
-    guildId: number,
-    divisionId: number):
-    string {
+            guildId: number,
+            divisionId: number):
+        string {
     return `${divisionsApiPath(guildId)}/${divisionId}`;
 }
 function divisionsApiPath(
-    guildId: number):
-    string {
+            guildId: number):
+        string {
     return `${guildApiPath(guildId)}/divisions`;
 }
 function guildApiPath(
-    guildId: number):
-    string {
+            guildId: number):
+        string {
     return `${guildsApiPath}/${guildId}`;
 }
 
@@ -65,8 +66,7 @@ export class CharacterGuildDivisionsService {
         this._apiClient = apiClient;
         this._appState = appState;
 
-        this._observableIdentitiesMap = {};
-        this._observableIdentityMap = {};
+        this._onDeleted = new Subject();
     }
 
     public create(
@@ -75,16 +75,18 @@ export class CharacterGuildDivisionsService {
             Promise<ICharacterGuildDivisionCreationResult> {
         return this._apiClient.post<number>(`${divisionsApiPath(guildId)}/new`, model)
             .pipe(
+                tap(() => this._appState.dispatch(CharacterGuildDivisionsActionFactory.scheduleFetchIdentities({
+                    guildId
+                }))),
                 map(divisionId => ({
                     guildId,
                     divisionId
                 })),
-                tap(props => this._appState.dispatch(CharacterGuildDivisionsActionFactory.initialize(props))),
-                catchError((error: HttpErrorResponse, caught) => (Math.trunc(error.status / 100) === 4)
+                catchError((error: HttpErrorResponse) => (Math.trunc(error.status / 100) === 4)
                     ? of({
                         error: error.error
                     })
-                    : caught))
+                    : throwError(error)))
             .toPromise();
     }
 
@@ -94,13 +96,16 @@ export class CharacterGuildDivisionsService {
             Promise<void> {
         return this._apiClient.delete<void>(divisionApiPath(guildId, divisionId))
             .pipe(
-                catchError((error: HttpErrorResponse, caught) => (error.status === 404)
+                catchError((error: HttpErrorResponse) => (error.status === 404)
                     ? of(null)
-                    : caught),
-                tap(() => this._appState.dispatch(CharacterGuildDivisionsActionFactory.remove({
+                    : throwError(error)),
+                tap(() => this._appState.dispatch(CharacterGuildDivisionsActionFactory.scheduleFetchIdentities({
+                    guildId
+                }))),
+                tap(() => this._onDeleted.next({
                     guildId,
                     divisionId,
-                }))))
+                })))
             .toPromise();
     }
 
@@ -121,13 +126,17 @@ export class CharacterGuildDivisionsService {
                                 guildId
                             }))),
                             switchMap(() => this._apiClient.get<ICharacterGuildDivisionIdentityViewModel[]>(`${divisionsApiPath(guildId)}/identities`)),
-                            catchError((error: HttpErrorResponse, caught) => (error.status === 404)
-                                ? of([])
-                                : caught),
-                            tap(identities => this._appState.dispatch(CharacterGuildDivisionsActionFactory.storeIdentities({
-                                guildId,
-                                identities
-                            }))))))
+                            catchError((error: HttpErrorResponse) => (error.status === 404)
+                                ? of(null)
+                                : throwError(error)),
+                            tap(identities => this._appState.dispatch((identities == null)
+                                ? CharacterGuildsActionFactory.remove({
+                                    guildId
+                                })
+                                : CharacterGuildDivisionsActionFactory.storeIdentities({
+                                    guildId,
+                                    identities
+                                }))))))
             .toPromise();
     }
 
@@ -135,7 +144,7 @@ export class CharacterGuildDivisionsService {
                 guildId: number,
                 divisionId: number):
             Promise<ICharacterGuildDivisionIdentityViewModel | null> {
-        return this._appState.select(CharacterGuildDivisionsSelectors.identityIsFetching(guildId, divisionId))
+        return this._appState.select(CharacterGuildDivisionsSelectors.identitiesIsFetching(guildId))
             .pipe(
                 take(1),
                 switchMap(isFetching => isFetching
@@ -143,58 +152,46 @@ export class CharacterGuildDivisionsService {
                         .pipe(
                             skip(1),
                             take(1))
-                    : of(null)
-                        .pipe(
-                            tap(() => this._appState.dispatch(CharacterGuildDivisionsActionFactory.beginFetchIdentity({
-                                guildId,
-                                divisionId
-                            }))),
-                            switchMap(() => this._apiClient.get<ICharacterGuildDivisionIdentityViewModel>(`${divisionApiPath(guildId, divisionId)}/identity`)),
-                            catchError((error: HttpErrorResponse, caught) => (error.status === 404)
-                                ? of(null)
-                                : caught),
-                            tap(identity => this._appState.dispatch(CharacterGuildDivisionsActionFactory.storeIdentity({
-                                guildId,
-                                identity
-                            }))))))
+                    : from(this.fetchIdentities(guildId))
+                        .pipe(map(identities => identities.find(identity => identity.id === divisionId)))))
             .toPromise();
     }
 
     public observeIdentities(
                 guildId: number):
             Observable<ICharacterGuildDivisionIdentityViewModel[]> {
-        if (this._observableIdentitiesMap[guildId] == null) {
-            this._observableIdentitiesMap[guildId] = this._appState.select(CharacterGuildDivisionsSelectors.idsNeedingIdentityFetch(guildId))
-                .pipe(
-                    tap(divisionIds => setTimeout(() => (divisionIds === "all")
-                        ? this.fetchIdentities(guildId)
-                        : divisionIds.forEach(divisionId => this.fetchIdentity(guildId, divisionId)))),
-                    switchMap(() => this._appState.select(CharacterGuildDivisionsSelectors.identities(guildId))),
-                    shareReplay());
-        }
-
-        return this._observableIdentitiesMap[guildId];
+        return this._appState.select(CharacterGuildDivisionsSelectors.identitiesNeedsFetch(guildId))
+            .pipe(
+                tap(needsFetch => needsFetch
+                    ? setTimeout(() => this.fetchIdentities(guildId))
+                    : null),
+                switchMap(() => this._appState.select(CharacterGuildDivisionsSelectors.identities(guildId))),
+                filter(identities => identities != null),
+                shareReplay());
     }
 
     public observeIdentity(
                 guildId: number,
                 divisionId: number):
-            Observable<ICharacterGuildDivisionIdentityViewModel | null> {
-        if (this._observableIdentityMap[guildId] == null) {
-            this._observableIdentityMap[guildId] = {};
-        }
+            Observable<ICharacterGuildDivisionIdentityViewModel> {
+        return this._appState.select(CharacterGuildDivisionsSelectors.identitiesNeedsFetch(guildId))
+            .pipe(
+                tap(needsFetch => needsFetch
+                    ? setTimeout(() => this.fetchIdentities(guildId))
+                    : null),
+                switchMap(() => this._appState.select(CharacterGuildDivisionsSelectors.identity(guildId, divisionId))),
+                filter(identity => identity != null),
+                shareReplay());
+    }
 
-        if (this._observableIdentityMap[guildId][divisionId] == null) {
-            this._observableIdentityMap[guildId][divisionId] = this._appState.select(CharacterGuildDivisionsSelectors.identityNeedsFetch(guildId, divisionId))
-                .pipe(
-                    tap(needsFetch => setTimeout(() => needsFetch
-                        ? this.fetchIdentity(guildId, divisionId)
-                        : null)),
-                    switchMap(() => this._appState.select(CharacterGuildDivisionsSelectors.identity(guildId, divisionId))),
-                    shareReplay());
-        }
-
-        return this._observableIdentityMap[guildId][divisionId];
+    public onDeleted(
+                guildId: number,
+                divisionId: number):
+            Observable<void> {
+        return this._onDeleted
+            .pipe(
+                filter(deleted => (deleted.guildId === guildId) && (deleted.divisionId === divisionId)),
+                map(() => null));
     }
 
     public update(
@@ -204,21 +201,21 @@ export class CharacterGuildDivisionsService {
             Promise<IOperationError | null> {
         return this._apiClient.put<void>(divisionApiPath(guildId, divisionId), model)
             .pipe(
-                tap(() => this._appState.dispatch(CharacterGuildDivisionsActionFactory.scheduleFetchIdentity({
-                    guildId: guildId,
-                    divisionId: divisionId
+                tap(() => this._appState.dispatch(CharacterGuildDivisionsActionFactory.scheduleFetchIdentities({
+                    guildId: guildId
                 }))),
-                map(() => null),
-                catchError((error: HttpErrorResponse, caught) => (Math.trunc(error.status / 100) === 4)
+                catchError((error: HttpErrorResponse) => (Math.trunc(error.status / 100) === 4)
                     ? of(error.error)
-                    : caught))
+                    : throwError(error)))
             .toPromise();
     }
 
     private readonly _apiClient: ApiClient;
     private readonly _appState: Store<IAppState>;
-    private readonly _observableIdentitiesMap: { [guildId: number]: Observable<ICharacterGuildDivisionIdentityViewModel[]> };
-    private readonly _observableIdentityMap: { [guildId: number]: { [divisionId: number]: Observable<ICharacterGuildDivisionIdentityViewModel | null> } };
+    private readonly _onDeleted: Subject<{
+        readonly guildId: number;
+        readonly divisionId: number;
+    }>;
 }
 
 @Injectable({
@@ -233,15 +230,7 @@ export class CharacterGuildsService {
         this._apiClient = apiClient;
         this._appState = appState;
 
-        this._observableIdentities = this._appState.select(CharacterGuildsSelectors.idsNeedingIdentityFetch)
-            .pipe(
-                tap(guildIds => setTimeout(() => (guildIds === "all")
-                    ? this.fetchIdentities()
-                    : guildIds.forEach(guildId => this.fetchIdentity(guildId)))),
-                switchMap(() => this._appState.select(CharacterGuildsSelectors.identities)),
-                shareReplay());
-
-        this._observableIdentityMap = {};
+        this._onDeleted = new Subject();
     }
 
     public create(
@@ -249,15 +238,15 @@ export class CharacterGuildsService {
             Promise<ICharacterGuildCreationResult> {
         return this._apiClient.post<number>(`${guildsApiPath}/new`, model)
             .pipe(
+                tap(() => this._appState.dispatch(CharacterGuildsActionFactory.scheduleFetchIdentities())),
                 map(guildId => ({
                     guildId
                 })),
-                tap(props => this._appState.dispatch(CharacterGuildsActionFactory.initialize(props))),
-                catchError((error: HttpErrorResponse, caught) => (Math.trunc(error.status / 100) === 4)
+                catchError((error: HttpErrorResponse) => (Math.trunc(error.status / 100) === 4)
                     ? of({
                         error: error.error
                     })
-                    : caught))
+                    : throwError(error)))
             .toPromise();
     }
 
@@ -266,12 +255,14 @@ export class CharacterGuildsService {
             Promise<void> {
         return this._apiClient.delete<void>(guildApiPath(guildId))
             .pipe(
-                catchError((error: HttpErrorResponse, caught) => (error.status === 404)
+                catchError((error: HttpErrorResponse) => (error.status === 404)
                     ? of(null)
-                    : caught),
+                    : throwError(error)),
+                tap(() => this._appState.dispatch(CharacterGuildsActionFactory.scheduleFetchIdentities())),
                 tap(() => this._appState.dispatch(CharacterGuildsActionFactory.remove({
                     guildId
-                }))))
+                }))),
+                tap(() => this._onDeleted.next(guildId)))
             .toPromise();
     }
 
@@ -289,9 +280,6 @@ export class CharacterGuildsService {
                         .pipe(
                             tap(() => this._appState.dispatch(CharacterGuildsActionFactory.beginFetchIdentities())),
                             switchMap(() => this._apiClient.get<ICharacterGuildIdentityViewModel[]>(`${guildsApiPath}/identities`)),
-                            catchError((error: HttpErrorResponse, caught) => (error.status === 404)
-                                ? of([])
-                                : caught),
                             tap(identities => this._appState.dispatch(CharacterGuildsActionFactory.storeIdentities({
                                 identities
                             }))))))
@@ -301,7 +289,7 @@ export class CharacterGuildsService {
     public fetchIdentity(
                 guildId: number):
             Promise<ICharacterGuildIdentityViewModel | null> {
-        return this._appState.select(CharacterGuildsSelectors.identityIsFetching(guildId))
+        return this._appState.select(CharacterGuildsSelectors.identitiesIsFetching)
             .pipe(
                 take(1),
                 switchMap(isFetching => isFetching
@@ -309,60 +297,59 @@ export class CharacterGuildsService {
                         .pipe(
                             skip(1),
                             take(1))
-                    : of(null)
-                        .pipe(
-                            tap(() => this._appState.dispatch(CharacterGuildsActionFactory.beginFetchIdentity({
-                                guildId
-                            }))),
-                            switchMap(() => this._apiClient.get<ICharacterGuildIdentityViewModel>(`${guildApiPath(guildId)}/identity`)),
-                            catchError((error: HttpErrorResponse, caught) => (error.status === 404)
-                                ? of(null)
-                                : caught),
-                            tap(identity => this._appState.dispatch(CharacterGuildsActionFactory.storeIdentity({
-                                identity
-                            }))))))
+                    : from(this.fetchIdentities())
+                        .pipe(map(identities => identities.find(identity => identity.id === guildId)))))
             .toPromise();
     }
 
     public observeIdentities():
             Observable<ICharacterGuildIdentityViewModel[]> {
-        return this._observableIdentities;
+        return this._appState.select(CharacterGuildsSelectors.identitiesNeedsFetch)
+            .pipe(
+                tap(needsFetch => needsFetch
+                    ? setTimeout(() => this.fetchIdentities())
+                    : null),
+                switchMap(() => this._appState.select(CharacterGuildsSelectors.identities)),
+                filter(identities => identities != null),
+                shareReplay());
     }
 
     public observeIdentity(
                 guildId: number):
-            Observable<ICharacterGuildIdentityViewModel | null> {
-        if (this._observableIdentityMap[guildId] == null) {
-            this._observableIdentityMap[guildId] = this._appState.select(CharacterGuildsSelectors.identityNeedsFetch(guildId))
-                .pipe(
-                    tap(needsFetch => setTimeout(() => needsFetch
-                        ? this.fetchIdentity(guildId)
-                        : null)),
-                    switchMap(() => this._appState.select(CharacterGuildsSelectors.identity(guildId))),
-                    shareReplay());
-        }
+            Observable<ICharacterGuildIdentityViewModel> {
+        return this._appState.select(CharacterGuildsSelectors.identitiesNeedsFetch)
+            .pipe(
+                tap(needsFetch => needsFetch
+                    ? setTimeout(() => this.fetchIdentities())
+                    : null),
+                switchMap(() => this._appState.select(CharacterGuildsSelectors.identity(guildId))),
+                filter(identity => identity != null),
+                shareReplay());
+    }
 
-        return this._observableIdentityMap[guildId];
+    public onDeleted(
+                guildId: number):
+            Observable<void> {
+        return this._onDeleted
+            .pipe(
+                filter(deletedGuildId => deletedGuildId == guildId),
+                map(() => null));
     }
 
     public update(
                 guildId: number,
-                model: ICharacterGuildDivisionUpdateModel):
+                model: ICharacterGuildUpdateModel):
             Promise<IOperationError | null> {
         return this._apiClient.put<void>(guildApiPath(guildId), model)
             .pipe(
-                tap(() => this._appState.dispatch(CharacterGuildsActionFactory.scheduleFetchIdentity({
-                    guildId: guildId
-                }))),
-                map(() => null),
-                catchError((error: HttpErrorResponse, caught) => (Math.trunc(error.status / 100) === 4)
+                tap(() => this._appState.dispatch(CharacterGuildsActionFactory.scheduleFetchIdentities())),
+                catchError((error: HttpErrorResponse) => (Math.trunc(error.status / 100) === 4)
                     ? of(error.error)
-                    : caught))
+                    : throwError(error)))
             .toPromise();
     }
 
     private readonly _apiClient: ApiClient;
     private readonly _appState: Store<IAppState>;
-    private readonly _observableIdentities: Observable<ICharacterGuildIdentityViewModel[]>;
-    private readonly _observableIdentityMap: { [guildId: number]: Observable<ICharacterGuildIdentityViewModel | null> };
+    private readonly _onDeleted: Subject<number>;
 }

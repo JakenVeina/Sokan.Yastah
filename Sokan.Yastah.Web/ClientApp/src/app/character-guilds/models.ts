@@ -1,6 +1,4 @@
-﻿import { IUserIdentityViewModel } from "../admin/users/models";
-
-export interface ICharacterGuildCreationModel {
+﻿export interface ICharacterGuildCreationModel {
     readonly name: string;
 }
 
@@ -24,10 +22,4 @@ export interface ICharacterGuildDivisionUpdateModel {
 
 export interface ICharacterGuildUpdateModel {
     readonly name: string;
-}
-
-export interface ICharacterIdentityViewModel {
-    readonly id: number;
-    readonly name: string;
-    readonly owner: IUserIdentityViewModel;
 }

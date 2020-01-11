@@ -1,23 +1,69 @@
-﻿import { Component, Input, OnDestroy } from "@angular/core";
+﻿import { Component, Input } from "@angular/core";
 import { FormGroup, FormBuilder } from "@angular/forms";
-import { Store } from "@ngrx/store";
-import { BehaviorSubject, combineLatest, Subject, of } from "rxjs";
-import { map, startWith, switchMap, takeUntil, tap } from "rxjs/operators";
 
-import { IAppState } from "../../state";
-import { ApiOperationError } from "../../api/api-operation-error";
+import { FormComponentBase } from "../../common/form-component-base";
+import { FormGroupExtensions } from "../../common/form-group-extensions";
 
-import { LoadDescriptionsAction } from "../permissions/actions";
-import { IPermissionCategoryDescriptionViewModel } from "../permissions/models";
-import { buildPermissionMappingControls } from "../permissions/utils";
+import { IPermissionCategoryDescriptionViewModel, PermissionCategoryDescriptionViewModel } from "../permissions/models";
 
-import { LoadIdentitiesAction } from "../roles/actions";
 import { IRoleIdentityViewModel } from "../roles/models";
-import { buildRoleMappingControls } from "../roles/utils";
 
-import { userUpdateFormInitialState } from "./models";
-import { UsersService } from "./service";
-import { buildUserUpdateForm, extractUserUpdate } from "./utils";
+import { IUserDetailViewModel, IUserUpdateModel } from "./models";
+
+
+export interface IUserUpdateFormModel {
+    readonly permissionMappings: {
+        readonly [id: number]: "granted" | "unmapped" | "denied";
+    };
+    readonly roleMappings: {
+        readonly [id: number]: boolean;
+    };
+}
+
+export namespace UserUpdateFormModel {
+
+    export function fromDetail(
+                detail: IUserDetailViewModel,
+                permissionIds: number[],
+                roleIds: number[]):
+            IUserUpdateFormModel {
+        return {
+            permissionMappings: permissionIds
+                .reduce(
+                    (mappings, id) => {
+                        mappings[id] = detail.grantedPermissionIds.includes(id) ? "granted"
+                            : detail.deniedPermissionIds.includes(id) ? "denied"
+                            : "unmapped";
+                        return mappings;
+                    },
+                    {}),
+            roleMappings: roleIds
+                .reduce(
+                    (mappings, id) => {
+                        mappings[id] = detail.assignedRoleIds.includes(id);
+                        return mappings;
+                    },
+                    {})
+        };
+    }
+
+    export function toUpdate(
+                form: IUserUpdateFormModel):
+            IUserUpdateModel {
+        return {
+            grantedPermissionIds: Object.keys(form.permissionMappings)
+                .map(x => Number(x))
+                .filter(id => form.permissionMappings[id] === "granted"),
+            deniedPermissionIds: Object.keys(form.permissionMappings)
+                .map(x => Number(x))
+                .filter(id => form.permissionMappings[id] === "denied"),
+            assignedRoleIds: Object.keys(form.roleMappings)
+                .map(x => Number(x))
+                .filter(id => form.roleMappings[id])
+        };
+    }
+}
+
 
 @Component({
     selector: "user-update-form",
@@ -25,150 +71,85 @@ import { buildUserUpdateForm, extractUserUpdate } from "./utils";
     styleUrls: ["./user-update-form.ts.css"]
 })
 export class UserUpdateForm
-        implements OnDestroy {
+        extends FormComponentBase<IUserUpdateFormModel> {
 
     public constructor(
-            appState: Store<IAppState>,
-            formBuilder: FormBuilder,
-            usersService: UsersService) {
+            formBuilder: FormBuilder) {
+        super();
 
-        this._appState = appState;
-        this._destroying = new Subject<void>();
-        this._resetRequested = new Subject<void>();
-        this._userId = new BehaviorSubject<number | null>(null);
-        this._usersService = usersService;
+        this._formBuilder = formBuilder;
 
-        this._form = formBuilder.group({
-            id: formBuilder.control(null),
-            permissionMappings: formBuilder.group({}),
-            roleMappings: formBuilder.group({})
-        });
+        this._permissionMappings = this._formBuilder.group({});
+        this._roleMappings = this._formBuilder.group({});
 
-        combineLatest(
-                this._form.statusChanges,
-                this._form.valueChanges)
-            .pipe(takeUntil(this._destroying))
-            .subscribe(() => {
-                this._hasSaved = false;
-                this._saveError = null;
-            })
-
-        appState.select(x => x.admin.permissions.descriptions)
-            .pipe(takeUntil(this._destroying))
-            .subscribe(x => {
-                buildPermissionMappingControls(x, this.form.controls.permissionMappings as FormGroup, formBuilder, "unmapped");
-                this._permissionDescriptions = x;
+        this._form = formBuilder.group(
+            {
+                permissionMappings: this._permissionMappings,
+                roleMappings: this._roleMappings
             });
-
-        appState.select(x => x.admin.roles.identities)
-            .pipe(takeUntil(this._destroying))
-            .subscribe(x => {
-                buildRoleMappingControls(x, this.form.controls.roleMappings as FormGroup, formBuilder, false);
-                this._roleIdentities = x;
-            })
-
-        combineLatest(this._userId, this._resetRequested)
-            .pipe(
-                switchMap(([id]) => (id == null)
-                    ? of(null)
-                    : this._usersService.getDetail(id).pipe(
-                        map(d => buildUserUpdateForm(
-                            d,
-                            Object.keys(this._form.controls.permissionMappings.value)
-                                .map(id => Number(id)),
-                            Object.keys(this._form.controls.roleMappings.value)
-                                .map(id => Number(id)))),
-                        startWith(null))),
-                takeUntil(this._destroying))
-            .subscribe(x => {
-                if (x == null) {
-                    this._form.reset(userUpdateFormInitialState);
-                    this._form.disable();
-                }
-                else {
-                    this._form.enable();
-                    this._form.reset(x);
-                }
-            });
-
-        this._appState.dispatch(new LoadDescriptionsAction());
-        this._appState.dispatch(new LoadIdentitiesAction());
-        this.reset();
     }
 
-    public get canReset(): boolean {
-        return this._form.enabled;
+    @Input("role-identities")
+    public get roleIdentities(): IRoleIdentityViewModel[] | null {
+        return this._roleIdentities;
     }
+    public set roleIdentities(value: IRoleIdentityViewModel[] | null) {
+        if (value != null) {
+            value.forEach(identity => this.tryAddRoleMappingControl(identity.id.toString()));
+        }
+        this._roleMappings.updateValueAndValidity();
 
-    public get canSave(): boolean {
-        return this._form.valid && this._form.dirty && !this._hasSaved;
+        this._roleIdentities = value;
+    }
+    @Input("permission-descriptions")
+    public get permissionDescriptions(): IPermissionCategoryDescriptionViewModel[] | null {
+        return this._permissionDescriptions;
+    }
+    public set permissionDescriptions(value: IPermissionCategoryDescriptionViewModel[] | null) {
+        if (value != null) {
+            PermissionCategoryDescriptionViewModel.mapPermissions(value)
+                .forEach(permission => this.tryAddPermissionMappingControl(permission.id.toString()));
+        }
+        this._permissionMappings.updateValueAndValidity();
+
+        this._permissionDescriptions = value;
     }
 
     public get form(): FormGroup {
         return this._form;
     }
 
-    public get hasSaved(): boolean {
-        return this._hasSaved;
+    protected checkCanSave():
+            boolean {
+        return super.checkCanSave() && this._form.dirty;
+    }
+    protected loadModel(
+                model: IUserUpdateFormModel):
+            void {
+        Object.keys(model.permissionMappings)
+            .forEach(permissionId => this.tryAddPermissionMappingControl(permissionId.toString()));
+        Object.keys(model.roleMappings)
+            .forEach(roleId => this.tryAddRoleMappingControl(roleId.toString()));
+
+        super.loadModel(model);
     }
 
-    public get permissionDescriptions(): IPermissionCategoryDescriptionViewModel[] {
-        return this._permissionDescriptions;
+    private tryAddPermissionMappingControl(
+                name: string):
+            void {
+        FormGroupExtensions.tryAddControl(this._permissionMappings, name, () => this._formBuilder.control("unmapped"));
+    }
+    private tryAddRoleMappingControl(
+                name: string):
+            void {
+        FormGroupExtensions.tryAddControl(this._roleMappings, name, () => this._formBuilder.control(false));
     }
 
-    public get roleIdentities(): IRoleIdentityViewModel[] {
-        return this._roleIdentities;
-    }
-
-    public get saveError(): ApiOperationError {
-        return this._saveError;
-    }
-
-    public get userId(): number {
-        return this._userId.getValue();
-    }
-    @Input()
-    public set userId(value: number) {
-        this._userId.next(value);
-    }
-
-    public reset(): void {
-        this._resetRequested.next();
-    }
-
-    public save(): void {
-        this._form.disable();
-        this._usersService.update(this._form.value.id, extractUserUpdate(this._form.value))
-            .pipe(
-                tap(() => this._form.enable()),
-                takeUntil(this._destroying))
-            .subscribe(
-                () => {
-                    this._form.enable();
-                    this._hasSaved = true;
-                    this._saveError = null;
-                },
-                xhr => {
-                    this._form.enable();
-                    this._saveError = xhr.error;
-                });
-    }
-
-    public ngOnDestroy(): void {
-        this._destroying.next();
-        this._destroying.complete();
-        this._resetRequested.complete();
-    }
-
-    private readonly _appState: Store<IAppState>;
-    private readonly _destroying: Subject<void>;
     private readonly _form: FormGroup;
-    private readonly _resetRequested: Subject<void>;
-    private readonly _userId: BehaviorSubject<number | null>;
-    private readonly _usersService: UsersService;
+    private readonly _formBuilder: FormBuilder;
+    private readonly _permissionMappings: FormGroup;
+    private readonly _roleMappings: FormGroup;
 
-    private _hasSaved: boolean;
     private _permissionDescriptions: IPermissionCategoryDescriptionViewModel[];
     private _roleIdentities: IRoleIdentityViewModel[];
-    private _saveError: ApiOperationError | null;
 }

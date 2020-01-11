@@ -38,15 +38,6 @@ namespace Sokan.Yastah.Api.Characters
                 guildId: guildId,
                 cancellationToken: HttpContext.RequestAborted));
 
-        [HttpGet("{prefix}/[area]/guilds/{guildId}/[controller]/{id}/[action]")]
-        public async Task<IActionResult> Identity(
-                long guildId,
-                long id)
-            => TranslateOperation(await _characterGuildsOperations.GetDivisionIdentityAsync(
-                guildId: guildId,
-                divisionId: id,
-                cancellationToken: HttpContext.RequestAborted));
-
         [HttpPut("{prefix}/[area]/guilds/{guildId}/[controller]/{id}")]
         public async Task<IActionResult> Update(
                 long guildId,

@@ -3,42 +3,41 @@ import { HttpClientModule } from "@angular/common/http";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { EffectsModule } from "@ngrx/effects";
+
 import { StoreModule } from "@ngrx/store";
 
-import { PermissionsEffects } from "./permissions/effects";
 import { RoleCreationForm } from "./roles/role-creation-form";
-import { RolesEffects } from "./roles/effects";
+import { RoleCreationPage } from "./roles/role-creation-page";
 import { RoleUpdateForm } from "./roles/role-update-form";
-import { RolesView } from "./roles/roles-view";
+import { RoleUpdatePage } from "./roles/role-update-page";
+import { RolesPage } from "./roles/roles-page";
 
 import { UserUpdateForm } from "./users/user-update-form";
-import { UsersEffects } from "./users/effects";
-import { UsersView } from "./users/users-view";
+import { UserUpdatePage } from "./users/user-update-page";
+import { UsersPage } from "./users/users-page";
 
-import { adminStateReducers } from "./reducers";
-import { AdminRoutes } from "./routes";
+import { adminStateReducers } from "./state.reducers";
+import { adminRoutes } from "./routes";
+
 
 @NgModule({
     imports: [
         CommonModule,
-        EffectsModule.forFeature([
-            PermissionsEffects,
-            RolesEffects,
-            UsersEffects
-        ]),
         FormsModule,
         HttpClientModule,
         ReactiveFormsModule,
-        RouterModule.forChild(AdminRoutes),
+        RouterModule.forChild(adminRoutes),
         StoreModule.forFeature("admin", adminStateReducers)
     ],
     declarations: [
+        RolesPage,
         RoleCreationForm,
+        RoleCreationPage,
         RoleUpdateForm,
-        RolesView,
+        RoleUpdatePage,
+        UsersPage,
         UserUpdateForm,
-        UsersView
+        UserUpdatePage
     ]
 })
 export class AdminModule { }

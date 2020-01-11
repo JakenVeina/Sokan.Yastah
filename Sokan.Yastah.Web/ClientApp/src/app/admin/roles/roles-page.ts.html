@@ -1,0 +1,12 @@
+﻿<div>
+    <ul>
+        <li><h2><a [routerLink]="['new']" routerLinkActive="active-link">New</a></h2></li>
+    </ul>
+    <hr />
+    <ul>
+        <li *ngFor="let role of (roles | async); trackBy: roleTrackByFn"><h4><a [routerLink]="[role.id]" routerLinkActive="active-link">{{role.name}}</a></h4></li>
+    </ul>
+</div>
+<div>
+    <router-outlet></router-outlet>
+</div>

@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { Observable } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 
-import { FormOnSavingHandler } from "../common/types";
+import { FormOnResettingHandler, FormOnSavingHandler } from "../common/form-component-base";
 
 import { ICharacterGuildDivisionCreationModel, ICharacterGuildDivisionIdentityViewModel } from "./models";
 import { CharacterGuildDivisionsService } from "./services";
@@ -22,13 +22,17 @@ export class CharacterGuildDivisionCreationPage {
             characterGuildDivisionsService: CharacterGuildDivisionsService,
             router: Router) {
 
-        this._guildId = activatedRoute.parent.parent.paramMap
+        let guildId = activatedRoute.parent.parent.paramMap
             .pipe(map(x => Number(x.get("id"))));
 
-        this._divisionIdentities = this._guildId
+        this._divisionIdentities = guildId
             .pipe(switchMap(guildId => characterGuildDivisionsService.observeIdentities(guildId)));
 
-        this._onSaving = this._guildId
+        this._onResetting = () => Promise.resolve({
+            name: "New Division"
+        });
+
+        this._onSaving = guildId
             .pipe(
                 map(guildId => async (model) => {
                     let result = await characterGuildDivisionsService.create(guildId, model);
@@ -44,14 +48,14 @@ export class CharacterGuildDivisionCreationPage {
     public get divisionIdentities(): Observable<ICharacterGuildDivisionIdentityViewModel[]> {
         return this._divisionIdentities;
     }
-    public get guildId(): Observable<number> {
-        return this._guildId;
+    public get onResetting(): FormOnResettingHandler<ICharacterGuildDivisionCreationModel> {
+        return this._onResetting;
     }
     public get onSaving(): Observable<FormOnSavingHandler<ICharacterGuildDivisionCreationModel>> {
         return this._onSaving;
     }
 
     private readonly _divisionIdentities: Observable<ICharacterGuildDivisionIdentityViewModel[]>;
-    private readonly _guildId: Observable<number>;
+    private readonly _onResetting: FormOnResettingHandler<ICharacterGuildDivisionCreationModel>;
     private readonly _onSaving: Observable<FormOnSavingHandler<ICharacterGuildDivisionCreationModel>>;
 }
