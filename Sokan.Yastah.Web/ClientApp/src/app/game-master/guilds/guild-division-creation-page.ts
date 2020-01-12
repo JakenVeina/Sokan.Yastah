@@ -4,22 +4,22 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { Observable } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 
-import { FormOnResettingHandler, FormOnSavingHandler } from "../common/form-component-base";
+import { FormOnResettingHandler, FormOnSavingHandler } from "../../common/form-component-base";
 
 import { ICharacterGuildDivisionCreationModel, ICharacterGuildDivisionIdentityViewModel } from "./models";
-import { CharacterGuildDivisionsService } from "./services";
+import { GuildDivisionsService } from "./services";
 
 
 @Component({
-    selector: "character-guild-division-creation-page",
-    templateUrl: "./character-guild-division-creation-page.ts.html",
-    styleUrls: ["./character-guild-division-creation-page.ts.css"]
+    selector: "guild-division-creation-page",
+    templateUrl: "./guild-division-creation-page.ts.html",
+    styleUrls: ["./guild-division-creation-page.ts.css"]
 })
-export class CharacterGuildDivisionCreationPage {
+export class GuildDivisionCreationPage {
 
     public constructor(
             activatedRoute: ActivatedRoute,
-            characterGuildDivisionsService: CharacterGuildDivisionsService,
+            characterGuildDivisionsService: GuildDivisionsService,
             router: Router) {
 
         let guildId = activatedRoute.parent!.parent!.paramMap

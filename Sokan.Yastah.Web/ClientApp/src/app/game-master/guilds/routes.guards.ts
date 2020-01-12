@@ -3,13 +3,13 @@ import { CanActivate } from "@angular/router";
 
 import { Observable } from "rxjs";
 
-import { AuthorizationService } from "../auth/services";
+import { AuthorizationService } from "../../auth/services";
 
 
 @Injectable({
     providedIn: "root"
 })
-export class CharacterGuildsGuard
+export class GuildsGuard
         implements CanActivate {
 
     public constructor(

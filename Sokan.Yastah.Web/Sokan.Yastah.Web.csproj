@@ -136,25 +136,25 @@
     <TypeScriptCompile Include="ClientApp\src\app\admin\users\user-update-page.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\admin\users\user-update-page.ts.css" />
     <TypeScriptCompile Include="ClientApp\src\app\auth\state.selectors.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-creation-form.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-creation-page.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-division-creation-form.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-division-creation-page.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-division-update-form.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-division-update-page.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-divisions-page.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-update-page.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guilds-page.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\module.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\routes.guards.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\routes.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\state.actions.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\models.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\character-guild-update-form.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\state.reducers.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\state.selectors.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\services.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\character-guilds\state.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-creation-form.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-creation-page.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-division-creation-form.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-division-creation-page.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-division-update-form.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-division-update-page.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-divisions-page.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-update-page.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guilds-page.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\module.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\routes.guards.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\routes.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\state.actions.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\models.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-update-form.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\state.reducers.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\state.selectors.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\services.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\state.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\admin\routes.guards.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\admin\permissions\state.actions.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\admin\permissions\models.ts" />
@@ -194,6 +194,10 @@
     <TypeScriptCompile Include="ClientApp\src\app\auth\services.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\state.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\common\validators.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ClientApp\src\app\character-guilds\" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

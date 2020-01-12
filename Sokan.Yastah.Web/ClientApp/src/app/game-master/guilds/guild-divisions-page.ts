@@ -5,19 +5,19 @@ import { Observable } from "rxjs";
 import { map, switchMap, tap } from "rxjs/operators";
 
 import { ICharacterGuildDivisionIdentityViewModel } from "./models";
-import { CharacterGuildDivisionsService } from "./services";
+import { GuildDivisionsService } from "./services";
 
 
 @Component({
-    selector: "character-guild-divisions-page",
-    templateUrl: "./character-guild-divisions-page.ts.html",
-    styleUrls: ["./character-guild-divisions-page.ts.css"]
+    selector: "guild-divisions-page",
+    templateUrl: "./guild-divisions-page.ts.html",
+    styleUrls: ["./guild-divisions-page.ts.css"]
 })
-export class CharacterGuildDivisionsPage {
+export class GuildDivisionsPage {
 
     public constructor(
             activatedRoute: ActivatedRoute,
-            characterGuildDivisionsService: CharacterGuildDivisionsService) {
+            characterGuildDivisionsService: GuildDivisionsService) {
 
         this._divisions = activatedRoute.parent!.paramMap
             .pipe(

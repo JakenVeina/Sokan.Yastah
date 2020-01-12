@@ -7,7 +7,7 @@ import { RouterModule } from "@angular/router";
 import { StoreModule } from "@ngrx/store";
 
 import { AdminModule } from "./admin/module";
-import { CharacterGuildsModule } from "./character-guilds/module";
+import { CharacterGuildsModule } from "./game-master/guilds/module";
 
 import { AuthenticationInterceptor } from "./auth/interceptor";
 import { authenticationStateReducer } from "./auth/state.reducers";

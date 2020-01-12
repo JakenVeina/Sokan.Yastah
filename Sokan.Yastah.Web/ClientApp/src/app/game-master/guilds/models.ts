@@ -11,12 +11,12 @@ export interface ICharacterGuildDivisionIdentityViewModel {
     readonly name: string;
 }
 
-export interface ICharacterGuildIdentityViewModel {
-    readonly id: number;
+export interface ICharacterGuildDivisionUpdateModel {
     readonly name: string;
 }
 
-export interface ICharacterGuildDivisionUpdateModel {
+export interface ICharacterGuildIdentityViewModel {
+    readonly id: number;
     readonly name: string;
 }
 

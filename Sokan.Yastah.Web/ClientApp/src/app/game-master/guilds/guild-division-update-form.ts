@@ -1,17 +1,17 @@
 ﻿import { Component, Input } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 
-import { FormComponentBase } from "../common/form-component-base";
-import { AppValidators } from "../common/validators";
+import { FormComponentBase } from "../../common/form-component-base";
+import { AppValidators } from "../../common/validators";
 
 import { ICharacterGuildDivisionIdentityViewModel, ICharacterGuildDivisionUpdateModel } from "./models";
 
 
 @Component({
-    selector: "character-guild-division-update-form",
-    templateUrl: "./character-guild-division-update-form.ts.html"
+    selector: "guild-division-update-form",
+    templateUrl: "./guild-division-update-form.ts.html"
 })
-export class CharacterGuildDivisionUpdateForm
+export class GuildDivisionUpdateForm
         extends FormComponentBase<ICharacterGuildDivisionUpdateModel> {
 
     public constructor(

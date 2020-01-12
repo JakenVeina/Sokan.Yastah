@@ -3,18 +3,18 @@
 import { Observable } from "rxjs";
 
 import { ICharacterGuildIdentityViewModel } from "./models";
-import { CharacterGuildsService } from "./services";
+import { GuildsService } from "./services";
 
 
 @Component({
-    selector: "character-guilds-page",
-    templateUrl: "./character-guilds-page.ts.html",
-    styleUrls: ["./character-guilds-page.ts.css"]
+    selector: "guilds-page",
+    templateUrl: "./guilds-page.ts.html",
+    styleUrls: ["./guilds-page.ts.css"]
 })
-export class CharacterGuildsPage {
+export class GuildsPage {
 
     public constructor(
-            characterGuildsService: CharacterGuildsService) {
+            characterGuildsService: GuildsService) {
 
         this._guilds = characterGuildsService.observeIdentities();
 

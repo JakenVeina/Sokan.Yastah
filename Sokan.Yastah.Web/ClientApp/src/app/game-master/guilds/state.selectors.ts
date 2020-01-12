@@ -1,39 +1,39 @@
 ﻿import { createFeatureSelector, createSelector, MemoizedSelector } from "@ngrx/store";
 
-import { FetchState } from "../common/fetching-utils";
-import { IAppState } from "../state";
+import { FetchState } from "../../common/fetching-utils";
+import { IAppState } from "../../state";
 
 import {
     ICharacterGuildDivisionIdentityViewModel,
     ICharacterGuildIdentityViewModel
 } from "./models";
 import {
-    initialCharacterGuildState,
-    ICharacterGuildsState,
-    ICharacterGuildDivisionsState,
-    ICharacterGuildState} from "./state";
+    initialGuildState,
+    IGuildsState,
+    IGuildDivisionsState,
+    IGuildState} from "./state";
 
 
 const guildsState
-    = createFeatureSelector<IAppState, ICharacterGuildsState>("characterGuilds");
+    = createFeatureSelector<IAppState, IGuildsState>("characterGuilds");
 
 function divisionsState(
             guildId: number):
-        MemoizedSelector<IAppState, ICharacterGuildDivisionsState> {
+        MemoizedSelector<IAppState, IGuildDivisionsState> {
     return createSelector(
         guildState(guildId),
         state => state.divisions);
 }
 function guildState(
             guildId: number):
-        MemoizedSelector<IAppState, ICharacterGuildState> {
+        MemoizedSelector<IAppState, IGuildState> {
     return createSelector(
         guildsState,
-        state => state.stateTable[guildId] || initialCharacterGuildState);
+        state => state.stateTable[guildId] || initialGuildState);
 }
 
 
-export namespace CharacterGuildDivisionsSelectors {
+export namespace GuildDivisionsSelectors {
 
     export function identities(
                 guildId: number):
@@ -66,7 +66,7 @@ export namespace CharacterGuildDivisionsSelectors {
     }
 }
 
-export namespace CharacterGuildsSelectors {
+export namespace GuildsSelectors {
 
     export const identities: MemoizedSelector<IAppState, ICharacterGuildIdentityViewModel[] | null>
         = createSelector(

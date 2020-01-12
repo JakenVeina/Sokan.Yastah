@@ -4,25 +4,25 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, from, Observable } from "rxjs";
 import { filter, map, switchMap, take, takeUntil } from "rxjs/operators";
 
-import { FormOnDeletingHandler, FormOnResettingHandler, FormOnSavingHandler } from "../common/form-component-base";
-import { SubscriberComponentBase } from "../common/subscriber-component-base";
-import { isNotNullOrUndefined } from "../common/types";
+import { FormOnDeletingHandler, FormOnResettingHandler, FormOnSavingHandler } from "../../common/form-component-base";
+import { SubscriberComponentBase } from "../../common/subscriber-component-base";
+import { isNotNullOrUndefined } from "../../common/types";
 
 import { ICharacterGuildDivisionIdentityViewModel, ICharacterGuildDivisionUpdateModel } from "./models";
-import { CharacterGuildDivisionsService } from "./services";
+import { GuildDivisionsService } from "./services";
 
 
 @Component({
-    selector: "character-guild-division-update-page",
-    templateUrl: "./character-guild-division-update-page.ts.html",
-    styleUrls: ["./character-guild-division-update-page.ts.css"]
+    selector: "guild-division-update-page",
+    templateUrl: "./guild-division-update-page.ts.html",
+    styleUrls: ["./guild-division-update-page.ts.css"]
 })
-export class CharacterGuildDivisionUpdatePage
+export class GuildDivisionUpdatePage
         extends SubscriberComponentBase {
 
     public constructor(
             activatedRoute: ActivatedRoute,
-            characterGuildDivisionsService: CharacterGuildDivisionsService,
+            characterGuildDivisionsService: GuildDivisionsService,
             router: Router) {
         super();
 

@@ -3,22 +3,22 @@ import { ActivatedRoute, Router } from "@angular/router";
 
 import { Observable } from "rxjs";
 
-import { FormOnResettingHandler, FormOnSavingHandler } from "../common/form-component-base";
+import { FormOnResettingHandler, FormOnSavingHandler } from "../../common/form-component-base";
 
 import { ICharacterGuildCreationModel, ICharacterGuildIdentityViewModel } from "./models";
-import { CharacterGuildsService } from "./services";
+import { GuildsService } from "./services";
 
 
 @Component({
-    selector: "character-guild-creation-page",
-    templateUrl: "./character-guild-creation-page.ts.html",
-    styleUrls: ["./character-guild-creation-page.ts.css"]
+    selector: "guild-creation-page",
+    templateUrl: "./guild-creation-page.ts.html",
+    styleUrls: ["./guild-creation-page.ts.css"]
 })
-export class CharacterGuildCreationPage {
+export class GuildCreationPage {
 
     public constructor(
             activatedRoute: ActivatedRoute,
-            characterGuildsService: CharacterGuildsService,
+            characterGuildsService: GuildsService,
             router: Router) {
 
         this._guildIdentities = characterGuildsService.observeIdentities();
