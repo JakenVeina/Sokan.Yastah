@@ -17,7 +17,7 @@ namespace Sokan.Yastah.Data.Characters
             long divisionId,
             decimal experiencePoints,
             decimal goldAmount,
-            decimal sanityValue,
+            decimal insanityValue,
             bool isDeleted,
             long creationId,
             long? previousVersionId,
@@ -29,7 +29,7 @@ namespace Sokan.Yastah.Data.Characters
             DivisionId = divisionId;
             ExperiencePoints = experiencePoints;
             GoldAmount = goldAmount;
-            SanityValue = sanityValue;
+            InsanityValue = insanityValue;
             IsDeleted = isDeleted;
             CreationId = creationId;
             PreviousVersionId = previousVersionId;
@@ -59,7 +59,7 @@ namespace Sokan.Yastah.Data.Characters
 
         public decimal GoldAmount { get; }
 
-        public decimal SanityValue { get; }
+        public decimal InsanityValue { get; }
 
         public bool IsDeleted { get; }
 
@@ -94,7 +94,7 @@ namespace Sokan.Yastah.Data.Characters
                     .Property(x => x.GoldAmount);
 
                 entityBuilder
-                    .Property(x => x.SanityValue);
+                    .Property(x => x.InsanityValue);
 
                 entityBuilder
                     .Property(x => x.IsDeleted);

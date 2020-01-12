@@ -10,14 +10,14 @@ namespace Sokan.Yastah.Api.Characters
         : CharactersControllerBase
     {
         public DivisionsController(
-                ICharacterGuildsOperations characterGuildsOperations)
-            => _characterGuildsOperations = characterGuildsOperations;
+                ICharacterGuildDivisionsOperations characterGuildDivisionsOperations)
+            => _characterGuildDivisionsOperations = characterGuildDivisionsOperations;
 
         [HttpPost("{prefix}/[area]/guilds/{guildId}/[controller]/[action]")]
         public async Task<IActionResult> New(
                 long guildId,
                 [FromBody]CharacterGuildDivisionCreationModel body)
-            => TranslateOperation(await _characterGuildsOperations.CreateDivisionAsync(
+            => TranslateOperation(await _characterGuildDivisionsOperations.CreateAsync(
                 guildId: guildId,
                 creationModel: body,
                 cancellationToken: HttpContext.RequestAborted));
@@ -26,7 +26,7 @@ namespace Sokan.Yastah.Api.Characters
         public async Task<IActionResult> Delete(
                 long guildId,
                 long id)
-            => TranslateOperation(await _characterGuildsOperations.DeleteDivisionAsync(
+            => TranslateOperation(await _characterGuildDivisionsOperations.DeleteAsync(
                 guildId: guildId,
                 divisionId: id,
                 cancellationToken: HttpContext.RequestAborted));
@@ -34,7 +34,7 @@ namespace Sokan.Yastah.Api.Characters
         [HttpGet("{prefix}/[area]/guilds/{guildId}/[controller]/[action]")]
         public async Task<IActionResult> Identities(
                 long guildId)
-            => TranslateOperation(await _characterGuildsOperations.GetDivisionIdentitiesAsync(
+            => TranslateOperation(await _characterGuildDivisionsOperations.GetIdentitiesAsync(
                 guildId: guildId,
                 cancellationToken: HttpContext.RequestAborted));
 
@@ -43,12 +43,12 @@ namespace Sokan.Yastah.Api.Characters
                 long guildId,
                 long id,
                 [FromBody]CharacterGuildDivisionUpdateModel body)
-            => TranslateOperation(await _characterGuildsOperations.UpdateDivisionAsync(
+            => TranslateOperation(await _characterGuildDivisionsOperations.UpdateAsync(
                 guildId: guildId,
                 divisionId: id,
                 updateModel: body,
                 cancellationToken: HttpContext.RequestAborted));
 
-        private readonly ICharacterGuildsOperations _characterGuildsOperations;
+        private readonly ICharacterGuildDivisionsOperations _characterGuildDivisionsOperations;
     }
 }

@@ -17,7 +17,7 @@ namespace Sokan.Yastah.Data.Characters
             long divisionId,
             decimal experiencePoints,
             decimal goldAmount,
-            decimal sanityValue,
+            decimal insanityValue,
             long creationId,
             CancellationToken cancellationToken);
 
@@ -28,7 +28,7 @@ namespace Sokan.Yastah.Data.Characters
             Optional<long> divisionId = default,
             Optional<decimal> experiencePoints = default,
             Optional<decimal> goldAmount = default,
-            Optional<decimal> sanityValue = default,
+            Optional<decimal> insanityValue = default,
             Optional<bool> isDeleted = default,
             CancellationToken cancellationToken = default);
     }
@@ -51,7 +51,7 @@ namespace Sokan.Yastah.Data.Characters
             long divisionId,
             decimal experiencePoints,
             decimal goldAmount,
-            decimal sanityValue,
+            decimal insanityValue,
             long creationId,
             CancellationToken cancellationToken)
         {
@@ -71,7 +71,7 @@ namespace Sokan.Yastah.Data.Characters
                 name:               name,
                 experiencePoints:   experiencePoints,
                 goldAmount:         goldAmount,
-                sanityValue:        sanityValue,
+                insanityValue:      insanityValue,
                 isDeleted:          false,
                 creationId:         creationId,
                 previousVersionId:  null,
@@ -92,7 +92,7 @@ namespace Sokan.Yastah.Data.Characters
             Optional<long> divisionId = default,
             Optional<decimal> experiencePoints = default,
             Optional<decimal> goldAmount = default,
-            Optional<decimal> sanityValue = default,
+            Optional<decimal> insanityValue = default,
             Optional<bool> isDeleted = default,
             CancellationToken cancellationToken = default)
         {
@@ -123,9 +123,9 @@ namespace Sokan.Yastah.Data.Characters
                 goldAmount:         goldAmount.IsSpecified
                                         ? goldAmount.Value
                                         : currentVersion.GoldAmount,
-                sanityValue:        sanityValue.IsSpecified
-                                        ? sanityValue.Value
-                                        : currentVersion.SanityValue,
+                insanityValue:      insanityValue.IsSpecified
+                                        ? insanityValue.Value
+                                        : currentVersion.InsanityValue,
                 isDeleted:          isDeleted.IsSpecified
                                         ? isDeleted.Value
                                         : currentVersion.IsDeleted,
@@ -137,7 +137,7 @@ namespace Sokan.Yastah.Data.Characters
                 && (newVersion.DivisionId == currentVersion.DivisionId)
                 && (newVersion.ExperiencePoints == currentVersion.ExperiencePoints)
                 && (newVersion.GoldAmount == currentVersion.GoldAmount)
-                && (newVersion.SanityValue == currentVersion.SanityValue)
+                && (newVersion.InsanityValue == currentVersion.InsanityValue)
                 && (newVersion.IsDeleted == currentVersion.IsDeleted))
             {
                 transactionScope.Complete();

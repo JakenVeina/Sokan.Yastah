@@ -46,7 +46,7 @@ namespace Sokan.Yastah.Data.Test.Characters
         public static IReadOnlyList<TestCaseData> CreateAsync_TestCaseData
             => new[]
             {
-                /*                  ownerId,        name,           divisionId,     experiencePoints,   goldAmount,         sanityValue,        creationId,     characterId     */
+                /*                  ownerId,        name,           divisionId,     experiencePoints,   goldAmount,         insanityValue,      creationId,     characterId     */
                 new TestCaseData(   default(ulong), string.Empty,   default(long),  default(decimal),   default(decimal),   default(decimal),   default(long),  default(long)   ).SetName("{m}(Default Values)"),
                 new TestCaseData(   ulong.MinValue, string.Empty,   long.MinValue,  decimal.MinValue,   decimal.MinValue,   decimal.MinValue,   long.MinValue,  long.MinValue   ).SetName("{m}(Min Values)"),
                 new TestCaseData(   1UL,            "name 2",       3L,             4M,                 5M,                 6M,                 7L,             8L              ).SetName("{m}(Unique Value Set 1)"),
@@ -62,7 +62,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             long divisionId,
             decimal experiencePoints,
             decimal goldAmount,
-            decimal sanityValue,
+            decimal insanityValue,
             long creationId,
             long characterId)
         {
@@ -98,7 +98,7 @@ namespace Sokan.Yastah.Data.Test.Characters
                 divisionId,
                 experiencePoints,
                 goldAmount,
-                sanityValue,
+                insanityValue,
                 creationId,
                 testContext.CancellationToken);
 
@@ -136,7 +136,7 @@ namespace Sokan.Yastah.Data.Test.Characters
         public static readonly IReadOnlyList<TestCaseData> UpdateAsync_GuildIdDoesNotExist_TestCaseData
             = new[]
             {
-                /*                  characterId,    actionId,       name,                                               divisionId,                                 experiencePoints,                               goldAmount,                                     sanityValue,                                    isDeleted                       */
+                /*                  characterId,    actionId,       name,                                               divisionId,                                 experiencePoints,                               goldAmount,                                     insanityValue,                                  isDeleted                       */
                 new TestCaseData(   5L,             default(long),  default(Optional<string>),                          default(Optional<long>),                    default(Optional<decimal>),                     default(Optional<decimal>),                     default(Optional<decimal>),                     default(Optional<bool>)         ).SetName("{m}(Default values)"),
                 new TestCaseData(   5L,             long.MinValue,  Optional<string>.FromValue(string.Empty),           Optional<long>.FromValue(long.MinValue),    Optional<decimal>.FromValue(decimal.MinValue),  Optional<decimal>.FromValue(decimal.MinValue),  Optional<decimal>.FromValue(decimal.MinValue),  Optional<bool>.FromValue(false) ).SetName("{m}(Min values)"),
                 new TestCaseData(   5L,             1L,             Optional<string>.FromValue("Bogus Character 2"),    Optional<long>.FromValue(3L),               Optional<decimal>.FromValue(4L),                Optional<decimal>.FromValue(5L),                Optional<decimal>.FromValue(6L),                Optional<bool>.FromValue(false) ).SetName("{m}(Unique Value Set 1)"),
@@ -153,7 +153,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             Optional<long> divisionId,
             Optional<decimal> experiencePoints,
             Optional<decimal> goldAmount,
-            Optional<decimal> sanityValue,
+            Optional<decimal> insanityValue,
             Optional<bool> isDeleted)
         {
             using var testContext = new TestContext(isReadOnly: false);
@@ -167,7 +167,7 @@ namespace Sokan.Yastah.Data.Test.Characters
                 divisionId,
                 experiencePoints,
                 goldAmount,
-                sanityValue,
+                insanityValue,
                 isDeleted,
                 testContext.CancellationToken);
 
@@ -192,7 +192,7 @@ namespace Sokan.Yastah.Data.Test.Characters
         public static IReadOnlyList<TestCaseData> UpdateAsync_NoChangesGiven_TestCaseData
             => new[]
             {
-                /*                  characterId,    actionId,   name,                                       divisionId,                     experiencePoints,                   goldAmount,                         sanityValue,                        isDeleted                       */
+                /*                  characterId,    actionId,   name,                                       divisionId,                     experiencePoints,                   goldAmount,                         insanityValue,                      isDeleted                       */
                 new TestCaseData(   1L,             5L,         Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<bool>.Unspecified      ).SetName("{m}(Character 1, no changes)"),
                 new TestCaseData(   1L,             6L,         Optional<string>.FromValue("Character 1"),  Optional<long>.FromValue(1),    Optional<decimal>.FromValue(300),   Optional<decimal>.FromValue(1200),  Optional<decimal>.FromValue(10),    Optional<bool>.FromValue(true)  ).SetName("{m}(Character 1, no differences)"),
                 new TestCaseData(   2L,             7L,         Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<bool>.Unspecified      ).SetName("{m}(Character 2, no changes)"),
@@ -211,7 +211,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             Optional<long> divisionId,
             Optional<decimal> experiencePoints,
             Optional<decimal> goldAmount,
-            Optional<decimal> sanityValue,
+            Optional<decimal> insanityValue,
             Optional<bool> isDeleted)
         {
             using var testContext = new TestContext(isReadOnly: false);
@@ -225,7 +225,7 @@ namespace Sokan.Yastah.Data.Test.Characters
                 divisionId,
                 experiencePoints,
                 goldAmount,
-                sanityValue,
+                insanityValue,
                 isDeleted,
                 testContext.CancellationToken);
 
@@ -250,33 +250,33 @@ namespace Sokan.Yastah.Data.Test.Characters
         public static IReadOnlyList<TestCaseData> UpdateAsync_ChangesGiven_TestCaseData
             => new[]
             {
-                /*                  characterId,    actionId,   name,                                       divisionId,                     experiencePoints,                   goldAmount,                         sanityValue,                    isDeleted,                           versionId  */
+                /*                  characterId,    actionId,   name,                                       divisionId,                     experiencePoints,                   goldAmount,                         insanityValue,                  isDeleted,                           versionId  */
                 new TestCaseData(   1L,             13L,        Optional<string>.FromValue("Character 1a"), Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,  Optional<bool>.Unspecified,          41L        ).SetName("{m}(Character 1, Name changed)"),
                 new TestCaseData(   1L,             14L,        Optional<string>.Unspecified,               Optional<long>.FromValue(2),    Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,  Optional<bool>.Unspecified,          42L        ).SetName("{m}(Character 1, DivisionId changed)"),
                 new TestCaseData(   1L,             15L,        Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.FromValue(400),   Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,  Optional<bool>.Unspecified,          43L        ).SetName("{m}(Character 1, ExperiencePoints changed)"),
                 new TestCaseData(   1L,             16L,        Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.FromValue(1100),  Optional<decimal>.Unspecified,  Optional<bool>.Unspecified,          44L        ).SetName("{m}(Character 1, GoldAmount changed)"),
-                new TestCaseData(   1L,             17L,        Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.FromValue(9), Optional<bool>.Unspecified,          45L        ).SetName("{m}(Character 1, SanityValue changed)"),
+                new TestCaseData(   1L,             17L,        Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.FromValue(9), Optional<bool>.Unspecified,          45L        ).SetName("{m}(Character 1, InsanityValue changed)"),
                 new TestCaseData(   1L,             18L,        Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,  Optional<bool>.FromValue(false),     46L        ).SetName("{m}(Character 1, IsDeleted changed)"),
                 new TestCaseData(   1L,             19L,        Optional<string>.FromValue("Character 1a"), Optional<long>.FromValue(2),    Optional<decimal>.FromValue(400),   Optional<decimal>.FromValue(1100),  Optional<decimal>.FromValue(9), Optional<bool>.FromValue(false),     47L        ).SetName("{m}(Character 1, all properties changed)"),
                 new TestCaseData(   2L,             20L,        Optional<string>.FromValue("Character 2b"), Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,  Optional<bool>.Unspecified,          48L        ).SetName("{m}(Character 2, Name changed)"),
                 new TestCaseData(   2L,             21L,        Optional<string>.Unspecified,               Optional<long>.FromValue(2),    Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,  Optional<bool>.Unspecified,          49L        ).SetName("{m}(Character 2, DivisionId changed)"),
                 new TestCaseData(   2L,             22L,        Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.FromValue(650),   Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,  Optional<bool>.Unspecified,          50L        ).SetName("{m}(Character 2, ExperiencePoints changed)"),
                 new TestCaseData(   2L,             23L,        Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.FromValue(500),   Optional<decimal>.Unspecified,  Optional<bool>.Unspecified,          51L        ).SetName("{m}(Character 2, GoldAmount changed)"),
-                new TestCaseData(   2L,             24L,        Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.FromValue(8), Optional<bool>.Unspecified,          52L        ).SetName("{m}(Character 2, SanityValue changed)"),
+                new TestCaseData(   2L,             24L,        Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.FromValue(8), Optional<bool>.Unspecified,          52L        ).SetName("{m}(Character 2, InsanityValue changed)"),
                 new TestCaseData(   2L,             25L,        Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,  Optional<bool>.FromValue(true),      53L        ).SetName("{m}(Character 2, IsDeleted changed)"),
                 new TestCaseData(   2L,             26L,        Optional<string>.FromValue("Character 2b"), Optional<long>.FromValue(2),    Optional<decimal>.FromValue(650),   Optional<decimal>.FromValue(500),   Optional<decimal>.FromValue(8), Optional<bool>.FromValue(true),      54L        ).SetName("{m}(Character 2, all properties changed)"),
                 new TestCaseData(   3L,             27L,        Optional<string>.FromValue("Character 3c"), Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,  Optional<bool>.Unspecified,          55L        ).SetName("{m}(Character 3, Name changed)"),
                 new TestCaseData(   3L,             28L,        Optional<string>.Unspecified,               Optional<long>.FromValue(1),    Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,  Optional<bool>.Unspecified,          56L        ).SetName("{m}(Character 3, DivisionId changed)"),
                 new TestCaseData(   3L,             29L,        Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.FromValue(750),   Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,  Optional<bool>.Unspecified,          57L        ).SetName("{m}(Character 3, ExperiencePoints changed)"),
                 new TestCaseData(   3L,             30L,        Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.FromValue(850),   Optional<decimal>.Unspecified,  Optional<bool>.Unspecified,          58L        ).SetName("{m}(Character 3, GoldAmount changed)"),
-                new TestCaseData(   3L,             31L,        Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.FromValue(7), Optional<bool>.Unspecified,          59L        ).SetName("{m}(Character 3, SanityValue changed)"),
+                new TestCaseData(   3L,             31L,        Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.FromValue(7), Optional<bool>.Unspecified,          59L        ).SetName("{m}(Character 3, InsanityValue changed)"),
                 new TestCaseData(   3L,             32L,        Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,  Optional<bool>.FromValue(true),      60L        ).SetName("{m}(Character 3, IsDeleted changed)"),
                 new TestCaseData(   3L,             33L,        Optional<string>.FromValue("Character 3c"), Optional<long>.FromValue(1),    Optional<decimal>.FromValue(750),   Optional<decimal>.FromValue(850),   Optional<decimal>.FromValue(7), Optional<bool>.FromValue(true),      61L        ).SetName("{m}(Character 3, all properties changed)"),
                 new TestCaseData(   4L,             34L,        Optional<string>.FromValue("Character 4a"), Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,  Optional<bool>.Unspecified,          62L        ).SetName("{m}(Character 4, Name changed)"),
                 new TestCaseData(   4L,             35L,        Optional<string>.Unspecified,               Optional<long>.FromValue(3),    Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,  Optional<bool>.Unspecified,          63L        ).SetName("{m}(Character 4, DivisionId changed)"),
                 new TestCaseData(   4L,             36L,        Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.FromValue(100),   Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,  Optional<bool>.Unspecified,          64L        ).SetName("{m}(Character 4, ExperiencePoints changed)"),
                 new TestCaseData(   4L,             37L,        Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.FromValue(900),   Optional<decimal>.Unspecified,  Optional<bool>.Unspecified,          65L        ).SetName("{m}(Character 4, GoldAmount changed)"),
-                new TestCaseData(   4L,             38L,        Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.FromValue(6), Optional<bool>.Unspecified,          66L        ).SetName("{m}(Character 4, SanityValue changed)"),
+                new TestCaseData(   4L,             38L,        Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.FromValue(6), Optional<bool>.Unspecified,          66L        ).SetName("{m}(Character 4, InsanityValue changed)"),
                 new TestCaseData(   4L,             39L,        Optional<string>.Unspecified,               Optional<long>.Unspecified,     Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,      Optional<decimal>.Unspecified,  Optional<bool>.FromValue(true),      67L        ).SetName("{m}(Character 4, IsDeleted changed)"),
                 new TestCaseData(   4L,             40L,        Optional<string>.FromValue("Character 4a"), Optional<long>.FromValue(3),    Optional<decimal>.FromValue(100),   Optional<decimal>.FromValue(900),   Optional<decimal>.FromValue(6), Optional<bool>.FromValue(true),      68L        ).SetName("{m}(Character 4, all properties changed)"),
             };
@@ -289,7 +289,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             Optional<long> divisionId,
             Optional<decimal> experiencePoints,
             Optional<decimal> goldAmount,
-            Optional<decimal> sanityValue,
+            Optional<decimal> insanityValue,
             Optional<bool> isDeleted,
             long versionId)
         {
@@ -310,7 +310,7 @@ namespace Sokan.Yastah.Data.Test.Characters
                 divisionId,
                 experiencePoints,
                 goldAmount,
-                sanityValue,
+                insanityValue,
                 isDeleted,
                 testContext.CancellationToken);
 

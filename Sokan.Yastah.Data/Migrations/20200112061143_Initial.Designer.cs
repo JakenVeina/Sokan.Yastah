@@ -10,7 +10,7 @@ using Sokan.Yastah.Data;
 namespace Sokan.Yastah.Data.Migrations
 {
     [DbContext(typeof(YastahDbContext))]
-    [Migration("20191219220227_Initial")]
+    [Migration("20200112061143_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -18,7 +18,7 @@ namespace Sokan.Yastah.Data.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.0.0")
+                .HasAnnotation("ProductVersion", "3.1.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("Sokan.Yastah.Data.Administration.AdministrationActionCategoryEntity", b =>
@@ -445,6 +445,9 @@ namespace Sokan.Yastah.Data.Migrations
                     b.Property<decimal>("GoldAmount")
                         .HasColumnType("numeric");
 
+                    b.Property<decimal>("InsanityValue")
+                        .HasColumnType("numeric");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
@@ -457,9 +460,6 @@ namespace Sokan.Yastah.Data.Migrations
 
                     b.Property<long?>("PreviousVersionId")
                         .HasColumnType("bigint");
-
-                    b.Property<decimal>("SanityValue")
-                        .HasColumnType("numeric");
 
                     b.HasKey("Id");
 

@@ -193,6 +193,8 @@ namespace Sokan.Yastah.Data.Test
                 .AsQueryable()
                 .BuildMockDbSet();
             
+            mockSet.CallBase = true;
+
             Setup(x => x.Set<TEntity>())
                 .Returns(() => mockSet.Object);
             

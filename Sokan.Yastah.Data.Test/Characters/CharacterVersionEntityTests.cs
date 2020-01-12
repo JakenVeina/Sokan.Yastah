@@ -15,7 +15,7 @@ namespace Sokan.Yastah.Data.Test.Characters
         public static readonly IReadOnlyList<TestCaseData> Constructor_TestCaseData
             = new[]
             {
-                /*                  id,             characterId,    name,           divisionId,     experiencePoints,   goldAmount,         sanityValue,        isDeleted,      creationId,     previousVersionId,  nextVersionId   */
+                /*                  id,             characterId,    name,           divisionId,     experiencePoints,   goldAmount,         insanityValue,      isDeleted,      creationId,     previousVersionId,  nextVersionId   */
                 new TestCaseData(   default(long),  default(long),  string.Empty,   default(long),  default(decimal),   default(decimal),   default(decimal),   default(bool),  default(long),  default(long?),     default(long?)  ).SetName("{m}(Default Values"),
                 new TestCaseData(   long.MinValue,  long.MinValue,  string.Empty,   long.MinValue,  decimal.MinValue,   decimal.MinValue,   decimal.MinValue,   false,          long.MinValue,  long.MinValue,      long.MinValue   ).SetName("{m}(Min Values)"),
                 new TestCaseData(   1L,             2L,             "name 3",       4L,             5M,                 6M,                 7M,                 true,           8L,             9L,                 10L             ).SetName("{m}(Unique Value Set 1)"),
@@ -32,7 +32,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             long divisionId,
             decimal experiencePoints,
             decimal goldAmount,
-            decimal sanityValue,
+            decimal insanityValue,
             bool isDeleted,
             long creationId,
             long? previousVersionId,
@@ -45,7 +45,7 @@ namespace Sokan.Yastah.Data.Test.Characters
                 divisionId,
                 experiencePoints,
                 goldAmount,
-                sanityValue,
+                insanityValue,
                 isDeleted,
                 creationId,
                 previousVersionId,
@@ -57,7 +57,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             result.DivisionId.ShouldBe(divisionId);
             result.ExperiencePoints.ShouldBe(experiencePoints);
             result.GoldAmount.ShouldBe(goldAmount);
-            result.SanityValue.ShouldBe(sanityValue);
+            result.InsanityValue.ShouldBe(insanityValue);
             result.IsDeleted.ShouldBe(isDeleted);
             result.CreationId.ShouldBe(creationId);
             result.PreviousVersionId.ShouldBe(previousVersionId);

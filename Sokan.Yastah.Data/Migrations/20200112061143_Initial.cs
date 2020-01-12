@@ -413,7 +413,7 @@ namespace Sokan.Yastah.Data.Migrations
                     DivisionId = table.Column<long>(nullable: false),
                     ExperiencePoints = table.Column<decimal>(nullable: false),
                     GoldAmount = table.Column<decimal>(nullable: false),
-                    SanityValue = table.Column<decimal>(nullable: false),
+                    InsanityValue = table.Column<decimal>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
                     CreationId = table.Column<long>(nullable: false),
                     PreviousVersionId = table.Column<long>(nullable: true),
