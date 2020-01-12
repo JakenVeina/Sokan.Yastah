@@ -22,3 +22,6 @@ li > * {
 .active-link {
     color: darkorange;
 }
+ a {
+     cursor: pointer;
+ }
