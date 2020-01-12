@@ -72,7 +72,12 @@ export abstract class FormComponentBase<TModel>
     public async delete(): Promise<void> {
         this.form.disable();
 
-        await this._onDeleting!();
+        if (await this.confirmDelete()) {
+            await this._onDeleting!();
+        }
+        else {
+            this.form.enable();
+        }
     }
     public reset(): Promise<void> {
         return this.resetInternal(false);
@@ -110,6 +115,10 @@ export abstract class FormComponentBase<TModel>
     protected checkCanSave():
             boolean {
         return this.form.valid && (this._onSaving != null) && !this._hasSaved;
+    }
+    protected confirmDelete():
+            Promise<boolean> {
+        return Promise.resolve(confirm("Are you sure you wish to delete this?"));
     }
     protected extractModel():
             TModel {
