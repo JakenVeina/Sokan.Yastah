@@ -28,9 +28,17 @@
                 </li>
             </ul>
         </li>
-        <li *ngIf="hasCharacterGuilds | async">
-            <span class="material-icons">assignment</span>
-            <h5><a [routerLink]="['/characters/guilds']" routerLinkActive="active-link">Guilds</a></h5>
+        <li *ngIf="hasGameMaster | async">
+            <span class="material-icons">local_library</span>
+            <h5><a (click)="gameMasterSubmenu.hidden = !gameMasterSubmenu.hidden">Game Master</a></h5>
+        </li>
+        <li #gameMasterSubmenu *ngIf="hasAdmin | async">
+            <ul>
+                <li *ngIf="hasGameMasterGuilds | async">
+                    <span class="material-icons">assignment</span>
+                    <h5><a [routerLink]="['/game-master/guilds']" routerLinkActive="active-link">Guilds</a></h5>
+                </li>
+            </ul>
         </li>
     </ul>
 </nav>

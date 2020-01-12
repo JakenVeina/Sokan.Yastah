@@ -51,21 +51,6 @@
     <None Remove="ClientApp\src\app\auth\state.actions.ts" />
     <None Remove="ClientApp\src\app\auth\state.reducers.ts" />
     <None Remove="ClientApp\src\app\auth\state.selectors.ts" />
-    <None Remove="ClientApp\src\app\character-guilds\character-guild-creation-form.ts" />
-    <None Remove="ClientApp\src\app\character-guilds\character-guild-creation-page.ts" />
-    <None Remove="ClientApp\src\app\character-guilds\character-guild-division-creation-form.ts" />
-    <None Remove="ClientApp\src\app\character-guilds\character-guild-division-creation-page.ts" />
-    <None Remove="ClientApp\src\app\character-guilds\character-guild-division-update-form.ts" />
-    <None Remove="ClientApp\src\app\character-guilds\character-guild-division-update-page.ts" />
-    <None Remove="ClientApp\src\app\character-guilds\character-guild-divisions-page.ts" />
-    <None Remove="ClientApp\src\app\character-guilds\character-guild-update-form.ts" />
-    <None Remove="ClientApp\src\app\character-guilds\character-guild-update-page.ts" />
-    <None Remove="ClientApp\src\app\character-guilds\character-guilds-page.ts" />
-    <None Remove="ClientApp\src\app\character-guilds\models.ts" />
-    <None Remove="ClientApp\src\app\character-guilds\module.ts" />
-    <None Remove="ClientApp\src\app\character-guilds\routes.guards.ts" />
-    <None Remove="ClientApp\src\app\character-guilds\routes.ts" />
-    <None Remove="ClientApp\src\app\character-guilds\services.ts" />
     <None Remove="ClientApp\src\app\admin\module.ts" />
     <None Remove="ClientApp\src\app\admin\permissions\models.ts" />
     <None Remove="ClientApp\src\app\admin\permissions\state.ts" />
@@ -83,15 +68,14 @@
     <None Remove="ClientApp\src\app\auth\interceptor.ts" />
     <None Remove="ClientApp\src\app\auth\models.ts" />
     <None Remove="ClientApp\src\app\auth\state.ts" />
-    <None Remove="ClientApp\src\app\character-guilds\state.actions.ts" />
-    <None Remove="ClientApp\src\app\character-guilds\state.reducers.ts" />
-    <None Remove="ClientApp\src\app\character-guilds\state.selectors.ts" />
-    <None Remove="ClientApp\src\app\character-guilds\state.ts" />
     <None Remove="ClientApp\src\app\common\fetching-utils.ts" />
     <None Remove="ClientApp\src\app\common\form-component-base.ts" />
     <None Remove="ClientApp\src\app\common\form-group-extensions.ts" />
     <None Remove="ClientApp\src\app\common\immutable-utils.ts" />
     <None Remove="ClientApp\src\app\common\types.ts" />
+    <None Remove="ClientApp\src\app\game-master\state.reducers.ts" />
+    <None Remove="ClientApp\src\app\game-master\state.selectors.ts" />
+    <None Remove="ClientApp\src\app\game-master\state.ts" />
     <None Remove="ClientApp\src\app\routes.guards.ts" />
     <None Remove="ClientApp\src\app\routes.ts" />
     <None Remove="ClientApp\src\app\state.actions.ts" />
@@ -145,9 +129,9 @@
     <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-divisions-page.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-update-page.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guilds-page.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\module.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\routes.guards.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\routes.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\module.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\routes.guards.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\routes.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\state.actions.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\models.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-update-form.ts" />
@@ -189,15 +173,14 @@
     <TypeScriptCompile Include="ClientApp\src\app\common\immutable-utils.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\common\types.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\common\subscriber-component-base.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\state.reducers.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\state.selectors.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\state.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\routes.guards.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\routes.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\auth\services.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\state.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\common\validators.ts" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="ClientApp\src\app\character-guilds\" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

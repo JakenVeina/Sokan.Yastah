@@ -7,7 +7,7 @@ import { RouterModule } from "@angular/router";
 import { StoreModule } from "@ngrx/store";
 
 import { AdminModule } from "./admin/module";
-import { CharacterGuildsModule } from "./game-master/guilds/module";
+import { GameMasterModule } from "./game-master/module";
 
 import { AuthenticationInterceptor } from "./auth/interceptor";
 import { authenticationStateReducer } from "./auth/state.reducers";
@@ -34,7 +34,7 @@ import { AppRoutes } from "./routes";
         }),
 
         AdminModule,
-        CharacterGuildsModule
+        GameMasterModule
     ],
     declarations: [
         AppView,

@@ -1,10 +1,10 @@
 ﻿import { IAdminState } from "./admin/state";
 import { IAuthenticationState } from "./auth/state";
-import { IGuildsState } from "./game-master/guilds/state";
+import { IGameMasterState } from "./game-master/state";
 
 
 export interface IAppState {
     readonly admin?: IAdminState;
     readonly authentication: IAuthenticationState;
-    readonly characterGuilds: IGuildsState;
+    readonly gameMaster?: IGameMasterState;
 }

@@ -1,7 +1,9 @@
-﻿import { createFeatureSelector, createSelector, MemoizedSelector } from "@ngrx/store";
+﻿import { createSelector, MemoizedSelector } from "@ngrx/store";
 
 import { FetchState } from "../../common/fetching-utils";
 import { IAppState } from "../../state";
+
+import { GameMasterSelectors } from "../state.selectors";
 
 import {
     ICharacterGuildDivisionIdentityViewModel,
@@ -9,13 +11,9 @@ import {
 } from "./models";
 import {
     initialGuildState,
-    IGuildsState,
     IGuildDivisionsState,
     IGuildState} from "./state";
 
-
-const guildsState
-    = createFeatureSelector<IAppState, IGuildsState>("characterGuilds");
 
 function divisionsState(
             guildId: number):
@@ -28,7 +26,7 @@ function guildState(
             guildId: number):
         MemoizedSelector<IAppState, IGuildState> {
     return createSelector(
-        guildsState,
+        GameMasterSelectors.guildsState,
         state => state.stateTable[guildId] || initialGuildState);
 }
 
@@ -70,24 +68,24 @@ export namespace GuildsSelectors {
 
     export const identities: MemoizedSelector<IAppState, ICharacterGuildIdentityViewModel[] | null>
         = createSelector(
-            guildsState,
+            GameMasterSelectors.guildsState,
             state => state.identities.value);
 
     export const identitiesIsFetching: MemoizedSelector<IAppState, boolean>
         = createSelector(
-            guildsState,
+            GameMasterSelectors.guildsState,
             state => state.identities.state === FetchState.fetching);
 
     export const identitiesNeedsFetch: MemoizedSelector<IAppState, boolean>
         = createSelector(
-            guildsState,
+            GameMasterSelectors.guildsState,
             state => state.identities.state === FetchState.unfetched);
 
     export function identity(
                 guildId: number):
             MemoizedSelector<IAppState, ICharacterGuildIdentityViewModel | null>{
         return createSelector(
-            guildsState,
+            GameMasterSelectors.guildsState,
             state => state.identities.value && state.identities.value.find(identity => identity.id === guildId) || null);
     }
 }

@@ -1,18 +1,18 @@
 ﻿import { Routes } from "@angular/router";
 
-import { GuildsPage } from "./guilds-page";
-import { GuildCreationPage } from "./guild-creation-page";
-import { GuildDivisionsPage } from "./guild-divisions-page";
-import { GuildDivisionCreationPage } from "./guild-division-creation-page";
-import { GuildDivisionUpdatePage } from "./guild-division-update-page";
-import { GuildUpdatePage } from "./guild-update-page";
+import { GuildsPage } from "./guilds/guilds-page";
+import { GuildCreationPage } from "./guilds/guild-creation-page";
+import { GuildDivisionsPage } from "./guilds/guild-divisions-page";
+import { GuildDivisionCreationPage } from "./guilds/guild-division-creation-page";
+import { GuildDivisionUpdatePage } from "./guilds/guild-division-update-page";
+import { GuildUpdatePage } from "./guilds/guild-update-page";
 
 import { GuildsGuard } from "./routes.guards";
 
 
-export const guildsRoutes: Routes = [
+export const gameMasterRouts: Routes = [
     {
-        path: "characters",
+        path: "game-master",
         children: [
             {
                 path: "guilds",
