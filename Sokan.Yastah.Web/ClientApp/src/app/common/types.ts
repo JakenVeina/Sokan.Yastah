@@ -1,7 +1,4 @@
-﻿import { isNullOrUndefined } from "util";
-
-
-export interface AsyncSelector<T, U> {
+﻿export interface AsyncSelector<T, U> {
     (value: T): Promise<U>;
 }
 
