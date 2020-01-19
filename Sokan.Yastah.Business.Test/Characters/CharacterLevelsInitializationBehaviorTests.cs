@@ -90,7 +90,7 @@ namespace Sokan.Yastah.Business.Test.Characters
         [Test]
         public async Task OnStartupAsync_Level1IsProperlyConfigured_DoesNothing()
         {
-            var testContext = new TestContext();
+            using var testContext = new TestContext();
 
             testContext.SetIsLevel1ProperlyConfigured(true);
 
@@ -147,7 +147,7 @@ namespace Sokan.Yastah.Business.Test.Characters
             DateTimeOffset performed,
             long actionId)
         {
-            var testContext = new TestContext()
+            using var testContext = new TestContext()
             {
                 UtcNow = performed,
                 NextAdministrationActionId = actionId

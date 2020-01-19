@@ -10,7 +10,8 @@ namespace Sokan.Yastah.Host
     public static class Program
     {
         public static void Main()
-            => new HostBuilder()
+        {
+            using var host = new HostBuilder()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseDefaultServiceProvider((context, options) =>
                 {
@@ -48,7 +49,9 @@ namespace Sokan.Yastah.Host
                         loggingBuilder
                             .AddDebug();
                 })
-                .Build()
-                .Run();
+                .Build();
+
+            host.Run();
+        }
     }
 }

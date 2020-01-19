@@ -126,11 +126,11 @@ namespace Sokan.Yastah.Api.Authentication
             OAuthCreatingTicketContext context,
             CancellationToken cancellationToken)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint + "/guilds");
+            using var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint + "/guilds");
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
 
-            var response = await context.Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            using var response = await context.Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
                 throw new HttpRequestException("An error occurred while retrieving user guild information.");

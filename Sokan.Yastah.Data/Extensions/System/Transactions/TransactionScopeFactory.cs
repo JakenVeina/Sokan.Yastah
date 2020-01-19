@@ -22,7 +22,7 @@ namespace System.Transactions
                     Timeout = TimeSpan.FromSeconds(30)
                 });
 
-        private class TransactionScopeWrapper
+        private sealed class TransactionScopeWrapper
             : ITransactionScope
         {
             public TransactionScopeWrapper(

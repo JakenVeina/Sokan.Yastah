@@ -40,7 +40,11 @@ namespace Sokan.Yastah.Data.Test.Extensions.System.Transactions
 
             var result = uut.CreateScope();
 
+            #pragma warning disable IDISP017 // Prefer using.
+            #pragma warning disable IDISP016 // Don't use disposed instance.
             result.Dispose();
+            #pragma warning restore IDISP016 // Don't use disposed instance.
+            #pragma warning restore IDISP017 // Prefer using.
 
             Should.Throw<ObjectDisposedException>(() =>
             {

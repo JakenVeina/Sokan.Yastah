@@ -17,7 +17,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sokan.Yastah.Common.Test", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sokan.Yastah.Data.Test", "Sokan.Yastah.Data.Test\Sokan.Yastah.Data.Test.csproj", "{FCE1875A-1193-4EFA-805C-25BD8ADB649C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sokan.Yastah.Business.Test", "Sokan.Yastah.Business.Test\Sokan.Yastah.Business.Test.csproj", "{4125C6DA-38BC-47FC-88AA-E8F3FEB8863A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sokan.Yastah.Business.Test", "Sokan.Yastah.Business.Test\Sokan.Yastah.Business.Test.csproj", "{4125C6DA-38BC-47FC-88AA-E8F3FEB8863A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2244E77E-3BA9-49E4-AC31-79B0B98F1F0D}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

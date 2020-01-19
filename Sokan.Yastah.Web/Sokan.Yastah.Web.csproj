@@ -1,25 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Nullable>enable</Nullable>
     <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
     <IsPackable>false</IsPackable>
     <SpaRoot>ClientApp\</SpaRoot>
     <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
-
-    <!-- Set this to true if you enable server-side prerendering -->
     <BuildServerSideRenderer>false</BuildServerSideRenderer>
-    <UserSecretsId>a5faf311-b925-4881-a572-7f25a547beaa</UserSecretsId>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <CodeAnalysisRuleSet />
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <CodeAnalysisRuleSet />
   </PropertyGroup>
 
   <ItemGroup>
@@ -114,9 +101,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\role-update-page.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
+    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\role-update-page.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\admin\roles\role-creation-page.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\admin\roles\state.selectors.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\admin\state.selectors.ts" />
@@ -135,9 +120,7 @@
     <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guilds-page.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\game-master\levels\levels-update-form.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\game-master\levels\levels-update-page.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\levels\models.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\levels\models.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\game-master\levels\services.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\game-master\module.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\game-master\routes.guards.ts" />
