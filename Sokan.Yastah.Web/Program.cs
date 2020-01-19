@@ -1,6 +1,4 @@
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -11,9 +9,8 @@ namespace Sokan.Yastah.Host
 {
     public static class Program
     {
-        public static async Task Main()
-        {
-            var host = new HostBuilder()
+        public static void Main()
+            => new HostBuilder()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseDefaultServiceProvider((context, options) =>
                 {
@@ -51,13 +48,7 @@ namespace Sokan.Yastah.Host
                         loggingBuilder
                             .AddDebug();
                 })
-                .Build();
-
-            await host.Services
-                .HandleStartupAsync(CancellationToken.None);
-
-            await host
-                .RunAsync();
-        }
+                .Build()
+                .Run();
     }
 }
