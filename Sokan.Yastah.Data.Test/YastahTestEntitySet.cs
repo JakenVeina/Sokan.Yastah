@@ -18,36 +18,36 @@ namespace Sokan.Yastah.Data.Test
 
         public YastahTestEntitySet()
         {
-            PermissionCategories = Enumerable.Empty<PermissionCategoryEntity>()
+            _lazyPermissionCategories = LazyEx.CreateThreadSafe(() => Enumerable.Empty<PermissionCategoryEntity>()
                 .Append(new PermissionCategoryEntity(   id: (int)PermissionCategory.Administration, name: nameof(PermissionCategory.Administration),    description: "Permissions related to administration of the application" ))
                 .Do(pc => pc.Permissions = new List<PermissionEntity>())
-                .ToArray();
+                .ToArray());
 
-            Permissions = Enumerable.Empty<PermissionEntity>()
+            _lazyPermissions = LazyEx.CreateThreadSafe(() => Enumerable.Empty<PermissionEntity>()
                 .Append(new PermissionEntity(   permissionId: (int)AdministrationPermission.ManagePermissions,  categoryId: (int)PermissionCategory.Administration,  name: nameof(AdministrationPermission.ManagePermissions),  description: "Allows management of application permissions" ))
                 .Append(new PermissionEntity(   permissionId: (int)AdministrationPermission.ManageRoles,        categoryId: (int)PermissionCategory.Administration,  name: nameof(AdministrationPermission.ManageRoles),        description: "Allows management of application roles"       ))
                 .Append(new PermissionEntity(   permissionId: (int)AdministrationPermission.ManageUsers,        categoryId: (int)PermissionCategory.Administration,  name: nameof(AdministrationPermission.ManageUsers),        description: "Allows management of application users"       ))
                 .Do(p => p.Category = PermissionCategories.First(pc => pc.Id == p.CategoryId))
                 .Do(p => p.Category.Permissions.Add(p))
-                .ToArray();
+                .ToArray());
 
 
-            Users = Enumerable.Empty<UserEntity>()
+            _lazyUsers = LazyEx.CreateThreadSafe(() => Enumerable.Empty<UserEntity>()
                 .Append(new UserEntity( id: 1,  username: "User 1", discriminator: "0001",  avatarHash: "00001",    firstSeen: DateTimeOffset.Parse("2019-01-01"),  lastSeen: DateTimeOffset.Parse("2019-01-05")    ))
                 .Append(new UserEntity( id: 2,  username: "User 2", discriminator: "0002",  avatarHash: "00002",    firstSeen: DateTimeOffset.Parse("2019-01-03"),  lastSeen: DateTimeOffset.Parse("2019-01-07")    ))
                 .Append(new UserEntity( id: 3,  username: "User 3", discriminator: "0003",  avatarHash: "00003",    firstSeen: DateTimeOffset.Parse("2019-01-09"),  lastSeen: DateTimeOffset.Parse("2019-01-09")    ))
                 .Do(u => u.PermissionMappings = new List<UserPermissionMappingEntity>())
                 .Do(u => u.RoleMappings = new List<UserRoleMappingEntity>())
-                .ToArray();
+                .ToArray());
 
 
-            AdministrationActionCategories = Enumerable.Empty<AdministrationActionCategoryEntity>()
+            _lazyAdministrationActionCategories = LazyEx.CreateThreadSafe(() => Enumerable.Empty<AdministrationActionCategoryEntity>()
                 .Append(new AdministrationActionCategoryEntity( id: (int)AdministrationActionCategory.RoleManagement,       name: nameof(AdministrationActionCategory.RoleManagement)       ))
                 .Append(new AdministrationActionCategoryEntity( id: (int)AdministrationActionCategory.UserManagement,       name: nameof(AdministrationActionCategory.UserManagement)       ))
                 .Append(new AdministrationActionCategoryEntity( id: (int)AdministrationActionCategory.CharacterManagement,  name: nameof(AdministrationActionCategory.CharacterManagement)  ))
-                .ToArray();
+                .ToArray());
 
-            AdministrationActionTypes = Enumerable.Empty<AdministrationActionTypeEntity>()
+            _lazyAdministrationActionTypes = LazyEx.CreateThreadSafe(() => Enumerable.Empty<AdministrationActionTypeEntity>()
                 .Append(new AdministrationActionTypeEntity( id: (int)RoleManagementAdministrationActionType.RoleCreated,                        categoryId: (int)AdministrationActionCategory.RoleManagement,       name: nameof(RoleManagementAdministrationActionType.RoleCreated)                        ))
                 .Append(new AdministrationActionTypeEntity( id: (int)RoleManagementAdministrationActionType.RoleModified,                       categoryId: (int)AdministrationActionCategory.RoleManagement,       name: nameof(RoleManagementAdministrationActionType.RoleModified)                       ))
                 .Append(new AdministrationActionTypeEntity( id: (int)RoleManagementAdministrationActionType.RoleDeleted,                        categoryId: (int)AdministrationActionCategory.RoleManagement,       name: nameof(RoleManagementAdministrationActionType.RoleDeleted)                        ))
@@ -70,9 +70,9 @@ namespace Sokan.Yastah.Data.Test
                 .Append(new AdministrationActionTypeEntity( id: (int)CharacterManagementAdministrationActionType.CharacterDeleted,              categoryId: (int)AdministrationActionCategory.CharacterManagement,  name: nameof(CharacterManagementAdministrationActionType.CharacterDeleted)              ))
                 .Append(new AdministrationActionTypeEntity( id: (int)CharacterManagementAdministrationActionType.CharacterRestored,             categoryId: (int)AdministrationActionCategory.CharacterManagement,  name: nameof(CharacterManagementAdministrationActionType.CharacterRestored)             ))
                 .Do(aat => aat.Category = AdministrationActionCategories.First(aac => aac.Id == aat.CategoryId))
-                .ToArray();
+                .ToArray());
 
-            AdministrationActions = Enumerable.Empty<AdministrationActionEntity>()
+            _lazyAdministrationActions = LazyEx.CreateThreadSafe(() => Enumerable.Empty<AdministrationActionEntity>()
                 .Append(new AdministrationActionEntity( id: 1,  typeId: (int)UserManagementAdministrationActionType.UserCreated,                        performed: DateTimeOffset.Parse("2019-01-01"),  performedById: 1    ))
                 .Append(new AdministrationActionEntity( id: 2,  typeId: (int)RoleManagementAdministrationActionType.RoleCreated,                        performed: DateTimeOffset.Parse("2019-01-02"),  performedById: 1    ))
                 .Append(new AdministrationActionEntity( id: 3,  typeId: (int)UserManagementAdministrationActionType.UserCreated,                        performed: DateTimeOffset.Parse("2019-01-03"),  performedById: 2    ))
@@ -168,10 +168,10 @@ namespace Sokan.Yastah.Data.Test
                 .Do(aa => aa.PerformedBy = (aa.PerformedById is null)
                     ? null
                     : Users.First(u => u.Id == aa.PerformedById))
-                .ToArray();
+                .ToArray());
 
 
-            AuthenticationTickets = Enumerable.Empty<AuthenticationTicketEntity>()
+            _lazyAuthenticationTickets = LazyEx.CreateThreadSafe(() => Enumerable.Empty<AuthenticationTicketEntity>()
                 .Append(new AuthenticationTicketEntity( id: 1,  userId: 1,  creationId: 1,  deletionId: 5       ))
                 .Append(new AuthenticationTicketEntity( id: 2,  userId: 2,  creationId: 3,  deletionId: 7       ))
                 .Append(new AuthenticationTicketEntity( id: 3,  userId: 1,  creationId: 5,  deletionId: null    ))
@@ -180,35 +180,42 @@ namespace Sokan.Yastah.Data.Test
                 .Do(at => at.User = Users.First(u => u.Id == at.UserId))
                 .Do(at => at.Creation = AdministrationActions.First(aa => aa.Id == at.CreationId))
                 .Do(at => at.Deletion = (at.DeletionId is null) ? null : AdministrationActions.First(aa => aa.Id == at.DeletionId))
-                .ToArray();
+                .ToArray());
 
 
-            CharacterGuilds = Enumerable.Empty<CharacterGuildEntity>()
+            _lazyCharacterGuilds = LazyEx.CreateThreadSafe(() => Enumerable.Empty<CharacterGuildEntity>()
                 .Append(new CharacterGuildEntity(   id: 1   ))
                 .Append(new CharacterGuildEntity(   id: 2   ))
                 .Append(new CharacterGuildEntity(   id: 3   ))
                 .Do(cg => cg.Divisions = new List<CharacterGuildDivisionEntity>())
-                .ToArray();
+                .ToArray());
 
-            CharacterGuildVersions = Enumerable.Empty<CharacterGuildVersionEntity>()
-                .Append(new CharacterGuildVersionEntity(    id: 1,  guildId: 1, name: "Character Guild 1",  isDeleted: false,   creationId: 40, previousVersionId: null,    nextVersionId: 2    ))
-                .Append(new CharacterGuildVersionEntity(    id: 2,  guildId: 1, name: "Character Guild 1a", isDeleted: false,   creationId: 41, previousVersionId: 1,       nextVersionId: 9    ))
-                .Append(new CharacterGuildVersionEntity(    id: 3,  guildId: 2, name: "Character Guild 2",  isDeleted: false,   creationId: 42, previousVersionId: null,    nextVersionId: 5    ))
-                .Append(new CharacterGuildVersionEntity(    id: 4,  guildId: 3, name: "Character Guild 3",  isDeleted: false,   creationId: 43, previousVersionId: null,    nextVersionId: 6    ))
-                .Append(new CharacterGuildVersionEntity(    id: 5,  guildId: 2, name: "Character Guild 2",  isDeleted: true,    creationId: 44, previousVersionId: 3,       nextVersionId: null ))
-                .Append(new CharacterGuildVersionEntity(    id: 6,  guildId: 3, name: "Character Guild 3a", isDeleted: false,   creationId: 45, previousVersionId: 4,       nextVersionId: 7    ))
-                .Append(new CharacterGuildVersionEntity(    id: 7,  guildId: 3, name: "Character Guild 3a", isDeleted: true,    creationId: 46, previousVersionId: 6,       nextVersionId: 8    ))
-                .Append(new CharacterGuildVersionEntity(    id: 8,  guildId: 3, name: "Character Guild 3a", isDeleted: false,   creationId: 47, previousVersionId: 7,       nextVersionId: null ))
-                .Append(new CharacterGuildVersionEntity(    id: 9,  guildId: 1, name: "Character Guild 1",  isDeleted: false,   creationId: 48, previousVersionId: 2,       nextVersionId: null ))
-                .Do(cgv => cgv.Guild = CharacterGuilds.First(cg => cg.Id == cgv.GuildId))
-                .Do(cgv => cgv.Creation = AdministrationActions.First(aa => aa.Id == cgv.CreationId))
-                .ToArray();
-            CharacterGuildVersions
-                .Do(cgv => cgv.PreviousVersion = (cgv.PreviousVersionId is null) ? null : CharacterGuildVersions.First(pv => pv.Id == cgv.PreviousVersionId))
-                .Do(cgv => cgv.NextVersion = (cgv.NextVersionId is null) ? null : CharacterGuildVersions.First(nv => nv.Id == cgv.NextVersionId))
-                .Enumerate();
+            _lazyCharacterGuildVersions = LazyEx.CreateThreadSafe(() =>
+            {
+                var characterGuildVersions = Enumerable.Empty<CharacterGuildVersionEntity>()
+                    .Append(new CharacterGuildVersionEntity(    id: 1,  guildId: 1, name: "Character Guild 1",  isDeleted: false,   creationId: 40, previousVersionId: null,    nextVersionId: 2    ))
+                    .Append(new CharacterGuildVersionEntity(    id: 2,  guildId: 1, name: "Character Guild 1a", isDeleted: false,   creationId: 41, previousVersionId: 1,       nextVersionId: 9    ))
+                    .Append(new CharacterGuildVersionEntity(    id: 3,  guildId: 2, name: "Character Guild 2",  isDeleted: false,   creationId: 42, previousVersionId: null,    nextVersionId: 5    ))
+                    .Append(new CharacterGuildVersionEntity(    id: 4,  guildId: 3, name: "Character Guild 3",  isDeleted: false,   creationId: 43, previousVersionId: null,    nextVersionId: 6    ))
+                    .Append(new CharacterGuildVersionEntity(    id: 5,  guildId: 2, name: "Character Guild 2",  isDeleted: true,    creationId: 44, previousVersionId: 3,       nextVersionId: null ))
+                    .Append(new CharacterGuildVersionEntity(    id: 6,  guildId: 3, name: "Character Guild 3a", isDeleted: false,   creationId: 45, previousVersionId: 4,       nextVersionId: 7    ))
+                    .Append(new CharacterGuildVersionEntity(    id: 7,  guildId: 3, name: "Character Guild 3a", isDeleted: true,    creationId: 46, previousVersionId: 6,       nextVersionId: 8    ))
+                    .Append(new CharacterGuildVersionEntity(    id: 8,  guildId: 3, name: "Character Guild 3a", isDeleted: false,   creationId: 47, previousVersionId: 7,       nextVersionId: null ))
+                    .Append(new CharacterGuildVersionEntity(    id: 9,  guildId: 1, name: "Character Guild 1",  isDeleted: false,   creationId: 48, previousVersionId: 2,       nextVersionId: null ))
+                    .Do(cgv => cgv.Guild = CharacterGuilds.First(cg => cg.Id == cgv.GuildId))
+                    .Do(cgv => cgv.Creation = AdministrationActions.First(aa => aa.Id == cgv.CreationId))
+                    .ToArray();
 
-            CharacterGuildDivisions = Enumerable.Empty<CharacterGuildDivisionEntity>()
+                characterGuildVersions
+                    .Do(cgv => cgv.PreviousVersion = (cgv.PreviousVersionId is null) ? null : characterGuildVersions.First(pv => pv.Id == cgv.PreviousVersionId))
+                    .Do(cgv => cgv.NextVersion = (cgv.NextVersionId is null) ? null : characterGuildVersions.First(nv => nv.Id == cgv.NextVersionId))
+                    .Enumerate();
+
+                return characterGuildVersions;
+            });
+
+
+            _lazyCharacterGuildDivisions = LazyEx.CreateThreadSafe(() => Enumerable.Empty<CharacterGuildDivisionEntity>()
                 .Append(new CharacterGuildDivisionEntity(   id: 1,  guildId: 1   ))
                 .Append(new CharacterGuildDivisionEntity(   id: 2,  guildId: 2   ))
                 .Append(new CharacterGuildDivisionEntity(   id: 3,  guildId: 2   ))
@@ -221,120 +228,144 @@ namespace Sokan.Yastah.Data.Test
                 .Do(cgd => cgd.Guild = CharacterGuilds.First(cg => cg.Id == cgd.GuildId))
                 .Do(cgd => cgd.Versions = new List<CharacterGuildDivisionVersionEntity>())
                 .Do(cgd => cgd.Guild.Divisions.Add(cgd))
-                .ToArray();
+                .ToArray());
 
-            CharacterGuildDivisionVersions = Enumerable.Empty<CharacterGuildDivisionVersionEntity>()
-                .Append(new CharacterGuildDivisionVersionEntity(    id: 1,  divisionId: 1,  name: "Character Guild 1, Division 1",  isDeleted: false,   creationId: 49, previousVersionId: null, nextVersionId: 6       ))
-                .Append(new CharacterGuildDivisionVersionEntity(    id: 2,  divisionId: 2,  name: "Character Guild 2, Division 1",  isDeleted: false,   creationId: 50, previousVersionId: null, nextVersionId: null    ))
-                .Append(new CharacterGuildDivisionVersionEntity(    id: 3,  divisionId: 3,  name: "Character Guild 2, Division 2",  isDeleted: false,   creationId: 51, previousVersionId: null, nextVersionId: null    ))
-                .Append(new CharacterGuildDivisionVersionEntity(    id: 4,  divisionId: 4,  name: "Character Guild 1, Division 2",  isDeleted: false,   creationId: 52, previousVersionId: null, nextVersionId: 5       ))
-                .Append(new CharacterGuildDivisionVersionEntity(    id: 5,  divisionId: 4,  name: "Character Guild 1, Division 2",  isDeleted: true,    creationId: 53, previousVersionId: 4,    nextVersionId: null    ))
-                .Append(new CharacterGuildDivisionVersionEntity(    id: 6,  divisionId: 1,  name: "Character Guild 1, Division 1a", isDeleted: false,   creationId: 54, previousVersionId: 1,    nextVersionId: 10      ))
-                .Append(new CharacterGuildDivisionVersionEntity(    id: 7,  divisionId: 5,  name: "Character Guild 3, Division 1",  isDeleted: false,   creationId: 55, previousVersionId: null, nextVersionId: 8       ))
-                .Append(new CharacterGuildDivisionVersionEntity(    id: 8,  divisionId: 5,  name: "Character Guild 3, Division 1a", isDeleted: false,   creationId: 56, previousVersionId: 7,    nextVersionId: null    ))
-                .Append(new CharacterGuildDivisionVersionEntity(    id: 9,  divisionId: 6,  name: "Character Guild 2, Division 3",  isDeleted: false,   creationId: 57, previousVersionId: null, nextVersionId: 17      ))
-                .Append(new CharacterGuildDivisionVersionEntity(    id: 10, divisionId: 1,  name: "Character Guild 1, Division 1a", isDeleted: true,    creationId: 58, previousVersionId: 6,    nextVersionId: 14      ))
-                .Append(new CharacterGuildDivisionVersionEntity(    id: 11, divisionId: 7,  name: "Character Guild 3, Division 2",  isDeleted: false,   creationId: 59, previousVersionId: null, nextVersionId: null    ))
-                .Append(new CharacterGuildDivisionVersionEntity(    id: 12, divisionId: 8,  name: "Character Guild 1, Division 3",  isDeleted: false,   creationId: 60, previousVersionId: null, nextVersionId: null    ))
-                .Append(new CharacterGuildDivisionVersionEntity(    id: 13, divisionId: 9,  name: "Character Guild 3, Division 3",  isDeleted: false,   creationId: 61, previousVersionId: null, nextVersionId: 15      ))
-                .Append(new CharacterGuildDivisionVersionEntity(    id: 14, divisionId: 1,  name: "Character Guild 1, Division 1a", isDeleted: false,   creationId: 62, previousVersionId: 10,   nextVersionId: null    ))
-                .Append(new CharacterGuildDivisionVersionEntity(    id: 15, divisionId: 9,  name: "Character Guild 3, Division 3a", isDeleted: false,   creationId: 63, previousVersionId: 13,   nextVersionId: 16      ))
-                .Append(new CharacterGuildDivisionVersionEntity(    id: 16, divisionId: 9,  name: "Character Guild 3, Division 3b", isDeleted: false,   creationId: 64, previousVersionId: 15,   nextVersionId: null    ))
-                .Append(new CharacterGuildDivisionVersionEntity(    id: 17, divisionId: 6,  name: "Character Guild 2, Division 3a", isDeleted: false,   creationId: 65, previousVersionId: 9,    nextVersionId: 18      ))
-                .Append(new CharacterGuildDivisionVersionEntity(    id: 18, divisionId: 6,  name: "Character Guild 2, Division 3",  isDeleted: false,   creationId: 66, previousVersionId: 17,   nextVersionId: null    ))
-                .Do(cgdv => cgdv.Division = CharacterGuildDivisions.First(cgd => cgd.Id == cgdv.DivisionId))
-                .Do(cgdv => cgdv.Creation = AdministrationActions.First(aa => aa.Id == cgdv.CreationId))
-                .Do(cgdv => cgdv.Division.Versions.Add(cgdv))
-                .ToArray();
-            CharacterGuildDivisionVersions
-                .Do(cgdv => cgdv.PreviousVersion = (cgdv.PreviousVersionId is null) ? null : CharacterGuildDivisionVersions.First(pv => pv.Id == cgdv.PreviousVersionId))
-                .Do(cgdv => cgdv.NextVersion = (cgdv.NextVersionId is null) ? null : CharacterGuildDivisionVersions.First(nv => nv.Id == cgdv.NextVersionId))
-                .Enumerate();
+            _lazyCharacterGuildDivisionVersions = LazyEx.CreateThreadSafe(() =>
+            {
+                var characterGuildDivisionVersions = Enumerable.Empty<CharacterGuildDivisionVersionEntity>()
+                    .Append(new CharacterGuildDivisionVersionEntity(    id: 1,  divisionId: 1,  name: "Character Guild 1, Division 1",  isDeleted: false,   creationId: 49, previousVersionId: null, nextVersionId: 6       ))
+                    .Append(new CharacterGuildDivisionVersionEntity(    id: 2,  divisionId: 2,  name: "Character Guild 2, Division 1",  isDeleted: false,   creationId: 50, previousVersionId: null, nextVersionId: null    ))
+                    .Append(new CharacterGuildDivisionVersionEntity(    id: 3,  divisionId: 3,  name: "Character Guild 2, Division 2",  isDeleted: false,   creationId: 51, previousVersionId: null, nextVersionId: null    ))
+                    .Append(new CharacterGuildDivisionVersionEntity(    id: 4,  divisionId: 4,  name: "Character Guild 1, Division 2",  isDeleted: false,   creationId: 52, previousVersionId: null, nextVersionId: 5       ))
+                    .Append(new CharacterGuildDivisionVersionEntity(    id: 5,  divisionId: 4,  name: "Character Guild 1, Division 2",  isDeleted: true,    creationId: 53, previousVersionId: 4,    nextVersionId: null    ))
+                    .Append(new CharacterGuildDivisionVersionEntity(    id: 6,  divisionId: 1,  name: "Character Guild 1, Division 1a", isDeleted: false,   creationId: 54, previousVersionId: 1,    nextVersionId: 10      ))
+                    .Append(new CharacterGuildDivisionVersionEntity(    id: 7,  divisionId: 5,  name: "Character Guild 3, Division 1",  isDeleted: false,   creationId: 55, previousVersionId: null, nextVersionId: 8       ))
+                    .Append(new CharacterGuildDivisionVersionEntity(    id: 8,  divisionId: 5,  name: "Character Guild 3, Division 1a", isDeleted: false,   creationId: 56, previousVersionId: 7,    nextVersionId: null    ))
+                    .Append(new CharacterGuildDivisionVersionEntity(    id: 9,  divisionId: 6,  name: "Character Guild 2, Division 3",  isDeleted: false,   creationId: 57, previousVersionId: null, nextVersionId: 17      ))
+                    .Append(new CharacterGuildDivisionVersionEntity(    id: 10, divisionId: 1,  name: "Character Guild 1, Division 1a", isDeleted: true,    creationId: 58, previousVersionId: 6,    nextVersionId: 14      ))
+                    .Append(new CharacterGuildDivisionVersionEntity(    id: 11, divisionId: 7,  name: "Character Guild 3, Division 2",  isDeleted: false,   creationId: 59, previousVersionId: null, nextVersionId: null    ))
+                    .Append(new CharacterGuildDivisionVersionEntity(    id: 12, divisionId: 8,  name: "Character Guild 1, Division 3",  isDeleted: false,   creationId: 60, previousVersionId: null, nextVersionId: null    ))
+                    .Append(new CharacterGuildDivisionVersionEntity(    id: 13, divisionId: 9,  name: "Character Guild 3, Division 3",  isDeleted: false,   creationId: 61, previousVersionId: null, nextVersionId: 15      ))
+                    .Append(new CharacterGuildDivisionVersionEntity(    id: 14, divisionId: 1,  name: "Character Guild 1, Division 1a", isDeleted: false,   creationId: 62, previousVersionId: 10,   nextVersionId: null    ))
+                    .Append(new CharacterGuildDivisionVersionEntity(    id: 15, divisionId: 9,  name: "Character Guild 3, Division 3a", isDeleted: false,   creationId: 63, previousVersionId: 13,   nextVersionId: 16      ))
+                    .Append(new CharacterGuildDivisionVersionEntity(    id: 16, divisionId: 9,  name: "Character Guild 3, Division 3b", isDeleted: false,   creationId: 64, previousVersionId: 15,   nextVersionId: null    ))
+                    .Append(new CharacterGuildDivisionVersionEntity(    id: 17, divisionId: 6,  name: "Character Guild 2, Division 3a", isDeleted: false,   creationId: 65, previousVersionId: 9,    nextVersionId: 18      ))
+                    .Append(new CharacterGuildDivisionVersionEntity(    id: 18, divisionId: 6,  name: "Character Guild 2, Division 3",  isDeleted: false,   creationId: 66, previousVersionId: 17,   nextVersionId: null    ))
+                    .Do(cgdv => cgdv.Division = CharacterGuildDivisions.First(cgd => cgd.Id == cgdv.DivisionId))
+                    .Do(cgdv => cgdv.Creation = AdministrationActions.First(aa => aa.Id == cgdv.CreationId))
+                    .Do(cgdv => cgdv.Division.Versions.Add(cgdv))
+                    .ToArray();
 
-            CharacterLevelDefinitions = Enumerable.Empty<CharacterLevelDefinitionEntity>()
+                characterGuildDivisionVersions
+                    .Do(cgdv => cgdv.PreviousVersion = (cgdv.PreviousVersionId is null) ? null : characterGuildDivisionVersions.First(pv => pv.Id == cgdv.PreviousVersionId))
+                    .Do(cgdv => cgdv.NextVersion = (cgdv.NextVersionId is null) ? null : characterGuildDivisionVersions.First(nv => nv.Id == cgdv.NextVersionId))
+                    .Enumerate();
+
+                return characterGuildDivisionVersions;
+            });
+
+            _lazyCharacterLevelDefinitions = LazyEx.CreateThreadSafe(() => Enumerable.Empty<CharacterLevelDefinitionEntity>()
                 .Append(new CharacterLevelDefinitionEntity( level: 1    ))
                 .Append(new CharacterLevelDefinitionEntity( level: 2    ))
                 .Append(new CharacterLevelDefinitionEntity( level: 3    ))
-                .ToArray();
+                .ToArray());
 
-            CharacterLevelDefinitionVersions = Enumerable.Empty<CharacterLevelDefinitionVersionEntity>()
-                .Append(new CharacterLevelDefinitionVersionEntity(  id: 1L,     level: 1,   experienceThreshold: 0,     isDeleted: false,   creationId: 67L,    previousVersionId: null,    nextVersionId: null ))
-                .Append(new CharacterLevelDefinitionVersionEntity(  id: 2L,     level: 2,   experienceThreshold: 10,    isDeleted: false,   creationId: 68L,    previousVersionId: null,    nextVersionId: 4L   ))
-                .Append(new CharacterLevelDefinitionVersionEntity(  id: 3L,     level: 3,   experienceThreshold: 20,    isDeleted: false,   creationId: 68L,    previousVersionId: null,    nextVersionId: 6L   ))
-                .Append(new CharacterLevelDefinitionVersionEntity(  id: 4L,     level: 2,   experienceThreshold: 11,    isDeleted: false,   creationId: 69L,    previousVersionId: 1L,      nextVersionId: 6L   ))
-                .Append(new CharacterLevelDefinitionVersionEntity(  id: 5L,     level: 3,   experienceThreshold: 20,    isDeleted: true,    creationId: 70L,    previousVersionId: 3L,      nextVersionId: null ))
-                .Append(new CharacterLevelDefinitionVersionEntity(  id: 6L,     level: 2,   experienceThreshold: 11,    isDeleted: true,    creationId: 71L,    previousVersionId: 4L,      nextVersionId: 7L   ))
-                .Append(new CharacterLevelDefinitionVersionEntity(  id: 7L,     level: 2,   experienceThreshold: 11,    isDeleted: false,   creationId: 72L,    previousVersionId: 6L,      nextVersionId: 8L   ))
-                .Append(new CharacterLevelDefinitionVersionEntity(  id: 8L,     level: 2,   experienceThreshold: 21,    isDeleted: false,   creationId: 73L,    previousVersionId: 7L,      nextVersionId: 9L   ))
-                .Append(new CharacterLevelDefinitionVersionEntity(  id: 9L,     level: 2,   experienceThreshold: 31,    isDeleted: false,   creationId: 74L,    previousVersionId: 8L,      nextVersionId: null ))
-                .Do(cldv => cldv.Definition = CharacterLevelDefinitions.First(cld => cld.Level == cldv.Level))
-                .Do(cldv => cldv.Creation = AdministrationActions.First(aa => aa.Id == cldv.CreationId))
-                .ToArray();
-            CharacterLevelDefinitionVersions
-                .Do(cldv => cldv.PreviousVersion = (cldv.PreviousVersionId is null) ? null : CharacterLevelDefinitionVersions.First(pv => pv.Id == cldv.PreviousVersionId))
-                .Do(cldv => cldv.NextVersion = (cldv.NextVersionId is null) ? null : CharacterLevelDefinitionVersions.First(pv => pv.Id == cldv.NextVersionId))
-                .Enumerate();
+            _lazyCharacterLevelDefinitionVersions = LazyEx.CreateThreadSafe(() =>
+            {
+                var characterLevelDefinitionVersions = Enumerable.Empty<CharacterLevelDefinitionVersionEntity>()
+                    .Append(new CharacterLevelDefinitionVersionEntity(  id: 1L,     level: 1,   experienceThreshold: 0,     isDeleted: false,   creationId: 67L,    previousVersionId: null,    nextVersionId: null ))
+                    .Append(new CharacterLevelDefinitionVersionEntity(  id: 2L,     level: 2,   experienceThreshold: 10,    isDeleted: false,   creationId: 68L,    previousVersionId: null,    nextVersionId: 4L   ))
+                    .Append(new CharacterLevelDefinitionVersionEntity(  id: 3L,     level: 3,   experienceThreshold: 20,    isDeleted: false,   creationId: 68L,    previousVersionId: null,    nextVersionId: 6L   ))
+                    .Append(new CharacterLevelDefinitionVersionEntity(  id: 4L,     level: 2,   experienceThreshold: 11,    isDeleted: false,   creationId: 69L,    previousVersionId: 1L,      nextVersionId: 6L   ))
+                    .Append(new CharacterLevelDefinitionVersionEntity(  id: 5L,     level: 3,   experienceThreshold: 20,    isDeleted: true,    creationId: 70L,    previousVersionId: 3L,      nextVersionId: null ))
+                    .Append(new CharacterLevelDefinitionVersionEntity(  id: 6L,     level: 2,   experienceThreshold: 11,    isDeleted: true,    creationId: 71L,    previousVersionId: 4L,      nextVersionId: 7L   ))
+                    .Append(new CharacterLevelDefinitionVersionEntity(  id: 7L,     level: 2,   experienceThreshold: 11,    isDeleted: false,   creationId: 72L,    previousVersionId: 6L,      nextVersionId: 8L   ))
+                    .Append(new CharacterLevelDefinitionVersionEntity(  id: 8L,     level: 2,   experienceThreshold: 21,    isDeleted: false,   creationId: 73L,    previousVersionId: 7L,      nextVersionId: 9L   ))
+                    .Append(new CharacterLevelDefinitionVersionEntity(  id: 9L,     level: 2,   experienceThreshold: 31,    isDeleted: false,   creationId: 74L,    previousVersionId: 8L,      nextVersionId: null ))
+                    .Do(cldv => cldv.Definition = CharacterLevelDefinitions.First(cld => cld.Level == cldv.Level))
+                    .Do(cldv => cldv.Creation = AdministrationActions.First(aa => aa.Id == cldv.CreationId))
+                    .ToArray();
+                
+                characterLevelDefinitionVersions
+                    .Do(cldv => cldv.PreviousVersion = (cldv.PreviousVersionId is null) ? null : characterLevelDefinitionVersions.First(pv => pv.Id == cldv.PreviousVersionId))
+                    .Do(cldv => cldv.NextVersion = (cldv.NextVersionId is null) ? null : characterLevelDefinitionVersions.First(pv => pv.Id == cldv.NextVersionId))
+                    .Enumerate();
 
-            Characters = Enumerable.Empty<CharacterEntity>()
+                return characterLevelDefinitionVersions;
+            });
+
+            _lazyCharacters = LazyEx.CreateThreadSafe(() => Enumerable.Empty<CharacterEntity>()
                 .Append(new CharacterEntity(    id: 1,  ownerId: 1  ))
                 .Append(new CharacterEntity(    id: 2,  ownerId: 2  ))
                 .Append(new CharacterEntity(    id: 3,  ownerId: 3  ))
                 .Append(new CharacterEntity(    id: 4,  ownerId: 1  ))
                 .Do(c => c.Owner = Users.First(u => u.Id == c.OwnerId))
-                .ToArray();
+                .ToArray());
 
-            CharacterVersions = Enumerable.Empty<CharacterVersionEntity>()
-                .Append(new CharacterVersionEntity( id: 1,  characterId: 1, name: "Character 1",    divisionId: 1,  experiencePoints: 0,    goldAmount: 1000,   insanityValue: 10,    isDeleted: false,   creationId: 74, previousVersionId: null,    nextVersionId: 12   ))
-                .Append(new CharacterVersionEntity( id: 2,  characterId: 2, name: "Character 2",    divisionId: 3,  experiencePoints: 0,    goldAmount: 1000,   insanityValue: 10,    isDeleted: false,   creationId: 75, previousVersionId: null,    nextVersionId: 9    ))
-                .Append(new CharacterVersionEntity( id: 3,  characterId: 3, name: "Character 3",    divisionId: 3,  experiencePoints: 0,    goldAmount: 1000,   insanityValue: 10,    isDeleted: false,   creationId: 76, previousVersionId: null,    nextVersionId: 4    ))
-                .Append(new CharacterVersionEntity( id: 4,  characterId: 3, name: "Character 3a",   divisionId: 1,  experiencePoints: 100,  goldAmount: 900,    insanityValue: 9,     isDeleted: false,   creationId: 77, previousVersionId: 3,       nextVersionId: 5    ))
-                .Append(new CharacterVersionEntity( id: 5,  characterId: 3, name: "Character 3a",   divisionId: 1,  experiencePoints: 200,  goldAmount: 850,    insanityValue: 9,     isDeleted: false,   creationId: 78, previousVersionId: 4,       nextVersionId: 6    ))
-                .Append(new CharacterVersionEntity( id: 6,  characterId: 3, name: "Character 3a",   divisionId: 2,  experiencePoints: 200,  goldAmount: 850,    insanityValue: 9,     isDeleted: false,   creationId: 79, previousVersionId: 5,       nextVersionId: 7    ))
-                .Append(new CharacterVersionEntity( id: 7,  characterId: 3, name: "Character 3b",   divisionId: 2,  experiencePoints: 200,  goldAmount: 850,    insanityValue: 9,     isDeleted: false,   creationId: 80, previousVersionId: 6,       nextVersionId: 8    ))
-                .Append(new CharacterVersionEntity( id: 8,  characterId: 3, name: "Character 3b",   divisionId: 2,  experiencePoints: 250,  goldAmount: 750,    insanityValue: 10,    isDeleted: false,   creationId: 81, previousVersionId: 7,       nextVersionId: 14   ))
-                .Append(new CharacterVersionEntity( id: 9,  characterId: 2, name: "Character 2",    divisionId: 3,  experiencePoints: 100,  goldAmount: 1000,   insanityValue: 10,    isDeleted: false,   creationId: 82, previousVersionId: 2,       nextVersionId: 10   ))
-                .Append(new CharacterVersionEntity( id: 10, characterId: 2, name: "Character 2",    divisionId: 3,  experiencePoints: 250,  goldAmount: 400,    insanityValue: 10,    isDeleted: false,   creationId: 83, previousVersionId: 9,       nextVersionId: 11   ))
-                .Append(new CharacterVersionEntity( id: 11, characterId: 2, name: "Character 2a",   divisionId: 3,  experiencePoints: 250,  goldAmount: 400,    insanityValue: 10,    isDeleted: false,   creationId: 84, previousVersionId: 10,      nextVersionId: 13   ))
-                .Append(new CharacterVersionEntity( id: 12, characterId: 1, name: "Character 1",    divisionId: 1,  experiencePoints: 300,  goldAmount: 1200,   insanityValue: 10,    isDeleted: false,   creationId: 85, previousVersionId: 1,       nextVersionId: 15   ))
-                .Append(new CharacterVersionEntity( id: 13, characterId: 2, name: "Character 2a",   divisionId: 3,  experiencePoints: 550,  goldAmount: 600,    insanityValue: 10,    isDeleted: false,   creationId: 86, previousVersionId: 11,      nextVersionId: null ))
-                .Append(new CharacterVersionEntity( id: 14, characterId: 3, name: "Character 3b",   divisionId: 2,  experiencePoints: 550,  goldAmount: 950,    insanityValue: 10,    isDeleted: false,   creationId: 87, previousVersionId: 8,       nextVersionId: null ))
-                .Append(new CharacterVersionEntity( id: 15, characterId: 1, name: "Character 1",    divisionId: 1,  experiencePoints: 300,  goldAmount: 1200,   insanityValue: 10,    isDeleted: true,    creationId: 88, previousVersionId: 12,      nextVersionId: null ))
-                .Append(new CharacterVersionEntity( id: 16, characterId: 4, name: "Character 4",    divisionId: 1,  experiencePoints: 0,    goldAmount: 1000,   insanityValue: 10,    isDeleted: false,   creationId: 89, previousVersionId: null,    nextVersionId: 17   ))
-                .Append(new CharacterVersionEntity( id: 17, characterId: 4, name: "Character 4",    divisionId: 1,  experiencePoints: 0,    goldAmount: 1000,   insanityValue: 10,    isDeleted: true,    creationId: 90, previousVersionId: 16,      nextVersionId: 18   ))
-                .Append(new CharacterVersionEntity( id: 18, characterId: 4, name: "Character 4",    divisionId: 1,  experiencePoints: 0,    goldAmount: 1000,   insanityValue: 10,    isDeleted: false,   creationId: 91, previousVersionId: 17,      nextVersionId: null ))
-                .Do(cv => cv.Character = Characters.First(c => c.Id == cv.CharacterId))
-                .Do(cv => cv.Creation = AdministrationActions.First(aa => aa.Id == cv.CreationId))
-                .ToArray();
-            CharacterVersions
-                .Do(cv => cv.PreviousVersion = (cv.PreviousVersionId is null) ? null : CharacterVersions.First(pv => pv.Id == cv.PreviousVersionId))
-                .Do(cv => cv.NextVersion = (cv.NextVersionId is null) ? null : CharacterVersions.First(nv => nv.Id == cv.NextVersionId))
-                .Enumerate();
+            _lazyCharacterVersions = LazyEx.CreateThreadSafe(() =>
+            {
+                var characterVersions = Enumerable.Empty<CharacterVersionEntity>()
+                    .Append(new CharacterVersionEntity( id: 1,  characterId: 1, name: "Character 1",    divisionId: 1,  experiencePoints: 0,    goldAmount: 1000,   insanityValue: 10,    isDeleted: false,   creationId: 74, previousVersionId: null,    nextVersionId: 12   ))
+                    .Append(new CharacterVersionEntity( id: 2,  characterId: 2, name: "Character 2",    divisionId: 3,  experiencePoints: 0,    goldAmount: 1000,   insanityValue: 10,    isDeleted: false,   creationId: 75, previousVersionId: null,    nextVersionId: 9    ))
+                    .Append(new CharacterVersionEntity( id: 3,  characterId: 3, name: "Character 3",    divisionId: 3,  experiencePoints: 0,    goldAmount: 1000,   insanityValue: 10,    isDeleted: false,   creationId: 76, previousVersionId: null,    nextVersionId: 4    ))
+                    .Append(new CharacterVersionEntity( id: 4,  characterId: 3, name: "Character 3a",   divisionId: 1,  experiencePoints: 100,  goldAmount: 900,    insanityValue: 9,     isDeleted: false,   creationId: 77, previousVersionId: 3,       nextVersionId: 5    ))
+                    .Append(new CharacterVersionEntity( id: 5,  characterId: 3, name: "Character 3a",   divisionId: 1,  experiencePoints: 200,  goldAmount: 850,    insanityValue: 9,     isDeleted: false,   creationId: 78, previousVersionId: 4,       nextVersionId: 6    ))
+                    .Append(new CharacterVersionEntity( id: 6,  characterId: 3, name: "Character 3a",   divisionId: 2,  experiencePoints: 200,  goldAmount: 850,    insanityValue: 9,     isDeleted: false,   creationId: 79, previousVersionId: 5,       nextVersionId: 7    ))
+                    .Append(new CharacterVersionEntity( id: 7,  characterId: 3, name: "Character 3b",   divisionId: 2,  experiencePoints: 200,  goldAmount: 850,    insanityValue: 9,     isDeleted: false,   creationId: 80, previousVersionId: 6,       nextVersionId: 8    ))
+                    .Append(new CharacterVersionEntity( id: 8,  characterId: 3, name: "Character 3b",   divisionId: 2,  experiencePoints: 250,  goldAmount: 750,    insanityValue: 10,    isDeleted: false,   creationId: 81, previousVersionId: 7,       nextVersionId: 14   ))
+                    .Append(new CharacterVersionEntity( id: 9,  characterId: 2, name: "Character 2",    divisionId: 3,  experiencePoints: 100,  goldAmount: 1000,   insanityValue: 10,    isDeleted: false,   creationId: 82, previousVersionId: 2,       nextVersionId: 10   ))
+                    .Append(new CharacterVersionEntity( id: 10, characterId: 2, name: "Character 2",    divisionId: 3,  experiencePoints: 250,  goldAmount: 400,    insanityValue: 10,    isDeleted: false,   creationId: 83, previousVersionId: 9,       nextVersionId: 11   ))
+                    .Append(new CharacterVersionEntity( id: 11, characterId: 2, name: "Character 2a",   divisionId: 3,  experiencePoints: 250,  goldAmount: 400,    insanityValue: 10,    isDeleted: false,   creationId: 84, previousVersionId: 10,      nextVersionId: 13   ))
+                    .Append(new CharacterVersionEntity( id: 12, characterId: 1, name: "Character 1",    divisionId: 1,  experiencePoints: 300,  goldAmount: 1200,   insanityValue: 10,    isDeleted: false,   creationId: 85, previousVersionId: 1,       nextVersionId: 15   ))
+                    .Append(new CharacterVersionEntity( id: 13, characterId: 2, name: "Character 2a",   divisionId: 3,  experiencePoints: 550,  goldAmount: 600,    insanityValue: 10,    isDeleted: false,   creationId: 86, previousVersionId: 11,      nextVersionId: null ))
+                    .Append(new CharacterVersionEntity( id: 14, characterId: 3, name: "Character 3b",   divisionId: 2,  experiencePoints: 550,  goldAmount: 950,    insanityValue: 10,    isDeleted: false,   creationId: 87, previousVersionId: 8,       nextVersionId: null ))
+                    .Append(new CharacterVersionEntity( id: 15, characterId: 1, name: "Character 1",    divisionId: 1,  experiencePoints: 300,  goldAmount: 1200,   insanityValue: 10,    isDeleted: true,    creationId: 88, previousVersionId: 12,      nextVersionId: null ))
+                    .Append(new CharacterVersionEntity( id: 16, characterId: 4, name: "Character 4",    divisionId: 1,  experiencePoints: 0,    goldAmount: 1000,   insanityValue: 10,    isDeleted: false,   creationId: 89, previousVersionId: null,    nextVersionId: 17   ))
+                    .Append(new CharacterVersionEntity( id: 17, characterId: 4, name: "Character 4",    divisionId: 1,  experiencePoints: 0,    goldAmount: 1000,   insanityValue: 10,    isDeleted: true,    creationId: 90, previousVersionId: 16,      nextVersionId: 18   ))
+                    .Append(new CharacterVersionEntity( id: 18, characterId: 4, name: "Character 4",    divisionId: 1,  experiencePoints: 0,    goldAmount: 1000,   insanityValue: 10,    isDeleted: false,   creationId: 91, previousVersionId: 17,      nextVersionId: null ))
+                    .Do(cv => cv.Character = Characters.First(c => c.Id == cv.CharacterId))
+                    .Do(cv => cv.Creation = AdministrationActions.First(aa => aa.Id == cv.CreationId))
+                    .ToArray();
+                
+                characterVersions
+                    .Do(cv => cv.PreviousVersion = (cv.PreviousVersionId is null) ? null : characterVersions.First(pv => pv.Id == cv.PreviousVersionId))
+                    .Do(cv => cv.NextVersion = (cv.NextVersionId is null) ? null : characterVersions.First(nv => nv.Id == cv.NextVersionId))
+                    .Enumerate();
+
+                return characterVersions;
+            });
 
 
-            Roles = Enumerable.Empty<RoleEntity>()
+            _lazyRoles = LazyEx.CreateThreadSafe(() => Enumerable.Empty<RoleEntity>()
                 .Append(new RoleEntity( id: 1   ))
                 .Append(new RoleEntity( id: 2   ))
                 .Append(new RoleEntity( id: 3   ))
                 .Do(r => r.PermissionMappings = new List<RolePermissionMappingEntity>())
-                .ToArray();
+                .ToArray());
 
-            RoleVersions = Enumerable.Empty<RoleVersionEntity>()
-                .Append(new RoleVersionEntity(  id: 1,  roleId: 1,  name: "Role 1",     isDeleted: false,   actionId: 2,    nextVersionId: null,    previousVersionId: null ))
-                .Append(new RoleVersionEntity(  id: 2,  roleId: 2,  name: "Role 2",     isDeleted: false,   actionId: 10,   nextVersionId: 3,       previousVersionId: null ))
-                .Append(new RoleVersionEntity(  id: 3,  roleId: 2,  name: "Role 2a",    isDeleted: false,   actionId: 12,   nextVersionId: 5,       previousVersionId: 2    ))
-                .Append(new RoleVersionEntity(  id: 4,  roleId: 3,  name: "Role 3",     isDeleted: false,   actionId: 14,   nextVersionId: 6,       previousVersionId: null ))
-                .Append(new RoleVersionEntity(  id: 5,  roleId: 2,  name: "Role 2a",    isDeleted: true,    actionId: 15,   nextVersionId: null,    previousVersionId: 3    ))
-                .Append(new RoleVersionEntity(  id: 6,  roleId: 3,  name: "Role 3a",    isDeleted: true,    actionId: 16,   nextVersionId: 7,       previousVersionId: 4    ))
-                .Append(new RoleVersionEntity(  id: 7,  roleId: 3,  name: "Role 3",     isDeleted: false,   actionId: 17,   nextVersionId: null,    previousVersionId: 7    ))
-                .Do(rv => rv.Role = Roles.First(r => r.Id == rv.RoleId))
-                .Do(rv => rv.Action = AdministrationActions.First(aa => aa.Id == rv.ActionId))
-                .ToArray();
-            RoleVersions
-                .Do(rv => rv.PreviousVersion = (rv.PreviousVersionId is null) ? null : RoleVersions.First(pv => pv.Id == rv.PreviousVersionId))
-                .Do(rv => rv.NextVersion = (rv.NextVersionId is null) ? null : RoleVersions.First(nv => nv.Id == rv.NextVersionId))
-                .Enumerate();
+            _lazyRoleVersions = LazyEx.CreateThreadSafe(() =>
+            {
+                var roleVersions = Enumerable.Empty<RoleVersionEntity>()
+                    .Append(new RoleVersionEntity(  id: 1,  roleId: 1,  name: "Role 1",     isDeleted: false,   actionId: 2,    nextVersionId: null,    previousVersionId: null ))
+                    .Append(new RoleVersionEntity(  id: 2,  roleId: 2,  name: "Role 2",     isDeleted: false,   actionId: 10,   nextVersionId: 3,       previousVersionId: null ))
+                    .Append(new RoleVersionEntity(  id: 3,  roleId: 2,  name: "Role 2a",    isDeleted: false,   actionId: 12,   nextVersionId: 5,       previousVersionId: 2    ))
+                    .Append(new RoleVersionEntity(  id: 4,  roleId: 3,  name: "Role 3",     isDeleted: false,   actionId: 14,   nextVersionId: 6,       previousVersionId: null ))
+                    .Append(new RoleVersionEntity(  id: 5,  roleId: 2,  name: "Role 2a",    isDeleted: true,    actionId: 15,   nextVersionId: null,    previousVersionId: 3    ))
+                    .Append(new RoleVersionEntity(  id: 6,  roleId: 3,  name: "Role 3a",    isDeleted: true,    actionId: 16,   nextVersionId: 7,       previousVersionId: 4    ))
+                    .Append(new RoleVersionEntity(  id: 7,  roleId: 3,  name: "Role 3",     isDeleted: false,   actionId: 17,   nextVersionId: null,    previousVersionId: 7    ))
+                    .Do(rv => rv.Role = Roles.First(r => r.Id == rv.RoleId))
+                    .Do(rv => rv.Action = AdministrationActions.First(aa => aa.Id == rv.ActionId))
+                    .ToArray();
 
-            RolePermissionMappings = Enumerable.Empty<RolePermissionMappingEntity>()
+                roleVersions
+                    .Do(rv => rv.PreviousVersion = (rv.PreviousVersionId is null) ? null : roleVersions.First(pv => pv.Id == rv.PreviousVersionId))
+                    .Do(rv => rv.NextVersion = (rv.NextVersionId is null) ? null : roleVersions.First(nv => nv.Id == rv.NextVersionId))
+                    .Enumerate();
+
+                return roleVersions;
+            });
+
+            _lazyRolePermissionMappings = LazyEx.CreateThreadSafe(() => Enumerable.Empty<RolePermissionMappingEntity>()
                 .Append(new RolePermissionMappingEntity(    id: 1,  roleId: 1,  permissionId: 1,    creationId: 4,  deletionId: null    ))
                 .Append(new RolePermissionMappingEntity(    id: 2,  roleId: 2,  permissionId: 2,    creationId: 6,  deletionId: 8       ))
                 .Append(new RolePermissionMappingEntity(    id: 3,  roleId: 2,  permissionId: 3,    creationId: 8,  deletionId: null    ))
@@ -346,10 +377,10 @@ namespace Sokan.Yastah.Data.Test
                 .Do(rpm => rpm.Permission = Permissions.First(p => p.PermissionId == rpm.PermissionId))
                 .Do(rpm => rpm.Creation = AdministrationActions.First(aa => aa.Id == rpm.CreationId))
                 .Do(rpm => rpm.Deletion = (rpm.DeletionId is null) ? null : AdministrationActions.First(aa => aa.Id == rpm.DeletionId))
-                .ToArray();
+                .ToArray());
 
 
-            DefaultPermissionMappings = Enumerable.Empty<DefaultPermissionMappingEntity>()
+            _lazyDefaultPermissionMappings = LazyEx.CreateThreadSafe(() => Enumerable.Empty<DefaultPermissionMappingEntity>()
                 .Append(new DefaultPermissionMappingEntity( id: 1,  permissionId: 1,    creationId: 18, deletionId: null    ))
                 .Append(new DefaultPermissionMappingEntity( id: 2,  permissionId: 2,    creationId: 20, deletionId: 21      ))
                 .Append(new DefaultPermissionMappingEntity( id: 3,  permissionId: 3,    creationId: 21, deletionId: 22      ))
@@ -357,9 +388,9 @@ namespace Sokan.Yastah.Data.Test
                 .Do(dpm => dpm.Permission = Permissions.First(p => p.PermissionId == dpm.PermissionId))
                 .Do(dpm => dpm.Creation = AdministrationActions.First(aa => aa.Id == dpm.CreationId))
                 .Do(dpm => dpm.Deletion = (dpm.DeletionId is null) ? null : AdministrationActions.First(aa => aa.Id == dpm.DeletionId))
-                .ToArray();
+                .ToArray());
 
-            DefaultRoleMappings = Enumerable.Empty<DefaultRoleMappingEntity>()
+            _lazyDefaultRoleMappings = LazyEx.CreateThreadSafe(() => Enumerable.Empty<DefaultRoleMappingEntity>()
                 .Append(new DefaultRoleMappingEntity(   id: 1,  roleId: 1,  creationId: 19, deletionId: null    ))
                 .Append(new DefaultRoleMappingEntity(   id: 2,  roleId: 2,  creationId: 21, deletionId: 24      ))
                 .Append(new DefaultRoleMappingEntity(   id: 3,  roleId: 3,  creationId: 24, deletionId: 26      ))
@@ -367,9 +398,9 @@ namespace Sokan.Yastah.Data.Test
                 .Do(drm => drm.Role = Roles.First(r => r.Id == drm.RoleId))
                 .Do(drm => drm.Creation = AdministrationActions.First(aa => aa.Id == drm.CreationId))
                 .Do(drm => drm.Deletion = (drm.DeletionId is null) ? null : AdministrationActions.First(aa => aa.Id == drm.DeletionId))
-                .ToArray();
+                .ToArray());
 
-            UserPermissionMappings = Enumerable.Empty<UserPermissionMappingEntity>()
+            _lazyUserPermissionMappings = LazyEx.CreateThreadSafe(() => Enumerable.Empty<UserPermissionMappingEntity>()
                 .Append(new UserPermissionMappingEntity(    id: 1,  userId: 1,  permissionId: 3,    isDenied: false,    creationId: 27, deletionId: 31      ))
                 .Append(new UserPermissionMappingEntity(    id: 2,  userId: 3,  permissionId: 1,    isDenied: true,     creationId: 28, deletionId: null    ))
                 .Append(new UserPermissionMappingEntity(    id: 3,  userId: 3,  permissionId: 2,    isDenied: true,     creationId: 28, deletionId: null    ))
@@ -383,9 +414,9 @@ namespace Sokan.Yastah.Data.Test
                 .Do(upm => upm.Permission = Permissions.First(p => p.PermissionId == upm.PermissionId))
                 .Do(upm => upm.Creation = AdministrationActions.First(aa => aa.Id == upm.CreationId))
                 .Do(upm => upm.Deletion = (upm.DeletionId is null) ? null : AdministrationActions.First(aa => aa.Id == upm.DeletionId))
-                .ToArray();
+                .ToArray());
 
-            UserRoleMappings = Enumerable.Empty<UserRoleMappingEntity>()
+            _lazyUserRoleMappings = LazyEx.CreateThreadSafe(() => Enumerable.Empty<UserRoleMappingEntity>()
                 .Append(new UserRoleMappingEntity(  id: 1,  userId: 3,  roleId: 1,  creationId: 33, deletionId: 38      ))
                 .Append(new UserRoleMappingEntity(  id: 2,  userId: 3,  roleId: 3,  creationId: 34, deletionId: 38      ))
                 .Append(new UserRoleMappingEntity(  id: 3,  userId: 2,  roleId: 3,  creationId: 35, deletionId: null    ))
@@ -397,74 +428,118 @@ namespace Sokan.Yastah.Data.Test
                 .Do(urm => urm.Role = Roles.First(p => p.Id == urm.RoleId))
                 .Do(urm => urm.Creation = AdministrationActions.First(aa => aa.Id == urm.CreationId))
                 .Do(urm => urm.Deletion = (urm.DeletionId is null) ? null : AdministrationActions.First(aa => aa.Id == urm.DeletionId))
-                .ToArray();
+                .ToArray());
         }
 
         #region Administration
 
-        public readonly IReadOnlyList<AdministrationActionCategoryEntity> AdministrationActionCategories;
+        public IReadOnlyList<AdministrationActionCategoryEntity> AdministrationActionCategories
+            => _lazyAdministrationActionCategories.Value;
+        private readonly Lazy<AdministrationActionCategoryEntity[]> _lazyAdministrationActionCategories;
         
-        public readonly IReadOnlyList<AdministrationActionTypeEntity> AdministrationActionTypes;
+        public IReadOnlyList<AdministrationActionTypeEntity> AdministrationActionTypes
+            => _lazyAdministrationActionTypes.Value;
+        private readonly Lazy<AdministrationActionTypeEntity[]> _lazyAdministrationActionTypes;
 
-        public readonly IReadOnlyList<AdministrationActionEntity> AdministrationActions;
+        public IReadOnlyList<AdministrationActionEntity> AdministrationActions
+            => _lazyAdministrationActions.Value;
+        private readonly Lazy<AdministrationActionEntity[]> _lazyAdministrationActions;
 
         #endregion Administration
 
         #region Authentication
 
-        public readonly IReadOnlyList<AuthenticationTicketEntity> AuthenticationTickets;
+        public IReadOnlyList<AuthenticationTicketEntity> AuthenticationTickets
+            => _lazyAuthenticationTickets.Value;
+        private readonly Lazy<AuthenticationTicketEntity[]> _lazyAuthenticationTickets;
 
         #endregion Authentication
 
         #region Characters
 
-        public readonly IReadOnlyList<CharacterGuildEntity> CharacterGuilds;
+        public IReadOnlyList<CharacterGuildEntity> CharacterGuilds
+            => _lazyCharacterGuilds.Value;
+        private readonly Lazy<CharacterGuildEntity[]> _lazyCharacterGuilds;
 
-        public readonly IReadOnlyList<CharacterGuildDivisionEntity> CharacterGuildDivisions;
+        public IReadOnlyList<CharacterGuildDivisionEntity> CharacterGuildDivisions
+            => _lazyCharacterGuildDivisions.Value;
+        private readonly Lazy<CharacterGuildDivisionEntity[]> _lazyCharacterGuildDivisions;
 
-        public readonly IReadOnlyList<CharacterGuildDivisionVersionEntity> CharacterGuildDivisionVersions;
+        public IReadOnlyList<CharacterGuildDivisionVersionEntity> CharacterGuildDivisionVersions
+            => _lazyCharacterGuildDivisionVersions.Value;
+        private readonly Lazy<CharacterGuildDivisionVersionEntity[]> _lazyCharacterGuildDivisionVersions;
 
-        public readonly IReadOnlyList<CharacterGuildVersionEntity> CharacterGuildVersions;
+        public IReadOnlyList<CharacterGuildVersionEntity> CharacterGuildVersions
+            => _lazyCharacterGuildVersions.Value;
+        private readonly Lazy<CharacterGuildVersionEntity[]> _lazyCharacterGuildVersions;
 
-        public readonly IReadOnlyList<CharacterLevelDefinitionEntity> CharacterLevelDefinitions;
+        public IReadOnlyList<CharacterLevelDefinitionEntity> CharacterLevelDefinitions
+            => _lazyCharacterLevelDefinitions.Value;
+        private readonly Lazy<CharacterLevelDefinitionEntity[]> _lazyCharacterLevelDefinitions;
 
-        public readonly IReadOnlyList<CharacterLevelDefinitionVersionEntity> CharacterLevelDefinitionVersions;
+        public IReadOnlyList<CharacterLevelDefinitionVersionEntity> CharacterLevelDefinitionVersions
+            => _lazyCharacterLevelDefinitionVersions.Value;
+        private readonly Lazy<CharacterLevelDefinitionVersionEntity[]> _lazyCharacterLevelDefinitionVersions;
 
-        public readonly IReadOnlyList<CharacterVersionEntity> CharacterVersions;
-        
-        public readonly IReadOnlyList<CharacterEntity> Characters;
+        public IReadOnlyList<CharacterVersionEntity> CharacterVersions
+            => _lazyCharacterVersions.Value;
+        private readonly Lazy<CharacterVersionEntity[]> _lazyCharacterVersions;
+
+        public IReadOnlyList<CharacterEntity> Characters
+            => _lazyCharacters.Value;
+        private readonly Lazy<CharacterEntity[]> _lazyCharacters;
 
         #endregion Characters
 
         #region Permission
 
-        public readonly IReadOnlyList<PermissionCategoryEntity> PermissionCategories;
+        public IReadOnlyList<PermissionCategoryEntity> PermissionCategories
+            => _lazyPermissionCategories.Value;
+        private readonly Lazy<PermissionCategoryEntity[]> _lazyPermissionCategories;
 
-        public readonly IReadOnlyList<PermissionEntity> Permissions;
+        public IReadOnlyList<PermissionEntity> Permissions
+            => _lazyPermissions.Value;
+        private readonly Lazy<PermissionEntity[]> _lazyPermissions;
 
         #endregion Permission
 
         #region Roles
 
-        public readonly IReadOnlyList<RolePermissionMappingEntity> RolePermissionMappings;
-        
-        public readonly IReadOnlyList<RoleVersionEntity> RoleVersions;
+        public IReadOnlyList<RolePermissionMappingEntity> RolePermissionMappings
+            => _lazyRolePermissionMappings.Value;
+        private readonly Lazy<RolePermissionMappingEntity[]> _lazyRolePermissionMappings;
 
-        public readonly IReadOnlyList<RoleEntity> Roles;
+        public IReadOnlyList<RoleVersionEntity> RoleVersions
+            => _lazyRoleVersions.Value;
+        private readonly Lazy<RoleVersionEntity[]> _lazyRoleVersions;
+
+        public IReadOnlyList<RoleEntity> Roles
+            => _lazyRoles.Value;
+        private readonly Lazy<RoleEntity[]> _lazyRoles;
 
         #endregion Roles
 
         #region Users
 
-        public readonly IReadOnlyList<DefaultPermissionMappingEntity> DefaultPermissionMappings;
+        public IReadOnlyList<DefaultPermissionMappingEntity> DefaultPermissionMappings
+            => _lazyDefaultPermissionMappings.Value;
+        private readonly Lazy<DefaultPermissionMappingEntity[]> _lazyDefaultPermissionMappings;
 
-        public readonly IReadOnlyList<DefaultRoleMappingEntity> DefaultRoleMappings;
+        public IReadOnlyList<DefaultRoleMappingEntity> DefaultRoleMappings
+            => _lazyDefaultRoleMappings.Value;
+        private readonly Lazy<DefaultRoleMappingEntity[]> _lazyDefaultRoleMappings;
 
-        public readonly IReadOnlyList<UserPermissionMappingEntity> UserPermissionMappings;
-        
-        public readonly IReadOnlyList<UserRoleMappingEntity> UserRoleMappings;
+        public IReadOnlyList<UserPermissionMappingEntity> UserPermissionMappings
+            => _lazyUserPermissionMappings.Value;
+        private readonly Lazy<UserPermissionMappingEntity[]> _lazyUserPermissionMappings;
 
-        public readonly IReadOnlyList<UserEntity> Users;
+        public IReadOnlyList<UserRoleMappingEntity> UserRoleMappings
+            => _lazyUserRoleMappings.Value;
+        private readonly Lazy<UserRoleMappingEntity[]> _lazyUserRoleMappings;
+
+        public IReadOnlyList<UserEntity> Users
+            => _lazyUsers.Value;
+        private readonly Lazy<UserEntity[]> _lazyUsers;
 
         #endregion Users
     }

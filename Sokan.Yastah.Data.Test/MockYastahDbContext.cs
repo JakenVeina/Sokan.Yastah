@@ -27,182 +27,231 @@ namespace Sokan.Yastah.Data.Test
                 IConcurrencyResolutionService concurrencyResolutionService)
             : base(concurrencyResolutionService)
         {
-            MockAdministrationActionCategorySet = SetupMockSet(
-                entities.AdministrationActionCategories,
-                (keys, entity) => entity.Id == (int)keys[0]);
-                
-            MockAdministrationActionTypeSet = SetupMockSet(
-                entities.AdministrationActionTypes,
+            _lazyMockAdministrationActionCategorySet = SetupLazyMockSet(
+                () => entities.AdministrationActionCategories,
                 (keys, entity) => entity.Id == (int)keys[0]);
 
-            MockAdministrationActionSet = SetupMockSet(
-                entities.AdministrationActions,
-                (keys, entity) => entity.Id == (long)keys[0]); 
+            _lazyMockAdministrationActionTypeSet = SetupLazyMockSet(
+                () => entities.AdministrationActionTypes,
+                (keys, entity) => entity.Id == (int)keys[0]);
 
-            MockAuthenticationTicketSet = SetupMockSet(
-                entities.AuthenticationTickets,
+            _lazyMockAdministrationActionSet = SetupLazyMockSet(
+                () => entities.AdministrationActions,
                 (keys, entity) => entity.Id == (long)keys[0]);
 
-            MockCharacterGuildSet = SetupMockSet(
-                entities.CharacterGuilds,
+            _lazyMockAuthenticationTicketSet = SetupLazyMockSet(
+                () => entities.AuthenticationTickets,
                 (keys, entity) => entity.Id == (long)keys[0]);
 
-            MockCharacterGuildDivisionSet = SetupMockSet(
-                entities.CharacterGuildDivisions,
+            _lazyMockCharacterGuildSet = SetupLazyMockSet(
+                () => entities.CharacterGuilds,
                 (keys, entity) => entity.Id == (long)keys[0]);
 
-            MockCharacterGuildDivisionVersionSet = SetupMockSet(
-                entities.CharacterGuildDivisionVersions,
+            _lazyMockCharacterGuildDivisionSet = SetupLazyMockSet(
+                () => entities.CharacterGuildDivisions,
                 (keys, entity) => entity.Id == (long)keys[0]);
 
-            MockCharacterGuildVersionSet = SetupMockSet(
-                entities.CharacterGuildVersions,
+            _lazyMockCharacterGuildDivisionVersionSet = SetupLazyMockSet(
+                () => entities.CharacterGuildDivisionVersions,
                 (keys, entity) => entity.Id == (long)keys[0]);
 
-            MockCharacterLevelDefinitionSet = SetupMockSet(
-                entities.CharacterLevelDefinitions,
+            _lazyMockCharacterGuildVersionSet = SetupLazyMockSet(
+                () => entities.CharacterGuildVersions,
+                (keys, entity) => entity.Id == (long)keys[0]);
+
+            _lazyMockCharacterLevelDefinitionSet = SetupLazyMockSet(
+                () => entities.CharacterLevelDefinitions,
                 (keys, entity) => entity.Level == (int)keys[0]);
 
-            MockCharacterLevelDefinitionVersionSet = SetupMockSet(
-                entities.CharacterLevelDefinitionVersions,
+            _lazyMockCharacterLevelDefinitionVersionSet = SetupLazyMockSet(
+                () => entities.CharacterLevelDefinitionVersions,
                 (keys, entity) => entity.Id == (long)keys[0]);
 
-            MockCharacterSet = SetupMockSet(
-                entities.Characters,
+            _lazyMockCharacterSet = SetupLazyMockSet(
+                () => entities.Characters,
                 (keys, entity) => entity.Id == (long)keys[0]);
 
-            MockCharacterVersionSet = SetupMockSet(
-                entities.CharacterVersions,
+            _lazyMockCharacterVersionSet = SetupLazyMockSet(
+                () => entities.CharacterVersions,
                 (keys, entity) => entity.Id == (long)keys[0]);
 
-            MockPermissionCategorySet = SetupMockSet(
-                entities.PermissionCategories,
-                (keys, entity) => entity.Id == (int)keys[0]); 
+            _lazyMockPermissionCategorySet = SetupLazyMockSet(
+                () => entities.PermissionCategories,
+                (keys, entity) => entity.Id == (int)keys[0]);
 
-            MockPermissionSet = SetupMockSet(
-                entities.Permissions,
-                (keys, entity) => entity.PermissionId == (int)keys[0]); 
+            _lazyMockPermissionSet = SetupLazyMockSet(
+                () => entities.Permissions,
+                (keys, entity) => entity.PermissionId == (int)keys[0]);
 
-            MockRolePermissionMappingSet = SetupMockSet(
-                entities.RolePermissionMappings,
-                (keys, entity) => entity.Id == (long)keys[0]); 
+            _lazyMockRolePermissionMappingSet = SetupLazyMockSet(
+                () => entities.RolePermissionMappings,
+                (keys, entity) => entity.Id == (long)keys[0]);
 
-            MockRoleVersionSet = SetupMockSet(
-                entities.RoleVersions,
-                (keys, entity) => entity.Id == (long)keys[0]); 
+            _lazyMockRoleVersionSet = SetupLazyMockSet(
+                () => entities.RoleVersions,
+                (keys, entity) => entity.Id == (long)keys[0]);
 
-            MockRoleSet = SetupMockSet(
-                entities.Roles,
-                (keys, entity) => entity.Id == (long)keys[0]); 
+            _lazyMockRoleSet = SetupLazyMockSet(
+                () => entities.Roles,
+                (keys, entity) => entity.Id == (long)keys[0]);
 
-            MockDefaultPermissionMappingSet = SetupMockSet(
-                entities.DefaultPermissionMappings,
-                (keys, entity) => entity.Id == (long)keys[0]); 
+            _lazyMockDefaultPermissionMappingSet = SetupLazyMockSet(
+                () => entities.DefaultPermissionMappings,
+                (keys, entity) => entity.Id == (long)keys[0]);
 
-            MockDefaultRoleMappingSet = SetupMockSet(
-                entities.DefaultRoleMappings,
-                (keys, entity) => entity.Id == (long)keys[0]); 
+            _lazyMockDefaultRoleMappingSet = SetupLazyMockSet(
+                () => entities.DefaultRoleMappings,
+                (keys, entity) => entity.Id == (long)keys[0]);
 
-            MockUserPermissionMappingSet = SetupMockSet(
-                entities.UserPermissionMappings,
-                (keys, entity) => entity.Id == (long)keys[0]); 
+            _lazyMockUserPermissionMappingSet = SetupLazyMockSet(
+                () => entities.UserPermissionMappings,
+                (keys, entity) => entity.Id == (long)keys[0]);
 
-            MockUserRoleMappingSet = SetupMockSet(
-                entities.UserRoleMappings,
-                (keys, entity) => entity.Id == (long)keys[0]); 
+            _lazyMockUserRoleMappingSet = SetupLazyMockSet(
+                () => entities.UserRoleMappings,
+                (keys, entity) => entity.Id == (long)keys[0]);
 
-            MockUserSet = SetupMockSet(
-                entities.Users,
+            _lazyMockUserSet = SetupLazyMockSet(
+                () => entities.Users,
                 (keys, entity) => entity.Id == (ulong)keys[0]); 
         }
 
         #region Administration
 
-        public readonly Mock<DbSet<AdministrationActionCategoryEntity>> MockAdministrationActionCategorySet;
+        public Mock<DbSet<AdministrationActionCategoryEntity>> MockAdministrationActionCategorySet
+            => _lazyMockAdministrationActionCategorySet.Value;
+        private readonly Lazy<Mock<DbSet<AdministrationActionCategoryEntity>>> _lazyMockAdministrationActionCategorySet;
 
-        public readonly Mock<DbSet<AdministrationActionTypeEntity>> MockAdministrationActionTypeSet;
+        public Mock<DbSet<AdministrationActionTypeEntity>> MockAdministrationActionTypeSet
+            => _lazyMockAdministrationActionTypeSet.Value;
+        private readonly Lazy<Mock<DbSet<AdministrationActionTypeEntity>>> _lazyMockAdministrationActionTypeSet;
 
-        public readonly Mock<DbSet<AdministrationActionEntity>> MockAdministrationActionSet;
+        public Mock<DbSet<AdministrationActionEntity>> MockAdministrationActionSet
+            => _lazyMockAdministrationActionSet.Value;
+        private readonly Lazy<Mock<DbSet<AdministrationActionEntity>>> _lazyMockAdministrationActionSet;
 
         #endregion Administration
 
         #region Authentication
 
-        public readonly Mock<DbSet<AuthenticationTicketEntity>> MockAuthenticationTicketSet;
+        public Mock<DbSet<AuthenticationTicketEntity>> MockAuthenticationTicketSet
+            => _lazyMockAuthenticationTicketSet.Value;
+        private readonly Lazy<Mock<DbSet<AuthenticationTicketEntity>>> _lazyMockAuthenticationTicketSet;
 
         #endregion Authentication
 
         #region Characters
 
-        public readonly Mock<DbSet<CharacterGuildEntity>> MockCharacterGuildSet;
+        public Mock<DbSet<CharacterGuildEntity>> MockCharacterGuildSet
+            => _lazyMockCharacterGuildSet.Value;
+        private readonly Lazy<Mock<DbSet<CharacterGuildEntity>>> _lazyMockCharacterGuildSet;
 
-        public readonly Mock<DbSet<CharacterGuildDivisionEntity>> MockCharacterGuildDivisionSet;
+        public Mock<DbSet<CharacterGuildDivisionEntity>> MockCharacterGuildDivisionSet
+            => _lazyMockCharacterGuildDivisionSet.Value;
+        private readonly Lazy<Mock<DbSet<CharacterGuildDivisionEntity>>> _lazyMockCharacterGuildDivisionSet;
 
-        public readonly Mock<DbSet<CharacterGuildDivisionVersionEntity>> MockCharacterGuildDivisionVersionSet;
+        public Mock<DbSet<CharacterGuildDivisionVersionEntity>> MockCharacterGuildDivisionVersionSet
+            => _lazyMockCharacterGuildDivisionVersionSet.Value;
+        private readonly Lazy<Mock<DbSet<CharacterGuildDivisionVersionEntity>>> _lazyMockCharacterGuildDivisionVersionSet;
 
-        public readonly Mock<DbSet<CharacterGuildVersionEntity>> MockCharacterGuildVersionSet;
+        public Mock<DbSet<CharacterGuildVersionEntity>> MockCharacterGuildVersionSet
+            => _lazyMockCharacterGuildVersionSet.Value;
+        private readonly Lazy<Mock<DbSet<CharacterGuildVersionEntity>>> _lazyMockCharacterGuildVersionSet;
 
-        public readonly Mock<DbSet<CharacterLevelDefinitionEntity>> MockCharacterLevelDefinitionSet;
+        public Mock<DbSet<CharacterLevelDefinitionEntity>> MockCharacterLevelDefinitionSet
+            => _lazyMockCharacterLevelDefinitionSet.Value;
+        private readonly Lazy<Mock<DbSet<CharacterLevelDefinitionEntity>>> _lazyMockCharacterLevelDefinitionSet;
 
-        public readonly Mock<DbSet<CharacterLevelDefinitionVersionEntity>> MockCharacterLevelDefinitionVersionSet;
+        public Mock<DbSet<CharacterLevelDefinitionVersionEntity>> MockCharacterLevelDefinitionVersionSet
+            => _lazyMockCharacterLevelDefinitionVersionSet.Value;
+        private readonly Lazy<Mock<DbSet<CharacterLevelDefinitionVersionEntity>>> _lazyMockCharacterLevelDefinitionVersionSet;
 
-        public readonly Mock<DbSet<CharacterEntity>> MockCharacterSet;
+        public Mock<DbSet<CharacterEntity>> MockCharacterSet
+            => _lazyMockCharacterSet.Value;
+        private readonly Lazy<Mock<DbSet<CharacterEntity>>> _lazyMockCharacterSet;
 
-        public readonly Mock<DbSet<CharacterVersionEntity>> MockCharacterVersionSet;
+        public Mock<DbSet<CharacterVersionEntity>> MockCharacterVersionSet
+            => _lazyMockCharacterVersionSet.Value;
+        private readonly Lazy<Mock<DbSet<CharacterVersionEntity>>> _lazyMockCharacterVersionSet;
 
         #endregion Characters
 
         #region Permission
 
-        public readonly Mock<DbSet<PermissionCategoryEntity>> MockPermissionCategorySet;
+        public Mock<DbSet<PermissionCategoryEntity>> MockPermissionCategorySet
+            => _lazyMockPermissionCategorySet.Value;
+        private readonly Lazy<Mock<DbSet<PermissionCategoryEntity>>> _lazyMockPermissionCategorySet;
 
-        public readonly Mock<DbSet<PermissionEntity>> MockPermissionSet;
+        public Mock<DbSet<PermissionEntity>> MockPermissionSet
+            => _lazyMockPermissionSet.Value;
+        private readonly Lazy<Mock<DbSet<PermissionEntity>>> _lazyMockPermissionSet;
 
         #endregion Permission
 
         #region Roles
 
-        public readonly Mock<DbSet<RolePermissionMappingEntity>> MockRolePermissionMappingSet;
+        public Mock<DbSet<RolePermissionMappingEntity>> MockRolePermissionMappingSet
+            => _lazyMockRolePermissionMappingSet.Value;
+        private readonly Lazy<Mock<DbSet<RolePermissionMappingEntity>>> _lazyMockRolePermissionMappingSet;
 
-        public readonly Mock<DbSet<RoleVersionEntity>> MockRoleVersionSet;
+        public Mock<DbSet<RoleVersionEntity>> MockRoleVersionSet
+            => _lazyMockRoleVersionSet.Value;
+        private readonly Lazy<Mock<DbSet<RoleVersionEntity>>> _lazyMockRoleVersionSet;
 
-        public readonly Mock<DbSet<RoleEntity>> MockRoleSet;
+        public Mock<DbSet<RoleEntity>> MockRoleSet
+            => _lazyMockRoleSet.Value;
+        private readonly Lazy<Mock<DbSet<RoleEntity>>> _lazyMockRoleSet;
 
         #endregion Roles
 
         #region Users
 
-        public readonly Mock<DbSet<DefaultPermissionMappingEntity>> MockDefaultPermissionMappingSet;
+        public Mock<DbSet<DefaultPermissionMappingEntity>> MockDefaultPermissionMappingSet
+            => _lazyMockDefaultPermissionMappingSet.Value;
+        private readonly Lazy<Mock<DbSet<DefaultPermissionMappingEntity>>> _lazyMockDefaultPermissionMappingSet;
 
-        public readonly Mock<DbSet<DefaultRoleMappingEntity>> MockDefaultRoleMappingSet;
+        public Mock<DbSet<DefaultRoleMappingEntity>> MockDefaultRoleMappingSet
+            => _lazyMockDefaultRoleMappingSet.Value;
+        private readonly Lazy<Mock<DbSet<DefaultRoleMappingEntity>>> _lazyMockDefaultRoleMappingSet;
 
-        public readonly Mock<DbSet<UserPermissionMappingEntity>> MockUserPermissionMappingSet;
+        public Mock<DbSet<UserPermissionMappingEntity>> MockUserPermissionMappingSet
+            => _lazyMockUserPermissionMappingSet.Value;
+        private readonly Lazy<Mock<DbSet<UserPermissionMappingEntity>>> _lazyMockUserPermissionMappingSet;
 
-        public readonly Mock<DbSet<UserRoleMappingEntity>> MockUserRoleMappingSet;
+        public Mock<DbSet<UserRoleMappingEntity>> MockUserRoleMappingSet
+            => _lazyMockUserRoleMappingSet.Value;
+        private readonly Lazy<Mock<DbSet<UserRoleMappingEntity>>> _lazyMockUserRoleMappingSet;
 
-        public readonly Mock<DbSet<UserEntity>> MockUserSet;
+        public Mock<DbSet<UserEntity>> MockUserSet
+            => _lazyMockUserSet.Value;
+        private readonly Lazy<Mock<DbSet<UserEntity>>> _lazyMockUserSet;
 
         #endregion Users
 
-        private Mock<DbSet<TEntity>> SetupMockSet<TEntity>(
-                IReadOnlyList<TEntity> entities,
+        private Lazy<Mock<DbSet<TEntity>>> SetupLazyMockSet<TEntity>(
+                Func<IReadOnlyList<TEntity>> entitiesGetter,
                 Func<object[], TEntity, bool> findPredicate)
             where TEntity : class
         {
-            var mockSet = entities
-                .AsQueryable()
-                .BuildMockDbSet();
-            
-            mockSet.CallBase = true;
+            var lazyMockSet = LazyEx.CreateThreadSafe(() =>
+            {
+                var mockSet = entitiesGetter.Invoke()
+                    .AsQueryable()
+                    .BuildMockDbSet();
+
+                mockSet.CallBase = true;
+
+                return mockSet;
+            });
 
             Setup(x => x.Set<TEntity>())
-                .Returns(() => mockSet.Object);
-            
+                .Returns(() => lazyMockSet.Value.Object);
+
             Setup(x => x.FindAsync<TEntity>(It.IsAny<object[]>(), It.IsAny<CancellationToken>()))
                 .Returns((object[] keys, CancellationToken cancellationToken)
-                    => new ValueTask<TEntity>(entities.FirstOrDefault(entity => findPredicate.Invoke(keys, entity))));
+                    => new ValueTask<TEntity>(entitiesGetter.Invoke().FirstOrDefault(entity => findPredicate.Invoke(keys, entity))));
 
-            return mockSet;
+            return lazyMockSet;
         }
     }
 }
