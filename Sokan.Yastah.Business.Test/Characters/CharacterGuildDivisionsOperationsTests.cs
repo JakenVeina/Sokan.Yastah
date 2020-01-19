@@ -93,18 +93,6 @@ namespace Sokan.Yastah.Business.Test.Characters
                 new TestCaseData(   long.MaxValue,  long.MaxValue   ).SetName("{m}(Max Values)")
             };
 
-        public static readonly IReadOnlyList<TestCaseData> CurrentUserId_GuildId_TestCaseData
-            = new[]
-            {
-                /*                  currentUserId,  guildId         */
-                new TestCaseData(   default(ulong), default(long)   ).SetName("{m}(Default Values)"),
-                new TestCaseData(   ulong.MinValue, long.MinValue   ).SetName("{m}(Min Values)"),
-                new TestCaseData(   1UL,            2L              ).SetName("{m}(Unique Value Set 1)"),
-                new TestCaseData(   3UL,            4L              ).SetName("{m}(Unique Value Set 2)"),
-                new TestCaseData(   5UL,            6L              ).SetName("{m}(Unique Value Set 3)"),
-                new TestCaseData(   ulong.MaxValue, long.MaxValue   ).SetName("{m}(Max Values)")
-            };
-
         public static readonly IReadOnlyList<TestCaseData> CurrentUserId_GuildId_DivisionId_TestCaseData
             = new[]
             {
