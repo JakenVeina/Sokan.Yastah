@@ -49,7 +49,7 @@ namespace Sokan.Yastah.Business.Test.Users
                     .Setup(x => x.CreateAsync(
                         It.IsAny<int>(),
                         It.IsAny<DateTimeOffset>(),
-                        It.IsAny<ulong>(),
+                        It.IsAny<ulong?>(),
                         It.IsAny<CancellationToken>()))
                     .ReturnsAsync(() => NextAdministrationActionId);
 

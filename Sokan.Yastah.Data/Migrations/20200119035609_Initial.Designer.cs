@@ -10,7 +10,7 @@ using Sokan.Yastah.Data;
 namespace Sokan.Yastah.Data.Migrations
 {
     [DbContext(typeof(YastahDbContext))]
-    [Migration("20200112061143_Initial")]
+    [Migration("20200119035609_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -65,7 +65,7 @@ namespace Sokan.Yastah.Data.Migrations
                     b.Property<DateTimeOffset>("Performed")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long>("PerformedById")
+                    b.Property<long?>("PerformedById")
                         .HasColumnType("bigint");
 
                     b.Property<int>("TypeId")
@@ -196,23 +196,35 @@ namespace Sokan.Yastah.Data.Migrations
                         {
                             Id = 440,
                             CategoryId = 3,
-                            Name = "CharacterCreated"
+                            Name = "LevelDefinitionsInitialized"
                         },
                         new
                         {
                             Id = 441,
                             CategoryId = 3,
+                            Name = "LevelDefinitionsUpdated"
+                        },
+                        new
+                        {
+                            Id = 460,
+                            CategoryId = 3,
+                            Name = "CharacterCreated"
+                        },
+                        new
+                        {
+                            Id = 461,
+                            CategoryId = 3,
                             Name = "CharacterModified"
                         },
                         new
                         {
-                            Id = 442,
+                            Id = 462,
                             CategoryId = 3,
                             Name = "CharacterDeleted"
                         },
                         new
                         {
-                            Id = 443,
+                            Id = 463,
                             CategoryId = 3,
                             Name = "CharacterRestored"
                         });
@@ -393,8 +405,8 @@ namespace Sokan.Yastah.Data.Migrations
                     b.Property<long>("CreationId")
                         .HasColumnType("bigint");
 
-                    b.Property<decimal>("ExperienceThreshold")
-                        .HasColumnType("numeric");
+                    b.Property<int>("ExperienceThreshold")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -541,6 +553,13 @@ namespace Sokan.Yastah.Data.Migrations
                             CategoryId = 2,
                             Description = "Allows management of character guilds",
                             Name = "ManageGuilds"
+                        },
+                        new
+                        {
+                            PermissionId = 101,
+                            CategoryId = 2,
+                            Description = "Allows management of character level definitions",
+                            Name = "ManageLevels"
                         },
                         new
                         {
@@ -802,9 +821,7 @@ namespace Sokan.Yastah.Data.Migrations
                 {
                     b.HasOne("Sokan.Yastah.Data.Users.UserEntity", "PerformedBy")
                         .WithMany()
-                        .HasForeignKey("PerformedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PerformedById");
 
                     b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionTypeEntity", "Type")
                         .WithMany()

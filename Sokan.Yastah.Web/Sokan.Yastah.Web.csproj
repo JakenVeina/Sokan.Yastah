@@ -73,6 +73,10 @@
     <None Remove="ClientApp\src\app\common\form-group-extensions.ts" />
     <None Remove="ClientApp\src\app\common\immutable-utils.ts" />
     <None Remove="ClientApp\src\app\common\types.ts" />
+    <None Remove="ClientApp\src\app\game-master\levels\levels-update-form.ts" />
+    <None Remove="ClientApp\src\app\game-master\levels\levels-update-page.ts" />
+    <None Remove="ClientApp\src\app\game-master\levels\models.ts" />
+    <None Remove="ClientApp\src\app\game-master\levels\services.ts" />
     <None Remove="ClientApp\src\app\game-master\state.reducers.ts" />
     <None Remove="ClientApp\src\app\game-master\state.selectors.ts" />
     <None Remove="ClientApp\src\app\game-master\state.ts" />
@@ -129,6 +133,12 @@
     <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-divisions-page.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-update-page.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guilds-page.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\levels\levels-update-form.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\levels\levels-update-page.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\levels\models.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="ClientApp\src\app\game-master\levels\services.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\game-master\module.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\game-master\routes.guards.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\game-master\routes.ts" />

@@ -16,6 +16,8 @@ import { GuildDivisionUpdateForm } from "./guilds/guild-division-update-form";
 import { GuildDivisionUpdatePage } from "./guilds/guild-division-update-page";
 import { GuildUpdateForm } from "./guilds/guild-update-form";
 import { GuildUpdatePage } from "./guilds/guild-update-page";
+import { LevelsUpdateForm } from "./levels/levels-update-form";
+import { LevelsUpdatePage } from "./levels/levels-update-page";
 
 import { gameMasterRouts } from "./routes";
 import { gameMasterStateReducers } from "./state.reducers";
@@ -40,7 +42,9 @@ import { gameMasterStateReducers } from "./state.reducers";
         GuildDivisionUpdateForm,
         GuildDivisionUpdatePage,
         GuildUpdateForm,
-        GuildUpdatePage
+        GuildUpdatePage,
+        LevelsUpdateForm,
+        LevelsUpdatePage
     ]
 })
 export class GameMasterModule { }

@@ -387,7 +387,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                 .CreateAsync(
                     It.IsAny<int>(),
                     It.IsAny<DateTimeOffset>(),
-                    It.IsAny<ulong>(),
+                    It.IsAny<ulong?>(),
                     It.IsAny<CancellationToken>()));
 
             testContext.MockCharacterGuildDivisionsRepository.ShouldNotHaveReceived(x => x

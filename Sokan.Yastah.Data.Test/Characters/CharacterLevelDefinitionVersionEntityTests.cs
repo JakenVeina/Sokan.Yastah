@@ -16,19 +16,19 @@ namespace Sokan.Yastah.Data.Test.Characters
             = new[]
             {
                 /*                  id,             level,          experienceThreshold,    isDeleted,      creationId,     previousVersionId,  nextVersionId   */
-                new TestCaseData(   default(long),  default(int),   default(decimal),       default(bool),  default(long),  default(long?),     default(long?)  ).SetName("{m}(Default Values"),
-                new TestCaseData(   long.MinValue,  int.MinValue,   decimal.MinValue,       false,          long.MinValue,  long.MinValue,      long.MinValue   ).SetName("{m}(Min Values)"),
-                new TestCaseData(   1L,             2,              3M,                     true,           4L,             5L,                 6L              ).SetName("{m}(Unique Value Set 1)"),
-                new TestCaseData(   7L,             8,              9M,                     false,          10L,            11L,                12L             ).SetName("{m}(Unique Value Set 2)"),
-                new TestCaseData(   13L,            14,             15M,                    true,           16L,            17L,                18L             ).SetName("{m}(Unique Value Set 3)"),
-                new TestCaseData(   long.MaxValue,  int.MaxValue,   decimal.MaxValue,       true,           long.MaxValue,  long.MaxValue,      long.MaxValue   ).SetName("{m}(Max Values)")
+                new TestCaseData(   default(long),  default(int),   default(int),           default(bool),  default(long),  default(long?),     default(long?)  ).SetName("{m}(Default Values"),
+                new TestCaseData(   long.MinValue,  int.MinValue,   int.MinValue,           false,          long.MinValue,  long.MinValue,      long.MinValue   ).SetName("{m}(Min Values)"),
+                new TestCaseData(   1L,             2,              3,                      true,           4L,             5L,                 6L              ).SetName("{m}(Unique Value Set 1)"),
+                new TestCaseData(   7L,             8,              9,                      false,          10L,            11L,                12L             ).SetName("{m}(Unique Value Set 2)"),
+                new TestCaseData(   13L,            14,             15,                     true,           16L,            17L,                18L             ).SetName("{m}(Unique Value Set 3)"),
+                new TestCaseData(   long.MaxValue,  int.MaxValue,   int.MaxValue,           true,           long.MaxValue,  long.MaxValue,      long.MaxValue   ).SetName("{m}(Max Values)")
             };
 
         [TestCaseSource(nameof(Constructor_TestCaseData))]
         public void Constructor_Always_ReturnsIdentity(
             long id,
             int level,
-            decimal experienceThreshold,
+            int experienceThreshold,
             bool isDeleted,
             long creationId,
             long? previousVersionId,

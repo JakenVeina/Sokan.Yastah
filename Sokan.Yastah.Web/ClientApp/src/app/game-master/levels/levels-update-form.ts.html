@@ -1,0 +1,37 @@
+﻿<form [formGroup]="form" (ngSubmit)="save()">
+    <div name="formPanel">
+        <div name="formActions">
+            <button type="button" (click)="addLevel()" [disabled]="!canAddLevel">Add Level</button>
+            <button type="button" (click)="deleteLevel()" [disabled]="!canDeleteLevel">Delete Level</button>
+            <button type="button" (click)="reset()" [disabled]="!canReset">Reset</button>
+            <button type="submit" [disabled]="!canSave">Save</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Experience Needed</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let control of form.controls.experienceThresholds.controls; let i = index">
+                    <th><label for="level{{i + 1}}">Level {{i + 1}}:</label></th>
+                    <td>
+                        <input name="level{{i + 1}}" [formControl]="control" type="number" [readonly]="i === 0" (change)="onControlChange(i)" />
+                        <ng-container *ngIf="control.invalid">
+                            <span *ngIf="control.errors.required; else integer" class="alert">Cannot be empty</span>
+                            <ng-template #integer>
+                                <span *ngIf="control.errors.integer" class="alert">Must be numeric</span>
+                            </ng-template>
+                        </ng-container>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <ng-container *ngIf="form.controls.experienceThresholds.invalid">
+        <div *ngIf="form.controls.experienceThresholds.errors.invalidSequence" class="alert">Each experience value must be greater then the previous one</div>
+    </ng-container>
+    <div *ngIf="saveError != null">An error occurred while saving changes: {{saveError.message}}</div>
+    <div *ngIf="hasSaved">Changes saved successfully</div>
+</form>

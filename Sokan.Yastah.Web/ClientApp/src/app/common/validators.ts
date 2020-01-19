@@ -1,5 +1,8 @@
-﻿import { ValidatorFn } from "@angular/forms";
+﻿import { AbstractControl, ValidationErrors, ValidatorFn } from "@angular/forms";
 
+
+const integerTester
+    = /^[-]?[0-9]*$/;
 
 export namespace AppValidators {
 
@@ -13,5 +16,13 @@ export namespace AppValidators {
                 ? null
                 : { "duplicate": true };
         }
+    }
+
+    export function integer(
+                control: AbstractControl):
+            ValidationErrors | null {
+        return integerTester.test(control.value)
+            ? null
+            : { "integer" : true };
     }
 }

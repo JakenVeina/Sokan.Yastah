@@ -202,7 +202,7 @@ namespace Sokan.Yastah.Data.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     TypeId = table.Column<int>(nullable: false),
                     Performed = table.Column<DateTimeOffset>(nullable: false),
-                    PerformedById = table.Column<long>(nullable: false)
+                    PerformedById = table.Column<long>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -213,7 +213,7 @@ namespace Sokan.Yastah.Data.Migrations
                         principalSchema: "Users",
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_AdministrationActions_AdministrationActionTypes_TypeId",
                         column: x => x.TypeId,
@@ -362,7 +362,7 @@ namespace Sokan.Yastah.Data.Migrations
                     Id = table.Column<long>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Level = table.Column<int>(nullable: false),
-                    ExperienceThreshold = table.Column<decimal>(nullable: false),
+                    ExperienceThreshold = table.Column<int>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
                     CreationId = table.Column<long>(nullable: false),
                     PreviousVersionId = table.Column<long>(nullable: true),
@@ -737,15 +737,17 @@ namespace Sokan.Yastah.Data.Migrations
                 values: new object[,]
                 {
                     { 1, 1, "RoleCreated" },
-                    { 443, 3, "CharacterRestored" },
-                    { 442, 3, "CharacterDeleted" },
-                    { 441, 3, "CharacterModified" },
-                    { 440, 3, "CharacterCreated" },
+                    { 463, 3, "CharacterRestored" },
+                    { 462, 3, "CharacterDeleted" },
+                    { 461, 3, "CharacterModified" },
+                    { 460, 3, "CharacterCreated" },
+                    { 441, 3, "LevelDefinitionsUpdated" },
+                    { 440, 3, "LevelDefinitionsInitialized" },
                     { 423, 3, "DivisionRestored" },
                     { 422, 3, "DivisionDeleted" },
-                    { 421, 3, "DivisionModified" },
-                    { 403, 3, "GuildRestored" },
                     { 420, 3, "DivisionCreated" },
+                    { 421, 3, "DivisionModified" },
+                    { 402, 3, "GuildDeleted" },
                     { 401, 3, "GuildModified" },
                     { 400, 3, "GuildCreated" },
                     { 22, 2, "DefaultsModified" },
@@ -754,7 +756,7 @@ namespace Sokan.Yastah.Data.Migrations
                     { 4, 1, "RoleRestored" },
                     { 3, 1, "RoleDeleted" },
                     { 2, 1, "RoleModified" },
-                    { 402, 3, "GuildDeleted" }
+                    { 403, 3, "GuildRestored" }
                 });
 
             migrationBuilder.InsertData(
@@ -763,10 +765,11 @@ namespace Sokan.Yastah.Data.Migrations
                 columns: new[] { "PermissionId", "CategoryId", "Description", "Name" },
                 values: new object[,]
                 {
-                    { 3, 1, "Allows management of application users", "ManageUsers" },
+                    { 100, 2, "Allows management of character guilds", "ManageGuilds" },
                     { 1, 1, "Allows management of application permissions", "ManagePermissions" },
                     { 2, 1, "Allows management of application roles", "ManageRoles" },
-                    { 100, 2, "Allows management of character guilds", "ManageGuilds" }
+                    { 3, 1, "Allows management of application users", "ManageUsers" },
+                    { 101, 2, "Allows management of character level definitions", "ManageLevels" }
                 });
 
             migrationBuilder.CreateIndex(

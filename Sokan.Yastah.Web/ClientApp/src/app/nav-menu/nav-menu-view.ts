@@ -44,10 +44,13 @@ export class NavMenuView {
         return this._authorizationService.observeHasAdminManageUsers;
     }
     public get hasGameMaster(): Observable<boolean> {
-        return this._authorizationService.observeHasCharacterAdminManageGuilds;
+        return this._authorizationService.observeHasCharacterAdmin;
     }
     public get hasGameMasterGuilds(): Observable<boolean> {
         return this._authorizationService.observeHasCharacterAdminManageGuilds;
+    }
+    public get hasGameMasterLevels(): Observable<boolean> {
+        return this._authorizationService.observeHasCharacterAdminManageLevels;
     }
     public get hasHome(): Observable<boolean> {
         return this._authorizationService.observeHasAnyPermissions;

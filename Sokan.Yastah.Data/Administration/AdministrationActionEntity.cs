@@ -15,7 +15,7 @@ namespace Sokan.Yastah.Data.Administration
             long id,
             int typeId,
             DateTimeOffset performed,
-            ulong performedById)
+            ulong? performedById)
         {
             Id = id;
             TypeId = typeId;
@@ -36,10 +36,9 @@ namespace Sokan.Yastah.Data.Administration
         public DateTimeOffset Performed { get; }
 
         [ForeignKey(nameof(PerformedBy))]
-        public ulong PerformedById { get; }
+        public ulong? PerformedById { get; }
 
-        public UserEntity PerformedBy { get; internal set; }
-            = null!;
+        public UserEntity? PerformedBy { get; internal set; }
 
         [OnModelCreating]
         public static void OnModelCreating(ModelBuilder modelBuilder)
@@ -50,7 +49,7 @@ namespace Sokan.Yastah.Data.Administration
 
                 entityBuilder
                     .Property(x => x.PerformedById)
-                    .HasConversion<long>();
+                    .HasConversion<long?>();
             });
     }
 }

@@ -6,8 +6,9 @@ import { GuildDivisionsPage } from "./guilds/guild-divisions-page";
 import { GuildDivisionCreationPage } from "./guilds/guild-division-creation-page";
 import { GuildDivisionUpdatePage } from "./guilds/guild-division-update-page";
 import { GuildUpdatePage } from "./guilds/guild-update-page";
+import { LevelsUpdatePage } from "./levels/levels-update-page";
 
-import { GuildsGuard } from "./routes.guards";
+import { GuildsGuard, LevelsGuard } from "./routes.guards";
 
 
 export const gameMasterRouts: Routes = [
@@ -44,6 +45,11 @@ export const gameMasterRouts: Routes = [
                         ]
                     }
                 ]
+            },
+            {
+                path: "levels",
+                canActivate: [LevelsGuard],
+                component: LevelsUpdatePage
             }
         ]
     }

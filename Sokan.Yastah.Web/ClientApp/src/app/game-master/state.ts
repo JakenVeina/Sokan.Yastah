@@ -5,7 +5,7 @@ import { initialGuildsState, IGuildsState } from "./guilds/state";
 
 
 export interface IGameMasterState {
-    readonly guilds: IGuildsState
+    readonly guilds: IGuildsState;
 }
 
 

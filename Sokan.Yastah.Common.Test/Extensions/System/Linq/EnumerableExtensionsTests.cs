@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using NUnit.Framework;
 using Moq;
+using NUnit.Framework;
 using Shouldly;
 
 namespace Sokan.Yastah.Common.Test.Extensions.System.Linq
@@ -53,6 +53,27 @@ namespace Sokan.Yastah.Common.Test.Extensions.System.Linq
 
         #endregion Do() Tests
 
+        #region Enumerate() Tests
+
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        public void Enumerate_Tests(
+            int sequenceCount)
+        {
+            var sequenceItems = new List<int>(sequenceCount);
+
+            var sequence = Enumerable.Range(0, sequenceCount)
+                .Do(x => sequenceItems.Add(x));
+
+            sequence.Enumerate();
+
+            sequenceItems.ShouldBeSequenceEqualTo(Enumerable.Range(0, sequenceCount));
+        }
+
+        #endregion Enumerate() Tests
+
         #region ForEach() Tests
 
         [TestCaseSource(nameof(SequenceTestCases))]
@@ -69,6 +90,37 @@ namespace Sokan.Yastah.Common.Test.Extensions.System.Linq
         }
 
         #endregion ForEach() Tests
+
+        #region PadEnd() Tests
+
+        public static readonly IReadOnlyList<TestCaseData> PadEnd_TestCaseData
+            = new[]
+            {
+                /*                  sequence,                   totalCount, value,  expectedResult                                  */
+                new TestCaseData(   Array.Empty<string?>(),     0,          null,   Array.Empty<string?>()                          ).SetName("{m}(Empty sequence, nothing added)"),
+                new TestCaseData(   Array.Empty<string?>(),     1,          null,   new string?[] { null }                          ).SetName("{m}(Empty sequence, one value added)"),
+                new TestCaseData(   Array.Empty<string?>(),     3,          "",     new[] { "", "", "" }                            ).SetName("{m}(Empty sequence, many values added)"),
+                new TestCaseData(   new[] { "1" },              1,          "2",    new[] { "1" }                                   ).SetName("{m}(Single-value sequence, nothing added)"),
+                new TestCaseData(   new[] { "3" },              2,          "4",    new[] { "3", "4" }                              ).SetName("{m}(Single-value sequence, one value added)"),
+                new TestCaseData(   new[] { "5" },              4,          "6",    new[] { "5", "6", "6", "6" }                    ).SetName("{m}(Single-value sequence, many values added)"),
+                new TestCaseData(   new[] { "7", "8", "9" },    3,          "10",   new[] { "7", "8", "9" }                         ).SetName("{m}(Multi-value sequence, nothing added)"),
+                new TestCaseData(   new[] { "11", "12", "13" }, 4,          "14",   new[] { "11", "12", "13", "14" }                ).SetName("{m}(Multi-value sequence, one value added)"),
+                new TestCaseData(   new[] { "15", "16", "17" }, 6,          "18",   new[] { "15", "16", "17", "18", "18", "18" }    ).SetName("{m}(Multi-value sequence, many values added)"),
+            };
+
+        [TestCaseSource(nameof(PadEnd_TestCaseData))]
+        public void PadEnd_Always_ReturnsExpected(
+                IReadOnlyList<string> sequence,
+                int totalCount,
+                string? value,
+                IReadOnlyList<string> expectedResult)
+            => sequence.PadEnd(
+                    totalCount,
+                    value)
+                .ToArray()
+                .ShouldBeSequenceEqualTo(expectedResult);
+
+        #endregion PadEnd() Tests
 
         #region SetEquals() Tests
 
@@ -90,8 +142,7 @@ namespace Sokan.Yastah.Common.Test.Extensions.System.Linq
                 IEnumerable<int> first,
                 IEnumerable<int> second)
             => first.SetEquals(second).ShouldBeTrue();
-
-        public static readonly IReadOnlyList<TestCaseData> SetEquals_SequencesAreNotSetEqual_TestCaseData
+                public static readonly IReadOnlyList<TestCaseData> SetEquals_SequencesAreNotSetEqual_TestCaseData
             = new[]
             {
                 /*                  first,                  second                  */

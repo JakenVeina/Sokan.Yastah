@@ -13,7 +13,7 @@ namespace Sokan.Yastah.Data.Characters
         public CharacterLevelDefinitionVersionEntity(
             long id,
             int level,
-            decimal experienceThreshold,
+            int experienceThreshold,
             bool isDeleted,
             long creationId,
             long? previousVersionId,
@@ -38,7 +38,7 @@ namespace Sokan.Yastah.Data.Characters
         public CharacterLevelDefinitionEntity Definition { get; internal set; }
             = null!;
 
-        public decimal ExperienceThreshold { get; }
+        public int ExperienceThreshold { get; }
 
         public bool IsDeleted { get; }
 

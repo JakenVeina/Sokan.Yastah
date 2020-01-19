@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -13,7 +12,7 @@ namespace Sokan.Yastah.Data.Administration
         Task<long> CreateAsync(
             int typeId,
             DateTimeOffset performed,
-            ulong performedById,
+            ulong? performedById,
             CancellationToken cancellationToken);
     }
 
@@ -29,7 +28,7 @@ namespace Sokan.Yastah.Data.Administration
         public async Task<long> CreateAsync(
             int typeId,
             DateTimeOffset performed,
-            ulong performedById,
+            ulong? performedById,
             CancellationToken cancellationToken)
         {
             var action = new AdministrationActionEntity(
@@ -49,6 +48,5 @@ namespace Sokan.Yastah.Data.Administration
         [OnConfigureServices]
         public static void OnConfigureServices(IServiceCollection services)
             => services.AddScoped<IAdministrationActionsRepository, AdministrationActionsRepository>();
-
     }
 }

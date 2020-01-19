@@ -23,19 +23,20 @@ namespace Sokan.Yastah.Data.Test.Administration
         public static readonly IReadOnlyList<TestCaseData> CreateAsyncTestCaseData
             = new[]
             {
-                /*                  typeId          performed                   performedById   id              */
-                new TestCaseData(   int.MinValue,   DateTimeOffset.MinValue,    ulong.MinValue, long.MinValue)  .SetName("{m}(Min Values)"),
-                new TestCaseData(   1,              DateTimeOffset.UnixEpoch,   4UL,            7L)             .SetName("{m}(Unique Value Set 1)"),
-                new TestCaseData(   2,              DateTimeOffset.Now,         5UL,            8L)             .SetName("{m}(Unique Value Set 2)"),
-                new TestCaseData(   3,              DateTimeOffset.UtcNow,      6UL,            9L)             .SetName("{m}(Unique Value Set 3)"),
-                new TestCaseData(   int.MaxValue,   DateTimeOffset.MaxValue,    ulong.MaxValue, long.MaxValue)  .SetName("{m}(Max Values)"),
+                /*                  typeId          performed                   performedById       id              */
+                new TestCaseData(   default(int),   default(DateTimeOffset),    default(ulong?),    default(long))  .SetName("{m}(Default Values)"),
+                new TestCaseData(   int.MinValue,   DateTimeOffset.MinValue,    ulong.MinValue,     long.MinValue)  .SetName("{m}(Min Values)"),
+                new TestCaseData(   1,              DateTimeOffset.UnixEpoch,   4UL,                7L)             .SetName("{m}(Unique Value Set 1)"),
+                new TestCaseData(   2,              DateTimeOffset.Now,         5UL,                8L)             .SetName("{m}(Unique Value Set 2)"),
+                new TestCaseData(   3,              DateTimeOffset.UtcNow,      6UL,                9L)             .SetName("{m}(Unique Value Set 3)"),
+                new TestCaseData(   int.MaxValue,   DateTimeOffset.MaxValue,    ulong.MaxValue,     long.MaxValue)  .SetName("{m}(Max Values)"),
             };
 
         [TestCaseSource(nameof(CreateAsyncTestCaseData))]
         public async Task CreateAsync_Always_AddsNewEntity(
             int typeId,
             DateTimeOffset performed,
-            ulong performedById,
+            ulong? performedById,
             long id)
         {
             using var testContext = new AsyncMethodTestContext();

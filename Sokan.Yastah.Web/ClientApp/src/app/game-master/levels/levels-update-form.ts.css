@@ -1,0 +1,26 @@
+﻿div[name="formPanel"] {
+    display: flex;
+    flex-direction: row;
+}
+
+    div[name="formPanel"] > * {
+        padding: 1em;
+    }
+
+div [name="formActions"] {
+    display: flex;
+    flex-direction: column;
+}
+
+th > label {
+    margin: 0;
+    padding-right: 0.5em;
+}
+
+td > input {
+    padding: 0 0.5em;
+}
+
+input[readonly] {
+    background-color: ghostwhite
+}

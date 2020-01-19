@@ -1,9 +1,12 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 using Sokan.Yastah.Common.OperationModel;
 
@@ -11,18 +14,21 @@ namespace Sokan.Yastah.Data.Characters
 {
     public interface ICharacterLevelsRepository
     {
-        Task CreateDefinitionAsnyc(
-            int level,
-            decimal experienceThreshold,
-            long creationId,
-            CancellationToken cancellationToken);
-
-        Task<OperationResult<long>> UpdateDefinitionAsync(
-            int level,
-            long actionId,
-            Optional<decimal> experienceThreshold = default,
+        Task<bool> AnyAsync(
+            Optional<int> level = default,
+            Optional<int> experienceThreshold = default,
             Optional<bool> isDeleted = default,
             CancellationToken cancellationToken = default);
+
+        IAsyncEnumerable<CharacterLevelDefinitionViewModel> AsyncEnumerateDefinitions(
+            Optional<bool> isDeleted = default);
+
+        Task<OperationResult> MergeDefinitionAsync(
+            int level,
+            int experienceThreshold,
+            bool isDeleted,
+            long actionId,
+            CancellationToken cancellationToken);
     }
 
     public class CharacterLevelsRepository
@@ -36,41 +42,50 @@ namespace Sokan.Yastah.Data.Characters
             _transactionScopeFactory = transactionScopeFactory;
         }
 
-        public async Task CreateDefinitionAsnyc(
-            int level,
-            decimal experienceThreshold,
-            long creationId,
-            CancellationToken cancellationToken)
-        {
-            using var transactionScope = _transactionScopeFactory.CreateScope();
-
-            var definition = new CharacterLevelDefinitionEntity(
-                level:  level);
-
-            await _context.AddAsync(definition, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
-
-            var version = new CharacterLevelDefinitionVersionEntity(
-                id:                     default,
-                level:                  level,
-                experienceThreshold:    experienceThreshold,
-                isDeleted:              false,
-                creationId:             creationId,
-                previousVersionId:      null,
-                nextVersionId:          null);
-
-            await _context.AddAsync(version, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
-
-            transactionScope.Complete();
-        }
-
-        public async Task<OperationResult<long>> UpdateDefinitionAsync(
-            int level,
-            long actionId,
-            Optional<decimal> experienceThreshold = default,
+        public Task<bool> AnyAsync(
+            Optional<int> level = default,
+            Optional<int> experienceThreshold = default,
             Optional<bool> isDeleted = default,
             CancellationToken cancellationToken = default)
+        {
+            var query = _context.Set<CharacterLevelDefinitionVersionEntity>()
+                .AsQueryable()
+                .Where(x => x.NextVersionId == null);
+
+            if (level.IsSpecified)
+                query = query.Where(cld => cld.Level == level.Value);
+
+            if (experienceThreshold.IsSpecified)
+                query = query.Where(cld => cld.ExperienceThreshold == experienceThreshold.Value);
+
+            if (isDeleted.IsSpecified)
+                query = query.Where(cld => cld.IsDeleted == isDeleted.Value);
+
+            return query.AnyAsync(cancellationToken);
+        }
+
+        public IAsyncEnumerable<CharacterLevelDefinitionViewModel> AsyncEnumerateDefinitions(
+            Optional<bool> isDeleted = default)
+        {
+            var query = _context.Set<CharacterLevelDefinitionVersionEntity>()
+                .AsQueryable()
+                .Where(x => x.NextVersionId == null);
+
+            if (isDeleted.IsSpecified)
+                query = query.Where(cld => cld.IsDeleted == isDeleted.Value);
+
+            return query
+                .OrderBy(cld => cld.Level)
+                .Select(CharacterLevelDefinitionViewModel.FromVersionEntityProjection)
+                .AsAsyncEnumerable();
+        }
+
+        public async Task<OperationResult> MergeDefinitionAsync(
+            int level,
+            int experienceThreshold,
+            bool isDeleted,
+            long actionId,
+            CancellationToken cancellationToken)
         {
             using var transactionScope = _transactionScopeFactory.CreateScope();
 
@@ -80,42 +95,50 @@ namespace Sokan.Yastah.Data.Characters
                 .Where(x => x.NextVersionId == null)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (currentVersion is null)
-                return new DataNotFoundError($"Character Level Definition {level}")
-                    .ToError<long>();
-
             var newVersion = new CharacterLevelDefinitionVersionEntity(
                 id:                     default,
                 level:                  level,
-                experienceThreshold:    experienceThreshold.IsSpecified
-                                            ? experienceThreshold.Value
-                                            : currentVersion.ExperienceThreshold,
-                isDeleted:              isDeleted.IsSpecified
-                                            ? isDeleted.Value
-                                            : currentVersion.IsDeleted,
+                experienceThreshold:    experienceThreshold,
+                isDeleted:              isDeleted,
                 creationId:             actionId,
-                previousVersionId:      currentVersion.Id,
+                previousVersionId:      null,
                 nextVersionId:          null);
 
-            if ((newVersion.ExperienceThreshold == currentVersion.ExperienceThreshold)
-                && (newVersion.IsDeleted == currentVersion.IsDeleted))
+            if (currentVersion is null)
             {
-                transactionScope.Complete();
-                return new NoChangesGivenError($"Character Level Definition {level}")
-                    .ToError<long>();
+                var definition = new CharacterLevelDefinitionEntity(
+                    level: level);
+
+                await _context.AddAsync(definition, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            else
+            {
+                if ((newVersion.ExperienceThreshold == currentVersion.ExperienceThreshold)
+                    && (newVersion.IsDeleted == currentVersion.IsDeleted))
+                {
+                    transactionScope.Complete();
+                    return new NoChangesGivenError($"Character Level Definition {level}")
+                        .ToError();
+                }
+
+                newVersion.PreviousVersionId = currentVersion.Id;
+                currentVersion.NextVersion = newVersion;
             }
 
-            currentVersion.NextVersion = newVersion;
             await _context.AddAsync(newVersion, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
 
             transactionScope.Complete();
 
-            return newVersion.Id
-                .ToSuccess();
+            return OperationResult.Success;
         }
 
         private readonly YastahDbContext _context;
         private readonly ITransactionScopeFactory _transactionScopeFactory;
+
+        [OnConfigureServices]
+        public static void OnConfigureServices(IServiceCollection services)
+            => services.AddScoped<ICharacterLevelsRepository, CharacterLevelsRepository>();
     }
 }

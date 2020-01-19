@@ -9,18 +9,20 @@ namespace Sokan.Yastah.Data.Characters
 {
     public enum CharacterManagementAdministrationActionType
     {
-        GuildCreated        = 400,
-        GuildModified       = 401,
-        GuildDeleted        = 402,
-        GuildRestored       = 403,
-        DivisionCreated     = 420,
-        DivisionModified    = 421,
-        DivisionDeleted     = 422,
-        DivisionRestored    = 423,
-        CharacterCreated    = 440,
-        CharacterModified   = 441,
-        CharacterDeleted    = 442,
-        CharacterRestored   = 443
+        GuildCreated                = 400,
+        GuildModified               = 401,
+        GuildDeleted                = 402,
+        GuildRestored               = 403,
+        DivisionCreated             = 420,
+        DivisionModified            = 421,
+        DivisionDeleted             = 422,
+        DivisionRestored            = 423,
+        LevelDefinitionsInitialized = 440,
+        LevelDefinitionsUpdated     = 441,
+        CharacterCreated            = 460,
+        CharacterModified           = 461,
+        CharacterDeleted            = 462,
+        CharacterRestored           = 463,
     }
 
     public static class RoleManagementAdministrationActionTypeModelBuilder

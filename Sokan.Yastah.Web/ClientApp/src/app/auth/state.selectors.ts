@@ -61,12 +61,26 @@ export namespace AuthenticationSelectors {
             ticket => (ticket != null)
                 && (Object.keys(ticket.grantedPermissions).length > 0));
 
+    export const hasCharacterAdmin: MemoizedSelector<IAppState, boolean>
+        = createSelector(
+            currentTicket,
+            ticket => (ticket != null)
+                && Object.values(ticket.grantedPermissions)
+                    .some(x => x.startsWith("CharacterAdministration.")));
+
     export const hasCharacterAdminManageGuilds: MemoizedSelector<IAppState, boolean>
         = createSelector(
             currentTicket,
             ticket => (ticket != null)
                 && Object.values(ticket.grantedPermissions)
                     .some(x => x === "CharacterAdministration.ManageGuilds"));
+
+    export const hasCharacterAdminManageLevels: MemoizedSelector<IAppState, boolean>
+        = createSelector(
+            currentTicket,
+            ticket => (ticket != null)
+                && Object.values(ticket.grantedPermissions)
+                    .some(x => x === "CharacterAdministration.ManageLevels"));
 
     export const isAuthenticated: MemoizedSelector<IAppState, boolean>
         = createSelector(

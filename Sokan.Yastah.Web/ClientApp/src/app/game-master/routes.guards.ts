@@ -23,3 +23,21 @@ export class GuildsGuard
 
     private readonly _authorizationService: AuthorizationService;
 }
+
+@Injectable({
+    providedIn: "root"
+})
+export class LevelsGuard
+    implements CanActivate {
+
+    public constructor(
+        authorizationService: AuthorizationService) {
+        this._authorizationService = authorizationService;
+    }
+
+    public canActivate(): Observable<boolean> {
+        return this._authorizationService.observeHasCharacterAdminManageLevels;
+    }
+
+    private readonly _authorizationService: AuthorizationService;
+}

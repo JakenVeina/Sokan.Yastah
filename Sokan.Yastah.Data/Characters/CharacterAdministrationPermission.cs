@@ -11,6 +11,9 @@ namespace Sokan.Yastah.Data.Characters
     {
         [Description("Allows management of character guilds")]
         ManageGuilds = 100,
+
+        [Description("Allows management of character level definitions")]
+        ManageLevels = 101,
     }
 
     public static class CharacterAdministrationPermissionModelBuilder
