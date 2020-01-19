@@ -201,7 +201,7 @@ namespace Sokan.Yastah.Data.Roles
                 .FirstOrDefaultAsync(cancellationToken);
 
             return (result is null)
-                ? new DataNotFoundError($"Role ID {roleId}").ToError<RoleDetailViewModel>()
+                ? new DataNotFoundError($"Role ID {roleId}")
                 : result.ToSuccess();
         }
 
@@ -221,8 +221,7 @@ namespace Sokan.Yastah.Data.Roles
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (currentVersion is null)
-                return new DataNotFoundError($"Role ID {roleId}")
-                    .ToError<long>();
+                return new DataNotFoundError($"Role ID {roleId}");
 
             var newVersion = new RoleVersionEntity(
                 id: default,
@@ -242,8 +241,7 @@ namespace Sokan.Yastah.Data.Roles
                     && (newVersion.IsDeleted == currentVersion.IsDeleted))
             {
                 transactionScope.Complete();
-                return new NoChangesGivenError($"Role ID {roleId}")
-                    .ToError<long>();
+                return new NoChangesGivenError($"Role ID {roleId}");
             }
 
             currentVersion.NextVersion = newVersion;

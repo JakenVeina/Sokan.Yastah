@@ -24,36 +24,6 @@ namespace Sokan.Yastah.Common.Test.OperationModel
 
         #endregion Test Cases
 
-        #region ToError() Tests
-
-        [Test]
-        public void ToError_Always_ResultIsFromError()
-        {
-            var error = new Mock<IOperationError>().Object;
-
-            var result = error.ToError();
-
-            result.IsFailure.ShouldBeTrue();
-            result.Error.ShouldBeSameAs(error);
-        }
-
-        #endregion ToError() Tests
-
-        #region ToError<T>() Tests
-
-        [Test]
-        public void ToError_Generic_Always_ResultIsFromError()
-        {
-            var error = new Mock<IOperationError>().Object;
-
-            var result = error.ToError<string>();
-
-            result.IsFailure.ShouldBeTrue();
-            result.Error.ShouldBeSameAs(error);
-        }
-
-        #endregion ToError<T>() Tests
-
         #region ToOptional<T>() Tests
 
         [TestCaseSource(nameof(ValueTestCases))]

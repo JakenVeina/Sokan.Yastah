@@ -1,11 +1,8 @@
-﻿using System;
-
-namespace Sokan.Yastah.Common.OperationModel
+﻿namespace Sokan.Yastah.Common.OperationModel
 {
-    public class OperationErrorBase
-        : IOperationError
+    public abstract class OperationError
     {
-        protected OperationErrorBase(string message)
+        protected OperationError(string message)
         {
             _message = message;
         }

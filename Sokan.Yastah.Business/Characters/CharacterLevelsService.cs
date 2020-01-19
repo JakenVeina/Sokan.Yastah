@@ -77,10 +77,9 @@ namespace Sokan.Yastah.Business.Characters
             foreach(var (level, previousExperienceThreshold, experienceThreshold) in proposedDefinitions)
                 if (experienceThreshold <= previousExperienceThreshold)
                     return new InvalidLevelDefinitionError(
-                            level,
-                            experienceThreshold,
-                            previousExperienceThreshold)
-                        .ToError();
+                        level,
+                        experienceThreshold,
+                        previousExperienceThreshold);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();
 
@@ -120,10 +119,9 @@ namespace Sokan.Yastah.Business.Characters
                 {
                     if (proposed.Value.experienceThreshold <= proposed.Value.previousExperienceThreshold)
                         return new InvalidLevelDefinitionError(
-                                proposed.Value.level,
-                                proposed.Value.experienceThreshold,
-                                proposed.Value.previousExperienceThreshold)
-                            .ToError();
+                            proposed.Value.level,
+                            proposed.Value.experienceThreshold,
+                            proposed.Value.previousExperienceThreshold);
 
                     await _characterLevelsRepository.MergeDefinitionAsync(
                         proposed!.Value.level,
@@ -137,8 +135,7 @@ namespace Sokan.Yastah.Business.Characters
             }
 
             if (!anyChangesMade)
-                return new NoChangesGivenError("Character Level Definitions")
-                    .ToError();
+                return new NoChangesGivenError("Character Level Definitions");
 
             transactionScope.Complete();
 

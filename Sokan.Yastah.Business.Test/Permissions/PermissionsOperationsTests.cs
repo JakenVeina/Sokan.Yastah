@@ -47,7 +47,7 @@ namespace Sokan.Yastah.Business.Test.Permissions
         {
             using var testContext = new TestContext();
             
-            var mockError = new Mock<IOperationError>();
+            var mockError = new Mock<OperationError>("Mock Message");
 
             testContext.MockAuthorizationService
                 .Setup(x => x.RequirePermissionsAsync(It.IsAny<CancellationToken>(), It.IsAny<int[]>()))

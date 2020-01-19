@@ -6,7 +6,7 @@ using Sokan.Yastah.Common.OperationModel;
 namespace Sokan.Yastah.Business.Authorization
 {
     public class InsufficientPermissionsError
-        : OperationErrorBase
+        : OperationError
     {
         public InsufficientPermissionsError(
                 IReadOnlyDictionary<int, string> missingPermissions)

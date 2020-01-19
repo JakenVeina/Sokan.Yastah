@@ -75,11 +75,11 @@ namespace Sokan.Yastah.Business.Roles
 
             var nameValidationResult = await ValidateNameAsync(creationModel.Name, null, cancellationToken);
             if (nameValidationResult.IsFailure)
-                return nameValidationResult.Error.ToError<long>();
+                return nameValidationResult.Error;
 
             var grantedPermissionIdsValidationResult = await _permissionsService.ValidateIdsAsync(creationModel.GrantedPermissionIds, cancellationToken);
             if (grantedPermissionIdsValidationResult.IsFailure)
-                return grantedPermissionIdsValidationResult.Error.ToError<long>();
+                return grantedPermissionIdsValidationResult.Error;
 
             var actionId = await _administrationActionsRepository.CreateAsync(
                 (int)RoleManagementAdministrationActionType.RoleCreated,
@@ -198,8 +198,7 @@ namespace Sokan.Yastah.Business.Roles
                 cancellationToken);
 
             if (!anyChanges)
-                return new NoChangesGivenError($"Role ID {roleId}")
-                    .ToError();
+                return new NoChangesGivenError($"Role ID {roleId}");
 
             await _messenger.PublishNotificationAsync(
                 new RoleUpdatingNotification(
@@ -227,9 +226,8 @@ namespace Sokan.Yastah.Business.Roles
 
             return invalidRoleIds.Any()
                 ? ((invalidRoleIds.Length == 1)
-                        ? new DataNotFoundError($"Role ID {invalidRoleIds.First()}")
-                        : new DataNotFoundError($"Role IDs {string.Join(", ", invalidRoleIds)}"))
-                    .ToError()
+                    ? new DataNotFoundError($"Role ID {invalidRoleIds.First()}")
+                    : new DataNotFoundError($"Role IDs {string.Join(", ", invalidRoleIds)}"))
                 : OperationResult.Success;
         }
 
@@ -289,7 +287,7 @@ namespace Sokan.Yastah.Business.Roles
                 cancellationToken: cancellationToken);
 
             return nameIsInUse
-                ? new NameInUseError(name).ToError()
+                ? new NameInUseError(name)
                 : OperationResult.Success;
         }
 

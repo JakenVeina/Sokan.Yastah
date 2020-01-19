@@ -107,7 +107,7 @@ namespace Sokan.Yastah.Business.Test.Users
         {
             using var testContext = new TestContext();
             
-            var mockError = new Mock<IOperationError>();
+            var mockError = new Mock<OperationError>("Mock Message");
 
             testContext.RequirePermissionsResult = OperationResult.FromError(mockError.Object);
 
@@ -178,7 +178,7 @@ namespace Sokan.Yastah.Business.Test.Users
         {
             using var testContext = new TestContext();
             
-            var mockError = new Mock<IOperationError>();
+            var mockError = new Mock<OperationError>("Mock Message");
 
             testContext.RequirePermissionsResult = OperationResult.FromError(mockError.Object);
 
@@ -247,7 +247,7 @@ namespace Sokan.Yastah.Business.Test.Users
         {
             using var testContext = new TestContext();
             
-            var mockError = new Mock<IOperationError>();
+            var mockError = new Mock<OperationError>("Mock Message");
 
             testContext.RequirePermissionsResult = OperationResult.FromError(mockError.Object);
 
@@ -281,7 +281,7 @@ namespace Sokan.Yastah.Business.Test.Users
             
             testContext.SetCurrentUserId(currentUserId);
 
-            var mockError = new Mock<IOperationError>();
+            var mockError = new Mock<OperationError>("Mock Message");
 
             testContext.MockUsersService
                 .Setup(x => x.UpdateAsync(It.IsAny<ulong>(), It.IsAny<UserUpdateModel>(), It.IsAny<ulong>(), It.IsAny<CancellationToken>()))

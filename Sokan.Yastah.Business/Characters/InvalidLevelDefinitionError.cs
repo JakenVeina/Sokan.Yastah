@@ -3,7 +3,7 @@
 namespace Sokan.Yastah.Business.Characters
 {
     public class InvalidLevelDefinitionError
-        : OperationErrorBase
+        : OperationError
     {
         public InvalidLevelDefinitionError(
                 int level,

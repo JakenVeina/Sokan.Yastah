@@ -83,7 +83,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                     MockSystemClock.Object,
                     MockTransactionScopeFactory.Object);
 
-            public void SetGuildUpdateError(IOperationError error)
+            public void SetGuildUpdateError(OperationError error)
                 => MockCharacterGuildsRepository
                     .Setup(x => x.UpdateAsync(
                         It.IsAny<long>(),
@@ -91,7 +91,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                         It.IsAny<Optional<string>>(),
                         It.IsAny<Optional<bool>>(),
                         It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(error.ToError<long>());
+                    .ReturnsAsync(error);
 
             public void SetGuildUpdateVersionId(long versionId)
                 => MockCharacterGuildsRepository
@@ -289,7 +289,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                 NextAdministrationActionId = actionId
             };
 
-            var mockError = new Mock<IOperationError>();
+            var mockError = new Mock<OperationError>("Mock Message");
             testContext.SetGuildUpdateError(mockError.Object);
 
             var uut = testContext.BuildUut();
@@ -508,7 +508,7 @@ namespace Sokan.Yastah.Business.Test.Characters
 
             testContext.SetIsNameInUse(name, false);
 
-            var mockError = new Mock<IOperationError>();
+            var mockError = new Mock<OperationError>("Mock Message");
             testContext.SetGuildUpdateError(mockError.Object);
 
             var uut = testContext.BuildUut();

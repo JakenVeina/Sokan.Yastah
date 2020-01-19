@@ -3,7 +3,7 @@
 namespace Sokan.Yastah.Api.Antiforgery
 {
     public class AntiforgeryValidationError
-        : OperationErrorBase
+        : OperationError
     {
         public static readonly AntiforgeryValidationError Default
             = new AntiforgeryValidationError();

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Collections.Generic;
 
 using NUnit.Framework;
 using Moq;
@@ -11,7 +9,7 @@ using Sokan.Yastah.Common.OperationModel;
 namespace Sokan.Yastah.Common.Test.OperationModel
 {
     [TestFixture]
-    public class OperationErrorBaseTests
+    public class OperationErrorTests
     {
         #region Test Cases
 
@@ -23,8 +21,8 @@ namespace Sokan.Yastah.Common.Test.OperationModel
                 "This is only a message"
             };
 
-        internal static Mock<OperationErrorBase> BuildMockUut(string message)
-            => new Mock<OperationErrorBase>(message)
+        internal static Mock<OperationError> BuildMockUut(string message)
+            => new Mock<OperationError>(message)
             {
                 CallBase = true
             };

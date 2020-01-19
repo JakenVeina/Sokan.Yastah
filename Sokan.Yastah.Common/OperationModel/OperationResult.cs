@@ -9,19 +9,19 @@ namespace Sokan.Yastah.Common.OperationModel
         public static OperationResult Success
             = new OperationResult(null);
 
-        public static OperationResult FromError(IOperationError error)
+        public static OperationResult FromError(OperationError error)
             => new OperationResult(error);
 
-        public static OperationResult<T> FromError<T>(IOperationError error)
+        public static OperationResult<T> FromError<T>(OperationError error)
             => OperationResult<T>.FromError(error);
 
         public static OperationResult<T> FromValue<T>(T value)
             => OperationResult<T>.FromValue(value);
 
-        private OperationResult(IOperationError? error)
+        private OperationResult(OperationError? error)
             => _error = error;
 
-        public IOperationError Error
+        public OperationError Error
             => _error ?? throw new InvalidOperationException($"Unable to retrieve {nameof(Error)} from a successful {nameof(OperationResult)}");
 
         public bool IsFailure
@@ -35,7 +35,7 @@ namespace Sokan.Yastah.Common.OperationModel
                 && Equals(other);
 
         public bool Equals(OperationResult other)
-            => EqualityComparer<IOperationError?>.Default.Equals(_error, other._error);
+            => EqualityComparer<OperationError?>.Default.Equals(_error, other._error);
 
         public override int GetHashCode()
             => HashCode.Combine(_error);
@@ -45,12 +45,15 @@ namespace Sokan.Yastah.Common.OperationModel
                 ? "{Success}"
                 : $"{{{_error!.ToString()}}}";
 
+        public static implicit operator OperationResult(OperationError error)
+            => FromError(error);
+        
         public static bool operator ==(OperationResult x, OperationResult y)
             => x.Equals(y);
 
         public static bool operator !=(OperationResult x, OperationResult y)
             => !x.Equals(y);
 
-        private readonly IOperationError? _error;
+        private readonly OperationError? _error;
     }
 }

@@ -6,19 +6,19 @@ namespace Sokan.Yastah.Common.OperationModel
     public struct OperationResult<T>
         : IEquatable<OperationResult<T>>
     {
-        public static OperationResult<T> FromError(IOperationError error)
+        public static OperationResult<T> FromError(OperationError error)
             => new OperationResult<T>(error, default!);
 
         public static OperationResult<T> FromValue(T value)
             => new OperationResult<T>(null, value);
 
-        private OperationResult(IOperationError? error, T value)
+        private OperationResult(OperationError? error, T value)
         {
             _error = error;
             _value = value;
         }
 
-        public IOperationError Error
+        public OperationError Error
             => _error ?? throw new InvalidOperationException($"Unable to retrieve {nameof(Error)} from a successful {nameof(OperationResult<T>)}");
 
         public bool IsFailure
@@ -37,7 +37,7 @@ namespace Sokan.Yastah.Common.OperationModel
                 && Equals(other);
 
         public bool Equals(OperationResult<T> other)
-            => EqualityComparer<IOperationError?>.Default.Equals(_error, other._error)
+            => EqualityComparer<OperationError?>.Default.Equals(_error, other._error)
                 && EqualityComparer<T>.Default.Equals(_value, other._value);
 
         public override int GetHashCode()
@@ -53,6 +53,9 @@ namespace Sokan.Yastah.Common.OperationModel
                 ? OperationResult.Success
                 : OperationResult.FromError(result.Error);
 
+        public static implicit operator OperationResult<T>(OperationError error)
+            => FromError(error);
+
         public static implicit operator OperationResult<T>(T value)
             => FromValue(value);
 
@@ -62,7 +65,7 @@ namespace Sokan.Yastah.Common.OperationModel
         public static bool operator !=(OperationResult<T> x, OperationResult<T> y)
             => !x.Equals(y);
 
-        private readonly IOperationError? _error;
+        private readonly OperationError? _error;
         private readonly T _value;
     }
 }

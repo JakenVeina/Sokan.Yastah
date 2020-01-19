@@ -118,8 +118,7 @@ namespace Sokan.Yastah.Data.Characters
                     && (newVersion.IsDeleted == currentVersion.IsDeleted))
                 {
                     transactionScope.Complete();
-                    return new NoChangesGivenError($"Character Level Definition {level}")
-                        .ToError();
+                    return new NoChangesGivenError($"Character Level Definition {level}");
                 }
 
                 newVersion.PreviousVersionId = currentVersion.Id;

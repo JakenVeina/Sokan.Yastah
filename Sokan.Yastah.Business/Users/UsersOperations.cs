@@ -54,7 +54,7 @@ namespace Sokan.Yastah.Business.Users
                 (int)AdministrationPermission.ManageRoles);
 
             return authResult.IsFailure
-                ? authResult.Error.ToError<UserDetailViewModel>()
+                ? authResult.Error
                 : await _usersRepository.ReadDetailAsync(
                     userId,
                     cancellationToken);
@@ -68,7 +68,7 @@ namespace Sokan.Yastah.Business.Users
                 (int)AdministrationPermission.ManageRoles);
 
             return authResult.IsFailure
-                ? authResult.Error.ToError<IReadOnlyCollection<UserOverviewViewModel>>()
+                ? authResult.Error
                 : (await _usersRepository.AsyncEnumerateOverviews()
                             .ToArrayAsync(cancellationToken)
                         as IReadOnlyCollection<UserOverviewViewModel>)

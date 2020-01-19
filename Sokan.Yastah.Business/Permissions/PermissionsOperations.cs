@@ -38,7 +38,7 @@ namespace Sokan.Yastah.Business.Permissions
                 (int)AdministrationPermission.ManagePermissions);
 
             return authResult.IsFailure
-                ? authResult.Error.ToError<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>>()
+                ? authResult.Error
                 : (await _permissionsService.GetDescriptionsAsync(cancellationToken))
                     .ToSuccess();
         }

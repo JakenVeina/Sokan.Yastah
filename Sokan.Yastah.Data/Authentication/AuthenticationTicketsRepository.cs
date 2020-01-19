@@ -83,12 +83,10 @@ namespace Sokan.Yastah.Data.Authentication
                 .FindAsync<AuthenticationTicketEntity?>(new object[] { ticketId }, cancellationToken);
 
             if (ticket is null)
-                return new DataNotFoundError($"Authentication Ticket ID {ticketId}")
-                    .ToError();
+                return new DataNotFoundError($"Authentication Ticket ID {ticketId}");
 
             if (!(ticket.DeletionId is null))
-                return new DataAlreadyDeletedError($"Authentication Ticket ID {ticketId}")
-                    .ToError();
+                return new DataAlreadyDeletedError($"Authentication Ticket ID {ticketId}");
 
             ticket.DeletionId = actionId;
 
@@ -109,7 +107,7 @@ namespace Sokan.Yastah.Data.Authentication
                 .FirstOrDefaultAsync(cancellationToken);
 
             return (id is null)
-                ? new DataNotFoundError($"Active Authentication Ticket for User ID {userId}").ToError<long>()
+                ? new DataNotFoundError($"Active Authentication Ticket for User ID {userId}")
                 : id.Value.ToSuccess();
         }
 

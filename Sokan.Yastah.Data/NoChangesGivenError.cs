@@ -3,7 +3,7 @@
 namespace Sokan.Yastah.Data
 {
     public class NoChangesGivenError
-        : OperationErrorBase
+        : OperationError
     {
         public NoChangesGivenError(string dataDescription)
             : base($"No changes given: {dataDescription}") { }

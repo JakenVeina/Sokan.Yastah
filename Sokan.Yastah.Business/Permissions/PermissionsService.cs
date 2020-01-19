@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -73,9 +72,8 @@ namespace Sokan.Yastah.Business.Permissions
             
             return invalidPermissionIds.Any()
                 ? ((invalidPermissionIds.Length == 1)
-                        ? new DataNotFoundError($"Permission ID {invalidPermissionIds.First()}")
-                        : new DataNotFoundError($"Permission IDs {string.Join(", ", invalidPermissionIds)}"))
-                    .ToError()
+                    ? new DataNotFoundError($"Permission ID {invalidPermissionIds.First()}")
+                    : new DataNotFoundError($"Permission IDs {string.Join(", ", invalidPermissionIds)}"))
                 : OperationResult.Success;
         }
 

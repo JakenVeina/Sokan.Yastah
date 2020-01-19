@@ -149,8 +149,7 @@ namespace Sokan.Yastah.Data.Characters
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (currentVersion is null)
-                return new DataNotFoundError($"Character Guild Division ID {divisionId}")
-                    .ToError<long>();
+                return new DataNotFoundError($"Character Guild Division ID {divisionId}");
 
             var newVersion = new CharacterGuildDivisionVersionEntity(
                 id:                 default,
@@ -169,8 +168,7 @@ namespace Sokan.Yastah.Data.Characters
                 && (newVersion.IsDeleted == currentVersion.IsDeleted))
             {
                 transactionScope.Complete();
-                return new NoChangesGivenError($"Character Guild Division ID {divisionId}")
-                    .ToError<long>();
+                return new NoChangesGivenError($"Character Guild Division ID {divisionId}");
             }
 
             currentVersion.NextVersion = newVersion;

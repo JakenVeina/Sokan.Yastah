@@ -125,7 +125,7 @@ namespace Sokan.Yastah.Business.Test.Authentication
                     .Setup(x => x.ReadActiveIdAsync(
                         userId,
                         It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(new DataNotFoundError(string.Empty).ToError<long>());
+                    .ReturnsAsync(new DataNotFoundError(string.Empty));
 
             public void SetRoleMemberIds(IReadOnlyCollection<ulong> roleMemberIds)
                 => MockUsersService

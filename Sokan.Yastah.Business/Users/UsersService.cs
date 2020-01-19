@@ -87,8 +87,7 @@ namespace Sokan.Yastah.Business.Users
                 cancellationToken: cancellationToken);
 
             if (!userExists)
-                return new DataNotFoundError($"User ID {userId}")
-                    .ToError<IReadOnlyCollection<PermissionIdentityViewModel>>();
+                return new DataNotFoundError($"User ID {userId}");
 
             return (await _usersRepository.AsyncEnumerateGrantedPermissionIdentities(userId)
                         .ToArrayAsync(cancellationToken)
@@ -244,9 +243,8 @@ namespace Sokan.Yastah.Business.Users
                 actionId,
                 cancellationToken);
 
-            if(!anyChanges)
-                return new NoChangesGivenError($"User ID {userId}")
-                    .ToError();
+            if (!anyChanges)
+                return new NoChangesGivenError($"User ID {userId}");
 
             await _messenger.PublishNotificationAsync(
                 new UserUpdatingNotification(

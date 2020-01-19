@@ -142,23 +142,23 @@ namespace Sokan.Yastah.Business.Test.Users
                             roleId: x.roleId))
                         .ToAsyncEnumerable());
 
-            public void SetValidatePermissionIdsResult(IOperationError? error = null)
+            public void SetValidatePermissionIdsResult(OperationError? error = null)
                 => MockPermissionsService
                     .Setup(x => x.ValidateIdsAsync(
                         It.IsAny<IReadOnlyCollection<int>>(),
                         It.IsAny<CancellationToken>()))
                     .ReturnsAsync((error is null)
                         ? OperationResult.Success
-                        : error.ToError());
+                        : error);
 
-            public void SetValidateRoleIdsResult(IOperationError? error = null)
+            public void SetValidateRoleIdsResult(OperationError? error = null)
                 => MockRolesService
                     .Setup(x => x.ValidateIdsAsync(
                         It.IsAny<IReadOnlyCollection<long>>(),
                         It.IsAny<CancellationToken>()))
                     .ReturnsAsync((error is null)
                         ? OperationResult.Success
-                        : error.ToError());
+                        : error);
 
             public override void Dispose()
             {
@@ -602,7 +602,7 @@ namespace Sokan.Yastah.Business.Test.Users
         {
             using var testContext = new TestContext();
             
-            var mockError = new Mock<IOperationError>();
+            var mockError = new Mock<OperationError>("Mock Message");
             testContext.SetValidatePermissionIdsResult(mockError.Object);
 
             var uut = testContext.BuildUut();
@@ -649,7 +649,7 @@ namespace Sokan.Yastah.Business.Test.Users
         {
             using var testContext = new TestContext();
             
-            var mockError = new Mock<IOperationError>();
+            var mockError = new Mock<OperationError>("Mock Message");
             testContext.SetValidatePermissionIdsResult();
             testContext.SetValidateRoleIdsResult(mockError.Object);
 

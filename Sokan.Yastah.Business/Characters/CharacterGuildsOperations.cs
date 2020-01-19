@@ -53,7 +53,7 @@ namespace Sokan.Yastah.Business.Characters
                 (int)CharacterAdministrationPermission.ManageGuilds);
 
             if (authResult.IsFailure)
-                return authResult.Error.ToError<long>();
+                return authResult.Error;
 
             var performedById = _authenticationService.CurrentTicket!.UserId;
 
@@ -84,7 +84,7 @@ namespace Sokan.Yastah.Business.Characters
                 (int)CharacterAdministrationPermission.ManageGuilds);
 
             return authResult.IsFailure
-                ? authResult.Error.ToError<IReadOnlyCollection<CharacterGuildIdentityViewModel>>()
+                ? authResult.Error
                 : (await _characterGuildsService.GetCurrentIdentitiesAsync(cancellationToken))
                     .ToSuccess();
         }

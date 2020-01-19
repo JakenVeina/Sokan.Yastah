@@ -306,7 +306,7 @@ namespace Sokan.Yastah.Data.Users
                 .FirstOrDefaultAsync(cancellationToken);
 
             return (result is null)
-                ? new DataNotFoundError($"User ID {userId}").ToError<UserDetailViewModel>()
+                ? new DataNotFoundError($"User ID {userId}")
                 : result.ToSuccess();
         }
 

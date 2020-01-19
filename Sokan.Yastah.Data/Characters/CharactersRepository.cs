@@ -105,8 +105,7 @@ namespace Sokan.Yastah.Data.Characters
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (currentVersion is null)
-                return new DataNotFoundError($"Character ID {characterId}")
-                    .ToError<long>();
+                return new DataNotFoundError($"Character ID {characterId}");
 
             var newVersion = new CharacterVersionEntity(
                 id:                 default,
@@ -141,8 +140,7 @@ namespace Sokan.Yastah.Data.Characters
                 && (newVersion.IsDeleted == currentVersion.IsDeleted))
             {
                 transactionScope.Complete();
-                return new NoChangesGivenError($"Character ID {characterId}")
-                    .ToError<long>();
+                return new NoChangesGivenError($"Character ID {characterId}");
             }
 
             currentVersion.NextVersion = newVersion;

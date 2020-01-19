@@ -61,7 +61,7 @@ namespace Sokan.Yastah.Business.Characters
 
             var nameValidationResult = await ValidateNameAsync(creationModel.Name, null, cancellationToken);
             if (nameValidationResult.IsFailure)
-                return nameValidationResult.Error.ToError<long>();
+                return nameValidationResult.Error;
 
             var actionId = await _administrationActionsRepository.CreateAsync(
                 (int)CharacterManagementAdministrationActionType.GuildCreated,
@@ -156,7 +156,7 @@ namespace Sokan.Yastah.Business.Characters
                 cancellationToken: cancellationToken);
 
             return nameIsInUse
-                ? new NameInUseError(name).ToError()
+                ? new NameInUseError(name)
                 : OperationResult.Success;
         }
 

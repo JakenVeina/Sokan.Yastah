@@ -26,7 +26,7 @@ namespace Sokan.Yastah.Api
                 ? Ok(result.Value)
                 : TranslateOperationError(result.Error);
 
-        private IActionResult TranslateOperationError(IOperationError error)
+        private IActionResult TranslateOperationError(OperationError error)
             => error switch
             {
                 UnauthenticatedUserError _      => Unauthorized(error),

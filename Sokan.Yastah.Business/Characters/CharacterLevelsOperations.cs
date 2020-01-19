@@ -43,7 +43,7 @@ namespace Sokan.Yastah.Business.Characters
                 (int)CharacterAdministrationPermission.ManageLevels);
 
             return authResult.IsFailure
-                ? authResult.Error.ToError<IReadOnlyList<CharacterLevelDefinitionViewModel>>()
+                ? authResult.Error
                 : (await _characterLevelsService.GetCurrentDefinitionsAsync(cancellationToken))
                     .ToSuccess();
         }

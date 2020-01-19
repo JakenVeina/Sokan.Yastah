@@ -90,7 +90,7 @@ namespace Sokan.Yastah.Business.Test.Characters
         {
             using var testContext = new TestContext();
             
-            var mockError = new Mock<IOperationError>();
+            var mockError = new Mock<OperationError>("Mock Message");
 
             testContext.RequirePermissionsResult = OperationResult.FromError(mockError.Object);
 
@@ -147,7 +147,7 @@ namespace Sokan.Yastah.Business.Test.Characters
         {
             using var testContext = new TestContext();
 
-            var mockError = new Mock<IOperationError>();
+            var mockError = new Mock<OperationError>("Mock Message");
 
             testContext.RequirePermissionsResult = OperationResult.FromError(mockError.Object);
 
@@ -178,7 +178,7 @@ namespace Sokan.Yastah.Business.Test.Characters
 
             testContext.SetCurrentUserId(currentUserId);
 
-            var mockError = new Mock<IOperationError>();
+            var mockError = new Mock<OperationError>("Mock Message");
 
             testContext.MockCharacterLevelsService
                 .Setup(x => x.UpdateExperienceDiffsAsync(

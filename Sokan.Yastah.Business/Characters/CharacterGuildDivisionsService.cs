@@ -68,11 +68,11 @@ namespace Sokan.Yastah.Business.Characters
 
             var guildIdValidationResult = await ValidateGuildIdAsync(guildId, cancellationToken);
             if (guildIdValidationResult.IsFailure)
-                return guildIdValidationResult.Error.ToError<long>();
+                return guildIdValidationResult.Error;
 
             var nameValidationResult = await ValidateDivisionNameAsync(guildId, creationModel.Name, null, cancellationToken);
             if (nameValidationResult.IsFailure)
-                return nameValidationResult.Error.ToError<long>();
+                return nameValidationResult.Error;
 
             var actionId = await _administrationActionsRepository.CreateAsync(
                 (int)CharacterManagementAdministrationActionType.DivisionCreated,
@@ -179,7 +179,7 @@ namespace Sokan.Yastah.Business.Characters
 
             return guildIdIsActive
                 ? OperationResult.Success
-                : new DataNotFoundError($"Guild ID {guildId}").ToError();
+                : new DataNotFoundError($"Guild ID {guildId}");
         }
 
         private async Task<OperationResult> ValidateDivisionNameAsync(
@@ -197,7 +197,7 @@ namespace Sokan.Yastah.Business.Characters
                 cancellationToken: cancellationToken);
 
             return nameIsInUse
-                ? new NameInUseError(name).ToError()
+                ? new NameInUseError(name)
                 : OperationResult.Success;
         }
 

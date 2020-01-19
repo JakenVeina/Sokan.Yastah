@@ -39,8 +39,8 @@ namespace Sokan.Yastah.Common.Test.OperationModel
                 new TestCaseData(   null,       MakeFakeError(),    "value 4",  null            ).SetName("{m}(Failure, Success)"),
             };
 
-        private static IOperationError MakeFakeError()
-            => new Mock<IOperationError>().Object;
+        private static OperationError MakeFakeError()
+            => new Mock<OperationError>("Fake Error Message").Object;
 
         #endregion Test Cases
 
@@ -78,7 +78,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [Test]
         public void FromError_Otherwise_IsFailure()
         {
-            var error = new Mock<IOperationError>().Object;
+            var error = new Mock<OperationError>("Error Message").Object;
 
             var result = OperationResult<string?>.FromError(error);
 
@@ -89,7 +89,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [Test]
         public void FromError_Otherwise_ErrorIsGiven()
         {
-            var error = new Mock<IOperationError>().Object;
+            var error = new Mock<OperationError>("Error Message").Object;
 
             var result = OperationResult<string?>.FromError(error);
 
@@ -99,7 +99,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [Test]
         public void FromError_Otherwise_ValueThrowsException()
         {
-            var error = new Mock<IOperationError>().Object;
+            var error = new Mock<OperationError>("Error Message").Object;
 
             var result = OperationResult<string?>.FromError(error);
 
@@ -146,54 +146,12 @@ namespace Sokan.Yastah.Common.Test.OperationModel
 
         #endregion FromValue() Tests
 
-        #region (OperationResult)OperationResult<T> Tests
-
-        [TestCaseSource(nameof(Value_TestCaseData))]
-        public void Operator_CastToOperationResult_OperationResultIsSuccess_ResultIsSuccess(
-            string? value)
-        {
-            var operationResult = OperationResult.FromValue(value);
-
-            var result = (OperationResult)operationResult;
-
-            result.IsSuccess.ShouldBeTrue();
-        }
-
-        [Test]
-        public void Operator_CastToOperationResult_OperationResultIsFailure_ResultIsFromError()
-        {
-            var error = new Mock<IOperationError>().Object;
-
-            var operationResult = OperationResult.FromError<string?>(error);
-
-            var result = (OperationResult)operationResult;
-
-            result.IsFailure.ShouldBeTrue();
-            result.Error.ShouldBeSameAs(error);
-        }
-
-        #endregion (OperationResult)OperationResult<T> Tests
-
-        #region (OperationResult<T>)T Tests
-
-        [TestCaseSource(nameof(Value_TestCaseData))]
-        public void Operator_CastFromValue_Always_ResultIsFromValue(
-            string? value)
-        {
-            var result = (OperationResult<string?>)value;
-
-            result.IsSuccess.ShouldBeTrue();
-            result.Value.ShouldBe(value);
-        }
-
-        #endregion (OperationResult<T>)T Tests
-
         #region Equals() Tests
 
         [TestCaseSource(nameof(OperationResult_TestCaseData))]
         public void Equals_NonGeneric_ObjIsNull_ReturnsFalse(
             string? value,
-            IOperationError? error)
+            OperationError? error)
         {
             var uut = (error is null)
                 ? OperationResult<string?>.FromValue(value)
@@ -205,7 +163,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(OperationResult_TestCaseData))]
         public void Equals_NonGeneric_ObjIsNotOperationResult_ReturnsFalse(
             string? value,
-            IOperationError? error)
+            OperationError? error)
         {
             var uut = (error is null)
                 ? OperationResult<string?>.FromValue(value)
@@ -217,7 +175,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(OperationResult_TestCaseData))]
         public void Equals_NonGeneric_ObjIsEqual_ReturnsTrue(
             string? value,
-            IOperationError? error)
+            OperationError? error)
         {
             var (uut, obj) = (error is null)
                 ? (OperationResult<string?>.FromValue(value),   OperationResult<string?>.FromValue(value) as object)
@@ -229,9 +187,9 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(OperationResultsAreNotEqual_TestCaseData))]
         public void Equals_NonGeneric_ObjIsNotEqual_ReturnsFalse(
             string? xValue,
-            IOperationError? xError,
+            OperationError? xError,
             string? yValue,
-            IOperationError? yError)
+            OperationError? yError)
         {
             var uut = (xError is null)
                 ? OperationResult<string?>.FromValue(xValue)
@@ -252,7 +210,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(OperationResult_TestCaseData))]
         public void Equals_Generic_OtherIsEqual_ReturnsTrue(
             string? value,
-            IOperationError? error)
+            OperationError? error)
         {
             var (uut, other) = (error is null)
                 ? (OperationResult<string?>.FromValue(value),   OperationResult<string?>.FromValue(value) as object)
@@ -264,9 +222,9 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(OperationResultsAreNotEqual_TestCaseData))]
         public void Equals_Generic_OtherIsNotEqual_ReturnsFalse(
             string? xValue,
-            IOperationError? xError,
+            OperationError? xError,
             string? yValue,
-            IOperationError? yError)
+            OperationError? yError)
         {
             var uut = (xError is null)
                 ? OperationResult<string?>.FromValue(xValue)
@@ -286,7 +244,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(OperationResult_TestCaseData))]
         public void GetHashCode_UnitsAreEqual_HashCodesAreEqual(
             string? value,
-            IOperationError? error)
+            OperationError? error)
         {
             var (uut, other) = (error is null)
                 ? (OperationResult<string?>.FromValue(value),   OperationResult<string?>.FromValue(value))
@@ -298,9 +256,9 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(OperationResultsAreNotEqual_TestCaseData))]
         public void GetHashCode_UnitsAreNotEqual_HashCodesAreNotEqual(
             string? xValue,
-            IOperationError? xError,
+            OperationError? xError,
             string? yValue,
-            IOperationError? yError)
+            OperationError? yError)
         {
             var uut = (xError is null)
                 ? OperationResult<string?>.FromValue(xValue)
@@ -333,7 +291,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [Test]
         public void ToString_UnitIsFailure_ResultContainsError()
         {
-            var mockError = new Mock<IOperationError>();
+            var mockError = new Mock<OperationError>("Mock Message");
 
             var errorToString = nameof(mockError);
             mockError
@@ -351,12 +309,69 @@ namespace Sokan.Yastah.Common.Test.OperationModel
 
         #endregion ToString() Tests
 
+        #region (OperationResult)OperationResult<T> Tests
+
+        [TestCaseSource(nameof(Value_TestCaseData))]
+        public void Operator_CastToOperationResult_OperationResultIsSuccess_ResultIsSuccess(
+            string? value)
+        {
+            var operationResult = OperationResult.FromValue(value);
+
+            var result = (OperationResult)operationResult;
+
+            result.IsSuccess.ShouldBeTrue();
+        }
+
+        [Test]
+        public void Operator_CastToOperationResult_OperationResultIsFailure_ResultIsFromError()
+        {
+            var error = new Mock<OperationError>("Error Message").Object;
+
+            var operationResult = OperationResult.FromError<string?>(error);
+
+            var result = (OperationResult)operationResult;
+
+            result.IsFailure.ShouldBeTrue();
+            result.Error.ShouldBeSameAs(error);
+        }
+
+        #endregion (OperationResult)OperationResult<T> Tests
+
+        #region (OperationResult<T>)OperationError Tests
+
+        [Test]
+        public void Operator_CastFromError_Always_ResultIsFromError()
+        {
+            var error = new Mock<OperationError>("Error Message").Object;
+
+            var result = (OperationResult<string>)error;
+
+            result.IsFailure.ShouldBeTrue();
+            result.Error.ShouldBeSameAs(error);
+        }
+
+        #endregion (OperationResult<T>)OperationError Tests
+
+        #region (OperationResult<T>)T Tests
+
+        [TestCaseSource(nameof(Value_TestCaseData))]
+        public void Operator_CastFromValue_Always_ResultIsFromValue(
+            string? value)
+        {
+            var result = (OperationResult<string?>)value;
+
+            result.IsSuccess.ShouldBeTrue();
+            result.Value.ShouldBe(value);
+        }
+
+        #endregion (OperationResult<T>)T Tests
+
         #region == Tests
 
         [TestCaseSource(nameof(OperationResult_TestCaseData))]
         public void Operator_Equals_XAndYAreEqual_ReturnsTrue(
             string? value,
-            IOperationError? error)
+            OperationError? error)
         {
             var (x, y) = (error is null)
                 ? (OperationResult<string?>.FromValue(value),   OperationResult<string?>.FromValue(value))
@@ -368,9 +383,9 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(OperationResultsAreNotEqual_TestCaseData))]
         public void Operator_Equals_XAndYAreNotEqual_ReturnsFalse(
             string? xValue,
-            IOperationError? xError,
+            OperationError? xError,
             string? yValue,
-            IOperationError? yError)
+            OperationError? yError)
         {
             var x = (xError is null)
                 ? OperationResult<string?>.FromValue(xValue)
@@ -390,7 +405,7 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(OperationResult_TestCaseData))]
         public void Operator_NotEquals_XAndYAreEqual_ReturnsFalse(
             string? value,
-            IOperationError? error)
+            OperationError? error)
         {
             var (x, y) = (error is null)
                 ? (OperationResult<string?>.FromValue(value),   OperationResult<string?>.FromValue(value))
@@ -402,9 +417,9 @@ namespace Sokan.Yastah.Common.Test.OperationModel
         [TestCaseSource(nameof(OperationResultsAreNotEqual_TestCaseData))]
         public void Operator_NotEquals_XAndYAreNotEqual_ReturnsTrue(
             string? xValue,
-            IOperationError? xError,
+            OperationError? xError,
             string? yValue,
-            IOperationError? yError)
+            OperationError? yError)
         {
             var x = (xError is null)
                 ? OperationResult<string?>.FromValue(xValue)

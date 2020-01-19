@@ -87,7 +87,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                     MockSystemClock.Object,
                     MockTransactionScopeFactory.Object);
 
-            public void SetDivisionUpdateError(IOperationError error)
+            public void SetDivisionUpdateError(OperationError error)
                 => MockCharacterGuildDivisionsRepository
                     .Setup(x => x.UpdateAsync(
                         It.IsAny<long>(),
@@ -95,7 +95,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                         It.IsAny<Optional<string>>(),
                         It.IsAny<Optional<bool>>(),
                         It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(error.ToError<long>());
+                    .ReturnsAsync(error);
 
             public void SetDivisionUpdateVersionId(long versionId)
                 => MockCharacterGuildDivisionsRepository
@@ -107,7 +107,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                         It.IsAny<CancellationToken>()))
                     .ReturnsAsync(versionId);
 
-            public void SetGuildUpdateError(IOperationError error)
+            public void SetGuildUpdateError(OperationError error)
                 => MockCharacterGuildDivisionsRepository
                     .Setup(x => x.UpdateAsync(
                         It.IsAny<long>(),
@@ -115,7 +115,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                         It.IsAny<Optional<string>>(),
                         It.IsAny<Optional<bool>>(),
                         It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(error.ToError<long>());
+                    .ReturnsAsync(error);
 
             public void SetGuildUpdateVersionId(long versionId)
                 => MockCharacterGuildDivisionsRepository
@@ -436,7 +436,7 @@ namespace Sokan.Yastah.Business.Test.Characters
 
             testContext.SetIsGuildIdActive(guildId, true);
 
-            var mockError = new Mock<IOperationError>();
+            var mockError = new Mock<OperationError>("Mock Message");
             testContext.SetDivisionUpdateError(mockError.Object);
 
             var uut = testContext.BuildUut();
@@ -727,7 +727,7 @@ namespace Sokan.Yastah.Business.Test.Characters
             testContext.SetIsGuildIdActive(guildId, true);
             testContext.SetIsDivisionNameInUse(guildId, name, false);
 
-            var mockError = new Mock<IOperationError>();
+            var mockError = new Mock<OperationError>("Mock Message");
             testContext.SetDivisionUpdateError(mockError.Object);
 
             var uut = testContext.BuildUut();

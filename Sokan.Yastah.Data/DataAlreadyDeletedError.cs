@@ -3,7 +3,7 @@
 namespace Sokan.Yastah.Data
 {
     public class DataAlreadyDeletedError
-        : OperationErrorBase
+        : OperationError
     {
         public DataAlreadyDeletedError(string dataDescription)
             : base($"Data already deleted: {dataDescription}") { }

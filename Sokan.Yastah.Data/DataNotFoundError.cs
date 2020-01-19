@@ -3,7 +3,7 @@
 namespace Sokan.Yastah.Data
 {
     public class DataNotFoundError
-        : OperationErrorBase
+        : OperationError
     {
         public DataNotFoundError(string dataDescription)
             : base($"Data not found: {dataDescription}") { }

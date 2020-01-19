@@ -34,7 +34,7 @@ namespace Sokan.Yastah.Business.Authorization
 
         public OperationResult RequireAuthentication()
             => _authenticationService.CurrentTicket is null
-                ? new UnauthenticatedUserError().ToError()
+                ? new UnauthenticatedUserError()
                 : OperationResult.Success;
 
         public async ValueTask<OperationResult> RequirePermissionsAsync(
@@ -54,10 +54,9 @@ namespace Sokan.Yastah.Business.Authorization
                 return OperationResult.Success;
 
             return new InsufficientPermissionsError((await _permissionsService
-                    .GetIdentitiesAsync(cancellationToken))
-                    .Where(x => missingPermissionIds.Contains(x.Id))
-                    .ToDictionary(x => x.Id, x => x.Name))
-                .ToError();
+                .GetIdentitiesAsync(cancellationToken))
+                .Where(x => missingPermissionIds.Contains(x.Id))
+                .ToDictionary(x => x.Id, x => x.Name));
         }
 
         private readonly IAuthenticationService _authenticationService;

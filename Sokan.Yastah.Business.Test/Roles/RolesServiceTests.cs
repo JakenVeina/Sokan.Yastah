@@ -104,7 +104,7 @@ namespace Sokan.Yastah.Business.Test.Roles
                         It.IsAny<Optional<bool>>()))
                     .ReturnsAsync(isNameInUse);
 
-            public void SetRoleUpdateError(IOperationError error)
+            public void SetRoleUpdateError(OperationError error)
                 => MockRolesRepository
                     .Setup(x => x.UpdateAsync(
                         It.IsAny<long>(),
@@ -112,7 +112,7 @@ namespace Sokan.Yastah.Business.Test.Roles
                         It.IsAny<Optional<string>>(),
                         It.IsAny<Optional<bool>>(),
                         It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(error.ToError<long>());
+                    .ReturnsAsync(error);
 
             public void SetRoleUpdateVersionId(long versionId)
                 => MockRolesRepository
@@ -148,14 +148,14 @@ namespace Sokan.Yastah.Business.Test.Roles
                         name:   $"Role {x}"))
                     .ToArray());
 
-            public void SetValidatePermissionIdsResult(IOperationError? error = null)
+            public void SetValidatePermissionIdsResult(OperationError? error = null)
                 => MockPermissionsService
                     .Setup(x => x.ValidateIdsAsync(
                         It.IsAny<IReadOnlyCollection<int>>(),
                         It.IsAny<CancellationToken>()))
                     .ReturnsAsync((error is null)
                         ? OperationResult.Success
-                        : error.ToError());
+                        : error);
 
             public override void Dispose()
             {
@@ -249,7 +249,7 @@ namespace Sokan.Yastah.Business.Test.Roles
             testContext.SetIsNameInUse(false);
             testContext.SetCurrentIdentitiesCache();
 
-            var mockError = new Mock<IOperationError>();
+            var mockError = new Mock<OperationError>("Mock Message");
             testContext.SetValidatePermissionIdsResult(mockError.Object);
 
             var uut = testContext.BuildUut();
@@ -407,7 +407,7 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.SetCurrentIdentitiesCache();
 
-            var mockError = new Mock<IOperationError>();
+            var mockError = new Mock<OperationError>("Mock Message");
             testContext.SetRoleUpdateError(mockError.Object);
 
             var uut = testContext.BuildUut();
@@ -662,7 +662,7 @@ namespace Sokan.Yastah.Business.Test.Roles
             testContext.SetIsNameInUse(false);
             testContext.SetCurrentIdentitiesCache();
 
-            var mockError = new Mock<IOperationError>();
+            var mockError = new Mock<OperationError>("Mock Message");
             testContext.SetValidatePermissionIdsResult(mockError.Object);
 
             var uut = testContext.BuildUut();
@@ -739,7 +739,7 @@ namespace Sokan.Yastah.Business.Test.Roles
             testContext.SetValidatePermissionIdsResult();
             testContext.SetCurrentIdentitiesCache();
 
-            var mockError = new Mock<IOperationError>();
+            var mockError = new Mock<OperationError>("Mock Message");
             testContext.SetRoleUpdateError(mockError.Object);
 
             var uut = testContext.BuildUut();

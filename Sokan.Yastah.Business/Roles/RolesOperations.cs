@@ -61,7 +61,7 @@ namespace Sokan.Yastah.Business.Roles
                 (int)AdministrationPermission.ManageRoles);
 
             if (authResult.IsFailure)
-                return authResult.Error.ToError<long>();
+                return authResult.Error;
 
             var performedById = _authenticationService.CurrentTicket!.UserId;
 
@@ -93,7 +93,7 @@ namespace Sokan.Yastah.Business.Roles
                 (int)AdministrationPermission.ManageRoles);
 
             return authResult.IsFailure
-                ? authResult.Error.ToError<RoleDetailViewModel>()
+                ? authResult.Error
                 : await _rolesRepository.ReadDetailAsync(
                     roleId: roleId,
                     isDeleted: false,
@@ -108,7 +108,7 @@ namespace Sokan.Yastah.Business.Roles
                 (int)AdministrationPermission.ManageRoles);
 
             return authResult.IsFailure
-                ? authResult.Error.ToError<IReadOnlyCollection<RoleIdentityViewModel>>()
+                ? authResult.Error
                 : (await _rolesService.GetCurrentIdentitiesAsync(cancellationToken))
                     .ToSuccess();
         }
