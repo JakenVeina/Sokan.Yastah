@@ -18,6 +18,7 @@ namespace Sokan.Yastah.Host
                 .UseDefaultServiceProvider((context, options) =>
                 {
                     options.ValidateScopes = context.HostingEnvironment.IsDevelopment();
+                    options.ValidateOnBuild = context.HostingEnvironment.IsDevelopment();
                 })
                 .ConfigureAppConfiguration((context, configurationBuilder) =>
                 {
