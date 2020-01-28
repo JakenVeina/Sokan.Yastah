@@ -25,8 +25,18 @@ namespace Sokan.Yastah.Data.Test.Roles
         internal class TestContext
             : MockYastahDbTestContext
         {
-            public TestContext(bool isReadOnly = true)
-                : base(isReadOnly)
+            public static TestContext CreateReadOnly()
+                => new TestContext(
+                    RolesTestEntitySetBuilder.SharedSet);
+
+            public static TestContext CreateReadWrite()
+                => new TestContext(
+                    RolesTestEntitySetBuilder.NewSet());
+
+            private TestContext(
+                    YastahTestEntitySet entities)
+                : base(
+                    entities)
             {
                 MockTransactionScopeFactory = new Mock<ITransactionScopeFactory>();
 
@@ -97,7 +107,7 @@ namespace Sokan.Yastah.Data.Test.Roles
             Optional<bool> isLatestVersion,
             bool expectedResult)
         {
-            using var testContext = new TestContext();
+            using var testContext = TestContext.CreateReadOnly();
             
             var uut = testContext.BuildUut();
 
@@ -131,20 +141,22 @@ namespace Sokan.Yastah.Data.Test.Roles
             Optional<bool> isDeleted,
             IReadOnlyList<long> versionIds)
         {
-            using var testContext = new TestContext();
-            
+            using var testContext = TestContext.CreateReadOnly();
+
             var uut = testContext.BuildUut();
 
             var results = await uut.AsyncEnumerateIdentities(
                     isDeleted)
                 .ToArrayAsync();
 
+            var versionEntities = testContext.Entities.RoleVersions;
+
             results.ShouldNotBeNull();
             results.ForEach(result => result.ShouldNotBeNull());
-            results.Select(x => x?.Id).ShouldBeSetEqualTo(versionIds.Select(x => (long?)testContext.Entities.RoleVersions.First(y => y.Id == x).RoleId));
+            results.Select(x => x?.Id).ShouldBeSetEqualTo(versionIds.Select(x => (long?)versionEntities.First(y => y.Id == x).RoleId));
             foreach (var result in results)
             {
-                var entity = testContext.Entities.RoleVersions.First(y => (y.RoleId == result.Id) && versionIds.Contains(y.Id));
+                var entity = versionEntities.First(y => (y.RoleId == result.Id) && versionIds.Contains(y.Id));
 
                 result.Name.ShouldBe(result.Name);
             }
@@ -174,8 +186,8 @@ namespace Sokan.Yastah.Data.Test.Roles
             Optional<bool> isDeleted,
             IReadOnlyList<long> mappingIds)
         {
-            using var testContext = new TestContext();
-            
+            using var testContext = TestContext.CreateReadOnly();
+
             var uut = testContext.BuildUut();
 
             var results = await uut.AsyncEnumeratePermissionMappingIdentities(
@@ -219,8 +231,8 @@ namespace Sokan.Yastah.Data.Test.Roles
             long actionId,
             long roleId)
         {
-            using var testContext = new TestContext(isReadOnly: false);
-            
+            using var testContext = TestContext.CreateReadOnly();
+
             var roleEntity = null as RoleEntity;
             var roleVersionEntity = null as RoleVersionEntity;
 
@@ -268,7 +280,7 @@ namespace Sokan.Yastah.Data.Test.Roles
             roleEntity!.Id.ShouldBe(roleId);
 
             roleVersionEntity!.Name.ShouldBe(name);
-            roleVersionEntity.ActionId.ShouldBe(actionId);
+            roleVersionEntity.CreationId.ShouldBe(actionId);
             roleVersionEntity.PreviousVersionId.ShouldBeNull();
             roleVersionEntity.NextVersionId.ShouldBeNull();
             roleVersionEntity.RoleId.ShouldBe(roleId);
@@ -300,8 +312,8 @@ namespace Sokan.Yastah.Data.Test.Roles
             long actionId,
             IReadOnlyList<long> mappingIds)
         {
-            using var testContext = new TestContext(isReadOnly: false);
-            
+            using var testContext = TestContext.CreateReadOnly();
+
             testContext.MockContext
                 .Setup(x => x.AddRangeAsync(It.IsAny<IEnumerable<object>>(), It.IsAny<CancellationToken>()))
                 .Callback<IEnumerable<object>, CancellationToken>((x, y) =>
@@ -366,8 +378,8 @@ namespace Sokan.Yastah.Data.Test.Roles
             long roleId,
             Optional<bool> isDeleted)
         {
-            using var testContext = new TestContext();
-            
+            using var testContext = TestContext.CreateReadOnly();
+
             var uut = testContext.BuildUut();
 
             var result = await uut.ReadDetailAsync(
@@ -399,8 +411,8 @@ namespace Sokan.Yastah.Data.Test.Roles
             long versionId,
             IEnumerable<int> permissionIds)
         {
-            using var testContext = new TestContext();
-            
+            using var testContext = TestContext.CreateReadOnly();
+
             var uut = testContext.BuildUut();
 
             var result = await uut.ReadDetailAsync(
@@ -442,8 +454,8 @@ namespace Sokan.Yastah.Data.Test.Roles
             Optional<string> name,
             Optional<bool> isDeleted)
         {
-            using var testContext = new TestContext(isReadOnly: false);
-            
+            using var testContext = TestContext.CreateReadWrite();
+
             var uut = testContext.BuildUut();
 
             var result = await uut.UpdateAsync(
@@ -490,8 +502,8 @@ namespace Sokan.Yastah.Data.Test.Roles
             Optional<string> name,
             Optional<bool> isDeleted)
         {
-            using var testContext = new TestContext(isReadOnly: false);
-            
+            using var testContext = TestContext.CreateReadWrite();
+
             var uut = testContext.BuildUut();
 
             var result = await uut.UpdateAsync(
@@ -542,8 +554,8 @@ namespace Sokan.Yastah.Data.Test.Roles
             Optional<bool> isDeleted,
             long versionId)
         {
-            using var testContext = new TestContext(isReadOnly: false);
-            
+            using var testContext = TestContext.CreateReadWrite();
+
             testContext.MockContext
                 .Setup(x => x.AddAsync(It.IsNotNull<RoleVersionEntity>(), It.IsAny<CancellationToken>()))
                 .Callback<RoleVersionEntity, CancellationToken>((x, y) => x.Id = versionId);
@@ -580,7 +592,7 @@ namespace Sokan.Yastah.Data.Test.Roles
 
             entity.ShouldNotBeNull();
             entity.RoleId.ShouldBe(roleId);
-            entity.ActionId.ShouldBe(actionId);
+            entity.CreationId.ShouldBe(actionId);
             entity.NextVersionId.ShouldBeNull();
             entity.PreviousVersionId.ShouldBe(previousVersionEntity.Id);
             entity.Name.ShouldBe(name.IsSpecified ? name.Value : previousVersionEntity.Name);
@@ -599,12 +611,13 @@ namespace Sokan.Yastah.Data.Test.Roles
         internal static readonly IReadOnlyList<TestCaseData> UpdatePermissionMappingsAsync_TestCaseData
             = new[]
             {
-                /*                  mappingIds,                         deletionId      */
-                new TestCaseData(   new[] { 1L },                       long.MinValue   ).SetName("{m}(Min Values)"),
-                new TestCaseData(   new[] { 2L },                       20L             ).SetName("{m}(Unique Value Set 1)"),
-                new TestCaseData(   new[] { 3L, 4L },                   21L             ).SetName("{m}(Unique Value Set 2)"),
-                new TestCaseData(   new[] { 5L, 6L },                   22L             ).SetName("{m}(Unique Value Set 3)"),
-                new TestCaseData(   new[] { 1L, 2L, 3L, 4L, 5L, 6L },   long.MaxValue   ).SetName("{m}(Max Values)")
+                /*                  mappingIds,                 deletionId      */
+                new TestCaseData(   new[] { default(long) },    default(long)   ).SetName("{m}(Default Values)"),
+                new TestCaseData(   new[] { long.MinValue },    long.MinValue   ).SetName("{m}(Min Values)"),
+                new TestCaseData(   new[] { long.MaxValue },    long.MaxValue   ).SetName("{m}(Max Values)"),
+                new TestCaseData(   new[] { 1L },               2L              ).SetName("{m}(Unique Value Set 1)"),
+                new TestCaseData(   new[] { 3L, 4L },           5L              ).SetName("{m}(Unique Value Set 2)"),
+                new TestCaseData(   new[] { 6L, 7L, 8L },       9L              ).SetName("{m}(Unique Value Set 3)")
             };
 
         [TestCaseSource(nameof(UpdatePermissionMappingsAsync_TestCaseData))]
@@ -612,11 +625,29 @@ namespace Sokan.Yastah.Data.Test.Roles
             IReadOnlyList<long> mappingIds,
             long deletionId)
         {
-            using var testContext = new TestContext(isReadOnly: false);
-            
-            var entities = mappingIds
-                .Select(x => testContext.Entities.RolePermissionMappings.First(rpm => rpm.Id == x))
-                .ToArray();
+            using var testContext = TestContext.CreateReadOnly();
+
+            var entities = new List<RolePermissionMappingEntity>();
+            var foundIds = new List<long>();
+
+            testContext.MockContext
+                .Setup(x => x.FindAsync<RolePermissionMappingEntity?>(It.IsAny<object[]>(), It.IsAny<CancellationToken>()))
+                .Returns<object[], CancellationToken>((keys, _) =>
+                {
+                    if ((keys.Length == 1) && (keys[0] is long id))
+                        foundIds.Add(id);
+
+                    var entity = new RolePermissionMappingEntity(
+                        default,
+                        default,
+                        default,
+                        default,
+                        default);
+
+                    entities.Add(entity);
+
+                    return new ValueTask<RolePermissionMappingEntity?>(entity);
+                });
 
             var uut = testContext.BuildUut();
 
@@ -625,9 +656,15 @@ namespace Sokan.Yastah.Data.Test.Roles
                 deletionId,
                 testContext.CancellationToken);
 
+            testContext.MockContext.ShouldHaveReceived(x => x
+                    .FindAsync<RolePermissionMappingEntity?>(It.IsAny<object[]>(), testContext.CancellationToken),
+                Times.Exactly(mappingIds.Count));
+
+            foundIds.ShouldBeSetEqualTo(mappingIds);
+
             entities.ForEach(entity => entity.DeletionId.ShouldBe(deletionId));
 
-            testContext.MockContext.ShouldHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
+            testContext.MockContext.ShouldHaveReceived(x => x.SaveChangesAsync(testContext.CancellationToken));
         }
 
         #endregion UpdatePermissionMappingsAsync() Tests

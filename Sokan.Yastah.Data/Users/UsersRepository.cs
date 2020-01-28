@@ -254,7 +254,7 @@ namespace Sokan.Yastah.Data.Users
             ulong id,
             string username,
             string discriminator,
-            string avatarHash,
+            string? avatarHash,
             DateTimeOffset firstSeen,
             DateTimeOffset lastSeen,
             CancellationToken cancellationToken)
@@ -321,9 +321,9 @@ namespace Sokan.Yastah.Data.Users
             foreach (var mappingId in mappingIds)
             {
                 findKeys[0] = mappingId;
-                var mapping = await _context.FindAsync<UserPermissionMappingEntity>(findKeys, cancellationToken);
+                var mapping = await _context.FindAsync<UserPermissionMappingEntity?>(findKeys, cancellationToken);
 
-                mapping.DeletionId = deletionId;
+                mapping!.DeletionId = deletionId;
             }
 
             await _context.SaveChangesAsync(cancellationToken);
@@ -342,9 +342,9 @@ namespace Sokan.Yastah.Data.Users
             foreach (var mappingId in mappingIds)
             {
                 findKeys[0] = mappingId;
-                var mapping = await _context.FindAsync<UserRoleMappingEntity>(findKeys, cancellationToken);
+                var mapping = await _context.FindAsync<UserRoleMappingEntity?>(findKeys, cancellationToken);
 
-                mapping.DeletionId = deletionId;
+                mapping!.DeletionId = deletionId;
             }
 
             await _context.SaveChangesAsync(cancellationToken);

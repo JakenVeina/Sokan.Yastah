@@ -21,8 +21,14 @@ namespace Sokan.Yastah.Data.Test.Permissions
         internal class TestContext
             : MockYastahDbTestContext
         {
-            public TestContext(bool isReadOnly = true)
-                : base(isReadOnly) { }
+            public static TestContext CreateReadOnly()
+                => new TestContext(
+                    PermissionsTestEntitySetBuilder.SharedSet);
+
+            private TestContext(
+                    YastahTestEntitySet entities)
+                : base(
+                    entities) { }
 
             public PermissionsRepository BuildUut()
                 => new PermissionsRepository(
@@ -36,20 +42,21 @@ namespace Sokan.Yastah.Data.Test.Permissions
         [Test]
         public async Task AsyncEnumerateDescriptions_Always_ReturnsAllDescriptions()
         {
-            using var testContext = new TestContext();
+            using var testContext = TestContext.CreateReadOnly();
             
             var uut = testContext.BuildUut();
 
             var results = await uut.AsyncEnumerateDescriptions()
                 .ToArrayAsync();
 
+            var entities = testContext.Entities.PermissionCategories;
+
             results.ShouldNotBeNull();
             results.ForEach(result => result.ShouldNotBeNull());
-            results.Select(x => x.Id).ShouldBeSetEqualTo(
-                testContext.Entities.PermissionCategories.Select(x => x.Id));
+            results.Select(x => x.Id).ShouldBeSetEqualTo(entities.Select(x => x.Id));
             results.ForEach(result =>
             {
-                var entity = testContext.Entities.PermissionCategories.First(x => x.Id == result.Id);
+                var entity = entities.First(x => x.Id == result.Id);
 
                 result.Name.ShouldBe(entity.Name);
                 result.Description.ShouldBe(entity.Description);
@@ -78,20 +85,21 @@ namespace Sokan.Yastah.Data.Test.Permissions
         [Test]
         public async Task AsyncEnumerateIdentities_Always_ReturnsAllDescriptions()
         {
-            using var testContext = new TestContext();
-            
+            using var testContext = TestContext.CreateReadOnly();
+
             var uut = testContext.BuildUut();
 
             var results = await uut.AsyncEnumerateIdentities()
                 .ToArrayAsync();
 
+            var entities = testContext.Entities.Permissions;
+
             results.ShouldNotBeNull();
             results.ForEach(result => result.ShouldNotBeNull());
-            results.Select(x => x.Id).ShouldBeSetEqualTo(
-                testContext.Entities.Permissions.Select(x => x.PermissionId));
+            results.Select(x => x.Id).ShouldBeSetEqualTo(entities.Select(x => x.PermissionId));
             results.ForEach(result =>
             {
-                var entity = testContext.Entities.Permissions.First(x => x.PermissionId == result.Id);
+                var entity = entities.First(x => x.PermissionId == result.Id);
 
                 result.Name.ShouldContain(entity.Name);
                 result.Name.ShouldContain(entity.Category.Name);
@@ -107,16 +115,22 @@ namespace Sokan.Yastah.Data.Test.Permissions
         internal static readonly IReadOnlyList<TestCaseData> AsyncEnumeratePermissionIds_TestCaseData
             = new[]
             {
-                /*                  permissionIds                                                           expectedResult      */
-                new TestCaseData(   Optional<IReadOnlyCollection<int>>.Unspecified,                         new[] { 1, 2, 3 }   ).SetName("{m}()"),
-                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(Array.Empty<int>()),       Array.Empty<int>()  ).SetName("{m}(permissionIds: Empty)"),
-                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] {    1, 2, 3    }),  new[] { 1, 2, 3 }   ).SetName("{m}(permissionIds: 1, 2, 3)"),
-                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] { 0, 1, 2, 3, 4 }),  new[] { 1, 2, 3 }   ).SetName("{m}(permissionIds: 0, 1, 2, 3, 4)"),
-                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] { 0             }),  Array.Empty<int>()  ).SetName("{m}(permissionIds: 0)"),
-                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] {    1          }),  new[] { 1       }   ).SetName("{m}(permissionIds: 1)"),
-                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] {       2       }),  new[] {    2    }   ).SetName("{m}(permissionIds: 2)"),
-                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] {          3    }),  new[] {       3 }   ).SetName("{m}(permissionIds: 3)"),
-                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] {             4 }),  Array.Empty<int>()  ).SetName("{m}(permissionIds: 4)")
+                /*                  permissionIds                                                                               expectedResult                      */
+                new TestCaseData(   Optional<IReadOnlyCollection<int>>.Unspecified,                                             new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 } ).SetName("{m}()"),
+                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(Array.Empty<int>()),                           Array.Empty<int>()                  ).SetName("{m}(permissionIds: Empty)"),
+                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] {    1, 2, 3, 4, 5, 6, 7, 8, 9     }),   new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 } ).SetName("{m}(permissionIds: All)"),
+                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }),   new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 } ).SetName("{m}(permissionIds: All, plus extras)"),
+                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] { 0                                }),   Array.Empty<int>()                  ).SetName("{m}(permissionIds: 0)"),
+                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] {    1                             }),   new[] { 1                         } ).SetName("{m}(permissionIds: 1)"),
+                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] {       2                          }),   new[] {    2                      } ).SetName("{m}(permissionIds: 2)"),
+                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] {          3                       }),   new[] {       3                   } ).SetName("{m}(permissionIds: 3)"),
+                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] {             4                    }),   new[] {          4                } ).SetName("{m}(permissionIds: 4)"),
+                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] {                5                 }),   new[] {             5             } ).SetName("{m}(permissionIds: 5)"),
+                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] {                   6              }),   new[] {                6          } ).SetName("{m}(permissionIds: 6)"),
+                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] {                      7           }),   new[] {                   7       } ).SetName("{m}(permissionIds: 7)"),
+                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] {                         8        }),   new[] {                      8    } ).SetName("{m}(permissionIds: 8)"),
+                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] {                            9     }),   new[] {                         9 } ).SetName("{m}(permissionIds: 9)"),
+                new TestCaseData(   Optional<IReadOnlyCollection<int>>.FromValue(new[] {                               10 }),   Array.Empty<int>()                  ).SetName("{m}(permissionIds: 10)")
             };
 
         [TestCaseSource(nameof(AsyncEnumeratePermissionIds_TestCaseData))]
@@ -124,8 +138,8 @@ namespace Sokan.Yastah.Data.Test.Permissions
             Optional<IReadOnlyCollection<int>> permissionIds,
             IReadOnlyList<int> expectedResult)
         {
-            using var testContext = new TestContext();
-            
+            using var testContext = TestContext.CreateReadOnly();
+
             var uut = testContext.BuildUut();
 
             var result = await uut.AsyncEnumeratePermissionIds(

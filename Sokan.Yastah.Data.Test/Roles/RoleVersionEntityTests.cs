@@ -15,7 +15,7 @@ namespace Sokan.Yastah.Data.Test.Roles
         public static readonly IReadOnlyList<TestCaseData> Constructor_TestCaseData
             = new[]
             {
-                /*                  id,             roleId,         name,           isDeleted,      actionId,       previousVersionId,  nextVersionId   */
+                /*                  id,             roleId,         name,           isDeleted,      creationId,     previousVersionId,  nextVersionId   */
                 new TestCaseData(   default(long),  default(long),  string.Empty,   default(bool),  default(long),  default(long?),     default(long?)  ).SetName("{m}(Default Values"),
                 new TestCaseData(   long.MinValue,  long.MinValue,  string.Empty,   false,          long.MinValue,  long.MinValue,      long.MinValue   ).SetName("{m}(Min Values)"),
                 new TestCaseData(   1L,             2L,             "name 3",       true,           4L,             5L,                 6L              ).SetName("{m}(Unique Value Set 1)"),
@@ -30,7 +30,7 @@ namespace Sokan.Yastah.Data.Test.Roles
             long roleId,
             string name,
             bool isDeleted,
-            long actionId,
+            long creationId,
             long? previousVersionId,
             long? nextVersionId)
         {
@@ -39,7 +39,7 @@ namespace Sokan.Yastah.Data.Test.Roles
                 roleId,
                 name,
                 isDeleted,
-                actionId,
+                creationId,
                 previousVersionId,
                 nextVersionId);
 
@@ -47,7 +47,7 @@ namespace Sokan.Yastah.Data.Test.Roles
             result.RoleId.ShouldBe(roleId);
             result.Name.ShouldBe(name);
             result.IsDeleted.ShouldBe(isDeleted);
-            result.ActionId.ShouldBe(actionId);
+            result.CreationId.ShouldBe(creationId);
             result.PreviousVersionId.ShouldBe(previousVersionId);
             result.NextVersionId.ShouldBe(nextVersionId);
         }

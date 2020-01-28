@@ -21,8 +21,18 @@ namespace Sokan.Yastah.Data.Test.Characters
         internal class TestContext
             : MockYastahDbTestContext
         {
-            public TestContext(bool isReadOnly = true)
-                : base(isReadOnly)
+            public static TestContext CreateReadOnly()
+                => new TestContext(
+                    CharacterGuildDivisionsTestEntitySetBuilder.SharedSet);
+
+            public static TestContext CreateReadWrite()
+                => new TestContext(
+                    CharacterGuildDivisionsTestEntitySetBuilder.NewSet());
+
+            private TestContext(
+                    YastahTestEntitySet entities)
+                : base(
+                    entities)
             {
                 MockTransactionScopeFactory = new Mock<ITransactionScopeFactory>();
 
@@ -100,7 +110,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             Optional<bool> isLatestVersion,
             bool expectedResult)
         {
-            using var testContext = new TestContext();
+            using var testContext = TestContext.CreateReadOnly();
 
             var uut = testContext.BuildUut();
 
@@ -145,7 +155,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             Optional<bool> isDeleted,
             IReadOnlyList<long> versionIds)
         {
-            using var testContext = new TestContext();
+            using var testContext = TestContext.CreateReadOnly();
 
             var uut = testContext.BuildUut();
 
@@ -154,12 +164,14 @@ namespace Sokan.Yastah.Data.Test.Characters
                     isDeleted)
                 .ToArrayAsync();
 
+            var versionEntities = testContext.Entities.CharacterGuildDivisionVersions;
+
             results.ShouldNotBeNull();
             results.ForEach(result => result.ShouldNotBeNull());
-            results.Select(x => x?.Id).ShouldBeSetEqualTo(versionIds.Select(x => (long?)testContext.Entities.CharacterGuildDivisionVersions.First(y => y.Id == x).DivisionId));
+            results.Select(x => x?.Id).ShouldBeSetEqualTo(versionIds.Select(x => (long?)versionEntities.First(y => y.Id == x).DivisionId));
             foreach (var result in results)
             {
-                var entity = testContext.Entities.CharacterGuildDivisionVersions.First(y => (y.DivisionId == result.Id) && versionIds.Contains(y.Id));
+                var entity = versionEntities.First(y => (y.DivisionId == result.Id) && versionIds.Contains(y.Id));
 
                 result.Name.ShouldBe(result.Name);
             }
@@ -190,7 +202,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             long creationId,
             long divisionId)
         {
-            using var testContext = new TestContext(isReadOnly: false);
+            using var testContext = TestContext.CreateReadOnly();
 
             var guildDivisionEntity = null as CharacterGuildDivisionEntity;
             var guildDivisionVersionEntity = null as CharacterGuildDivisionVersionEntity;
@@ -272,7 +284,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             Optional<string> name,
             Optional<bool> isDeleted)
         {
-            using var testContext = new TestContext(isReadOnly: false);
+            using var testContext = TestContext.CreateReadWrite();
 
             var uut = testContext.BuildUut();
 
@@ -332,7 +344,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             Optional<string> name,
             Optional<bool> isDeleted)
         {
-            using var testContext = new TestContext(isReadOnly: false);
+            using var testContext = TestContext.CreateReadWrite();
 
             var uut = testContext.BuildUut();
 
@@ -402,13 +414,14 @@ namespace Sokan.Yastah.Data.Test.Characters
             Optional<bool> isDeleted,
             long versionId)
         {
-            using var testContext = new TestContext(isReadOnly: false);
+            using var testContext = TestContext.CreateReadWrite();
 
             testContext.MockContext
                 .Setup(x => x.AddAsync(It.IsNotNull<CharacterGuildDivisionVersionEntity>(), It.IsAny<CancellationToken>()))
                 .Callback<CharacterGuildDivisionVersionEntity, CancellationToken>((x, y) => x.Id = versionId);
 
-            var previousVersionEntity = testContext.Entities.CharacterGuildDivisionVersions.First(x => (x.DivisionId == divisionId) && (x.NextVersionId is null));
+            var previousVersionEntity = testContext.Entities.CharacterGuildDivisionVersions
+                .First(x => (x.DivisionId == divisionId) && (x.NextVersionId is null));
 
             var uut = testContext.BuildUut();
 

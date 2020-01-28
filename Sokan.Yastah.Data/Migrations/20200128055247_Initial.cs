@@ -437,6 +437,13 @@ namespace Sokan.Yastah.Data.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_CharacterVersions_CharacterGuildDivisions_DivisionId",
+                        column: x => x.DivisionId,
+                        principalSchema: "Characters",
+                        principalTable: "CharacterGuildDivisions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_CharacterVersions_CharacterVersions_NextVersionId",
                         column: x => x.NextVersionId,
                         principalSchema: "Characters",
@@ -507,7 +514,7 @@ namespace Sokan.Yastah.Data.Migrations
                     RoleId = table.Column<long>(nullable: false),
                     Name = table.Column<string>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
-                    ActionId = table.Column<long>(nullable: false),
+                    CreationId = table.Column<long>(nullable: false),
                     PreviousVersionId = table.Column<long>(nullable: true),
                     NextVersionId = table.Column<long>(nullable: true)
                 },
@@ -515,8 +522,8 @@ namespace Sokan.Yastah.Data.Migrations
                 {
                     table.PrimaryKey("PK_RoleVersions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RoleVersions_AdministrationActions_ActionId",
-                        column: x => x.ActionId,
+                        name: "FK_RoleVersions_AdministrationActions_CreationId",
+                        column: x => x.CreationId,
                         principalSchema: "Administration",
                         principalTable: "AdministrationActions",
                         principalColumn: "Id",
@@ -925,6 +932,12 @@ namespace Sokan.Yastah.Data.Migrations
                 column: "CreationId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CharacterVersions_DivisionId",
+                schema: "Characters",
+                table: "CharacterVersions",
+                column: "DivisionId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CharacterVersions_NextVersionId",
                 schema: "Characters",
                 table: "CharacterVersions",
@@ -977,10 +990,10 @@ namespace Sokan.Yastah.Data.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RoleVersions_ActionId",
+                name: "IX_RoleVersions_CreationId",
                 schema: "Roles",
                 table: "RoleVersions",
-                column: "ActionId");
+                column: "CreationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoleVersions_NextVersionId",
@@ -1134,15 +1147,15 @@ namespace Sokan.Yastah.Data.Migrations
                 schema: "Users");
 
             migrationBuilder.DropTable(
-                name: "CharacterGuildDivisions",
-                schema: "Characters");
-
-            migrationBuilder.DropTable(
                 name: "CharacterLevelDefinitions",
                 schema: "Characters");
 
             migrationBuilder.DropTable(
                 name: "Characters",
+                schema: "Characters");
+
+            migrationBuilder.DropTable(
+                name: "CharacterGuildDivisions",
                 schema: "Characters");
 
             migrationBuilder.DropTable(

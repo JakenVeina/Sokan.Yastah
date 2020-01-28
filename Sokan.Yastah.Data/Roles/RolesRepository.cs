@@ -148,7 +148,7 @@ namespace Sokan.Yastah.Data.Roles
                 roleId: role.Id,
                 name: name,
                 isDeleted: false,
-                actionId: actionId,
+                creationId: actionId,
                 previousVersionId: null,
                 nextVersionId: null);
 
@@ -232,7 +232,7 @@ namespace Sokan.Yastah.Data.Roles
                 isDeleted: isDeleted.IsSpecified
                                         ? isDeleted.Value
                                         : currentVersion.IsDeleted,
-                actionId: actionId,
+                creationId: actionId,
                 previousVersionId: currentVersion.Id,
                 nextVersionId: null
             );
@@ -265,9 +265,9 @@ namespace Sokan.Yastah.Data.Roles
             foreach (var mappingId in mappingIds)
             {
                 findKeys[0] = mappingId;
-                var mapping = await _context.FindAsync<RolePermissionMappingEntity>(findKeys, cancellationToken);
+                var mapping = await _context.FindAsync<RolePermissionMappingEntity?>(findKeys, cancellationToken);
 
-                mapping.DeletionId = deletionId;
+                mapping!.DeletionId = deletionId;
             }
 
             await _context.SaveChangesAsync(cancellationToken);

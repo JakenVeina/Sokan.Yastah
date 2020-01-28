@@ -20,8 +20,18 @@ namespace Sokan.Yastah.Data.Test.Characters
         internal class TestContext
             : MockYastahDbTestContext
         {
-            public TestContext(bool isReadOnly = true)
-                : base(isReadOnly)
+            public static TestContext CreateReadOnly()
+                => new TestContext(
+                    CharactersTestEntitySetBuilder.SharedSet);
+
+            public static TestContext CreateReadWrite()
+                => new TestContext(
+                    CharactersTestEntitySetBuilder.NewSet());
+
+            private TestContext(
+                    YastahTestEntitySet entities)
+                : base(
+                    entities)
             {
                 MockTransactionScopeFactory = new Mock<ITransactionScopeFactory>();
 
@@ -66,7 +76,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             long creationId,
             long characterId)
         {
-            using var testContext = new TestContext(isReadOnly: false);
+            using var testContext = TestContext.CreateReadOnly();
 
             var characterEntity = null as CharacterEntity;
             var characterVersionEntity = null as CharacterVersionEntity;
@@ -156,7 +166,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             Optional<decimal> insanityValue,
             Optional<bool> isDeleted)
         {
-            using var testContext = new TestContext(isReadOnly: false);
+            using var testContext = TestContext.CreateReadWrite();
 
             var uut = testContext.BuildUut();
 
@@ -214,7 +224,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             Optional<decimal> insanityValue,
             Optional<bool> isDeleted)
         {
-            using var testContext = new TestContext(isReadOnly: false);
+            using var testContext = TestContext.CreateReadWrite();
 
             var uut = testContext.BuildUut();
 
@@ -293,7 +303,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             Optional<bool> isDeleted,
             long versionId)
         {
-            using var testContext = new TestContext(isReadOnly: false);
+            using var testContext = TestContext.CreateReadWrite();
 
             testContext.MockContext
                 .Setup(x => x.AddAsync(It.IsNotNull<CharacterVersionEntity>(), It.IsAny<CancellationToken>()))

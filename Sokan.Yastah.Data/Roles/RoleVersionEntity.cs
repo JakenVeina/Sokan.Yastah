@@ -13,7 +13,7 @@ namespace Sokan.Yastah.Data.Roles
             long roleId,
             string name,
             bool isDeleted,
-            long actionId,
+            long creationId,
             long? previousVersionId,
             long? nextVersionId)
         {
@@ -21,7 +21,7 @@ namespace Sokan.Yastah.Data.Roles
             RoleId = roleId;
             Name = name;
             IsDeleted = isDeleted;
-            ActionId = actionId;
+            CreationId = creationId;
             PreviousVersionId = previousVersionId;
             NextVersionId = nextVersionId;
         }
@@ -41,10 +41,10 @@ namespace Sokan.Yastah.Data.Roles
 
         public bool IsDeleted { get; set; }
 
-        [ForeignKey(nameof(Action))]
-        public long ActionId { get; }
+        [ForeignKey(nameof(Creation))]
+        public long CreationId { get; }
 
-        public AdministrationActionEntity Action { get; internal set; }
+        public AdministrationActionEntity Creation { get; internal set; }
             = null!;
 
         public long? PreviousVersionId { get; set; }

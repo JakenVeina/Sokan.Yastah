@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -23,8 +24,14 @@ namespace Sokan.Yastah.Data.Test.Users
         internal class TestContext
             : MockYastahDbTestContext
         {
-            public TestContext(bool isReadOnly = true)
-                : base(isReadOnly)
+            public static TestContext CreateReadOnly()
+                => new TestContext(
+                    UsersTestEntitySetBuilder.SharedSet);
+
+            private TestContext(
+                    YastahTestEntitySet entities)
+                : base(
+                    entities)
             {
                 MockTransactionScopeFactory = new Mock<ITransactionScopeFactory>();
 
@@ -66,7 +73,7 @@ namespace Sokan.Yastah.Data.Test.Users
             Optional<ulong> userId,
             bool expectedResult)
         {
-            using var testContext = new TestContext();
+            using var testContext = TestContext.CreateReadOnly();
             
             var uut = testContext.BuildUut();
 
@@ -94,8 +101,8 @@ namespace Sokan.Yastah.Data.Test.Users
         public async Task AsyncEnumerateDefaultRoleIds_Always_ReturnsUndeletedMappingRoleIds(
             IReadOnlyList<long> expectedResult)
         {
-            using var testContext = new TestContext();
-            
+            using var testContext = TestContext.CreateReadOnly();
+
             var uut = testContext.BuildUut();
 
             var result = await uut.AsyncEnumerateDefaultRoleIds()
@@ -121,8 +128,8 @@ namespace Sokan.Yastah.Data.Test.Users
         public async Task AsyncEnumerateDefaultPermissionIds_Always_ReturnsUndeletedMappingPermissionIds(
             IReadOnlyList<int> expectedResult)
         {
-            using var testContext = new TestContext();
-            
+            using var testContext = TestContext.CreateReadOnly();
+
             var uut = testContext.BuildUut();
 
             var result = await uut.AsyncEnumerateDefaultPermissionIds()
@@ -151,8 +158,8 @@ namespace Sokan.Yastah.Data.Test.Users
             ulong userId,
             IReadOnlyList<int> permissionIds)
         {
-            using var testContext = new TestContext();
-            
+            using var testContext = TestContext.CreateReadOnly();
+
             var uut = testContext.BuildUut();
 
             var results = await uut.AsyncEnumerateGrantedPermissionIdentities(
@@ -194,8 +201,8 @@ namespace Sokan.Yastah.Data.Test.Users
             Optional<long> roleId,
             IReadOnlyList<ulong> userIds)
         {
-            using var testContext = new TestContext();
-            
+            using var testContext = TestContext.CreateReadOnly();
+
             var uut = testContext.BuildUut();
 
             var result = await uut.AsyncEnumerateIds(
@@ -214,19 +221,21 @@ namespace Sokan.Yastah.Data.Test.Users
         [Test]
         public async Task AsyncEnumerateOverviews_Always_ReturnsAllUserOverviews()
         {
-            using var testContext = new TestContext();
-            
+            using var testContext = TestContext.CreateReadOnly();
+
             var uut = testContext.BuildUut();
 
             var results = await uut.AsyncEnumerateOverviews()
                 .ToArrayAsync();
 
+            var userEntities = testContext.Entities.Users;
+
             results.ShouldNotBeNull();
             results.ForEach(result => result.ShouldNotBeNull());
-            results.Select(result => result.Id).ShouldBeSetEqualTo(testContext.Entities.Users.Select(u => u.Id));
+            results.Select(result => result.Id).ShouldBeSetEqualTo(userEntities.Select(u => u.Id));
             results.ForEach(result =>
             {
-                var entity = testContext.Entities.Users.First(u => u.Id == result.Id);
+                var entity = userEntities.First(u => u.Id == result.Id);
 
                 result.Username.ShouldBe(entity.Username);
                 result.Discriminator.ShouldBe(entity.Discriminator);
@@ -263,8 +272,8 @@ namespace Sokan.Yastah.Data.Test.Users
             Optional<bool> isDeleted,
             IReadOnlyList<long> mappingIds)
         {
-            using var testContext = new TestContext();
-            
+            using var testContext = TestContext.CreateReadOnly();
+
             var uut = testContext.BuildUut();
 
             var results = await uut.AsyncEnumeratePermissionMappingIdentities(
@@ -313,8 +322,8 @@ namespace Sokan.Yastah.Data.Test.Users
             Optional<bool> isDeleted,
             IReadOnlyList<long> mappingIds)
         {
-            using var testContext = new TestContext();
-            
+            using var testContext = TestContext.CreateReadOnly();
+
             var uut = testContext.BuildUut();
 
             var results = await uut.AsyncEnumerateRoleMappingIdentities(
@@ -360,8 +369,8 @@ namespace Sokan.Yastah.Data.Test.Users
             long actionId,
             IReadOnlyList<long> mappingIds)
         {
-            using var testContext = new TestContext(isReadOnly: false);
-            
+            using var testContext = TestContext.CreateReadOnly();
+
             testContext.MockContext
                 .Setup(x => x.AddRangeAsync(It.IsAny<IEnumerable<object>>(), It.IsAny<CancellationToken>()))
                 .Callback<IEnumerable<object>, CancellationToken>((x, y) =>
@@ -433,8 +442,8 @@ namespace Sokan.Yastah.Data.Test.Users
             long actionId,
             IReadOnlyList<long> mappingIds)
         {
-            using var testContext = new TestContext(isReadOnly: false);
-            
+            using var testContext = TestContext.CreateReadOnly();
+
             testContext.MockContext
                 .Setup(x => x.AddRangeAsync(It.IsAny<IEnumerable<object>>(), It.IsAny<CancellationToken>()))
                 .Callback<IEnumerable<object>, CancellationToken>((x, y) =>
@@ -488,10 +497,13 @@ namespace Sokan.Yastah.Data.Test.Users
         public static IReadOnlyList<TestCaseData> MergeAsync_UserDoesNotExist_TestCaseData
             => new[]
             {
-                /*                  id,             username,           discriminator,  avatarHash, firstSeen,                          lastSeen                            */
-                new TestCaseData(   ulong.MinValue, "Merged User 1",    "0004",         "00010",    DateTimeOffset.Parse("2019-01-07"), DateTimeOffset.Parse("2019-01-08")  ).SetName("{m}(Min Values)"),
-                new TestCaseData(   4UL,            "Merged User 5",    "0008",         "00014",    DateTimeOffset.Parse("2019-01-15"), DateTimeOffset.Parse("2019-01-16")  ).SetName("{m}(Bogus User)"),
-                new TestCaseData(   ulong.MaxValue, "Merged User 6",    "0009",         "00015",    DateTimeOffset.Parse("2019-01-17"), DateTimeOffset.Parse("2019-01-18")  ).SetName("{m}(Max Values)"),
+                /*                  id,             username,           discriminator,  avatarHash,     firstSeen,                          lastSeen                            */
+                new TestCaseData(   default(ulong), string.Empty,       string.Empty,   null,           default(DateTimeOffset),            default(DateTimeOffset)             ).SetName("{m}(Default Values)"),
+                new TestCaseData(   ulong.MinValue, string.Empty,       string.Empty,   string.Empty,   DateTimeOffset.MinValue,            DateTimeOffset.MinValue             ).SetName("{m}(Min Values)"),
+                new TestCaseData(   ulong.MaxValue, string.Empty,       string.Empty,   string.Empty,   DateTimeOffset.MaxValue,            DateTimeOffset.MaxValue             ).SetName("{m}(Max Values)"),
+                new TestCaseData(   1UL,            "2",                "0003",         "00004",        DateTimeOffset.Parse("2005-06-07"), DateTimeOffset.Parse("2008-09-10")  ).SetName("{m}(Unique Value Set 1)"),
+                new TestCaseData(   11UL,           "12",               "0013",         "00014",        DateTimeOffset.Parse("2015-04-17"), DateTimeOffset.Parse("2018-07-20")  ).SetName("{m}(Unique Value Set 2)"),
+                new TestCaseData(   21UL,           "22",               "0023",         "00024",        DateTimeOffset.Parse("2025-02-27"), DateTimeOffset.Parse("2028-05-30")  ).SetName("{m}(Unique Value Set 3)")
             };
 
         [TestCaseSource(nameof(MergeAsync_UserDoesNotExist_TestCaseData))]
@@ -503,8 +515,8 @@ namespace Sokan.Yastah.Data.Test.Users
             DateTimeOffset firstSeen,
             DateTimeOffset lastSeen)
         {
-            using var testContext = new TestContext(isReadOnly: false);
-            
+            using var testContext = TestContext.CreateReadOnly();
+
             testContext.MockContext
                 .Setup(x => x.FindAsync<UserEntity?>(It.IsAny<object[]>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(null as UserEntity);
@@ -551,10 +563,13 @@ namespace Sokan.Yastah.Data.Test.Users
         public static IReadOnlyList<TestCaseData> MergeAsync_UserExists_TestCaseData
             => new[]
             {
-                /*                  id,             username,           discriminator,  avatarHash, firstSeen,                          lastSeen                            */
-                new TestCaseData(   1UL,            "Merged User 2",    "0005",         "00011",    DateTimeOffset.Parse("2019-01-09"), DateTimeOffset.Parse("2019-01-10")  ).SetName("{m}(User 1)"),
-                new TestCaseData(   2UL,            "Merged User 3",    "0006",         "00012",    DateTimeOffset.Parse("2019-01-11"), DateTimeOffset.Parse("2019-01-12")  ).SetName("{m}(User 2)"),
-                new TestCaseData(   3UL,            "Merged User 4",    "0007",         "00013",    DateTimeOffset.Parse("2019-01-13"), DateTimeOffset.Parse("2019-01-14")  ).SetName("{m}(User 3)"),
+                /*                  id,             username,           discriminator,  avatarHash,     firstSeen,                          lastSeen,                           priorFirstSeen                      */
+                new TestCaseData(   default(ulong), string.Empty,       string.Empty,   null,           default(DateTimeOffset),            default(DateTimeOffset),            default(DateTimeOffset)             ).SetName("{m}(Default Values)"),
+                new TestCaseData(   ulong.MinValue, string.Empty,       string.Empty,   string.Empty,   DateTimeOffset.MinValue,            DateTimeOffset.MinValue,            DateTimeOffset.MinValue             ).SetName("{m}(Min Values)"),
+                new TestCaseData(   ulong.MaxValue, string.Empty,       string.Empty,   string.Empty,   DateTimeOffset.MaxValue,            DateTimeOffset.MaxValue,            DateTimeOffset.MaxValue             ).SetName("{m}(Max Values)"),
+                new TestCaseData(   1UL,            "2",                "0003",         "00004",        DateTimeOffset.Parse("2005-06-07"), DateTimeOffset.Parse("2008-09-10"), DateTimeOffset.Parse("2011-12-13")  ).SetName("{m}(Unique Value Set 1)"),
+                new TestCaseData(   14UL,           "15",               "0016",         "00017",        DateTimeOffset.Parse("2018-07-20"), DateTimeOffset.Parse("2021-10-23"), DateTimeOffset.Parse("2024-01-26")  ).SetName("{m}(Unique Value Set 2)"),
+                new TestCaseData(   27UL,           "28",               "0029",         "00030",        DateTimeOffset.Parse("2031-08-03"), DateTimeOffset.Parse("2034-11-06"), DateTimeOffset.Parse("2037-02-09")  ).SetName("{m}(Unique Value Set 3)")
             };
 
         [TestCaseSource(nameof(MergeAsync_UserExists_TestCaseData))]
@@ -562,18 +577,23 @@ namespace Sokan.Yastah.Data.Test.Users
             ulong id,
             string username,
             string discriminator,
-            string avatarHash,
+            string? avatarHash,
             DateTimeOffset firstSeen,
-            DateTimeOffset lastSeen)
+            DateTimeOffset lastSeen,
+            DateTimeOffset priorFirstSeen)
         {
-            using var testContext = new TestContext(isReadOnly: false);
-            
-            var entity = testContext.Entities.Users.First(x => x.Id == id);
+            using var testContext = TestContext.CreateReadOnly();
 
-            var priorFirstSeen = entity.FirstSeen;
+            var entity = new UserEntity(
+                id,
+                username,
+                discriminator,
+                avatarHash,
+                priorFirstSeen,
+                lastSeen);
 
             testContext.MockContext
-                .Setup(x => x.FindAsync<UserEntity>(It.IsAny<object[]>(), It.IsAny<CancellationToken>()))
+                .Setup(x => x.FindAsync<UserEntity?>(It.IsAny<object[]>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(entity);
 
             var uut = testContext.BuildUut();
@@ -626,8 +646,8 @@ namespace Sokan.Yastah.Data.Test.Users
         public async Task ReadDetailAsync_UserDoesNotExist_ResultIsDataNotFound(
             ulong userId)
         {
-            using var testContext = new TestContext();
-            
+            using var testContext = TestContext.CreateReadOnly();
+
             var uut = testContext.BuildUut();
 
             var result = await uut.ReadDetailAsync(
@@ -657,8 +677,8 @@ namespace Sokan.Yastah.Data.Test.Users
             IReadOnlyList<int> deniedPermissionIds,
             IReadOnlyList<long> assignedRoleIds)
         {
-            using var testContext = new TestContext();
-            
+            using var testContext = TestContext.CreateReadOnly();
+
             var entity = testContext.Entities.Users.First(x => x.Id == userId);
 
             var uut = testContext.BuildUut();
@@ -687,12 +707,13 @@ namespace Sokan.Yastah.Data.Test.Users
         internal static readonly IReadOnlyList<TestCaseData> UpdatePermissionMappingsAsync_TestCaseData
             = new[]
             {
-                /*                  mappingIds,                                 deletionId      */
-                new TestCaseData(   new[] { 1L },                               long.MinValue   ).SetName("{m}(Min Values)"),
-                new TestCaseData(   new[] { 2L, 3L },                           30L             ).SetName("{m}(Unique Value Set 1)"),
-                new TestCaseData(   new[] { 4L, 5L, 6L },                       31L             ).SetName("{m}(Unique Value Set 2)"),
-                new TestCaseData(   new[] { 7L, 8L },                           32L             ).SetName("{m}(Unique Value Set 3)"),
-                new TestCaseData(   new[] { 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L },   long.MaxValue   ).SetName("{m}(Max Values)")
+                /*                  mappingIds,                 deletionId      */
+                new TestCaseData(   new[] { default(long) },    default(long)   ).SetName("{m}(Default Values)"),
+                new TestCaseData(   new[] { long.MinValue },    long.MinValue   ).SetName("{m}(Min Values)"),
+                new TestCaseData(   new[] { long.MaxValue },    long.MaxValue   ).SetName("{m}(Max Values)"),
+                new TestCaseData(   new[] { 1L },               2L              ).SetName("{m}(Unique Value Set 1)"),
+                new TestCaseData(   new[] { 3L, 4L },           5L              ).SetName("{m}(Unique Value Set 2)"),
+                new TestCaseData(   new[] { 6L, 7L, 8L },       9L              ).SetName("{m}(Unique Value Set 3)"),
             };
 
         [TestCaseSource(nameof(UpdatePermissionMappingsAsync_TestCaseData))]
@@ -700,11 +721,30 @@ namespace Sokan.Yastah.Data.Test.Users
             IReadOnlyList<long> mappingIds,
             long deletionId)
         {
-            using var testContext = new TestContext(isReadOnly: false);
-            
-            var entities = mappingIds
-                .Select(x => testContext.Entities.UserPermissionMappings.First(rpm => rpm.Id == x))
-                .ToArray();
+            using var testContext = TestContext.CreateReadOnly();
+
+            var entities = new List<UserPermissionMappingEntity>();
+            var foundIds = new List<long>();
+
+            testContext.MockContext
+                .Setup(x => x.FindAsync<UserPermissionMappingEntity?>(It.IsAny<object[]>(), It.IsAny<CancellationToken>()))
+                .Returns<object[], CancellationToken>((keys, _) =>
+                {
+                    if ((keys.Length == 1) && (keys[0] is long id))
+                        foundIds.Add(id);
+
+                    var entity = new UserPermissionMappingEntity(
+                        default,
+                        default,
+                        default,
+                        default,
+                        default,
+                        default);
+
+                    entities.Add(entity);
+
+                    return new ValueTask<UserPermissionMappingEntity?>(entity);
+                });
 
             var uut = testContext.BuildUut();
 
@@ -713,9 +753,15 @@ namespace Sokan.Yastah.Data.Test.Users
                 deletionId,
                 testContext.CancellationToken);
 
+            testContext.MockContext.ShouldHaveReceived(x => x
+                    .FindAsync<UserPermissionMappingEntity?>(It.IsAny<object[]>(), testContext.CancellationToken),
+                Times.Exactly(mappingIds.Count));
+
+            foundIds.ShouldBeSetEqualTo(mappingIds);
+
             entities.ForEach(entity => entity.DeletionId.ShouldBe(deletionId));
 
-            testContext.MockContext.ShouldHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
+            testContext.MockContext.ShouldHaveReceived(x => x.SaveChangesAsync(testContext.CancellationToken));
         }
 
         #endregion UpdatePermissionMappingsAsync() Tests
@@ -725,12 +771,13 @@ namespace Sokan.Yastah.Data.Test.Users
         internal static readonly IReadOnlyList<TestCaseData> UpdateRoleMappingsAsync_TestCaseData
             = new[]
             {
-                /*                  mappingIds,                         deletionId      */
-                new TestCaseData(   new[] { 1L },                       long.MinValue   ).SetName("{m}(Min Values)"),
-                new TestCaseData(   new[] { 2L },                       40L             ).SetName("{m}(Unique Value Set 1)"),
-                new TestCaseData(   new[] { 3L, 4L },                   41L             ).SetName("{m}(Unique Value Set 2)"),
-                new TestCaseData(   new[] { 5L, 6L },                   42L             ).SetName("{m}(Unique Value Set 3)"),
-                new TestCaseData(   new[] { 1L, 2L, 3L, 4L, 5L, 6L },   long.MaxValue   ).SetName("{m}(Max Values)")
+                /*                  mappingIds,                 deletionId      */
+                new TestCaseData(   new[] { default(long) },    default(long)   ).SetName("{m}(Default Values)"),
+                new TestCaseData(   new[] { long.MinValue },    long.MinValue   ).SetName("{m}(Min Values)"),
+                new TestCaseData(   new[] { long.MaxValue },    long.MaxValue   ).SetName("{m}(Max Values)"),
+                new TestCaseData(   new[] { 1L },               2L              ).SetName("{m}(Unique Value Set 1)"),
+                new TestCaseData(   new[] { 3L, 4L },           5L              ).SetName("{m}(Unique Value Set 2)"),
+                new TestCaseData(   new[] { 6L, 7L, 8L },       9L              ).SetName("{m}(Unique Value Set 3)"),
             };
 
         [TestCaseSource(nameof(UpdateRoleMappingsAsync_TestCaseData))]
@@ -738,11 +785,29 @@ namespace Sokan.Yastah.Data.Test.Users
             IReadOnlyList<long> mappingIds,
             long deletionId)
         {
-            using var testContext = new TestContext(isReadOnly: false);
-            
-            var entities = mappingIds
-                .Select(x => testContext.Entities.UserRoleMappings.First(rpm => rpm.Id == x))
-                .ToArray();
+            using var testContext = TestContext.CreateReadOnly();
+
+            var entities = new List<UserRoleMappingEntity>();
+            var foundIds = new List<long>();
+
+            testContext.MockContext
+                .Setup(x => x.FindAsync<UserRoleMappingEntity?>(It.IsAny<object[]>(), It.IsAny<CancellationToken>()))
+                .Returns<object[], CancellationToken>((keys, _) =>
+                {
+                    if ((keys.Length == 1) && (keys[0] is long id))
+                        foundIds.Add(id);
+
+                    var entity = new UserRoleMappingEntity(
+                        default,
+                        default,
+                        default,
+                        default,
+                        default);
+
+                    entities.Add(entity);
+
+                    return new ValueTask<UserRoleMappingEntity?>(entity);
+                });
 
             var uut = testContext.BuildUut();
 
@@ -751,9 +816,15 @@ namespace Sokan.Yastah.Data.Test.Users
                 deletionId,
                 testContext.CancellationToken);
 
+            testContext.MockContext.ShouldHaveReceived(x => x
+                    .FindAsync<UserRoleMappingEntity?>(It.IsAny<object[]>(), testContext.CancellationToken),
+                Times.Exactly(mappingIds.Count));
+
+            foundIds.ShouldBeSetEqualTo(mappingIds);
+
             entities.ForEach(entity => entity.DeletionId.ShouldBe(deletionId));
 
-            testContext.MockContext.ShouldHaveReceived(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
+            testContext.MockContext.ShouldHaveReceived(x => x.SaveChangesAsync(testContext.CancellationToken));
         }
 
         #endregion UpdateRoleMappingsAsync() Tests

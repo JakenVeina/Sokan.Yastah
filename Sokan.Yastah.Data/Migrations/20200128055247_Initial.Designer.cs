@@ -10,7 +10,7 @@ using Sokan.Yastah.Data;
 namespace Sokan.Yastah.Data.Migrations
 {
     [DbContext(typeof(YastahDbContext))]
-    [Migration("20200119035609_Initial")]
+    [Migration("20200128055247_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -479,6 +479,8 @@ namespace Sokan.Yastah.Data.Migrations
 
                     b.HasIndex("CreationId");
 
+                    b.HasIndex("DivisionId");
+
                     b.HasIndex("NextVersionId")
                         .IsUnique();
 
@@ -635,7 +637,7 @@ namespace Sokan.Yastah.Data.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<long>("ActionId")
+                    b.Property<long>("CreationId")
                         .HasColumnType("bigint");
 
                     b.Property<bool>("IsDeleted")
@@ -656,7 +658,7 @@ namespace Sokan.Yastah.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ActionId");
+                    b.HasIndex("CreationId");
 
                     b.HasIndex("NextVersionId")
                         .IsUnique();
@@ -963,6 +965,12 @@ namespace Sokan.Yastah.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Sokan.Yastah.Data.Characters.CharacterGuildDivisionEntity", "Division")
+                        .WithMany()
+                        .HasForeignKey("DivisionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Sokan.Yastah.Data.Characters.CharacterVersionEntity", "NextVersion")
                         .WithOne()
                         .HasForeignKey("Sokan.Yastah.Data.Characters.CharacterVersionEntity", "NextVersionId");
@@ -1008,9 +1016,9 @@ namespace Sokan.Yastah.Data.Migrations
 
             modelBuilder.Entity("Sokan.Yastah.Data.Roles.RoleVersionEntity", b =>
                 {
-                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Action")
+                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
                         .WithMany()
-                        .HasForeignKey("ActionId")
+                        .HasForeignKey("CreationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

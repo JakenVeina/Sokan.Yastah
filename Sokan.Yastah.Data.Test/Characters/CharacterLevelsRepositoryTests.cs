@@ -20,8 +20,18 @@ namespace Sokan.Yastah.Data.Test.Characters
         internal class TestContext
             : MockYastahDbTestContext
         {
-            public TestContext(bool isReadOnly = true)
-                : base(isReadOnly)
+            public static TestContext CreateReadOnly()
+                => new TestContext(
+                    CharacterLevelsTestEntitySetBuilder.SharedSet);
+
+            public static TestContext CreateReadWrite()
+                => new TestContext(
+                    CharacterLevelsTestEntitySetBuilder.NewSet());
+
+            private TestContext(
+                    YastahTestEntitySet entities)
+                : base(
+                    entities)
             {
                 MockTransactionScopeFactory = new Mock<ITransactionScopeFactory>();
 
@@ -77,7 +87,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             Optional<bool> isDeleted,
             bool expectedResult)
         {
-            using var testContext = new TestContext();
+            using var testContext = TestContext.CreateReadOnly();
 
             var uut = testContext.BuildUut();
 
@@ -108,7 +118,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             Optional<bool> isDeleted,
             IReadOnlyList<long> versionIds)
         {
-            using var testContext = new TestContext();
+            using var testContext = TestContext.CreateReadOnly();
 
             var uut = testContext.BuildUut();
 
@@ -116,12 +126,14 @@ namespace Sokan.Yastah.Data.Test.Characters
                     isDeleted)
                 .ToArrayAsync();
 
+            var versionEntities = testContext.Entities.CharacterLevelDefinitionVersions;
+
             results.ShouldNotBeNull();
             results.ForEach(result => result.ShouldNotBeNull());
-            results.Select(result => result.Level).ShouldBeSetEqualTo(versionIds.Select(x => testContext.Entities.CharacterLevelDefinitionVersions.First(y => y.Id == x).Level));
+            results.Select(result => result.Level).ShouldBeSetEqualTo(versionIds.Select(x => versionEntities.First(y => y.Id == x).Level));
             foreach (var result in results)
             {
-                var entity = testContext.Entities.CharacterLevelDefinitionVersions.First(y => (y.Level == result.Level) && versionIds.Contains(y.Id));
+                var entity = versionEntities.First(y => (y.Level == result.Level) && versionIds.Contains(y.Id));
 
                 result.ExperienceThreshold.ShouldBe(entity.ExperienceThreshold);
             }
@@ -153,7 +165,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             bool isDeleted,
             long actionId)
         {
-            using var testContext = new TestContext(isReadOnly: false);
+            using var testContext = TestContext.CreateReadWrite();
 
             var levelDefinitionEntity = null as CharacterLevelDefinitionEntity;
             var levelDefinitionVersionEntity = null as CharacterLevelDefinitionVersionEntity;
@@ -224,7 +236,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             bool isDeleted,
             long actionId)
         {
-            using var testContext = new TestContext(isReadOnly: false);
+            using var testContext = TestContext.CreateReadWrite();
 
             var uut = testContext.BuildUut();
 
@@ -275,9 +287,10 @@ namespace Sokan.Yastah.Data.Test.Characters
             bool isDeleted,
             long actionId)
         {
-            using var testContext = new TestContext(isReadOnly: false);
+            using var testContext = TestContext.CreateReadWrite();
 
-            var previousVersionEntity = testContext.Entities.CharacterLevelDefinitionVersions.First(x => (x.Level == level) && (x.NextVersionId is null));
+            var previousVersionEntity = testContext.Entities.CharacterLevelDefinitionVersions
+                .First(x => (x.Level == level) && (x.NextVersionId is null));
 
             var uut = testContext.BuildUut();
 

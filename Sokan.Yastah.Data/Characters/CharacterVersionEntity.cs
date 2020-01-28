@@ -52,7 +52,7 @@ namespace Sokan.Yastah.Data.Characters
         [ForeignKey(nameof(Division))]
         public long DivisionId { get; }
 
-        public CharacterGuildDivisionEntity Division { get; }
+        public CharacterGuildDivisionEntity Division { get; internal set; }
             = null!;
 
         public decimal ExperiencePoints { get; }

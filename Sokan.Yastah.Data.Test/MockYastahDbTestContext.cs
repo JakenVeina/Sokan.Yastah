@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using Moq;
+﻿using Moq;
 
 using Sokan.Yastah.Data.Concurrency;
 
@@ -13,16 +9,15 @@ namespace Sokan.Yastah.Data.Test
     internal class MockYastahDbTestContext
         : AsyncMethodTestContext
     {
-        public MockYastahDbTestContext(bool isReadOnly = true)
+        public MockYastahDbTestContext(
+            YastahTestEntitySet entities)
         {
-            Entities = isReadOnly
-                ? YastahTestEntitySet.Default
-                : new YastahTestEntitySet();
+            Entities = entities;
 
             MockConcurrencyResolutionService = new Mock<IConcurrencyResolutionService>();
 
             MockContext = new MockYastahDbContext(
-                Entities,
+                entities,
                 MockConcurrencyResolutionService.Object);
         }
 
