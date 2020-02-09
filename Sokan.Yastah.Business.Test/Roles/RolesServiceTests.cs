@@ -97,11 +97,11 @@ namespace Sokan.Yastah.Business.Test.Roles
             public void SetIsNameInUse(bool isNameInUse)
                 => MockRolesRepository
                     .Setup(x => x.AnyVersionsAsync(
-                        It.IsAny<CancellationToken>(),
                         It.IsAny<Optional<IEnumerable<long>>>(),
                         It.IsAny<Optional<string>>(),
                         It.IsAny<Optional<bool>>(),
-                        It.IsAny<Optional<bool>>()))
+                        It.IsAny<Optional<bool>>(),
+                        It.IsAny<CancellationToken>()))
                     .ReturnsAsync(isNameInUse);
 
             public void SetRoleUpdateError(OperationError error)
@@ -206,11 +206,11 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockRolesRepository.ShouldHaveReceived(x => x
                 .AnyVersionsAsync(
-                    testContext.CancellationToken,
                     default,
                     name,
                     false,
-                    true));
+                    true,
+                    testContext.CancellationToken));
 
             testContext.MockMessenger.Invocations.ShouldBeEmpty();
 
@@ -336,11 +336,11 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockRolesRepository.ShouldHaveReceived(x => x
                 .AnyVersionsAsync(
-                    testContext.CancellationToken,
                     default,
                     name,
                     false,
-                    true));
+                    true,
+                    testContext.CancellationToken));
 
             testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
                 .CreateAsync(
@@ -618,11 +618,11 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockRolesRepository.ShouldHaveReceived(x => x
                 .AnyVersionsAsync(
-                    testContext.CancellationToken,
                     It.Is<Optional<IEnumerable<long>>>(y => y.IsSpecified && (y.Value != null) && y.Value.SetEquals(roleId.ToEnumerable())),
                     name,
                     false,
-                    true));
+                    true,
+                    testContext.CancellationToken));
 
             testContext.MockMessenger.Invocations.ShouldBeEmpty();
 
@@ -684,11 +684,11 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockRolesRepository.ShouldHaveReceived(x => x
                 .AnyVersionsAsync(
-                    testContext.CancellationToken,
                     It.Is<Optional<IEnumerable<long>>>(y => y.IsSpecified && (y.Value.Count() == 1) && (y.Value.First() == roleId)),
                     name,
                     false,
-                    true));
+                    true,
+                    testContext.CancellationToken));
 
             testContext.MockPermissionsService.ShouldHaveReceived(x => x
                 .ValidateIdsAsync(
@@ -761,11 +761,11 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockRolesRepository.ShouldHaveReceived(x => x
                 .AnyVersionsAsync(
-                    testContext.CancellationToken,
                     It.Is<Optional<IEnumerable<long>>>(y => y.IsSpecified && (y.Value != null) && y.Value.SetEquals(roleId.ToEnumerable())),
                     name,
                     false,
-                    true));
+                    true,
+                    testContext.CancellationToken));
 
             testContext.MockPermissionsService.ShouldHaveReceived(x => x
                 .ValidateIdsAsync(
@@ -852,11 +852,11 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockRolesRepository.ShouldHaveReceived(x => x
                 .AnyVersionsAsync(
-                    testContext.CancellationToken,
                     It.Is<Optional<IEnumerable<long>>>(y => y.IsSpecified && (y.Value != null) && y.Value.SetEquals(roleId.ToEnumerable())),
                     name,
                     false,
-                    true));
+                    true,
+                    testContext.CancellationToken));
 
             testContext.MockPermissionsService.ShouldHaveReceived(x => x
                 .ValidateIdsAsync(
@@ -950,11 +950,11 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockRolesRepository.ShouldHaveReceived(x => x
                 .AnyVersionsAsync(
-                    testContext.CancellationToken,
                     It.Is<Optional<IEnumerable<long>>>(y => y.IsSpecified && (y.Value != null) && y.Value.SetEquals(roleId.ToEnumerable())),
                     name,
                     false,
-                    true));
+                    true,
+                    testContext.CancellationToken));
 
             testContext.MockPermissionsService.ShouldHaveReceived(x => x
                 .ValidateIdsAsync(
@@ -1066,11 +1066,11 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockRolesRepository.ShouldHaveReceived(x => x
                 .AnyVersionsAsync(
-                    testContext.CancellationToken,
                     It.Is<Optional<IEnumerable<long>>>(y => y.IsSpecified && (y.Value != null) && y.Value.SetEquals(roleId.ToEnumerable())),
                     name,
                     false,
-                    true));
+                    true,
+                    testContext.CancellationToken));
 
             testContext.MockPermissionsService.ShouldHaveReceived(x => x
                 .ValidateIdsAsync(

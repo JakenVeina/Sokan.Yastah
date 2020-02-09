@@ -112,11 +112,11 @@ namespace Sokan.Yastah.Data.Test.Roles
             var uut = testContext.BuildUut();
 
             var result = await uut.AnyVersionsAsync(
-                testContext.CancellationToken,
                 excludedRoleIds,
                 name,
                 isDeleted,
-                isLatestVersion);
+                isLatestVersion,
+                testContext.CancellationToken);
 
             result.ShouldBe(expectedResult);
 

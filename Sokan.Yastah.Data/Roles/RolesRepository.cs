@@ -17,11 +17,11 @@ namespace Sokan.Yastah.Data.Roles
     public interface IRolesRepository
     {
         Task<bool> AnyVersionsAsync(
-            CancellationToken cancellationToken,
             Optional<IEnumerable<long>> excludedRoleIds = default,
             Optional<string> name = default,
             Optional<bool> isDeleted = default,
-            Optional<bool> isLatestVersion = default);
+            Optional<bool> isLatestVersion = default,
+            CancellationToken cancellationToken = default);
 
         IAsyncEnumerable<RoleIdentityViewModel> AsyncEnumerateIdentities(
             Optional<bool> isDeleted = default);
@@ -71,11 +71,11 @@ namespace Sokan.Yastah.Data.Roles
         }
 
         public Task<bool> AnyVersionsAsync(
-            CancellationToken cancellationToken,
             Optional<IEnumerable<long>> excludedRoleIds = default,
             Optional<string> name = default,
             Optional<bool> isDeleted = default,
-            Optional<bool> isLatestVersion = default)
+            Optional<bool> isLatestVersion = default,
+            CancellationToken cancellationToken = default)
         {
             var query = _context.Set<RoleVersionEntity>()
                 .AsQueryable();
