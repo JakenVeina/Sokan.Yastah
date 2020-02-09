@@ -34,7 +34,7 @@ namespace Sokan.Yastah.Data.Concurrency
             {
                 var tEntity = entry.Entity.GetType();
                 var originalValues = entry.OriginalValues;
-                var currentValues = await entry.GetDatabaseValuesAsync();
+                var currentValues = await entry.GetDatabaseValuesAsync(cancellationToken);
                 var proposedValues = entry.CurrentValues;
 
                 if (HandleEntry(tEntity, originalValues, currentValues, proposedValues).IsUnhandled)
