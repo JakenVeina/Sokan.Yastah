@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 using Sokan.Yastah.Common.OperationModel;
 using Sokan.Yastah.Data;
@@ -26,6 +25,7 @@ namespace Sokan.Yastah.Business.Permissions
             CancellationToken cancellationToken);
     }
 
+    [ServiceBinding(ServiceLifetime.Scoped)]
     public class PermissionsService
         : IPermissionsService
     {
@@ -85,10 +85,5 @@ namespace Sokan.Yastah.Business.Permissions
 
         internal const string _getIdentitiesCacheKey
             = nameof(PermissionsService) + "." + nameof(GetIdentitiesAsync);
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services
-                .AddScoped<IPermissionsService, PermissionsService>();
     }
 }

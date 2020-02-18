@@ -6,9 +6,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 using Sokan.Yastah.Data.Permissions;
 using Sokan.Yastah.Data.Roles;
@@ -79,6 +77,7 @@ namespace Sokan.Yastah.Data.Users
             CancellationToken cancellationToken);
     }
 
+    [ServiceBinding(ServiceLifetime.Scoped)]
     public class UsersRepository
         : IUsersRepository
     {
@@ -354,9 +353,5 @@ namespace Sokan.Yastah.Data.Users
 
         private readonly YastahDbContext _context;
         private readonly ITransactionScopeFactory _transactionScopeFactory;
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services.AddScoped<IUsersRepository, UsersRepository>();
     }
 }

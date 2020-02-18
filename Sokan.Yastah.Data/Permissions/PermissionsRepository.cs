@@ -2,9 +2,7 @@
 using System.Linq;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 using Sokan.Yastah.Common.OperationModel;
 
@@ -20,6 +18,7 @@ namespace Sokan.Yastah.Data.Permissions
             Optional<IReadOnlyCollection<int>> permissionIds = default);
     }
 
+    [ServiceBinding(ServiceLifetime.Scoped)]
     public class PermissionsRepository
         : IPermissionsRepository
     {
@@ -56,9 +55,5 @@ namespace Sokan.Yastah.Data.Permissions
         }
 
         private readonly YastahDbContext _context;
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services.AddScoped<IPermissionsRepository, PermissionsRepository>();
     }
 }

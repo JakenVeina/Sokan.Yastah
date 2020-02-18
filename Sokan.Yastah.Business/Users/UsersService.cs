@@ -5,9 +5,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Options;
 
@@ -47,6 +45,7 @@ namespace Sokan.Yastah.Business.Users
             CancellationToken cancellationToken);
     }
 
+    [ServiceBinding(ServiceLifetime.Scoped)]
     public class UsersService
         : IUsersService
     {
@@ -391,9 +390,5 @@ namespace Sokan.Yastah.Business.Users
         private readonly ISystemClock _systemClock;
         private readonly ITransactionScopeFactory _transactionScopeFactory;
         private readonly IUsersRepository _usersRepository;
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services.AddScoped<IUsersService, UsersService>();
     }
 }

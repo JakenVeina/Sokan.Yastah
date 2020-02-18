@@ -2,7 +2,6 @@
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace Sokan.Yastah.Business
@@ -15,9 +14,15 @@ namespace Sokan.Yastah.Business
         [Required]
         public string ClientSecret { get; set; }
             = null!;
+    }
 
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+    [ServiceConfigurator]
+    public class DiscordClientConfigurationConfigurator
+        : IServiceConfigurator
+    {
+        public void ConfigureServices(
+                IServiceCollection services,
+                IConfiguration configuration)
             => services.AddOptions<DiscordClientConfiguration>()
                 .Bind(configuration.GetSection("Discord"))
                 .ValidateDataAnnotations()

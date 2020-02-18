@@ -19,7 +19,7 @@ namespace Sokan.Yastah.Web
             });
 
             return services
-                .AddAssembly(Assembly.GetExecutingAssembly(), configuration);
+                .AddServices(Assembly.GetExecutingAssembly(), configuration);
         }
 
         public static IApplicationBuilder UseYastahWeb(this IApplicationBuilder applicationBuilder)

@@ -11,6 +11,7 @@ using Sokan.Yastah.Data.Characters;
 
 namespace Sokan.Yastah.Business.Characters
 {
+    [ServiceBinding(ServiceLifetime.Transient)]
     public class CharacterLevelsInitializationBehavior
         : IStartupHandler
     {
@@ -59,10 +60,5 @@ namespace Sokan.Yastah.Business.Characters
         private readonly ICharacterLevelsRepository _characterLevelsRepository;
         private readonly ISystemClock _systemClock;
         private readonly ITransactionScopeFactory _transactionScopeFactory;
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services
-                .AddTransient<IStartupHandler, CharacterLevelsInitializationBehavior>();
     }
 }

@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 using Sokan.Yastah.Business.Authentication;
 using Sokan.Yastah.Business.Authorization;
@@ -35,6 +34,7 @@ namespace Sokan.Yastah.Business.Characters
             CancellationToken cancellationToken);
     }
 
+    [ServiceBinding(ServiceLifetime.Scoped)]
     public class CharacterGuildDivisionsOperations
         : ICharacterGuildDivisionsOperations
     {
@@ -117,10 +117,5 @@ namespace Sokan.Yastah.Business.Characters
         private readonly IAuthenticationService _authenticationService;
         private readonly IAuthorizationService _authorizationService;
         private readonly ICharacterGuildDivisionsService _characterGuildDivisionsService;
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services
-                .AddScoped<ICharacterGuildDivisionsOperations, CharacterGuildDivisionsOperations>();
     }
 }

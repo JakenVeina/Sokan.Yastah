@@ -1,10 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Sokan.Yastah.Api.Authentication
 {
+    [ServiceBinding(ServiceLifetime.Transient)]
     public class ApiAuthenticationOptionsConfigurator
         : IPostConfigureOptions<ApiAuthenticationOptions>
     {
@@ -23,10 +22,5 @@ namespace Sokan.Yastah.Api.Authentication
         }
 
         private readonly AuthenticationConfiguration _authenticationConfiguration;
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services
-                .AddTransient<IPostConfigureOptions<ApiAuthenticationOptions>, ApiAuthenticationOptionsConfigurator>();
     }
 }

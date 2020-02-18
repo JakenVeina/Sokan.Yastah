@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace Sokan.Yastah.Api.Antiforgery
 {
+    [ServiceBinding(ServiceLifetime.Transient)]
     public class AntiforgeryOptionsConfigurator
         : IPostConfigureOptions<AntiforgeryOptions>
     {
@@ -29,10 +28,5 @@ namespace Sokan.Yastah.Api.Antiforgery
         }
 
         private readonly AntiforgeryConfiguration _antiforgeryConfiguration;
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services
-                .AddTransient<IPostConfigureOptions<AntiforgeryOptions>, AntiforgeryOptionsConfigurator>();
     }
 }

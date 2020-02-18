@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace Sokan.Yastah.Api.Authentication
@@ -15,12 +14,19 @@ namespace Sokan.Yastah.Api.Authentication
         [Required]
         public string TokenSecret { get; set; }
             = null!;
+    }
 
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+    [ServiceConfigurator]
+    public class AuthenticationConfigurationConfigurator
+        : IServiceConfigurator
+    {
+        public void ConfigureServices(
+                IServiceCollection services,
+                IConfiguration configuration)
             => services.AddOptions<AuthenticationConfiguration>()
                 .Bind(configuration.GetSection("Authentication"))
                 .ValidateDataAnnotations()
                 .ValidateOnStartup();
+
     }
 }

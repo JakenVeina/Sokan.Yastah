@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 using Sokan.Yastah.Common.OperationModel;
 
@@ -31,6 +30,7 @@ namespace Sokan.Yastah.Data.Authentication
             CancellationToken cancellationToken);
     }
 
+    [ServiceBinding(ServiceLifetime.Scoped)]
     public class AuthenticationTicketsRepository
         : IAuthenticationTicketsRepository
     {
@@ -111,9 +111,5 @@ namespace Sokan.Yastah.Data.Authentication
         }
 
         private readonly YastahDbContext _context;
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services.AddScoped<IAuthenticationTicketsRepository, AuthenticationTicketsRepository>();
     }
 }

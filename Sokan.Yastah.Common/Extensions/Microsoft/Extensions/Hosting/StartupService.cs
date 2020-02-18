@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Extensions.Hosting
 {
+    [ServiceBinding(ServiceLifetime.Transient)]
     public class StartupService
         : IHostedService
     {
@@ -28,10 +29,5 @@ namespace Microsoft.Extensions.Hosting
             => Task.CompletedTask;
 
         private readonly IServiceProvider _serviceProvider;
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services
-                .AddTransient<IHostedService, StartupService>();
     }
 }

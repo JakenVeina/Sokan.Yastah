@@ -6,7 +6,6 @@ using System.Transactions;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 using Sokan.Yastah.Common.OperationModel;
 
@@ -40,6 +39,7 @@ namespace Sokan.Yastah.Data.Characters
             CancellationToken cancellationToken = default);
     }
 
+    [ServiceBinding(ServiceLifetime.Scoped)]
     public class CharacterGuildDivisionsRepository
         : ICharacterGuildDivisionsRepository
     {
@@ -183,9 +183,5 @@ namespace Sokan.Yastah.Data.Characters
 
         private readonly YastahDbContext _context;
         private readonly ITransactionScopeFactory _transactionScopeFactory;
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services.AddScoped<ICharacterGuildDivisionsRepository, CharacterGuildDivisionsRepository>();
     }
 }

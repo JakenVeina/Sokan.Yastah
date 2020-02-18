@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Sokan.Yastah.Data
 {
+    [ServiceBinding(ServiceLifetime.Transient)]
     public class StartupAutoMigrationBehavior
         : IStartupHandler
     {
@@ -20,9 +21,5 @@ namespace Sokan.Yastah.Data
             => _yastahDbContext.Database.MigrateAsync(cancellationToken);
 
         private readonly YastahDbContext _yastahDbContext;
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services.AddTransient<IStartupHandler, StartupAutoMigrationBehavior>();
     }
 }

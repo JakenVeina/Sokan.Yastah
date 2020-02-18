@@ -3,9 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 using Sokan.Yastah.Business.Authentication;
 using Sokan.Yastah.Business.Authorization;
@@ -30,6 +28,7 @@ namespace Sokan.Yastah.Business.Users
             CancellationToken cancellationToken);
     }
 
+    [ServiceBinding(ServiceLifetime.Scoped)]
     public class UsersOperations
         : IUsersOperations
     {
@@ -95,9 +94,5 @@ namespace Sokan.Yastah.Business.Users
         private readonly IAuthorizationService _authorizationService;
         private readonly IUsersRepository _usersRepository;
         private readonly IUsersService _usersService;
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services.AddScoped<IUsersOperations, UsersOperations>();
     }
 }

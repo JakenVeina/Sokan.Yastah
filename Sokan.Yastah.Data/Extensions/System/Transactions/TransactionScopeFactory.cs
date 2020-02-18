@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace System.Transactions
 {
@@ -10,6 +8,7 @@ namespace System.Transactions
             IsolationLevel? isolationLevel = default);
     }
 
+    [ServiceBinding(ServiceLifetime.Singleton)]
     public class TransactionScopeFactory
         : ITransactionScopeFactory
     {
@@ -47,9 +46,5 @@ namespace System.Transactions
             private readonly TransactionOptions _options;
             private readonly TransactionScope _scope;
         }
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services.AddSingleton<ITransactionScopeFactory, TransactionScopeFactory>();
     }
 }

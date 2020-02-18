@@ -2,7 +2,6 @@
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace Sokan.Yastah.Common
 {
@@ -10,6 +9,6 @@ namespace Sokan.Yastah.Common
     {
         public static IServiceCollection AddYastahCommon(this IServiceCollection services, IConfiguration configuration)
             => services
-                .AddAssembly(Assembly.GetExecutingAssembly(), configuration);
+                .AddServices(Assembly.GetExecutingAssembly(), configuration);
     }
 }

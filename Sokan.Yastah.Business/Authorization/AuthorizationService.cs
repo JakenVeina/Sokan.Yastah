@@ -2,9 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 using Sokan.Yastah.Business.Authentication;
 using Sokan.Yastah.Business.Permissions;
@@ -21,6 +19,7 @@ namespace Sokan.Yastah.Business.Authorization
             params int[] permissionIds);
     }
 
+    [ServiceBinding(ServiceLifetime.Scoped)]
     public class AuthorizationService
         : IAuthorizationService
     {
@@ -61,9 +60,5 @@ namespace Sokan.Yastah.Business.Authorization
 
         private readonly IAuthenticationService _authenticationService;
         private readonly IPermissionsService _permissionsService;
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services.AddScoped<IAuthorizationService, AuthorizationService>();
     }
 }

@@ -1,14 +1,13 @@
 ﻿using System;
 
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 using Sokan.Yastah.Data.Concurrency;
 
 namespace Sokan.Yastah.Data.Users
 {
+    [ServiceBinding(ServiceLifetime.Scoped)]
     public class UserConcurrencyErrorHandler
         : IConcurrencyErrorHandler<UserEntity>
     {
@@ -19,9 +18,5 @@ namespace Sokan.Yastah.Data.Users
 
             return ConcurrencyResolutionResult.Handled;
         }
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services.AddScoped<IConcurrencyErrorHandler<UserEntity>, UserConcurrencyErrorHandler>();
     }
 }

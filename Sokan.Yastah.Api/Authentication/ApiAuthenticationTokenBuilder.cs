@@ -3,9 +3,7 @@ using System.Security.Claims;
 using System.Text;
 
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -16,6 +14,7 @@ namespace Sokan.Yastah.Api.Authentication
         JwtSecurityToken BuildToken(ClaimsIdentity identity);
     }
 
+    [ServiceBinding(ServiceLifetime.Singleton)]
     public class ApiAuthenticationTokenBuilder
         : IApiAuthenticationTokenBuilder
     {
@@ -50,10 +49,5 @@ namespace Sokan.Yastah.Api.Authentication
         private readonly IOptions<ApiAuthenticationOptions> _options;
         private readonly SigningCredentials _signingCredentials;
         private readonly ISystemClock _systemClock;
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services
-                .AddSingleton<IApiAuthenticationTokenBuilder, ApiAuthenticationTokenBuilder>();
     }
 }

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 using Sokan.Yastah.Data.Concurrency;
 
@@ -70,9 +69,15 @@ namespace Sokan.Yastah.Data
         }
 
         private readonly IConcurrencyResolutionService _concurrencyResolutionService;
+    }
 
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+    [ServiceConfigurator]
+    public class YastahDbContextConfigurator
+        : IServiceConfigurator
+    {
+        public void ConfigureServices(
+                IServiceCollection services,
+                IConfiguration configuration)
             => services.AddDbContext<YastahDbContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("Sokan.Yastah.Data")));
     }

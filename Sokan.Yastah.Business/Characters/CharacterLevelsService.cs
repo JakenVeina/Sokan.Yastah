@@ -7,7 +7,6 @@ using System.Transactions;
 
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Internal;
 
 using Sokan.Yastah.Common.OperationModel;
@@ -28,6 +27,7 @@ namespace Sokan.Yastah.Business.Characters
             CancellationToken cancellationToken);
     }
 
+    [ServiceBinding(ServiceLifetime.Scoped)]
     public class CharacterLevelsService
         : ICharacterLevelsService
     {
@@ -152,10 +152,5 @@ namespace Sokan.Yastah.Business.Characters
 
         internal const string _getCurrentDefinitionsCacheKey
             = nameof(CharacterLevelsService) + "." + nameof(GetCurrentDefinitionsAsync);
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services
-                .AddScoped<ICharacterLevelsService, CharacterLevelsService>();
     }
 }

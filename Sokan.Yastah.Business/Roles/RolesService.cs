@@ -5,9 +5,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Internal;
 
 using Sokan.Yastah.Business.Permissions;
@@ -45,6 +43,7 @@ namespace Sokan.Yastah.Business.Roles
             CancellationToken cancellationToken);
     }
 
+    [ServiceBinding(ServiceLifetime.Scoped)]
     public class RolesService
         : IRolesService
     {
@@ -301,10 +300,5 @@ namespace Sokan.Yastah.Business.Roles
 
         internal const string _getCurrentIdentitiesCacheKey
             = nameof(RolesService) + "." + nameof(GetCurrentIdentitiesAsync);
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services
-                .AddScoped<IRolesService, RolesService>();
     }
 }

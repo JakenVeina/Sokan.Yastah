@@ -41,6 +41,7 @@ namespace Sokan.Yastah.Business.Authentication
             CancellationToken cancellationToken);
     }
 
+    [ServiceBinding(ServiceLifetime.Scoped)]
     public class AuthenticationService
         : IAuthenticationService,
             INotificationHandler<RoleUpdatingNotification>,
@@ -212,14 +213,5 @@ namespace Sokan.Yastah.Business.Authentication
         private readonly IUsersService _usersService;
 
         private AuthenticationTicket? _currentTicket;
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services
-                .AddScoped<AuthenticationService>()
-                .AddScoped<IAuthenticationService>(x => x.GetRequiredService<AuthenticationService>())
-                .AddScoped<INotificationHandler<RoleUpdatingNotification>>(x => x.GetRequiredService<AuthenticationService>())
-                .AddScoped<INotificationHandler<UserInitializingNotification>>(x => x.GetRequiredService<AuthenticationService>())
-                .AddScoped<INotificationHandler<UserUpdatingNotification>>(x => x.GetRequiredService<AuthenticationService>());
     }
 }

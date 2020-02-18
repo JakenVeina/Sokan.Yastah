@@ -2,9 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 using Sokan.Yastah.Business.Authorization;
 using Sokan.Yastah.Common.OperationModel;
@@ -19,6 +17,7 @@ namespace Sokan.Yastah.Business.Permissions
             CancellationToken cancellationToken);
     }
 
+    [ServiceBinding(ServiceLifetime.Scoped)]
     public class PermissionsOperations
         : IPermissionsOperations
     {
@@ -45,9 +44,5 @@ namespace Sokan.Yastah.Business.Permissions
 
         private readonly IAuthorizationService _authorizationService;
         private readonly IPermissionsService _permissionsService;
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services.AddScoped<IPermissionsOperations, PermissionsOperations>();
     }
 }

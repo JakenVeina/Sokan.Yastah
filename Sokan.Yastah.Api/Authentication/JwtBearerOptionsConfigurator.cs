@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -9,6 +7,7 @@ using System.Text;
 
 namespace Sokan.Yastah.Api.Authentication
 {
+    [ServiceBinding(ServiceLifetime.Transient)]
     public class JwtBearerOptionsConfigurator
         : IPostConfigureOptions<JwtBearerOptions>
     {
@@ -22,10 +21,5 @@ namespace Sokan.Yastah.Api.Authentication
             => options.TokenValidationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_authenticationConfiguration.TokenSecret));
 
         private readonly AuthenticationConfiguration _authenticationConfiguration;
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services
-                .AddTransient<IPostConfigureOptions<JwtBearerOptions>, JwtBearerOptionsConfigurator>();
     }
 }

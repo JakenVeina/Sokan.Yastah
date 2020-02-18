@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 using AspNet.Security.OAuth.Discord;
@@ -9,6 +7,7 @@ using Sokan.Yastah.Business;
 
 namespace Sokan.Yastah.Api.Authentication
 {
+    [ServiceBinding(ServiceLifetime.Transient)]
     public class DiscordAuthenticationOptionsConfigurator
         : IPostConfigureOptions<DiscordAuthenticationOptions>
     {
@@ -25,10 +24,5 @@ namespace Sokan.Yastah.Api.Authentication
         }
 
         private readonly DiscordClientConfiguration _discordClientConfiguration;
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services
-                .AddTransient<IPostConfigureOptions<DiscordAuthenticationOptions>, DiscordAuthenticationOptionsConfigurator>();
     }
 }

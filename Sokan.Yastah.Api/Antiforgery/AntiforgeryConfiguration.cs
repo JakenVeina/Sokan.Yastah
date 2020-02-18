@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace Sokan.Yastah.Api.Antiforgery
 {
@@ -11,9 +10,15 @@ namespace Sokan.Yastah.Api.Antiforgery
         public string? RequestTokenHeaderName { get; set; }
 
         public string? StateTokenCookieName { get; set; }
+    }
 
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services, IConfiguration configuration)
+    [ServiceConfigurator]
+    public class AntiforgeryConfigurationConfigurator
+        : IServiceConfigurator
+    {
+        public void ConfigureServices(
+                IServiceCollection services,
+                IConfiguration configuration)
             => services.AddOptions<AntiforgeryConfiguration>()
                 .Bind(configuration.GetSection("Antiforgery"));
     }

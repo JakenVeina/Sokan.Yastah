@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace Sokan.Yastah.Data.Administration
 {
@@ -16,6 +15,7 @@ namespace Sokan.Yastah.Data.Administration
             CancellationToken cancellationToken);
     }
 
+    [ServiceBinding(ServiceLifetime.Scoped)]
     public class AdministrationActionsRepository
         : IAdministrationActionsRepository
     {
@@ -44,9 +44,5 @@ namespace Sokan.Yastah.Data.Administration
         }
 
         private readonly YastahDbContext _context;
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services.AddScoped<IAdministrationActionsRepository, AdministrationActionsRepository>();
     }
 }

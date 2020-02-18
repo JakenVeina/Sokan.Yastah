@@ -5,9 +5,7 @@ using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace Sokan.Yastah.Data.Concurrency
 {
@@ -16,6 +14,7 @@ namespace Sokan.Yastah.Data.Concurrency
         Task HandleExceptionAsync(DbUpdateConcurrencyException exception, CancellationToken cancellationToken);
     }
 
+    [ServiceBinding(ServiceLifetime.Transient)]
     public class ConcurrencyResolutionService
         : IConcurrencyResolutionService
     {
@@ -69,10 +68,5 @@ namespace Sokan.Yastah.Data.Concurrency
         }
 
         private readonly IServiceProvider _serviceProvider;
-
-        [OnConfigureServices]
-        public static void OnConfigureServices(IServiceCollection services)
-            => services
-                .AddTransient<IConcurrencyResolutionService, ConcurrencyResolutionService>();
     }
 }
