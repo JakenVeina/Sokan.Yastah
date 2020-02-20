@@ -26,6 +26,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sokan.Yastah.Data.Migrations", "Sokan.Yastah.Data.Migrations\Sokan.Yastah.Data.Migrations.csproj", "{3A361AF9-6617-43B7-9B46-0056CC4BA857}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sokan.Yastah.Data.Migrations.Test", "Sokan.Yastah.Migrations.Test\Sokan.Yastah.Data.Migrations.Test.csproj", "{2BE22C4E-72B4-4694-99BB-4A44D3347ACE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,6 +70,10 @@ Global
 		{3A361AF9-6617-43B7-9B46-0056CC4BA857}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A361AF9-6617-43B7-9B46-0056CC4BA857}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A361AF9-6617-43B7-9B46-0056CC4BA857}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BE22C4E-72B4-4694-99BB-4A44D3347ACE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BE22C4E-72B4-4694-99BB-4A44D3347ACE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BE22C4E-72B4-4694-99BB-4A44D3347ACE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BE22C4E-72B4-4694-99BB-4A44D3347ACE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

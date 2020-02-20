@@ -98,6 +98,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Sokan.Yastah.Api\Sokan.Yastah.Api.csproj" />
     <ProjectReference Include="..\Sokan.Yastah.Common\Sokan.Yastah.Common.csproj" />
+    <ProjectReference Include="..\Sokan.Yastah.Data.Migrations\Sokan.Yastah.Data.Migrations.csproj" />
   </ItemGroup>
 
   <ItemGroup>
