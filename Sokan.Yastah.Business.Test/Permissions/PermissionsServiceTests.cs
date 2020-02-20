@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 using NUnit.Framework;
@@ -9,7 +8,6 @@ using Moq;
 using Shouldly;
 
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 
 using Sokan.Yastah.Business.Permissions;
 using Sokan.Yastah.Data;
@@ -25,16 +23,13 @@ namespace Sokan.Yastah.Business.Test.Permissions
         #region Test Context
 
         internal class TestContext
-            : AsyncMethodTestContext
+            : AsyncMethodWithMemoryCacheTestContext
         {
             public TestContext()
             {
-                MemoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
-
                 MockPermissionsRepository = new Mock<IPermissionsRepository>();
             }
 
-            public readonly MemoryCache MemoryCache;
             public readonly Mock<IPermissionsRepository> MockPermissionsRepository;
 
             public PermissionsService BuildUut()
@@ -51,12 +46,6 @@ namespace Sokan.Yastah.Business.Test.Permissions
                         id:     x,
                         name:   $"Permission {x}"))
                     .ToArray());
-
-            public override void Dispose()
-            {
-                base.Dispose();
-                MemoryCache?.Dispose();
-            }
         }
 
         #endregion Test Context

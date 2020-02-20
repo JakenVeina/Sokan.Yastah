@@ -11,7 +11,6 @@ using Shouldly;
 
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Internal;
-using Microsoft.Extensions.Options;
 
 using Sokan.Yastah.Business.Permissions;
 using Sokan.Yastah.Business.Roles;
@@ -31,7 +30,7 @@ namespace Sokan.Yastah.Business.Test.Roles
         #region Test Context
 
         internal class TestContext
-            : AsyncMethodTestContext
+            : AsyncMethodWithMemoryCacheTestContext
         {
             public TestContext()
             {
@@ -44,8 +43,6 @@ namespace Sokan.Yastah.Business.Test.Roles
                         It.IsAny<CancellationToken>()))
                     .ReturnsAsync(() => NextAdministrationActionId);
 
-                MemoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
-                
                 MockMessenger = new Mock<IMessenger>();
                 
                 MockPermissionsService = new Mock<IPermissionsService>();
@@ -76,7 +73,6 @@ namespace Sokan.Yastah.Business.Test.Roles
             public long NextRoleId;
 
             public readonly Mock<IAdministrationActionsRepository> MockAdministrationActionsRepository;
-            public readonly MemoryCache MemoryCache;
             public readonly Mock<IMessenger> MockMessenger;
             public readonly Mock<IPermissionsService> MockPermissionsService;
             public readonly Mock<IRolesRepository> MockRolesRepository;
@@ -156,12 +152,6 @@ namespace Sokan.Yastah.Business.Test.Roles
                     .ReturnsAsync((error is null)
                         ? OperationResult.Success
                         : error);
-
-            public override void Dispose()
-            {
-                base.Dispose();
-                MemoryCache?.Dispose();
-            }
         }
 
         #endregion Test Context

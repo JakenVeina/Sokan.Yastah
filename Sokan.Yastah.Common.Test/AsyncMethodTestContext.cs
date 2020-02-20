@@ -3,18 +3,29 @@ using System.Threading;
 
 namespace Sokan.Yastah.Common.Test
 {
-    #pragma warning disable CA1063 // IDisposable warnings
     public class AsyncMethodTestContext
         : IDisposable
     {
-        public CancellationTokenSource CancellationTokenSource { get; }
+        public readonly CancellationTokenSource CancellationTokenSource
             = new CancellationTokenSource();
 
         public CancellationToken CancellationToken
             => CancellationTokenSource.Token;
 
-        public virtual void Dispose()
-            => CancellationTokenSource.Dispose();
+        ~AsyncMethodTestContext()
+            => Dispose(false);
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(
+            bool disposeManaged)
+        {
+            if(disposeManaged)
+                CancellationTokenSource.Dispose();
+        }
     }
-    #pragma warning restore CA1063
 }

@@ -7,7 +7,6 @@ using System.Transactions;
 
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Internal;
-using Microsoft.Extensions.Options;
 
 using Moq;
 using NUnit.Framework;
@@ -29,14 +28,12 @@ namespace Sokan.Yastah.Business.Test.Characters
         #region Test Context
 
         internal class TestContext
-            : AsyncMethodTestContext
+            : AsyncMethodWithMemoryCacheTestContext
         {
             public TestContext()
             {
                 UtcNow = default;
                 NextAdministrationActionId = default;
-
-                MemoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
 
                 MockAdministrationActionsRepository = new Mock<IAdministrationActionsRepository>();
                 MockAdministrationActionsRepository
@@ -65,7 +62,6 @@ namespace Sokan.Yastah.Business.Test.Characters
             public DateTimeOffset UtcNow;
             public long NextAdministrationActionId;
 
-            public readonly MemoryCache MemoryCache;
             public readonly Mock<IAdministrationActionsRepository> MockAdministrationActionsRepository;
             public readonly Mock<ICharacterLevelsRepository> MockCharacterLevelsRepository;
             public readonly Mock<ISystemClock> MockSystemClock;
@@ -89,12 +85,6 @@ namespace Sokan.Yastah.Business.Test.Characters
 
             public void SetCurrentDefinitionsCache(IReadOnlyList<CharacterLevelDefinitionViewModel> definitions)
                 => MemoryCache.Set(CharacterLevelsService._getCurrentDefinitionsCacheKey, definitions);
-
-            public override void Dispose()
-            {
-                base.Dispose();
-                MemoryCache?.Dispose();
-            }
         }
 
         #endregion Test Context

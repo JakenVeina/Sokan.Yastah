@@ -18,41 +18,36 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.AspNetCore.Hosting
         #region Test Context
 
         internal class TestContext
-            : AsyncMethodTestContext
+            : AsyncMethodWithLoggerTestContext
         {
             public TestContext()
             {
-                MockServiceProvider = new Mock<IServiceProvider>();
                 MockServiceProvider
                     .Setup(x => x.GetService(typeof(IServiceScopeFactory)))
                     .Returns(() => MockServiceScopeFactory.Object);
 
-                MockServiceScopeFactory = new Mock<IServiceScopeFactory>();
                 MockServiceScopeFactory
                     .Setup(x => x.CreateScope())
                     .Returns(() => MockServiceScope.Object);
 
-                MockServiceScope = new Mock<IServiceScope>();
                 MockServiceScope
                     .Setup(x => x.ServiceProvider)
                     .Returns(() => MockScopedServiceProvider.Object);
 
-                MockScopedServiceProvider = new Mock<IServiceProvider>();
                 MockScopedServiceProvider
                     .Setup(x => x.GetService(typeof(IEnumerable<IStartupHandler>)))
                     .Returns(() => MockStartupHandlers.Select(x => x.Object));
-
-                MockStartupHandlers = new List<Mock<IStartupHandler>>();
             }
 
-            public readonly Mock<IServiceProvider> MockServiceProvider;
-            public readonly Mock<IServiceScopeFactory> MockServiceScopeFactory;
-            public readonly Mock<IServiceScope> MockServiceScope;
-            public readonly Mock<IServiceProvider> MockScopedServiceProvider;
-            public readonly List<Mock<IStartupHandler>> MockStartupHandlers;
+            public readonly Mock<IServiceProvider>      MockServiceProvider         = new Mock<IServiceProvider>();
+            public readonly Mock<IServiceScopeFactory>  MockServiceScopeFactory     = new Mock<IServiceScopeFactory>();
+            public readonly Mock<IServiceScope>         MockServiceScope            = new Mock<IServiceScope>();
+            public readonly Mock<IServiceProvider>      MockScopedServiceProvider   = new Mock<IServiceProvider>();
+            public readonly List<Mock<IStartupHandler>> MockStartupHandlers         = new List<Mock<IStartupHandler>>();
 
             public StartupService BuildUut()
                 => new StartupService(
+                    LoggerFactory.CreateLogger<StartupService>(),
                     MockServiceProvider.Object);
         }
 

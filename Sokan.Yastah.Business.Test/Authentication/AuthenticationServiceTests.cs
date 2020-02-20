@@ -21,8 +21,6 @@ using Sokan.Yastah.Data;
 using Sokan.Yastah.Data.Authentication;
 using Sokan.Yastah.Data.Permissions;
 
-using Sokan.Yastah.Common.Test;
-
 namespace Sokan.Yastah.Business.Test.Authentication
 {
     [TestFixture]
@@ -31,7 +29,7 @@ namespace Sokan.Yastah.Business.Test.Authentication
         #region Test Context
 
         internal class TestContext
-            : AsyncMethodTestContext
+            : AsyncMethodWithMemoryCacheTestContext
         {
             public TestContext()
             {
@@ -44,8 +42,6 @@ namespace Sokan.Yastah.Business.Test.Authentication
                     AdminUserIds = Array.Empty<ulong>(),
                     MemberGuildIds = Array.Empty<ulong>()
                 };
-
-                MemoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
 
                 MockAuthenticationTicketsRepository = new Mock<IAuthenticationTicketsRepository>();
                 MockAuthenticationTicketsRepository
@@ -83,7 +79,6 @@ namespace Sokan.Yastah.Business.Test.Authentication
 
             public AuthorizationConfiguration AuthorizationConfiguration;
 
-            public readonly MemoryCache MemoryCache;
             public readonly Mock<IAuthenticationTicketsRepository> MockAuthenticationTicketsRepository;
             public readonly Mock<IOptions<AuthorizationConfiguration>> MockAuthorizationConfigurationOptions;
             public readonly Mock<ITransactionScopeFactory> MockTransactionScopeFactory;
@@ -133,12 +128,6 @@ namespace Sokan.Yastah.Business.Test.Authentication
                         It.IsAny<long>(),
                         It.IsAny<CancellationToken>()))
                     .ReturnsAsync(roleMemberIds);
-
-            public override void Dispose()
-            {
-                base.Dispose();
-                MemoryCache?.Dispose();
-            }
         }
 
         #endregion Test Context

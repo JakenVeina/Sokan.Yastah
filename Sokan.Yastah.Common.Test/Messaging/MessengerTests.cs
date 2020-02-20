@@ -26,30 +26,21 @@ namespace Sokan.Yastah.Common.Test.Messaging
             };
 
         internal class TestContext
-            : AsyncMethodTestContext
+            : AsyncMethodWithLoggerTestContext
         {
-            public TestContext(int notificationHandlerCount)
+            public TestContext()
             {
-                Enumerable.Range(0, notificationHandlerCount)
-                    .Select(x => new Mock<INotificationHandler<object>>())
-                    .ForEach(x => _mockNotificationHandlers.Add(x));
-
                 MockServiceProvider
                     .Setup(x => x.GetService(typeof(IEnumerable<INotificationHandler<object>>)))
-                    .Returns(_mockNotificationHandlers.Select(x => x.Object));
-
+                    .Returns(MockNotificationHandlers.Select(x => x.Object));
             }
 
-            public Mock<IServiceProvider> MockServiceProvider { get; }
-                = new Mock<IServiceProvider>();
-
-            public IReadOnlyList<Mock<INotificationHandler<object>>> MockNotificationHandlers
-                => _mockNotificationHandlers;
-            private readonly List<Mock<INotificationHandler<object>>> _mockNotificationHandlers
-                = new List<Mock<INotificationHandler<object>>>();
+            public readonly Mock<IServiceProvider>                      MockServiceProvider         = new Mock<IServiceProvider>();
+            public readonly List<Mock<INotificationHandler<object>>>    MockNotificationHandlers    = new List<Mock<INotificationHandler<object>>>();
 
             public Messenger BuildUut()
                 => new Messenger(
+                    LoggerFactory.CreateLogger<Messenger>(),
                     MockServiceProvider.Object);
         }
 
@@ -61,7 +52,10 @@ namespace Sokan.Yastah.Common.Test.Messaging
         public async Task PublishNotificationAsync_Always_PublishesNotificationToEachHandler(
             int notificationHandlerCount)
         {
-            using var testContext = new TestContext(notificationHandlerCount);
+            using var testContext = new TestContext();
+
+            foreach (var _ in Enumerable.Repeat(0, notificationHandlerCount))
+                testContext.MockNotificationHandlers.Add(new Mock<INotificationHandler<object>>());
 
             var uut = testContext.BuildUut();
 
