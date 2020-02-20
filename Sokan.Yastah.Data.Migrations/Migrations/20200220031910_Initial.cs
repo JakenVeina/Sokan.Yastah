@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace Sokan.Yastah.Data.Migrations
+namespace Sokan.Yastah.Data.Migrations.Migrations
 {
     public partial class Initial : Migration
     {

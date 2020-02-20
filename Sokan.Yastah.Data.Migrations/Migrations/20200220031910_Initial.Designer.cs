@@ -7,10 +7,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Sokan.Yastah.Data;
 
-namespace Sokan.Yastah.Data.Migrations
+namespace Sokan.Yastah.Data.Migrations.Migrations
 {
     [DbContext(typeof(YastahDbContext))]
-    [Migration("20200128055247_Initial")]
+    [Migration("20200220031910_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

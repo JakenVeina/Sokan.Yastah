@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Sokan.Yastah.Data
+namespace Sokan.Yastah.Data.Migrations
 {
     public class YastahDbContextDesignTimeFactory
         : IDesignTimeDbContextFactory<YastahDbContext>

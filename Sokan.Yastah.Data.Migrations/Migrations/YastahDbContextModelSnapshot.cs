@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Sokan.Yastah.Data;
 
-namespace Sokan.Yastah.Data.Migrations
+namespace Sokan.Yastah.Data.Migrations.Migrations
 {
     [DbContext(typeof(YastahDbContext))]
     partial class YastahDbContextModelSnapshot : ModelSnapshot

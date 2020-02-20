@@ -79,6 +79,7 @@ namespace Sokan.Yastah.Data
                 IServiceCollection services,
                 IConfiguration configuration)
             => services.AddDbContext<YastahDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("Sokan.Yastah.Data")));
+                options.UseNpgsql(configuration.GetConnectionString("Sokan.Yastah.Data"), optionsBuilder => optionsBuilder
+                    .MigrationsAssembly("Sokan.Yastah.Data.Migrations")));
     }
 }
