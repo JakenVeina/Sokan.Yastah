@@ -50,7 +50,9 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.DependencyInj
             : IServiceConfigurator
         {
             public InvalidFakeServiceConfigurator3(
+                #pragma warning disable IDE0060 // Remove unused parameter
                 string value) { }
+                #pragma warning restore IDE0060 // Remove unused parameter
 
             public void ConfigureServices(
                 IServiceCollection services,
