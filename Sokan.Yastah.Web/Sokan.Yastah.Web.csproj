@@ -17,73 +17,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="ClientApp\src\app\admin\permissions\services.ts" />
-    <None Remove="ClientApp\src\app\admin\permissions\state.actions.ts" />
-    <None Remove="ClientApp\src\app\admin\permissions\state.reducers.ts" />
-    <None Remove="ClientApp\src\app\admin\permissions\state.selectors.ts" />
-    <None Remove="ClientApp\src\app\admin\roles\role-creation-page.ts" />
-    <None Remove="ClientApp\src\app\admin\roles\role-update-page.ts" />
-    <None Remove="ClientApp\src\app\admin\roles\services.ts" />
-    <None Remove="ClientApp\src\app\admin\roles\state.actions.ts" />
-    <None Remove="ClientApp\src\app\admin\roles\state.reducers.ts" />
-    <None Remove="ClientApp\src\app\admin\roles\state.selectors.ts" />
-    <None Remove="ClientApp\src\app\admin\routes.guards.ts" />
-    <None Remove="ClientApp\src\app\admin\state.reducers.ts" />
-    <None Remove="ClientApp\src\app\admin\state.selectors.ts" />
-    <None Remove="ClientApp\src\app\admin\users\services.ts" />
-    <None Remove="ClientApp\src\app\admin\users\user-update-page.ts" />
-    <None Remove="ClientApp\src\app\admin\users\user-update-page.ts.css" />
-    <None Remove="ClientApp\src\app\admin\users\users-page.ts" />
-    <None Remove="ClientApp\src\app\auth\services.ts" />
-    <None Remove="ClientApp\src\app\auth\state.actions.ts" />
-    <None Remove="ClientApp\src\app\auth\state.reducers.ts" />
-    <None Remove="ClientApp\src\app\auth\state.selectors.ts" />
-    <None Remove="ClientApp\src\app\admin\module.ts" />
-    <None Remove="ClientApp\src\app\admin\permissions\models.ts" />
-    <None Remove="ClientApp\src\app\admin\permissions\state.ts" />
-    <None Remove="ClientApp\src\app\admin\role-detail.ts" />
-    <None Remove="ClientApp\src\app\admin\roles.component.ts" />
-    <None Remove="ClientApp\src\app\admin\roles\models.ts" />
-    <None Remove="ClientApp\src\app\admin\roles\role-creation-form.ts" />
-    <None Remove="ClientApp\src\app\admin\roles\role-update-form.ts" />
-    <None Remove="ClientApp\src\app\admin\roles\state.ts" />
-    <None Remove="ClientApp\src\app\admin\routes.ts" />
-    <None Remove="ClientApp\src\app\admin\state.ts" />
-    <None Remove="ClientApp\src\app\admin\users\models.ts" />
-    <None Remove="ClientApp\src\app\admin\users\user-update-form.ts" />
-    <None Remove="ClientApp\src\app\api-service.ts" />
-    <None Remove="ClientApp\src\app\auth\interceptor.ts" />
-    <None Remove="ClientApp\src\app\auth\models.ts" />
-    <None Remove="ClientApp\src\app\auth\state.ts" />
-    <None Remove="ClientApp\src\app\common\fetching-utils.ts" />
-    <None Remove="ClientApp\src\app\common\form-component-base.ts" />
-    <None Remove="ClientApp\src\app\common\form-group-extensions.ts" />
-    <None Remove="ClientApp\src\app\common\immutable-utils.ts" />
-    <None Remove="ClientApp\src\app\common\types.ts" />
-    <None Remove="ClientApp\src\app\game-master\levels\levels-update-form.ts" />
-    <None Remove="ClientApp\src\app\game-master\levels\levels-update-page.ts" />
-    <None Remove="ClientApp\src\app\game-master\levels\models.ts" />
-    <None Remove="ClientApp\src\app\game-master\levels\services.ts" />
-    <None Remove="ClientApp\src\app\game-master\state.reducers.ts" />
-    <None Remove="ClientApp\src\app\game-master\state.selectors.ts" />
-    <None Remove="ClientApp\src\app\game-master\state.ts" />
-    <None Remove="ClientApp\src\app\routes.guards.ts" />
-    <None Remove="ClientApp\src\app\routes.ts" />
-    <None Remove="ClientApp\src\app\state.actions.ts" />
-    <None Remove="ClientApp\src\app\state.ts" />
-    <None Remove="ClientApp\src\app\subscriber-component-base.ts" />
-    <None Remove="ClientApp\src\app\validators.ts" />
-    <None Remove="ClientApp\src\tsconfig.app.json" />
-    <None Remove="ClientApp\src\tsconfig.server.json" />
-    <None Remove="ClientApp\src\tsconfig.spec.json" />
-    <None Remove="ClientApp\tsconfig.json" />
+    <None Remove="$(SpaRoot)\src\**\*.ts" />
+    <TypeScriptCompile Include="$(SpaRoot)\src\**\*.ts" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="ClientApp\src\tsconfig.app.json" />
-    <Content Include="ClientApp\src\tsconfig.server.json" />
-    <Content Include="ClientApp\src\tsconfig.spec.json" />
-    <Content Include="ClientApp\tsconfig.json" />
+    <None Remove="$(SpaRoot)\*.json" />
+    <Content Include="$(SpaRoot)\*.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="$(SpaRoot)\src\**\*.json" />
+    <Content Include="$(SpaRoot)\src\**\*.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -99,82 +44,6 @@
     <ProjectReference Include="..\Sokan.Yastah.Api\Sokan.Yastah.Api.csproj" />
     <ProjectReference Include="..\Sokan.Yastah.Common\Sokan.Yastah.Common.csproj" />
     <ProjectReference Include="..\Sokan.Yastah.Data.Migrations\Sokan.Yastah.Data.Migrations.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\role-update-page.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\role-creation-page.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\state.selectors.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\state.selectors.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\permissions\state.selectors.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\users\user-update-page.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\users\user-update-page.ts.css" />
-    <TypeScriptCompile Include="ClientApp\src\app\auth\state.selectors.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-creation-form.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-creation-page.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-division-creation-form.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-division-creation-page.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-division-update-form.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-division-update-page.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-divisions-page.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-update-page.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guilds-page.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\levels\levels-update-form.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\levels\levels-update-page.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\levels\models.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\levels\services.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\module.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\routes.guards.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\routes.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\state.actions.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\models.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\guild-update-form.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\state.reducers.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\state.selectors.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\services.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\guilds\state.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\routes.guards.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\permissions\state.actions.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\permissions\models.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\permissions\state.reducers.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\permissions\state.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\state.reducers.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\role-creation-form.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\role-update-form.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\routes.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\module.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\permissions\services.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\state.actions.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\models.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\services.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\state.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\state.reducers.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\roles\roles-page.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\state.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\users\models.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\users\services.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\users\user-update-form.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\admin\users\users-page.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\common\api-client.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\auth\state.actions.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\auth\interceptor.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\auth\models.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\auth\state.reducers.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\auth\state.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\common\fetching-utils.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\common\form-component-base.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\common\form-group-extensions.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\common\immutable-utils.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\common\types.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\common\subscriber-component-base.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\state.reducers.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\state.selectors.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\game-master\state.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\routes.guards.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\routes.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\auth\services.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\state.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\common\validators.ts" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
