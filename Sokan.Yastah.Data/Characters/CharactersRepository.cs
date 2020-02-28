@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using Sokan.Yastah.Common.OperationModel;
 
@@ -18,7 +19,7 @@ namespace Sokan.Yastah.Data.Characters
             decimal experiencePoints,
             decimal goldAmount,
             decimal insanityValue,
-            long creationId,
+            long actionId,
             CancellationToken cancellationToken);
 
         Task<OperationResult<long>> UpdateAsync(
@@ -38,10 +39,11 @@ namespace Sokan.Yastah.Data.Characters
     {
         public CharactersRepository(
             YastahDbContext context,
-            ITransactionScopeFactory transactionScopeFactory
-            )
+            ILogger<CharactersRepository> logger,
+            ITransactionScopeFactory transactionScopeFactory)
         {
             _context = context;
+            _logger = logger;
             _transactionScopeFactory = transactionScopeFactory;
         }
 
@@ -52,16 +54,21 @@ namespace Sokan.Yastah.Data.Characters
             decimal experiencePoints,
             decimal goldAmount,
             decimal insanityValue,
-            long creationId,
+            long actionId,
             CancellationToken cancellationToken)
         {
+            using var logScope = _logger.BeginMemberScope();
+            CharactersLogMessages.CharacterCreating(_logger, ownerId, name, divisionId, experiencePoints, goldAmount, insanityValue, actionId);
+
             using var transactionScope = _transactionScopeFactory.CreateScope();
+            TransactionsLogMessages.TransactionScopeCreated(_logger);
 
             var character = new CharacterEntity(
                 id:         default,
                 ownerId:    ownerId);
-
             await _context.AddAsync(character, cancellationToken);
+
+            YastahDbContextLogMessages.ContextSavingChanges(_logger);
             await _context.SaveChangesAsync(cancellationToken);
 
             var version = new CharacterVersionEntity(
@@ -73,15 +80,18 @@ namespace Sokan.Yastah.Data.Characters
                 goldAmount:         goldAmount,
                 insanityValue:      insanityValue,
                 isDeleted:          false,
-                creationId:         creationId,
+                creationId:         actionId,
                 previousVersionId:  null,
                 nextVersionId:      null);
-
             await _context.AddAsync(version, cancellationToken);
+
+            YastahDbContextLogMessages.ContextSavingChanges(_logger);
             await _context.SaveChangesAsync(cancellationToken);
 
+            TransactionsLogMessages.TransactionScopeCommitting(_logger);
             transactionScope.Complete();
 
+            CharactersLogMessages.CharacterCreated(_logger, character.Id, version.Id);
             return character.Id;
         }
 
@@ -96,7 +106,11 @@ namespace Sokan.Yastah.Data.Characters
             Optional<bool> isDeleted = default,
             CancellationToken cancellationToken = default)
         {
+            using var logScope = _logger.BeginMemberScope();
+            CharactersLogMessages.CharacterUpdating(_logger, characterId, actionId, name, divisionId, experiencePoints, goldAmount, insanityValue, isDeleted);
+
             using var transactionScope = _transactionScopeFactory.CreateScope();
+            TransactionsLogMessages.TransactionScopeCreated(_logger);
 
             var currentVersion = await _context.Set<CharacterVersionEntity>()
                 .AsQueryable()
@@ -105,7 +119,10 @@ namespace Sokan.Yastah.Data.Characters
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (currentVersion is null)
+            {
+                CharactersLogMessages.CharacterVersionNotFound(_logger, characterId);
                 return new DataNotFoundError($"Character ID {characterId}");
+            }
 
             var newVersion = new CharacterVersionEntity(
                 id:                 default,
@@ -139,21 +156,29 @@ namespace Sokan.Yastah.Data.Characters
                 && (newVersion.InsanityValue == currentVersion.InsanityValue)
                 && (newVersion.IsDeleted == currentVersion.IsDeleted))
             {
+                TransactionsLogMessages.TransactionScopeCommitting(_logger);
                 transactionScope.Complete();
+
+                CharactersLogMessages.CharacterNoChangesGiven(_logger, characterId);
                 return new NoChangesGivenError($"Character ID {characterId}");
             }
 
             currentVersion.NextVersion = newVersion;
             await _context.AddAsync(newVersion, cancellationToken);
+
+            YastahDbContextLogMessages.ContextSavingChanges(_logger);
             await _context.SaveChangesAsync(cancellationToken);
 
+            TransactionsLogMessages.TransactionScopeCommitting(_logger);
             transactionScope.Complete();
 
+            CharactersLogMessages.CharacterUpdated(_logger, characterId, newVersion.Id);
             return newVersion.Id
                 .ToSuccess();
         }
 
         private readonly YastahDbContext _context;
+        private readonly ILogger _logger;
         private readonly ITransactionScopeFactory _transactionScopeFactory;
     }
 }

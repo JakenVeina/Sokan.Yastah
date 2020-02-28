@@ -21,20 +21,19 @@ namespace Microsoft.Extensions.Hosting
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Beginning Startup");
+            StartupLogMessages.StartupBeginning(_logger);
 
             using var serviceScope = _serviceProvider.CreateScope();
-
-            _logger.LogDebug("IServiceScope created");
+            StartupLogMessages.ServiceScopeCreated(_logger, serviceScope);
 
             foreach (var startupHandler in serviceScope.ServiceProvider.GetServices<IStartupHandler>())
             {
-                _logger.LogDebug("Executing StartupHandler: {0}", startupHandler);
+                StartupLogMessages.StartupHandlerExecuting(_logger, startupHandler);
                 await startupHandler.OnStartupAsync(cancellationToken);
-                _logger.LogDebug("StartupHandler executed successfully: {0}", startupHandler);
+                StartupLogMessages.StartupHandlerExecuted(_logger);
             }
 
-            _logger.LogInformation("Startup completed successfully");
+            StartupLogMessages.StartupComplete(_logger);
         }
 
         public Task StopAsync(

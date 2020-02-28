@@ -39,7 +39,7 @@ namespace Sokan.Yastah.Data.Test.Administration
             ulong? performedById,
             long id)
         {
-            using var testContext = new AsyncMethodTestContext();
+            using var testContext = new AsyncMethodWithLoggerTestContext();
             
             var mockContext = new Mock<YastahDbContext>(
                 new Mock<IConcurrencyResolutionService>().Object);
@@ -48,7 +48,8 @@ namespace Sokan.Yastah.Data.Test.Administration
                 .Callback<AdministrationActionEntity, CancellationToken>((x, y) => x.Id = id);
 
             var uut = new AdministrationActionsRepository(
-                mockContext.Object);
+                mockContext.Object,
+                testContext.LoggerFactory.CreateLogger<AdministrationActionsRepository>());
 
             var result = await uut.CreateAsync(
                 typeId,

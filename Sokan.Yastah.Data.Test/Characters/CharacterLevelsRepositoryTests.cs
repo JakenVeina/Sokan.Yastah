@@ -48,12 +48,13 @@ namespace Sokan.Yastah.Data.Test.Characters
             public CharacterLevelsRepository BuildUut()
                 => new CharacterLevelsRepository(
                     MockContext.Object,
+                    LoggerFactory.CreateLogger<CharacterLevelsRepository>(),
                     MockTransactionScopeFactory.Object);
         }
 
-        #region AnyAsync() Tests
+        #region AnyDefinitionsAsync() Tests
 
-        public static IReadOnlyList<TestCaseData> AnyAsync_TestCaseData
+        public static IReadOnlyList<TestCaseData> AnyDefinitionsAsync_TestCaseData
             = new[]
             {
                 /*                  level,                      experienceThreshold,            isDeleted                           expectedResult  */
@@ -80,8 +81,8 @@ namespace Sokan.Yastah.Data.Test.Characters
                 new TestCaseData(   Optional<int>.FromValue(3), Optional<int>.FromValue(20),    Optional<bool>.FromValue(false),    false           ).SetName("{m}(All criteria specified, IsDeleted match does not exist)"),
             };
 
-        [TestCaseSource(nameof(AnyAsync_TestCaseData))]
-        public async Task AnyAsync_Always_ReturnsExpected(
+        [TestCaseSource(nameof(AnyDefinitionsAsync_TestCaseData))]
+        public async Task AnyDefinitionsAsync_Always_ReturnsExpected(
             Optional<int> level,
             Optional<int> experienceThreshold,
             Optional<bool> isDeleted,
@@ -91,7 +92,7 @@ namespace Sokan.Yastah.Data.Test.Characters
 
             var uut = testContext.BuildUut();
 
-            var result = await uut.AnyAsync(
+            var result = await uut.AnyDefinitionsAsync(
                     level,
                     experienceThreshold,
                     isDeleted,
@@ -100,7 +101,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             result.ShouldBe(expectedResult);
         }
 
-        #endregion AnyAsync() Tests
+        #endregion AnyDefinitionsAsync() Tests
 
         #region AsyncEnumerateDefinitions() Tests
 

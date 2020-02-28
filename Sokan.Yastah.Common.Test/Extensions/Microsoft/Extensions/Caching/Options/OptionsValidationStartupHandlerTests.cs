@@ -14,21 +14,27 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.Caching.Optio
     {
         #region Test Cases
 
-        internal class TestContext
-            : AsyncMethodTestContext
+        internal class TestContext<TOptions>
+                : AsyncMethodWithLoggerTestContext
+            where TOptions : class, new()
         {
             public TestContext()
             {
                 MockServiceProvider
-                    .Setup(x => x.GetService(typeof(IOptions<object>)))
+                    .Setup(x => x.GetService(typeof(IOptions<TOptions>)))
                     .Returns(() => MockOptions.Object);
             }
 
             public Mock<IServiceProvider> MockServiceProvider { get; }
                 = new Mock<IServiceProvider>();
 
-            public Mock<IOptions<object>> MockOptions { get; set; }
-                = new Mock<IOptions<object>>();
+            public Mock<IOptions<TOptions>> MockOptions { get; set; }
+                = new Mock<IOptions<TOptions>>();
+
+            public OptionsValidationStartupHandler<TOptions> BuildUut()
+                => new OptionsValidationStartupHandler<TOptions>(
+                    LoggerFactory.CreateLogger<OptionsValidationStartupHandler<TOptions>>(),
+                    MockServiceProvider.Object);
         }
 
         #endregion Test Cases
@@ -38,14 +44,13 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.Caching.Optio
         [Test]
         public async Task OnStartupAsync_ServiceProviderDoesNotContainOptions_ThrowsException()
         {
-            using var testContext = new TestContext();
+            using var testContext = new TestContext<object>();
             
             testContext.MockServiceProvider
                 .Setup(x => x.GetService(typeof(IOptions<object>)))
                 .Returns(null);
 
-            var uut = new OptionsValidationStartupHandler<object>(
-                testContext.MockServiceProvider.Object);
+            var uut = testContext.BuildUut();
 
             await Should.ThrowAsync<InvalidOperationException>(async () =>
             {
@@ -56,16 +61,13 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.Caching.Optio
         [Test]
         public async Task OnStartupAsync_ServiceProviderContainsOptions_GetsOptionsFromServiceProvider()
         {
-            using var testContext = new TestContext();
-            
-            var uut = new OptionsValidationStartupHandler<object>(
-                testContext.MockServiceProvider.Object);
+            using var testContext = new TestContext<object>();
+
+            var uut = testContext.BuildUut();
 
             await uut.OnStartupAsync(testContext.CancellationToken);
 
             testContext.MockServiceProvider.ShouldHaveReceived(x => x.GetService(typeof(IOptions<object>)));
-
-            testContext.MockOptions.Invocations.ShouldBeEmpty();
         }
 
         #endregion OnStartupAsync() Tests

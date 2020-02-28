@@ -75,7 +75,7 @@ namespace Sokan.Yastah.Business.Test.Characters
             public void SetIsLevel1ProperlyConfigured(
                     bool isLevel1ProperlyConfigured)
                 => MockCharacterLevelsRepository
-                    .Setup(x => x.AnyAsync(
+                    .Setup(x => x.AnyDefinitionsAsync(
                         It.IsAny<Optional<int>>(),
                         It.IsAny<Optional<int>>(),
                         It.IsAny<Optional<bool>>(),
@@ -103,7 +103,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                 .CreateScope(default));
 
             testContext.MockCharacterLevelsRepository.ShouldHaveReceived(x => x
-                .AnyAsync(
+                .AnyDefinitionsAsync(
                     1,
                     0,
                     false,
@@ -164,7 +164,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                 .CreateScope(default));
 
             testContext.MockCharacterLevelsRepository.ShouldHaveReceived(x => x
-                .AnyAsync(
+                .AnyDefinitionsAsync(
                     1,
                     0,
                     false,

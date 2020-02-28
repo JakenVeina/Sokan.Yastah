@@ -49,6 +49,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             public CharacterGuildsRepository BuildUut()
                 => new CharacterGuildsRepository(
                     MockContext.Object,
+                    LoggerFactory.CreateLogger<CharacterGuildsRepository>(),
                     MockTransactionScopeFactory.Object);
         }
 

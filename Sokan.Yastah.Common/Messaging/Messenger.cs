@@ -10,8 +10,9 @@ namespace Sokan.Yastah.Common.Messaging
     public interface IMessenger
     {
         Task PublishNotificationAsync<TNotification>(
-            TNotification notification,
-            CancellationToken cancellationToken);
+                TNotification notification,
+                CancellationToken cancellationToken)
+            where TNotification : notnull;
     }
 
     [ServiceBinding(ServiceLifetime.Scoped)]
@@ -29,17 +30,18 @@ namespace Sokan.Yastah.Common.Messaging
         public async Task PublishNotificationAsync<TNotification>(
                 TNotification notification,
                 CancellationToken cancellationToken)
+            where TNotification : notnull
         {
-            _logger.LogDebug("Publishing Notification: {0}", notification);
+            MessagingLogMessages.NotificationPublishing(_logger, notification);
 
             foreach (var handler in _serviceProvider.GetServices<INotificationHandler<TNotification>>())
             {
-                _logger.LogDebug("Invoking Handler: {0}", handler);
+                MessagingLogMessages.NotificationHandlerInvoking(_logger, handler);
                 await handler.OnNotificationPublishedAsync(notification, cancellationToken);
-                _logger.LogDebug("Handler invoked successfully: {0}", handler);
+                MessagingLogMessages.NotificationHandlerInvoked(_logger);
             }
 
-            _logger.LogDebug("Notification published successfully: {0}", notification);
+            MessagingLogMessages.NotificationPublished(_logger);
         }
 
         private readonly ILogger _logger;

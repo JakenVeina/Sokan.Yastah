@@ -3,7 +3,7 @@
     public class AsyncMethodWithLoggerTestContext
         : AsyncMethodTestContext
     {
-        protected readonly TestLoggerFactory LoggerFactory
+        public readonly TestLoggerFactory LoggerFactory
             = new TestLoggerFactory();
 
         protected override void Dispose(

@@ -32,7 +32,8 @@ namespace Sokan.Yastah.Data.Test.Permissions
 
             public PermissionsRepository BuildUut()
                 => new PermissionsRepository(
-                    MockContext.Object);
+                    MockContext.Object,
+                    LoggerFactory.CreateLogger<PermissionsRepository>());
         }
 
         #endregion Test Context

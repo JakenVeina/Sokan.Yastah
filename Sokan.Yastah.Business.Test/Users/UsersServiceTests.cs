@@ -244,7 +244,7 @@ namespace Sokan.Yastah.Business.Test.Users
             using var testContext = new TestContext();
             
             testContext.MockUsersRepository
-                .Setup(x => x.AnyAsync(It.IsAny<CancellationToken>(), It.IsAny<Optional<ulong>>()))
+                .Setup(x => x.AnyAsync(It.IsAny<Optional<ulong>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
 
             var uut = testContext.BuildUut();
@@ -263,7 +263,7 @@ namespace Sokan.Yastah.Business.Test.Users
             testContext.MockPermissionsService.Invocations.ShouldBeEmpty();
 
             testContext.MockUsersRepository.ShouldHaveReceived(x => x
-                .AnyAsync(testContext.CancellationToken, userId));
+                .AnyAsync(userId, testContext.CancellationToken));
 
             testContext.MockTransactionScope.ShouldNotHaveReceived(x => x
                 .Complete());
@@ -292,7 +292,7 @@ namespace Sokan.Yastah.Business.Test.Users
             testContext.AuthorizationConfiguration.AdminUserIds = adminUserIds.ToArray();
 
             testContext.MockUsersRepository
-                .Setup(x => x.AnyAsync(It.IsAny<CancellationToken>(), It.IsAny<Optional<ulong>>()))
+                .Setup(x => x.AnyAsync(It.IsAny<Optional<ulong>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
             var identities = new PermissionIdentityViewModel[]
@@ -318,7 +318,7 @@ namespace Sokan.Yastah.Business.Test.Users
             testContext.MockPermissionsService.Invocations.ShouldBeEmpty();
 
             testContext.MockUsersRepository.ShouldHaveReceived(x => x
-                .AnyAsync(testContext.CancellationToken, userId));
+                .AnyAsync(userId, testContext.CancellationToken));
 
             testContext.MockUsersRepository.ShouldHaveReceived(x => x
                 .AsyncEnumerateGrantedPermissionIdentities(userId));

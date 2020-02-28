@@ -50,6 +50,7 @@ namespace Sokan.Yastah.Data.Test.Roles
             public RolesRepository BuildUut()
                 => new RolesRepository(
                     MockContext.Object,
+                    LoggerFactory.CreateLogger<RolesRepository>(),
                     MockTransactionScopeFactory.Object);
 
             public readonly Mock<ITransactionScopeFactory> MockTransactionScopeFactory;

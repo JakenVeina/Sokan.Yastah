@@ -7,6 +7,7 @@ using System.Transactions;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using Sokan.Yastah.Common.OperationModel;
 
@@ -63,9 +64,11 @@ namespace Sokan.Yastah.Data.Roles
     {
         public RolesRepository(
             YastahDbContext context,
+            ILogger<RolesRepository> logger,
             ITransactionScopeFactory transactionScopeFactory)
         {
             _context = context;
+            _logger = logger;
             _transactionScopeFactory = transactionScopeFactory;
         }
 
@@ -76,57 +79,99 @@ namespace Sokan.Yastah.Data.Roles
             Optional<bool> isLatestVersion = default,
             CancellationToken cancellationToken = default)
         {
+            using var logScope = _logger.BeginMemberScope();
+            RolesLogMessages.RoleVersionsEnumeratingAny(_logger, excludedRoleIds, name, isDeleted, isLatestVersion);
+
             var query = _context.Set<RoleVersionEntity>()
                 .AsQueryable();
+            RepositoryLogMessages.QueryInitializing(_logger, query);
 
             if (excludedRoleIds.IsSpecified)
+            {
+                RepositoryLogMessages.QueryAddingWhereClause(_logger, nameof(excludedRoleIds));
                 query = query.Where(x => !excludedRoleIds.Value.Contains(x.RoleId));
+            }
 
             if (name.IsSpecified)
+            {
+                RepositoryLogMessages.QueryAddingWhereClause(_logger, nameof(name));
                 query = query.Where(x => x.Name == name.Value);
+            }
 
             if (isDeleted.IsSpecified)
+            {
+                RepositoryLogMessages.QueryAddingWhereClause(_logger, nameof(isDeleted));
                 query = query.Where(x => x.IsDeleted == isDeleted.Value);
+            }
 
             if (isLatestVersion.IsSpecified)
+            {
+                RepositoryLogMessages.QueryAddingWhereClause(_logger, nameof(isLatestVersion));
                 query = isLatestVersion.Value
                     ? query.Where(x => x.NextVersionId == null)
                     : query.Where(x => x.NextVersionId != null);
+            }
 
-            return query.AnyAsync(cancellationToken);
+            RepositoryLogMessages.QueryTerminating(_logger);
+            var result = query.AnyAsync(cancellationToken);
+
+            RepositoryLogMessages.QueryExecuting(_logger);
+            return result;
         }
 
         public IAsyncEnumerable<RoleIdentityViewModel> AsyncEnumerateIdentities(
                 Optional<bool> isDeleted = default)
         {
+            using var logScope = _logger.BeginMemberScope();
+            RolesLogMessages.RoleIdentitiesEnumerating(_logger, isDeleted);
+
             var query = _context.Set<RoleVersionEntity>()
                 .AsQueryable()
                 .Where(x => x.NextVersionId == null);
+            RepositoryLogMessages.QueryInitializing(_logger, query);
 
             if (isDeleted.IsSpecified)
+            {
+                RepositoryLogMessages.QueryAddingWhereClause(_logger, nameof(isDeleted));
                 query = query.Where(x => x.IsDeleted == isDeleted.Value);
+            }
 
-            return query
+            RepositoryLogMessages.QueryTerminating(_logger);
+            var result = query
                 .Select(RoleIdentityViewModel.FromVersionEntityProjection)
                 .AsAsyncEnumerable();
+
+            RepositoryLogMessages.QueryBuilt(_logger);
+            return result;
         }
 
         public IAsyncEnumerable<RolePermissionMappingIdentityViewModel> AsyncEnumeratePermissionMappingIdentities(
             long roleId,
             Optional<bool> isDeleted = default)
         {
+            using var logScope = _logger.BeginMemberScope();
+            RolesLogMessages.RolePermissionMappingIdentitiesEnumerating(_logger, roleId, isDeleted);
+
             var query = _context.Set<RolePermissionMappingEntity>()
                 .AsQueryable()
                 .Where(x => x.RoleId == roleId);
+            RepositoryLogMessages.QueryInitializing(_logger, query);
 
             if (isDeleted.IsSpecified)
+            {
+                RepositoryLogMessages.QueryAddingWhereClause(_logger, nameof(isDeleted));
                 query = isDeleted.Value
                     ? query.Where(x => x.DeletionId != null)
                     : query.Where(x => x.DeletionId == null);
+            }
 
-            return query
+            RepositoryLogMessages.QueryTerminating(_logger);
+            var result = query
                 .Select(RolePermissionMappingIdentityViewModel.FromEntityProjection)
                 .AsAsyncEnumerable();
+
+            RepositoryLogMessages.QueryBuilt(_logger);
+            return result;
         }
 
         public async Task<long> CreateAsync(
@@ -134,12 +179,17 @@ namespace Sokan.Yastah.Data.Roles
             long actionId,
             CancellationToken cancellationToken)
         {
+            using var logScope = _logger.BeginMemberScope();
+            RolesLogMessages.RoleCreating(_logger, name, actionId);
+
             using var transactionScope = _transactionScopeFactory.CreateScope();
+            TransactionsLogMessages.TransactionScopeCreated(_logger);
 
             var role = new RoleEntity(
                 id: default);
-
             await _context.AddAsync(role, cancellationToken);
+
+            YastahDbContextLogMessages.ContextSavingChanges(_logger);
             await _context.SaveChangesAsync(cancellationToken);
 
             var version = new RoleVersionEntity(
@@ -150,13 +200,16 @@ namespace Sokan.Yastah.Data.Roles
                 creationId: actionId,
                 previousVersionId: null,
                 nextVersionId: null);
-
             await _context.AddAsync(version, cancellationToken);
+
+            YastahDbContextLogMessages.ContextSavingChanges(_logger);
             await _context.SaveChangesAsync(cancellationToken);
 
+            TransactionsLogMessages.TransactionScopeCommitting(_logger);
             transactionScope.Complete();
 
-            return version.Role.Id;
+            RolesLogMessages.RoleCreated(_logger, role.Id, version.Id);
+            return role.Id;
         }
 
         public async Task<IReadOnlyCollection<long>> CreatePermissionMappingsAsync(
@@ -165,7 +218,11 @@ namespace Sokan.Yastah.Data.Roles
             long actionId,
             CancellationToken cancellationToken)
         {
+            using var logScope = _logger.BeginMemberScope();
+            RolesLogMessages.RolePermissionMappingsCreating(_logger, roleId, permissionIds, actionId);
+
             var mappings = permissionIds
+                .Do(permissionId => RolesLogMessages.RolePermissionMappingCreating(_logger, roleId, permissionId, actionId))
                 .Select(permissionId => new RolePermissionMappingEntity(
                     id:             default,
                     roleId:         roleId,
@@ -173,13 +230,18 @@ namespace Sokan.Yastah.Data.Roles
                     creationId:     actionId,
                     deletionId:     null))
                 .ToArray();
-
             await _context.AddRangeAsync(mappings, cancellationToken);
+
+            YastahDbContextLogMessages.ContextSavingChanges(_logger);
             await _context.SaveChangesAsync(cancellationToken);
 
-            return mappings
+            var mappingIds = mappings
                 .Select(x => x.Id)
+                .Do(mappingId => RolesLogMessages.RolePermissionMappingCreated(_logger, mappingId))
                 .ToArray();
+
+            RolesLogMessages.RolePermissionMappingsCreated(_logger);
+            return mappingIds;
         }
 
         public async Task<OperationResult<RoleDetailViewModel>> ReadDetailAsync(
@@ -187,21 +249,36 @@ namespace Sokan.Yastah.Data.Roles
             Optional<bool> isDeleted = default,
             CancellationToken cancellationToken = default)
         {
+            using var logScope = _logger.BeginMemberScope();
+            RolesLogMessages.RoleDetailReading(_logger, roleId, isDeleted);
+
             var query = _context.Set<RoleVersionEntity>()
                 .AsQueryable()
                 .Where(x => x.NextVersionId == null)
                 .Where(x => x.RoleId == roleId);
+            RepositoryLogMessages.QueryInitializing(_logger, query);
 
             if (isDeleted.IsSpecified)
+            {
+                RepositoryLogMessages.QueryAddingWhereClause(_logger, nameof(isDeleted));
                 query = query.Where(x => x.IsDeleted == isDeleted.Value);
+            }
 
+            RepositoryLogMessages.QueryExecuting(_logger);
             var result = await query
                 .Select(RoleDetailViewModel.FromVersionEntityExpression)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            return (result is null)
-                ? new DataNotFoundError($"Role ID {roleId}")
-                : result.ToSuccess();
+            if (result is null)
+            {
+                RolesLogMessages.RoleVersionNotFound(_logger, roleId);
+                return new DataNotFoundError($"Role ID {roleId}");
+            }
+            else
+            {
+                RolesLogMessages.RoleDetailRead(_logger, roleId);
+                return result.ToSuccess();
+            }
         }
 
         public async Task<OperationResult<long>> UpdateAsync(
@@ -211,7 +288,11 @@ namespace Sokan.Yastah.Data.Roles
             Optional<bool> isDeleted = default,
             CancellationToken cancellationToken = default)
         {
+            using var logScope = _logger.BeginMemberScope();
+            RolesLogMessages.RoleUpdating(_logger, roleId, actionId, name, isDeleted);
+
             using var transactionScope = _transactionScopeFactory.CreateScope();
+            TransactionsLogMessages.TransactionScopeCreated(_logger);
             
             var currentVersion = await _context.Set<RoleVersionEntity>()
                 .AsQueryable()
@@ -220,7 +301,10 @@ namespace Sokan.Yastah.Data.Roles
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (currentVersion is null)
+            {
+                RolesLogMessages.RoleVersionNotFound(_logger, roleId);
                 return new DataNotFoundError($"Role ID {roleId}");
+            }
 
             var newVersion = new RoleVersionEntity(
                 id: default,
@@ -239,16 +323,23 @@ namespace Sokan.Yastah.Data.Roles
             if ((newVersion.Name == currentVersion.Name)
                     && (newVersion.IsDeleted == currentVersion.IsDeleted))
             {
+                TransactionsLogMessages.TransactionScopeCommitted(_logger);
                 transactionScope.Complete();
+
+                RolesLogMessages.RoleNoChangesGiven(_logger, roleId);
                 return new NoChangesGivenError($"Role ID {roleId}");
             }
 
             currentVersion.NextVersion = newVersion;
             await _context.AddAsync(newVersion, cancellationToken);
+
+            YastahDbContextLogMessages.ContextSavingChanges(_logger);
             await _context.SaveChangesAsync(cancellationToken);
 
+            TransactionsLogMessages.TransactionScopeCommitting(_logger);
             transactionScope.Complete();
 
+            RolesLogMessages.RoleUpdated(_logger, roleId, newVersion.Id);
             return newVersion.Id
                 .ToSuccess();
         }
@@ -258,23 +349,31 @@ namespace Sokan.Yastah.Data.Roles
             long deletionId,
             CancellationToken cancellationToken)
         {
+            using var logScope = _logger.BeginMemberScope();
+            RolesLogMessages.RolePermissionMappingsUpdating(_logger, mappingIds, deletionId);
+
             using var transactionScope = _transactionScopeFactory.CreateScope();
-            
-            var findKeys = new object[1];
+            TransactionsLogMessages.TransactionScopeCreated(_logger);
+
             foreach (var mappingId in mappingIds)
             {
-                findKeys[0] = mappingId;
-                var mapping = await _context.FindAsync<RolePermissionMappingEntity?>(findKeys, cancellationToken);
+                RolesLogMessages.RolePermissionMappingUpdating(_logger, mappingId, deletionId);
+                var mapping = await _context.FindAsync<RolePermissionMappingEntity?>(new object[] { mappingId }, cancellationToken);
 
                 mapping!.DeletionId = deletionId;
             }
 
+            YastahDbContextLogMessages.ContextSavingChanges(_logger);
             await _context.SaveChangesAsync(cancellationToken);
 
+            TransactionsLogMessages.TransactionScopeCommitting(_logger);
             transactionScope.Complete();
+
+            RolesLogMessages.RolePermissionMappingsUpdated(_logger);
         }
 
         private readonly YastahDbContext _context;
+        private readonly ILogger _logger;
         private readonly ITransactionScopeFactory _transactionScopeFactory;
     }
 }

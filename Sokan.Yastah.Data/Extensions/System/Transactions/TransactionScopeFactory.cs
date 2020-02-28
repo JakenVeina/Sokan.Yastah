@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace System.Transactions
 {
@@ -12,21 +13,36 @@ namespace System.Transactions
     public class TransactionScopeFactory
         : ITransactionScopeFactory
     {
+        public TransactionScopeFactory(
+            ILogger<TransactionScopeFactory> logger)
+        {
+            _logger = logger;
+        }
+
         public ITransactionScope CreateScope(
                 IsolationLevel? isolationLevel = default)
-            => new TransactionScopeWrapper(
-                new TransactionOptions()
-                {
-                    IsolationLevel = isolationLevel ?? IsolationLevel.ReadCommitted,
-                    Timeout = TimeSpan.FromSeconds(30)
-                });
+        {
+            using var logScope = _logger.BeginMemberScope();
+            TransactionsLogMessages.TransactionScopeCreating(_logger);
+
+            var result = new TransactionScopeWrapper(_logger, new TransactionOptions()
+            {
+                IsolationLevel = isolationLevel ?? IsolationLevel.ReadCommitted,
+                Timeout = TimeSpan.FromSeconds(30)
+            });
+
+            TransactionsLogMessages.TransactionScopeCreated(_logger);
+            return result;
+        }
 
         private sealed class TransactionScopeWrapper
             : ITransactionScope
         {
             public TransactionScopeWrapper(
+                ILogger logger,
                 TransactionOptions options)
             {
+                _logger = logger;
                 _options = options;
                 _scope = new TransactionScope(
                     scopeOption: TransactionScopeOption.Required,
@@ -38,13 +54,28 @@ namespace System.Transactions
                 => _options;
 
             public void Complete()
-                => _scope.Complete();
+            {
+                using var logScope = _logger.BeginMemberScope();
+
+                TransactionsLogMessages.TransactionScopeCommitting(_logger);
+                _scope.Complete();
+                TransactionsLogMessages.TransactionScopeCommitted(_logger);
+            }
 
             public void Dispose()
-                => _scope.Dispose();
+            {
+                using var logScope = _logger.BeginMemberScope();
 
+                TransactionsLogMessages.TransactionScopeDisposing(_logger);
+                _scope.Dispose();
+                TransactionsLogMessages.TransactionScopeDisposed(_logger);
+            }
+
+            private readonly ILogger _logger;
             private readonly TransactionOptions _options;
             private readonly TransactionScope _scope;
         }
+
+        private readonly ILogger _logger;
     }
 }

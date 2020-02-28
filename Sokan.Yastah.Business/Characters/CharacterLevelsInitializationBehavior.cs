@@ -31,7 +31,7 @@ namespace Sokan.Yastah.Business.Characters
         {
             using var transactionScope = _transactionScopeFactory.CreateScope();
 
-            var level1Exists = await _characterLevelsRepository.AnyAsync(
+            var level1Exists = await _characterLevelsRepository.AnyDefinitionsAsync(
                 level:               1,
                 experienceThreshold: 0,
                 isDeleted:           false,

@@ -45,6 +45,7 @@ namespace Sokan.Yastah.Data.Test.Users
             public UsersRepository BuildUut()
                 => new UsersRepository(
                     MockContext.Object,
+                    LoggerFactory.CreateLogger<UsersRepository>(),
                     MockTransactionScopeFactory.Object);
 
             public readonly Mock<ITransactionScopeFactory> MockTransactionScopeFactory;
@@ -78,8 +79,8 @@ namespace Sokan.Yastah.Data.Test.Users
             var uut = testContext.BuildUut();
 
             var result = await uut.AnyAsync(
-                testContext.CancellationToken,
-                userId);
+                userId,
+                testContext.CancellationToken);
 
             result.ShouldBe(expectedResult);
 

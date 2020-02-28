@@ -48,6 +48,7 @@ namespace Sokan.Yastah.Data.Test.Characters
             public CharactersRepository BuildUut()
                 => new CharactersRepository(
                     MockContext.Object,
+                    LoggerFactory.CreateLogger<CharactersRepository>(),
                     MockTransactionScopeFactory.Object);
         }
 

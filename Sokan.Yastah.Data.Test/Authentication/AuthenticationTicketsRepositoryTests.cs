@@ -33,7 +33,8 @@ namespace Sokan.Yastah.Data.Test.Authentication
 
             public AuthenticationTicketsRepository BuildUut()
                 => new AuthenticationTicketsRepository(
-                    MockContext.Object);
+                    MockContext.Object,
+                    LoggerFactory.CreateLogger<AuthenticationTicketsRepository>());
         }
 
         #endregion Test Context

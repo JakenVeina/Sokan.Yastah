@@ -7,7 +7,7 @@ using Sokan.Yastah.Common.Test;
 namespace Sokan.Yastah.Data.Test
 {
     internal class MockYastahDbTestContext
-        : AsyncMethodTestContext
+        : AsyncMethodWithLoggerTestContext
     {
         public MockYastahDbTestContext(
             YastahTestEntitySet entities)

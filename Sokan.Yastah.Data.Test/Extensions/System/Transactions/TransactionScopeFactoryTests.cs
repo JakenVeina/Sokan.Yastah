@@ -5,6 +5,8 @@ using Shouldly;
 
 using System.Transactions;
 
+using Sokan.Yastah.Common.Test;
+
 namespace Sokan.Yastah.Data.Test.Extensions.System.Transactions
 {
     [TestFixture]
@@ -25,7 +27,10 @@ namespace Sokan.Yastah.Data.Test.Extensions.System.Transactions
             IsolationLevel? isolationLevel,
             IsolationLevel expectedIsolationLevel)
         {
-            var uut = new TransactionScopeFactory();
+            using var loggerFactory = new TestLoggerFactory();
+
+            var uut = new TransactionScopeFactory(
+                loggerFactory.CreateLogger<TransactionScopeFactory>());
 
             using var result = uut.CreateScope(isolationLevel);
             
@@ -36,7 +41,10 @@ namespace Sokan.Yastah.Data.Test.Extensions.System.Transactions
         [Test]
         public void CreateScope_ResultHasBeenDisposed_CompleteThrowsException()
         {
-            var uut = new TransactionScopeFactory();
+            using var loggerFactory = new TestLoggerFactory();
+
+            var uut = new TransactionScopeFactory(
+                loggerFactory.CreateLogger<TransactionScopeFactory>());
 
             var result = uut.CreateScope();
 
@@ -55,7 +63,10 @@ namespace Sokan.Yastah.Data.Test.Extensions.System.Transactions
         [Test]
         public void CreateScope_InnerTransactionWasNotCompleted_DisposeThrowsException()
         {
-            var uut = new TransactionScopeFactory();
+            using var loggerFactory = new TestLoggerFactory();
+
+            var uut = new TransactionScopeFactory(
+                loggerFactory.CreateLogger<TransactionScopeFactory>());
 
             var outerTransaction = uut.CreateScope();
 
