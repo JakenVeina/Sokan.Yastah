@@ -9,7 +9,7 @@ namespace Microsoft.Extensions.Options
             where TOptions : class, new()
         {
             optionsBuilder.Services
-                .AddTransient<IStartupHandler, OptionsValidationStartupHandler<TOptions>>();
+                .AddTransient<IBehavior, OptionsValidationBehavior<TOptions>>();
 
             return optionsBuilder;
         }

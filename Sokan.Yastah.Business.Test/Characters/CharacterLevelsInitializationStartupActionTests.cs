@@ -12,20 +12,22 @@ using Shouldly;
 
 using Sokan.Yastah.Business.Characters;
 using Sokan.Yastah.Common.OperationModel;
+using Sokan.Yastah.Data;
 using Sokan.Yastah.Data.Administration;
 using Sokan.Yastah.Data.Characters;
 
 using Sokan.Yastah.Common.Test;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Sokan.Yastah.Business.Test.Characters
 {
     [TestFixture]
-    public class CharacterLevelsInitializationBehaviorTests
+    public class CharacterLevelsInitializationStartupActionTests
     {
         #region Test Context
 
         internal class TestContext
-            : AsyncMethodTestContext
+            : AsyncMethodWithLoggerTestContext
         {
             public TestContext()
             {
@@ -43,6 +45,24 @@ namespace Sokan.Yastah.Business.Test.Characters
 
                 MockCharacterLevelsRepository = new Mock<ICharacterLevelsRepository>();
 
+                MockServiceProvider = new Mock<IServiceProvider>();
+                MockServiceProvider
+                    .Setup(x => x.GetService(typeof(IAdministrationActionsRepository)))
+                    .Returns(() => MockAdministrationActionsRepository.Object);
+                MockServiceProvider
+                    .Setup(x => x.GetService(typeof(ICharacterLevelsRepository)))
+                    .Returns(() => MockCharacterLevelsRepository.Object);
+
+                MockServiceScope = new Mock<IServiceScope>();
+                MockServiceScope
+                    .Setup(x => x.ServiceProvider)
+                    .Returns(() => MockServiceProvider.Object);
+
+                MockServiceScopeFactory = new Mock<IServiceScopeFactory>();
+                MockServiceScopeFactory
+                    .Setup(x => x.CreateScope())
+                    .Returns(() => MockServiceScope.Object);
+
                 MockSystemClock = new Mock<ISystemClock>();
                 MockSystemClock
                     .Setup(x => x.UtcNow)
@@ -54,6 +74,11 @@ namespace Sokan.Yastah.Business.Test.Characters
                     .Returns(() => MockTransactionScope.Object);
 
                 MockTransactionScope = new Mock<ITransactionScope>();
+
+                MockYastahAutoMigrationStartupAction = new Mock<IYastahAutoMigrationStartupAction>();
+                MockYastahAutoMigrationStartupAction
+                    .Setup(x => x.WhenDone)
+                    .Returns(_autoMigrationCompletionSource.Task);
             }
 
             public DateTimeOffset UtcNow;
@@ -61,16 +86,24 @@ namespace Sokan.Yastah.Business.Test.Characters
 
             public readonly Mock<IAdministrationActionsRepository> MockAdministrationActionsRepository;
             public readonly Mock<ICharacterLevelsRepository> MockCharacterLevelsRepository;
+            public readonly Mock<IServiceProvider> MockServiceProvider;
+            public readonly Mock<IServiceScope> MockServiceScope;
+            public readonly Mock<IServiceScopeFactory> MockServiceScopeFactory;
             public readonly Mock<ISystemClock> MockSystemClock;
             public readonly Mock<ITransactionScopeFactory> MockTransactionScopeFactory;
             public readonly Mock<ITransactionScope> MockTransactionScope;
+            public readonly Mock<IYastahAutoMigrationStartupAction> MockYastahAutoMigrationStartupAction;
 
-            public CharacterLevelsInitializationBehavior BuildUut()
-                => new CharacterLevelsInitializationBehavior(
-                    MockAdministrationActionsRepository.Object,
-                    MockCharacterLevelsRepository.Object,
+            public CharacterLevelsInitializationStartupAction BuildUut()
+                => new CharacterLevelsInitializationStartupAction(
+                    LoggerFactory.CreateLogger<CharacterLevelsInitializationStartupAction>(),
+                    MockServiceScopeFactory.Object,
                     MockSystemClock.Object,
-                    MockTransactionScopeFactory.Object);
+                    MockTransactionScopeFactory.Object,
+                    MockYastahAutoMigrationStartupAction.Object);
+
+            public void CompleteAutoMigration()
+                => _autoMigrationCompletionSource.SetResult(null);
 
             public void SetIsLevel1ProperlyConfigured(
                     bool isLevel1ProperlyConfigured)
@@ -81,22 +114,45 @@ namespace Sokan.Yastah.Business.Test.Characters
                         It.IsAny<Optional<bool>>(),
                         It.IsAny<CancellationToken>()))
                     .ReturnsAsync(isLevel1ProperlyConfigured);
+
+            private readonly TaskCompletionSource<object?> _autoMigrationCompletionSource
+                = new TaskCompletionSource<object?>();
         }
 
         #endregion Test Context
 
-        #region OnStartupAsync() Tests
+        #region OnStartingAsync() Tests
 
         [Test]
-        public async Task OnStartupAsync_Level1IsProperlyConfigured_DoesNothing()
+        public async Task OnStartingAsync_Always_AwaitsAutoMigrationAction()
         {
             using var testContext = new TestContext();
 
+            var uut = testContext.BuildUut();
+
+            var result = uut.StartAsync(
+                testContext.CancellationToken);
+
+            result.IsCompleted.ShouldBeFalse();
+
+            testContext.MockServiceProvider.Invocations.ShouldBeEmpty();
+            testContext.MockTransactionScopeFactory.Invocations.ShouldBeEmpty();
+
+            testContext.CompleteAutoMigration();
+
+            await result;
+        }
+
+        [Test]
+        public async Task OnStartingAsync_Level1IsProperlyConfigured_DoesNothing()
+        {
+            using var testContext = new TestContext();
+            testContext.CompleteAutoMigration();
             testContext.SetIsLevel1ProperlyConfigured(true);
 
             var uut = testContext.BuildUut();
 
-            await uut.OnStartupAsync(
+            await uut.StartAsync(
                 testContext.CancellationToken);
 
             testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
@@ -130,7 +186,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                 .Complete());
         }
 
-        public static readonly IReadOnlyList<TestCaseData> OnStartupAsync_Merge_TestCaseData
+        public static readonly IReadOnlyList<TestCaseData> OnStartingAsync_Merge_TestCaseData
             = new[]
             {
                 /*                  performed,                          actionId        */
@@ -142,8 +198,8 @@ namespace Sokan.Yastah.Business.Test.Characters
                 new TestCaseData(   DateTimeOffset.Parse("2009-10-11"), 12L             ).SetName("{m}(Unique Value Set 3)")
             };
 
-        [TestCaseSource(nameof(OnStartupAsync_Merge_TestCaseData))]
-        public async Task OnStartupAsync_Level1IsNotProperlyConfigured_MergesLevel1Definition(
+        [TestCaseSource(nameof(OnStartingAsync_Merge_TestCaseData))]
+        public async Task OnStartingAsync_Level1IsNotProperlyConfigured_MergesLevel1Definition(
             DateTimeOffset performed,
             long actionId)
         {
@@ -152,12 +208,12 @@ namespace Sokan.Yastah.Business.Test.Characters
                 UtcNow = performed,
                 NextAdministrationActionId = actionId
             };
-
+            testContext.CompleteAutoMigration();
             testContext.SetIsLevel1ProperlyConfigured(false);
 
             var uut = testContext.BuildUut();
 
-            await uut.OnStartupAsync(
+            await uut.StartAsync(
                 testContext.CancellationToken);
 
             testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
@@ -191,6 +247,6 @@ namespace Sokan.Yastah.Business.Test.Characters
                 .Complete());
         }
 
-        #endregion OnStartupAsync() Tests
+        #endregion OnStartingAsync() Tests
     }
 }

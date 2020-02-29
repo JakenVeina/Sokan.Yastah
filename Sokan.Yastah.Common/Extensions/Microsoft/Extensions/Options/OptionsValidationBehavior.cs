@@ -8,19 +8,25 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Extensions.Options
 {
-    public class OptionsValidationStartupHandler<TOptions>
-            : IStartupHandler
+    public class OptionsValidationBehavior<TOptions>
+            : IBehavior
         where TOptions : class, new()
     {
-        public OptionsValidationStartupHandler(
-            ILogger<OptionsValidationStartupHandler<TOptions>> logger,
+        #region Construction
+
+        public OptionsValidationBehavior(
+            ILogger<OptionsValidationBehavior<TOptions>> logger,
             IServiceProvider serviceProvider)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
         }
 
-        public Task OnStartupAsync(
+        #endregion Construction
+
+        #region IBehavior
+
+        public Task StartAsync(
             CancellationToken cancellationToken)
         {
             OptionsValidationLogMessages.OptionsValidating(_logger, typeof(TOptions));
@@ -30,7 +36,17 @@ namespace Microsoft.Extensions.Options
             return Task.CompletedTask;
         }
 
+        public Task StopAsync(
+                CancellationToken cancellationToken)
+            => Task.CompletedTask;
+
+        #endregion IBehavior
+
+        #region State
+
         private readonly ILogger _logger;
         private readonly IServiceProvider _serviceProvider;
+
+        #endregion State
     }
 }

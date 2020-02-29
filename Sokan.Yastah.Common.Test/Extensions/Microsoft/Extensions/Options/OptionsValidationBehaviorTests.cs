@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.Caching.Options
 {
     [TestFixture]
-    public class OptionsValidationStartupHandlerTests
+    public class OptionsValidationBehaviorTests
     {
         #region Test Cases
 
@@ -31,18 +31,18 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.Caching.Optio
             public Mock<IOptions<TOptions>> MockOptions { get; set; }
                 = new Mock<IOptions<TOptions>>();
 
-            public OptionsValidationStartupHandler<TOptions> BuildUut()
-                => new OptionsValidationStartupHandler<TOptions>(
-                    LoggerFactory.CreateLogger<OptionsValidationStartupHandler<TOptions>>(),
+            public OptionsValidationBehavior<TOptions> BuildUut()
+                => new OptionsValidationBehavior<TOptions>(
+                    LoggerFactory.CreateLogger<OptionsValidationBehavior<TOptions>>(),
                     MockServiceProvider.Object);
         }
 
         #endregion Test Cases
 
-        #region OnStartupAsync() Tests
+        #region StartAsync() Tests
 
         [Test]
-        public async Task OnStartupAsync_ServiceProviderDoesNotContainOptions_ThrowsException()
+        public async Task StartAsync_ServiceProviderDoesNotContainOptions_ThrowsException()
         {
             using var testContext = new TestContext<object>();
             
@@ -54,22 +54,38 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.Caching.Optio
 
             await Should.ThrowAsync<InvalidOperationException>(async () =>
             {
-                await uut.OnStartupAsync(testContext.CancellationToken);
+                await uut.StartAsync(testContext.CancellationToken);
             });
         }
 
         [Test]
-        public async Task OnStartupAsync_ServiceProviderContainsOptions_GetsOptionsFromServiceProvider()
+        public async Task StartAsync_ServiceProviderContainsOptions_GetsOptionsFromServiceProvider()
         {
             using var testContext = new TestContext<object>();
 
             var uut = testContext.BuildUut();
 
-            await uut.OnStartupAsync(testContext.CancellationToken);
+            await uut.StartAsync(testContext.CancellationToken);
 
             testContext.MockServiceProvider.ShouldHaveReceived(x => x.GetService(typeof(IOptions<object>)));
         }
 
-        #endregion OnStartupAsync() Tests
+        #endregion StartAsync() Tests
+
+        #region StopAsync() Tests
+
+        [Test]
+        public void StopAsync_Always_DoesNothing()
+        {
+            using var testContext = new TestContext<object>();
+
+            var uut = testContext.BuildUut();
+
+            var result = uut.StopAsync(testContext.CancellationToken);
+
+            result.IsCompletedSuccessfully.ShouldBeTrue();
+        }
+
+        #endregion StopAsync() Tests
     }
 }

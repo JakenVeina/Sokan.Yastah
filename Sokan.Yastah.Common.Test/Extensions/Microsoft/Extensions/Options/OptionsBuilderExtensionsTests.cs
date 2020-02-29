@@ -35,8 +35,8 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.Caching.Optio
                 .Cast<ServiceDescriptor>()
                 .First();
 
-            serviceDescriptor.ServiceType.ShouldBe(typeof(IStartupHandler));
-            serviceDescriptor.ImplementationType.ShouldBe(typeof(OptionsValidationStartupHandler<object>));
+            serviceDescriptor.ServiceType.ShouldBe(typeof(IBehavior));
+            serviceDescriptor.ImplementationType.ShouldBe(typeof(OptionsValidationBehavior<object>));
             serviceDescriptor.Lifetime.ShouldBe(ServiceLifetime.Transient);
         }
 
