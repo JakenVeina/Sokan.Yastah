@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Sokan.Yastah.Data.Administration;
 
@@ -56,28 +57,31 @@ namespace Sokan.Yastah.Data.Characters
         public long? NextVersionId { get; set; }
 
         public CharacterGuildDivisionVersionEntity? NextVersion { get; set; }
+    }
 
-        [OnModelCreating]
-        public static void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<CharacterGuildDivisionVersionEntity>(entityBuilder =>
-            {
-                entityBuilder
-                    .Property(x => x.Name);
+    internal class CharacterGuildDivisionVersionEntityTypeConfiguration
+        : IEntityTypeConfiguration<CharacterGuildDivisionVersionEntity>
+    {
+        public void Configure(
+            EntityTypeBuilder<CharacterGuildDivisionVersionEntity> entityBuilder)
+        {
+            entityBuilder
+                .Property(x => x.Name);
 
-                entityBuilder
-                    .Property(x => x.IsDeleted);
+            entityBuilder
+                .Property(x => x.IsDeleted);
 
-                entityBuilder
-                    .HasOne(x => x.PreviousVersion)
-                    .WithOne()
-                    .HasForeignKey<CharacterGuildDivisionVersionEntity>(x => x.PreviousVersionId)
-                    .HasConstraintName("FK_CharacterGuildDivisionVersions_PreviousVersion"); // Auto-generated name hits max length, and collides
+            entityBuilder
+                .HasOne(x => x.PreviousVersion)
+                .WithOne()
+                .HasForeignKey<CharacterGuildDivisionVersionEntity>(x => x.PreviousVersionId)
+                .HasConstraintName("FK_CharacterGuildDivisionVersions_PreviousVersion"); // Auto-generated name hits max length, and collides
 
-                entityBuilder
-                    .HasOne(x => x.NextVersion)
-                    .WithOne()
-                    .HasForeignKey<CharacterGuildDivisionVersionEntity>(x => x.NextVersionId)
-                    .HasConstraintName("FK_CharacterGuildDivisionVersions_NextVersion"); // Auto-generated name hits max length, and collides
-            });
+            entityBuilder
+                .HasOne(x => x.NextVersion)
+                .WithOne()
+                .HasForeignKey<CharacterGuildDivisionVersionEntity>(x => x.NextVersionId)
+                .HasConstraintName("FK_CharacterGuildDivisionVersions_NextVersion"); // Auto-generated name hits max length, and collides
+        }
     }
 }

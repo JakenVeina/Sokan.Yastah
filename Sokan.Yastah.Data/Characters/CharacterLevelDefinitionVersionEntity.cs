@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Sokan.Yastah.Data.Administration;
 
@@ -55,28 +56,31 @@ namespace Sokan.Yastah.Data.Characters
         public long? NextVersionId { get; set; }
 
         public CharacterLevelDefinitionVersionEntity? NextVersion { get; set; }
+    }
 
-        [OnModelCreating]
-        public static void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<CharacterLevelDefinitionVersionEntity>(entityBuilder =>
-            {
-                entityBuilder
-                    .Property(x => x.ExperienceThreshold);
+    internal class CharacterLevelDefinitionVersionEntityTypeConfiguration
+        : IEntityTypeConfiguration<CharacterLevelDefinitionVersionEntity>
+    {
+        public void Configure(
+            EntityTypeBuilder<CharacterLevelDefinitionVersionEntity> entityBuilder)
+        {
+            entityBuilder
+                .Property(x => x.ExperienceThreshold);
 
-                entityBuilder
-                    .Property(x => x.IsDeleted);
+            entityBuilder
+                .Property(x => x.IsDeleted);
 
-                entityBuilder
-                    .HasOne(x => x.PreviousVersion)
-                    .WithOne()
-                    .HasForeignKey<CharacterLevelDefinitionVersionEntity>(x => x.PreviousVersionId)
-                    .HasConstraintName("FK_CharacterLevelDefinitionVersions_PreviousVersion"); // Auto-generated name hits max length, and collides
+            entityBuilder
+                .HasOne(x => x.PreviousVersion)
+                .WithOne()
+                .HasForeignKey<CharacterLevelDefinitionVersionEntity>(x => x.PreviousVersionId)
+                .HasConstraintName("FK_CharacterLevelDefinitionVersions_PreviousVersion"); // Auto-generated name hits max length, and collides
 
-                entityBuilder
-                    .HasOne(x => x.NextVersion)
-                    .WithOne()
-                    .HasForeignKey<CharacterLevelDefinitionVersionEntity>(x => x.NextVersionId)
-                    .HasConstraintName("FK_CharacterLevelDefinitionVersions_NextVersion"); // Auto-generated name hits max length, and collides
-            });
+            entityBuilder
+                .HasOne(x => x.NextVersion)
+                .WithOne()
+                .HasForeignKey<CharacterLevelDefinitionVersionEntity>(x => x.NextVersionId)
+                .HasConstraintName("FK_CharacterLevelDefinitionVersions_NextVersion"); // Auto-generated name hits max length, and collides
+        }
     }
 }

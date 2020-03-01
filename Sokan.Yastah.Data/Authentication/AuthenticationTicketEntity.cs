@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Sokan.Yastah.Data.Administration;
 using Sokan.Yastah.Data.Users;
@@ -43,14 +44,17 @@ namespace Sokan.Yastah.Data.Authentication
         public long? DeletionId { get; set; }
 
         public AdministrationActionEntity? Deletion { get; set; }
+    }
 
-        [OnModelCreating]
-        public static void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<AuthenticationTicketEntity>(entityBuilder =>
-            {
-                entityBuilder
-                    .Property(x => x.UserId)
-                    .HasConversion<long>();
-            });
+    internal class AuthenticationTicketEntityTypeConfiguration
+        : IEntityTypeConfiguration<AuthenticationTicketEntity>
+    {
+        public void Configure(
+            EntityTypeBuilder<AuthenticationTicketEntity> entityBuilder)
+        {
+            entityBuilder
+                .Property(x => x.UserId)
+                .HasConversion<long>();
+        }
     }
 }

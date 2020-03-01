@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Sokan.Yastah.Data.Administration
 {
@@ -11,16 +12,16 @@ namespace Sokan.Yastah.Data.Administration
         CharacterManagement = 3
     }
 
-    public static class AdministrationActionCategoryModelBuilder
+    internal class AdministrationActionCategoryDataConfiguration
+        : IEntityTypeConfiguration<AdministrationActionCategoryEntity>
     {
-        [OnModelCreating]
-        public static void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<AdministrationActionCategoryEntity>(entityBuilder =>
-            {
-                foreach (var category in EnumEx.EnumerateValues<AdministrationActionCategory>())
-                    entityBuilder.HasData(new AdministrationActionCategoryEntity(
-                        id:     (int)category,
-                        name:   category.ToString()));
-            });
+        public void Configure(
+            EntityTypeBuilder<AdministrationActionCategoryEntity> entityBuilder)
+        {
+            foreach (var category in EnumEx.EnumerateValues<AdministrationActionCategory>())
+                entityBuilder.HasData(new AdministrationActionCategoryEntity(
+                    id:     (int)category,
+                    name:   category.ToString()));
+        }
     }
 }

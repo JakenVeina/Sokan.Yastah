@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Sokan.Yastah.Data.Roles
 {
@@ -21,9 +21,12 @@ namespace Sokan.Yastah.Data.Roles
 
         public ICollection<RolePermissionMappingEntity> PermissionMappings { get; internal set; }
             = null!;
+    }
 
-        [OnModelCreating]
-        public static void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<RoleEntity>();
+    internal class RoleEntityTypeConfiguration
+        : IEntityTypeConfiguration<RoleEntity>
+    {
+        public void Configure(
+            EntityTypeBuilder<RoleEntity> entityBuilder) { }
     }
 }

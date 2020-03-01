@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Sokan.Yastah.Data.Users;
 
@@ -27,14 +28,17 @@ namespace Sokan.Yastah.Data.Characters
 
         public UserEntity Owner { get; internal set; }
             = null!;
+    }
 
-        [OnModelCreating]
-        public static void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<CharacterEntity>(entityBuilder =>
-            {
-                entityBuilder
-                    .Property(x => x.OwnerId)
-                    .HasConversion<long>();
-            });
+    internal class CharacterEntityTypeConfiguration
+        : IEntityTypeConfiguration<CharacterEntity>
+    {
+        public void Configure(
+            EntityTypeBuilder<CharacterEntity> entityBuilder)
+        {
+            entityBuilder
+                .Property(x => x.OwnerId)
+                .HasConversion<long>();
+        }
     }
 }

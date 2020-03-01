@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Sokan.Yastah.Data.Users
 {
@@ -47,17 +48,20 @@ namespace Sokan.Yastah.Data.Users
 
         public ICollection<UserRoleMappingEntity> RoleMappings { get; internal set; }
             = null!;
+    }
 
-        [OnModelCreating]
-        public static void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<UserEntity>(entityBuilder =>
-            {
-                entityBuilder
-                    .Property(x => x.Id)
-                    .HasConversion<long>();
+    internal class UserEntityTypeConfiguration
+        : IEntityTypeConfiguration<UserEntity>
+    {
+        public void Configure(
+            EntityTypeBuilder<UserEntity> entityBuilder)
+        {
+            entityBuilder
+                .Property(x => x.Id)
+                .HasConversion<long>();
 
-                entityBuilder
-                    .Property(x => x.FirstSeen);
-            });
+            entityBuilder
+                .Property(x => x.FirstSeen);
+        }
     }
 }

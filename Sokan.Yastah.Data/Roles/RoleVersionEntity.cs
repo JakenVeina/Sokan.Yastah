@@ -1,6 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using Sokan.Yastah.Data.Administration;
 
 namespace Sokan.Yastah.Data.Roles
@@ -54,20 +57,23 @@ namespace Sokan.Yastah.Data.Roles
         public long? NextVersionId { get; set; }
 
         public RoleVersionEntity? NextVersion { get; set; }
+    }
 
-        [OnModelCreating]
-        public static void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<RoleVersionEntity>(entityBuilder =>
-            {
-                entityBuilder
-                    .HasOne(x => x.PreviousVersion)
-                    .WithOne()
-                    .HasForeignKey<RoleVersionEntity>(x => x.PreviousVersionId);
+    internal class RoleVersionEntityTypeConfiguration
+        : IEntityTypeConfiguration<RoleVersionEntity>
+    {
+        public void Configure(
+            EntityTypeBuilder<RoleVersionEntity> entityBuilder)
+        {
+            entityBuilder
+                .HasOne(x => x.PreviousVersion)
+                .WithOne()
+                .HasForeignKey<RoleVersionEntity>(x => x.PreviousVersionId);
 
-                entityBuilder
-                    .HasOne(x => x.NextVersion)
-                    .WithOne()
-                    .HasForeignKey<RoleVersionEntity>(x => x.NextVersionId);
-            });
+            entityBuilder
+                .HasOne(x => x.NextVersion)
+                .WithOne()
+                .HasForeignKey<RoleVersionEntity>(x => x.NextVersionId);
+        }
     }
 }

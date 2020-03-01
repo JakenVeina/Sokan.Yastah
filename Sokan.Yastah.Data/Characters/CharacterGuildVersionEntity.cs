@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Sokan.Yastah.Data.Administration;
 
@@ -56,26 +57,29 @@ namespace Sokan.Yastah.Data.Characters
         public long? NextVersionId { get; set; }
 
         public CharacterGuildVersionEntity? NextVersion { get; set; }
+    }
 
-        [OnModelCreating]
-        public static void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<CharacterGuildVersionEntity>(entityBuilder =>
-            {
-                entityBuilder
-                    .Property(x => x.Name);
-                
-                entityBuilder
-                    .Property(x => x.IsDeleted);
+    internal class CharacterGuildVersionEntityTypeConfiguration
+        : IEntityTypeConfiguration<CharacterGuildVersionEntity>
+    {
+        public void Configure(
+            EntityTypeBuilder<CharacterGuildVersionEntity> entityBuilder)
+        {
+            entityBuilder
+                .Property(x => x.Name);
 
-                entityBuilder
-                    .HasOne(x => x.PreviousVersion)
-                    .WithOne()
-                    .HasForeignKey<CharacterGuildVersionEntity>(x => x.PreviousVersionId);
+            entityBuilder
+                .Property(x => x.IsDeleted);
 
-                entityBuilder
-                    .HasOne(x => x.NextVersion)
-                    .WithOne()
-                    .HasForeignKey<CharacterGuildVersionEntity>(x => x.NextVersionId);
-            });
+            entityBuilder
+                .HasOne(x => x.PreviousVersion)
+                .WithOne()
+                .HasForeignKey<CharacterGuildVersionEntity>(x => x.PreviousVersionId);
+
+            entityBuilder
+                .HasOne(x => x.NextVersion)
+                .WithOne()
+                .HasForeignKey<CharacterGuildVersionEntity>(x => x.NextVersionId);
+        }
     }
 }

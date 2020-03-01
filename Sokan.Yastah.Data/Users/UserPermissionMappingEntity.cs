@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Sokan.Yastah.Data.Administration;
 using Sokan.Yastah.Data.Permissions;
@@ -55,17 +56,20 @@ namespace Sokan.Yastah.Data.Users
         public long? DeletionId { get; set; }
 
         public AdministrationActionEntity? Deletion { get; set; }
+    }
 
-        [OnModelCreating]
-        public static void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<UserPermissionMappingEntity>(entityBuilder =>
-            {
-                entityBuilder
-                    .Property(x => x.UserId)
-                    .HasConversion<long>();
+    internal class UserPermissionMappingEntityTypeConfiguration
+        : IEntityTypeConfiguration<UserPermissionMappingEntity>
+    {
+        public void Configure(
+            EntityTypeBuilder<UserPermissionMappingEntity> entityBuilder)
+        {
+            entityBuilder
+                .Property(x => x.UserId)
+                .HasConversion<long>();
 
-                entityBuilder
-                    .Property(x => x.IsDenied);
-            });
+            entityBuilder
+                .Property(x => x.IsDenied);
+        }
     }
 }

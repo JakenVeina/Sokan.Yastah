@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Sokan.Yastah.Data.Administration
 {
@@ -22,17 +23,20 @@ namespace Sokan.Yastah.Data.Administration
 
         [Required]
         public string Name { get; }
+    }
 
-        [OnModelCreating]
-        public static void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<AdministrationActionCategoryEntity>(entityBuilder =>
-            {
-                entityBuilder
-                    .Property(x => x.Id);
+    internal class AdministrationActionCategoryEntityTypeConfiguration
+        : IEntityTypeConfiguration<AdministrationActionCategoryEntity>
+    {
+        public void Configure(
+            EntityTypeBuilder<AdministrationActionCategoryEntity> entityBuilder)
+        {
+            entityBuilder
+                .Property(x => x.Id);
 
-                entityBuilder
-                    .HasIndex(x => x.Name)
-                    .IsUnique();
-            });
+            entityBuilder
+                .HasIndex(x => x.Name)
+                .IsUnique();
+        }
     }
 }

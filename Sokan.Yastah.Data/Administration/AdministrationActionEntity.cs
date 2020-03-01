@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Sokan.Yastah.Data.Users;
 
@@ -39,17 +40,20 @@ namespace Sokan.Yastah.Data.Administration
         public ulong? PerformedById { get; }
 
         public UserEntity? PerformedBy { get; internal set; }
+    }
 
-        [OnModelCreating]
-        public static void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<AdministrationActionEntity>(entityBuilder =>
-            {
-                entityBuilder
-                    .Property(x => x.Performed);
+    internal class AdministrationActionEntityTypeConfiguration
+        : IEntityTypeConfiguration<AdministrationActionEntity>
+    {
+        public void Configure(
+            EntityTypeBuilder<AdministrationActionEntity> entityBuilder)
+        {
+            entityBuilder
+                .Property(x => x.Performed);
 
-                entityBuilder
-                    .Property(x => x.PerformedById)
-                    .HasConversion<long?>();
-            });
+            entityBuilder
+                .Property(x => x.PerformedById)
+                .HasConversion<long?>();
+        }
     }
 }

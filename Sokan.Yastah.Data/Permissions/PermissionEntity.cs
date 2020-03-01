@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Sokan.Yastah.Data.Permissions
 {
@@ -35,20 +36,23 @@ namespace Sokan.Yastah.Data.Permissions
 
         [Required]
         public string Description { get; }
+    }
 
-        [OnModelCreating]
-        public static void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<PermissionEntity>(entityBuilder =>
-            {
-                entityBuilder
-                    .Property(x => x.PermissionId);
+    internal class PermissionEntityTypeConfiguration
+        : IEntityTypeConfiguration<PermissionEntity>
+    {
+        public void Configure(
+            EntityTypeBuilder<PermissionEntity> entityBuilder)
+        {
+            entityBuilder
+                .Property(x => x.PermissionId);
 
-                entityBuilder
-                    .HasIndex(x => new { x.CategoryId, x.Name })
-                    .IsUnique();
+            entityBuilder
+                .HasIndex(x => new { x.CategoryId, x.Name })
+                .IsUnique();
 
-                entityBuilder
-                    .Property(x => x.Description);
-            });
+            entityBuilder
+                .Property(x => x.Description);
+        }
     }
 }

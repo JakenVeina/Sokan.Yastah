@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Sokan.Yastah.Data.Permissions
 {
@@ -31,20 +32,23 @@ namespace Sokan.Yastah.Data.Permissions
 
         public ICollection<PermissionEntity> Permissions { get; internal set; }
             = null!;
+    }
 
-        [OnModelCreating]
-        public static void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<PermissionCategoryEntity>(entityBuilder =>
-            {
-                entityBuilder
-                    .Property(x => x.Id);
+    internal class PermissionCategoryEntityTypeConifugration
+        : IEntityTypeConfiguration<PermissionCategoryEntity>
+    {
+        public void Configure(
+            EntityTypeBuilder<PermissionCategoryEntity> entityBuilder)
+        {
+            entityBuilder
+                .Property(x => x.Id);
 
-                entityBuilder
-                    .HasIndex(x => x.Name)
-                    .IsUnique();
+            entityBuilder
+                .HasIndex(x => x.Name)
+                .IsUnique();
 
-                entityBuilder
-                    .Property(x => x.Description);
-            });
+            entityBuilder
+                .Property(x => x.Description);
+        }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Sokan.Yastah.Data.Characters
 {
@@ -29,9 +29,12 @@ namespace Sokan.Yastah.Data.Characters
 
         public ICollection<CharacterGuildDivisionVersionEntity> Versions { get; internal set; }
             = null!;
+    }
 
-        [OnModelCreating]
-        public static void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<CharacterGuildDivisionEntity>();
+    internal class CharacterGuildDivisionEntityTypeConfiguration
+        : IEntityTypeConfiguration<CharacterGuildDivisionEntity>
+    {
+        public void Configure(
+            EntityTypeBuilder<CharacterGuildDivisionEntity> entityBuilder) { }
     }
 }

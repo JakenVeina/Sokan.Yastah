@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Sokan.Yastah.Data.Administration;
 
@@ -76,38 +77,41 @@ namespace Sokan.Yastah.Data.Characters
         public long? NextVersionId { get; set; }
 
         public CharacterVersionEntity? NextVersion { get; set; }
+    }
 
-        [OnModelCreating]
-        public static void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<CharacterVersionEntity>(entityBuilder =>
-            {
-                entityBuilder
-                    .Property(x => x.Name);
+    internal class CharacterVersionEntityTypeConfiguration
+        : IEntityTypeConfiguration<CharacterVersionEntity>
+    {
+        public void Configure(
+            EntityTypeBuilder<CharacterVersionEntity> entityBuilder)
+        {
+            entityBuilder
+                .Property(x => x.Name);
 
-                entityBuilder
-                    .Property(x => x.DivisionId);
+            entityBuilder
+                .Property(x => x.DivisionId);
 
-                entityBuilder
-                    .Property(x => x.ExperiencePoints);
+            entityBuilder
+                .Property(x => x.ExperiencePoints);
 
-                entityBuilder
-                    .Property(x => x.GoldAmount);
+            entityBuilder
+                .Property(x => x.GoldAmount);
 
-                entityBuilder
-                    .Property(x => x.InsanityValue);
+            entityBuilder
+                .Property(x => x.InsanityValue);
 
-                entityBuilder
-                    .Property(x => x.IsDeleted);
+            entityBuilder
+                .Property(x => x.IsDeleted);
 
-                entityBuilder
-                    .HasOne(x => x.PreviousVersion)
-                    .WithOne()
-                    .HasForeignKey<CharacterVersionEntity>(x => x.PreviousVersionId);
+            entityBuilder
+                .HasOne(x => x.PreviousVersion)
+                .WithOne()
+                .HasForeignKey<CharacterVersionEntity>(x => x.PreviousVersionId);
 
-                entityBuilder
-                    .HasOne(x => x.NextVersion)
-                    .WithOne()
-                    .HasForeignKey<CharacterVersionEntity>(x => x.NextVersionId);
-            });
+            entityBuilder
+                .HasOne(x => x.NextVersion)
+                .WithOne()
+                .HasForeignKey<CharacterVersionEntity>(x => x.NextVersionId);
+        }
     }
 }

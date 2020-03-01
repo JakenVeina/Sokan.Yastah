@@ -2,6 +2,7 @@
 using System.ComponentModel;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Sokan.Yastah.Data.Permissions
 {
@@ -14,18 +15,18 @@ namespace Sokan.Yastah.Data.Permissions
         CharacterAdministration = 2,
     }
 
-    public static class PermissionCategoryModelBuilder
+    internal class PermissionCategoryDataConfiguration
+        : IEntityTypeConfiguration<PermissionCategoryEntity>
     {
-        [OnModelCreating]
-        public static void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<PermissionCategoryEntity>(entityBuilder =>
-            {
-                foreach (var (value, description) in EnumEx.EnumerateValuesWithDescriptions<PermissionCategory>())
-                    entityBuilder.HasData(new PermissionCategoryEntity(
-                        id:             (int)value,
-                        name:           value.ToString(),
-                        description:    description
-                    ));
-            });
+        public void Configure(
+            EntityTypeBuilder<PermissionCategoryEntity> entityBuilder)
+        {
+            foreach (var (value, description) in EnumEx.EnumerateValuesWithDescriptions<PermissionCategory>())
+                entityBuilder.HasData(new PermissionCategoryEntity(
+                    id:             (int)value,
+                    name:           value.ToString(),
+                    description:    description
+                ));
+        }
     }
 }
