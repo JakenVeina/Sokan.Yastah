@@ -6,7 +6,7 @@ using Sokan.Yastah.Common.OperationModel;
 
 namespace Sokan.Yastah.Data.Authentication
 {
-    public static class AuthenticationLogMessages
+    internal static class AuthenticationLogMessages
     {
         public static void AuthenticationTicketNotFound(
                 ILogger logger,

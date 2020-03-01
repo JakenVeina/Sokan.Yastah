@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 using System.Transactions;
 
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Sokan.Yastah.Business.Authorization;
@@ -51,12 +50,14 @@ namespace Sokan.Yastah.Business.Authentication
         public AuthenticationService(
             IAuthenticationTicketsRepository authenticationTicketsRepository,
             IOptions<AuthorizationConfiguration> authorizationConfigurationOptions,
+            ILogger<AuthenticationService> logger,
             IMemoryCache memoryCache,
             ITransactionScopeFactory transactionScopeFactory,
             IUsersService usersService)
         {
             _authenticationTicketsRepository = authenticationTicketsRepository;
             _authorizationConfiguration = authorizationConfigurationOptions.Value;
+            _logger = logger;
             _memoryCache = memoryCache;
             _transactionScopeFactory = transactionScopeFactory;
             _usersService = usersService;
@@ -74,14 +75,21 @@ namespace Sokan.Yastah.Business.Authentication
             IReadOnlyDictionary<int, string> grantedPermissions,
             CancellationToken cancellationToken)
         {
+            using var logScope = _logger.BeginMemberScope();
+            AuthenticationLogMessages.AuthenticationTicketAssembling(_logger, ticketId, userId, username, discriminator, avatarHash, grantedPermissions);
+
             var activeTicketId = await GetActiveTicketIdAsync(userId, cancellationToken);
+            AuthenticationLogMessages.AuthenticationTicketActiveIdFetched(_logger, userId, activeTicketId);
 
             if (activeTicketId != ticketId)
+            {
+                AuthenticationLogMessages.AuthenticationTicketRebuilding(_logger, activeTicketId, ticketId);
                 grantedPermissions = (await _usersService.GetGrantedPermissionsAsync(
                         userId,
                         cancellationToken))
                     .Value
-                    .ToDictionary(x => x.Id, x => x.Name);                    
+                    .ToDictionary(x => x.Id, x => x.Name);
+            }
 
             _currentTicket = new AuthenticationTicket(
                 activeTicketId,
@@ -90,6 +98,7 @@ namespace Sokan.Yastah.Business.Authentication
                 discriminator,
                 avatarHash,
                 grantedPermissions);
+            AuthenticationLogMessages.AuthenticationTicketAssembled(_logger, activeTicketId);
 
             return _currentTicket;
         }
@@ -102,10 +111,16 @@ namespace Sokan.Yastah.Business.Authentication
             Func<CancellationToken, Task<IEnumerable<ulong>>> getGuildIdsDelegate,
             CancellationToken cancellationToken = default)
         {
+            using var logScope = _logger.BeginMemberScope();
+            AuthenticationLogMessages.UserSigningIn(_logger, userId, username, discriminator);
+
             // Don't bother tracking or retrieving permissions for users we don't care about.
             var isAdmin = _authorizationConfiguration.AdminUserIds.Contains(userId);
-            if (!isAdmin && !(await IsMemberAsync(getGuildIdsDelegate, cancellationToken)))
+            if (!isAdmin && !(await IsMemberAsync(userId, getGuildIdsDelegate, cancellationToken)))
+            {
+                AuthenticationLogMessages.UserIgnored(_logger, userId, username, discriminator);
                 return null;
+            }
 
             await _usersService.TrackUserAsync(
                 userId,
@@ -113,14 +128,17 @@ namespace Sokan.Yastah.Business.Authentication
                 discriminator,
                 avatarHash,
                 cancellationToken);
+            AuthenticationLogMessages.UserTracked(_logger, userId);
 
             var ticketId = await GetActiveTicketIdAsync(userId, cancellationToken);
+            AuthenticationLogMessages.AuthenticationTicketActiveIdFetched(_logger, userId, ticketId);
 
             var grantedPermissions = await _usersService.GetGrantedPermissionsAsync(
                 userId,
                 cancellationToken);
+            AuthenticationLogMessages.GrantedPermissionsFetched(_logger, userId);
 
-            return new AuthenticationTicket(
+            var ticket = new AuthenticationTicket(
                 ticketId,
                 userId,
                 username,
@@ -128,45 +146,68 @@ namespace Sokan.Yastah.Business.Authentication
                 avatarHash,
                 grantedPermissions.Value
                     .ToDictionary(x => x.Id, x => x.Name));
+
+            AuthenticationLogMessages.UserSignedIn(_logger, ticketId, userId, username, discriminator);
+            return ticket;
         }
 
         public async Task OnNotificationPublishedAsync(
             RoleUpdatingNotification notification,
             CancellationToken cancellationToken)
         {
+            AuthenticationLogMessages.RoleUpdating(_logger, notification.RoleId);
+            
             var userIds = await _usersService.GetRoleMemberIdsAsync(
                 notification.RoleId,
                 cancellationToken);
+            AuthenticationLogMessages.AuthenticationTicketsInvalidating(_logger, notification.RoleId);
 
             foreach(var userId in userIds)
                 await UpdateActiveTicketId(
                     userId,
                     notification.ActionId,
                     cancellationToken);
+
+            AuthenticationLogMessages.AuthenticationTicketsInvalidated(_logger, notification.RoleId);
         }
 
         public Task OnNotificationPublishedAsync(
                 UserInitializingNotification notification,
                 CancellationToken cancellationToken)
-            => UpdateActiveTicketId(
+        {
+            AuthenticationLogMessages.UserInitializing(_logger, notification.UserId);
+
+            return UpdateActiveTicketId(
                 notification.UserId,
                 notification.ActionId,
                 cancellationToken);
+        }
 
         public Task OnNotificationPublishedAsync(
                 UserUpdatingNotification notification,
                 CancellationToken cancellationToken)
-            => UpdateActiveTicketId(
+        {
+            AuthenticationLogMessages.UserUpdating(_logger, notification.UserId);
+
+            return UpdateActiveTicketId(
                 notification.UserId,
                 notification.ActionId,
                 cancellationToken);
+        }
 
         private async Task<bool> IsMemberAsync(
+                ulong userId,
                 Func<CancellationToken, Task<IEnumerable<ulong>>> getGuildIdsDelegate,
                 CancellationToken cancellationToken)
-            => (await getGuildIdsDelegate.Invoke(cancellationToken))
+        {
+            AuthenticationLogMessages.GuildIdsFetching(_logger, userId);
+            var guildIds = await getGuildIdsDelegate.Invoke(cancellationToken);
+            AuthenticationLogMessages.GuildIdsFetched(_logger, userId);
+
+            return guildIds
                 .Intersect(_authorizationConfiguration.MemberGuildIds)
                 .Any();
+        }
 
         private ValueTask<long> GetActiveTicketIdAsync(
                 ulong userId,
@@ -175,7 +216,10 @@ namespace Sokan.Yastah.Business.Authentication
             {
                 entry.Priority = CacheItemPriority.High;
 
-                return (await _authenticationTicketsRepository.ReadActiveIdAsync(userId, cancellationToken)).Value;
+                var result = await _authenticationTicketsRepository.ReadActiveIdAsync(userId, cancellationToken);
+                AuthenticationLogMessages.AuthenticationTicketActiveIdFetched(_logger, userId, result.Value);
+
+                return result.Value;
             });
 
         private async Task UpdateActiveTicketId(
@@ -183,24 +227,41 @@ namespace Sokan.Yastah.Business.Authentication
             long actionId,
             CancellationToken cancellationToken)
         {
+            AuthenticationLogMessages.AuthenticationTicketInvalidating(_logger, userId, actionId);
+
             using var transactionScope = _transactionScopeFactory.CreateScope();
+            TransactionsLogMessages.TransactionScopeCreated(_logger);
 
             var activeTicketIdResult = await _authenticationTicketsRepository.ReadActiveIdAsync(userId, cancellationToken);
 
             if (activeTicketIdResult.IsSuccess)
+            {
+                AuthenticationLogMessages.AuthenticationTicketActiveIdFetched(_logger, userId, activeTicketIdResult.Value);
+                AuthenticationLogMessages.AuthenticationTicketDeleting(_logger, userId, activeTicketIdResult.Value);
                 await _authenticationTicketsRepository.DeleteAsync(
                     activeTicketIdResult.Value,
                     actionId,
                     cancellationToken);
+                AuthenticationLogMessages.AuthenticationTicketDeleted(_logger, userId, activeTicketIdResult.Value);
+            }
+            else
+            {
+                AuthenticationLogMessages.AuthenticationTicketActiveIdFetched(_logger, userId, null);
+            }
 
+            AuthenticationLogMessages.AuthenticationTicketCreating(_logger, userId);
             var newTicketId = await _authenticationTicketsRepository.CreateAsync(
                 userId,
                 actionId,
                 cancellationToken);
-
+            AuthenticationLogMessages.AuthenticationTicketCreated(_logger, userId, newTicketId);
+            
             _memoryCache.Set(MakeUserActiveTicketIdCacheKey(userId), newTicketId);
 
+            TransactionsLogMessages.TransactionScopeCommitting(_logger);
             transactionScope.Complete();
+
+            AuthenticationLogMessages.AuthenticationTicketInvalidated(_logger, userId, newTicketId);
         }
 
         internal static string MakeUserActiveTicketIdCacheKey(ulong userId)
@@ -208,6 +269,7 @@ namespace Sokan.Yastah.Business.Authentication
 
         private readonly IAuthenticationTicketsRepository _authenticationTicketsRepository;
         private readonly AuthorizationConfiguration _authorizationConfiguration;
+        private readonly ILogger _logger;
         private readonly IMemoryCache _memoryCache;
         private readonly ITransactionScopeFactory _transactionScopeFactory;
         private readonly IUsersService _usersService;

@@ -34,7 +34,7 @@ namespace Sokan.Yastah.Business.Test.Users
         #region Test Context
 
         internal class TestContext
-            : AsyncMethodWithMemoryCacheTestContext
+            : AsyncMethodWithLoggerFactoryAndMemoryCacheTestContext
         {
             public TestContext()
             {

@@ -54,8 +54,8 @@ namespace Sokan.Yastah.Business.Characters
             CancellationToken cancellationToken)
         {
             var authResult = await _authorizationService.RequirePermissionsAsync(
-                cancellationToken,
-                (int)CharacterAdministrationPermission.ManageGuilds);
+                new[] { (int)CharacterAdministrationPermission.ManageGuilds },
+                cancellationToken);
 
             if (authResult.IsFailure)
                 return authResult.Error;
@@ -71,8 +71,8 @@ namespace Sokan.Yastah.Business.Characters
             CancellationToken cancellationToken)
         {
             var authResult = await _authorizationService.RequirePermissionsAsync(
-                cancellationToken,
-                (int)CharacterAdministrationPermission.ManageGuilds);
+                new[] { (int)CharacterAdministrationPermission.ManageGuilds },
+                cancellationToken);
 
             if (authResult.IsFailure)
                 return authResult;
@@ -87,8 +87,8 @@ namespace Sokan.Yastah.Business.Characters
             CancellationToken cancellationToken)
         {
             var authResult = await _authorizationService.RequirePermissionsAsync(
-                cancellationToken,
-                (int)CharacterAdministrationPermission.ManageGuilds);
+                new[] { (int)CharacterAdministrationPermission.ManageGuilds },
+                cancellationToken);
 
             return authResult.IsFailure
                 ? authResult.Error
@@ -103,9 +103,9 @@ namespace Sokan.Yastah.Business.Characters
             CancellationToken cancellationToken)
         {
             var authResult = await _authorizationService.RequirePermissionsAsync(
-                cancellationToken,
-                (int)CharacterAdministrationPermission.ManageGuilds);
-            
+                new[] { (int)CharacterAdministrationPermission.ManageGuilds },
+                cancellationToken);
+
             if (authResult.IsFailure)
                 return authResult;
 

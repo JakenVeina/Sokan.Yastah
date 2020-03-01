@@ -23,7 +23,7 @@ namespace Sokan.Yastah.Business.Test.Authorization
         #region Test Context
 
         internal class TestContext
-            : AsyncMethodTestContext
+            : AsyncMethodWithLoggerTestContext
         {
             public TestContext()
             {
@@ -60,6 +60,7 @@ namespace Sokan.Yastah.Business.Test.Authorization
             public AuthorizationService BuildUut()
                 => new AuthorizationService(
                     MockAuthenticationService.Object,
+                    LoggerFactory.CreateLogger<AuthorizationService>(),
                     MockPermissionsService.Object);
 
             public void SetCurrentTicket(IEnumerable<int> grantedPermissionIds)
@@ -140,8 +141,8 @@ namespace Sokan.Yastah.Business.Test.Authorization
             var uut = testContext.BuildUut();
 
             var result = await uut.RequirePermissionsAsync(
-                testContext.CancellationToken,
-                permissionIds);
+                permissionIds,
+                testContext.CancellationToken);
 
             result.IsFailure.ShouldBeTrue();
             result.Error.ShouldBeOfType<UnauthenticatedUserError>();
@@ -173,8 +174,8 @@ namespace Sokan.Yastah.Business.Test.Authorization
             var uut = testContext.BuildUut();
 
             var result = await uut.RequirePermissionsAsync(
-                testContext.CancellationToken,
-                permissionIds);
+                permissionIds,
+                testContext.CancellationToken);
 
             result.IsFailure.ShouldBeTrue();
             var error = result.Error.ShouldBeOfType<InsufficientPermissionsError>();
@@ -216,8 +217,8 @@ namespace Sokan.Yastah.Business.Test.Authorization
             var uut = testContext.BuildUut();
 
             var result = await uut.RequirePermissionsAsync(
-                testContext.CancellationToken,
-                permissionIds);
+                permissionIds,
+                testContext.CancellationToken);
 
             result.IsSuccess.ShouldBeTrue();
 

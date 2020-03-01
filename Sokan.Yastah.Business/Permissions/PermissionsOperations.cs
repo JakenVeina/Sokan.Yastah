@@ -33,8 +33,8 @@ namespace Sokan.Yastah.Business.Permissions
             CancellationToken cancellationToken)
         {
             var authResult = await _authorizationService.RequirePermissionsAsync(
-                cancellationToken,
-                (int)AdministrationPermission.ManagePermissions);
+                new[] { (int)AdministrationPermission.ManagePermissions },
+                cancellationToken);
 
             return authResult.IsFailure
                 ? authResult.Error

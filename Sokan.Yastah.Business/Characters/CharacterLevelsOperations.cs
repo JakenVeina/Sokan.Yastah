@@ -39,8 +39,8 @@ namespace Sokan.Yastah.Business.Characters
             CancellationToken cancellationToken)
         {
             var authResult = await _authorizationService.RequirePermissionsAsync(
-                cancellationToken,
-                (int)CharacterAdministrationPermission.ManageLevels);
+                new[] { (int)CharacterAdministrationPermission.ManageLevels },
+                cancellationToken);
 
             return authResult.IsFailure
                 ? authResult.Error
@@ -53,8 +53,8 @@ namespace Sokan.Yastah.Business.Characters
             CancellationToken cancellationToken)
         {
             var authResult = await _authorizationService.RequirePermissionsAsync(
-                cancellationToken,
-                (int)CharacterAdministrationPermission.ManageLevels);
+                new[] { (int)CharacterAdministrationPermission.ManageLevels },
+                cancellationToken);
 
             if (authResult.IsFailure)
                 return authResult;

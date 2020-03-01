@@ -29,7 +29,7 @@ namespace Sokan.Yastah.Business.Test.Authentication
         #region Test Context
 
         internal class TestContext
-            : AsyncMethodWithMemoryCacheTestContext
+            : AsyncMethodWithLoggerFactoryAndMemoryCacheTestContext
         {
             public TestContext()
             {
@@ -89,6 +89,7 @@ namespace Sokan.Yastah.Business.Test.Authentication
                 => new AuthenticationService(
                     MockAuthenticationTicketsRepository.Object,
                     MockAuthorizationConfigurationOptions.Object,
+                    LoggerFactory.CreateLogger<AuthenticationService>(),
                     MemoryCache,
                     MockTransactionScopeFactory.Object,
                     MockUsersService.Object);

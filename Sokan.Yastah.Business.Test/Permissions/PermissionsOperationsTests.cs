@@ -50,7 +50,7 @@ namespace Sokan.Yastah.Business.Test.Permissions
             var mockError = new Mock<OperationError>("Mock Message");
 
             testContext.MockAuthorizationService
-                .Setup(x => x.RequirePermissionsAsync(It.IsAny<CancellationToken>(), It.IsAny<int[]>()))
+                .Setup(x => x.RequirePermissionsAsync(It.IsAny<int[]>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(OperationResult.FromError(mockError.Object));
 
             var uut = testContext.BuildUut();
@@ -63,8 +63,8 @@ namespace Sokan.Yastah.Business.Test.Permissions
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockPermissionsService.Invocations.ShouldBeEmpty();
         }
@@ -75,7 +75,7 @@ namespace Sokan.Yastah.Business.Test.Permissions
             using var testContext = new TestContext();
             
             testContext.MockAuthorizationService
-                .Setup(x => x.RequirePermissionsAsync(It.IsAny<CancellationToken>(), It.IsAny<int[]>()))
+                .Setup(x => x.RequirePermissionsAsync(It.IsAny<int[]>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(OperationResult.Success);
 
             var descriptions = TestArray.Unique<PermissionCategoryDescriptionViewModel>();
@@ -94,8 +94,8 @@ namespace Sokan.Yastah.Business.Test.Permissions
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockPermissionsService.ShouldHaveReceived(x => x
                 .GetDescriptionsAsync(testContext.CancellationToken));

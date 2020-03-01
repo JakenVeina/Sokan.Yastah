@@ -49,8 +49,8 @@ namespace Sokan.Yastah.Business.Users
             CancellationToken cancellationToken)
         {
             var authResult = await _authorizationService.RequirePermissionsAsync(
-                cancellationToken,
-                (int)AdministrationPermission.ManageRoles);
+                new[] { (int)AdministrationPermission.ManageRoles },
+                cancellationToken);
 
             return authResult.IsFailure
                 ? authResult.Error
@@ -63,8 +63,8 @@ namespace Sokan.Yastah.Business.Users
             CancellationToken cancellationToken)
         {
             var authResult = await _authorizationService.RequirePermissionsAsync(
-                cancellationToken,
-                (int)AdministrationPermission.ManageRoles);
+                new[] { (int)AdministrationPermission.ManageRoles },
+                cancellationToken);
 
             return authResult.IsFailure
                 ? authResult.Error
@@ -79,8 +79,8 @@ namespace Sokan.Yastah.Business.Users
             CancellationToken cancellationToken)
         {
             var authResult = await _authorizationService.RequirePermissionsAsync(
-                cancellationToken,
-                (int)AdministrationPermission.ManageRoles);
+                new[] { (int)AdministrationPermission.ManageRoles },
+                cancellationToken);
 
             if (authResult.IsFailure)
                 return authResult;

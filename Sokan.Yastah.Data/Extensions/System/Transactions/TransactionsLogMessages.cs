@@ -2,7 +2,7 @@
 
 namespace System.Transactions
 {
-    internal static class TransactionsLogMessages
+    public static class TransactionsLogMessages
     {
         public static void TransactionScopeCreating(
                 ILogger logger)

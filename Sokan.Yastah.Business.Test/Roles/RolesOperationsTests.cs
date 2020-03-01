@@ -36,7 +36,7 @@ namespace Sokan.Yastah.Business.Test.Roles
 
                 MockAuthorizationService = new Mock<IAuthorizationService>();
                 MockAuthorizationService
-                    .Setup(x => x.RequirePermissionsAsync(It.IsAny<CancellationToken>(), It.IsAny<int[]>()))
+                    .Setup(x => x.RequirePermissionsAsync(It.IsAny<int[]>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(() => RequirePermissionsResult);
 
                 MockRolesRepository = new Mock<IRolesRepository>();
@@ -122,8 +122,8 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockRolesService.Invocations.ShouldBeEmpty();
             testContext.MockRolesRepository.Invocations.ShouldBeEmpty();
@@ -155,8 +155,8 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockRolesService
                 .ShouldHaveReceived(x => x.CreateAsync(creationModel, currentUserId, testContext.CancellationToken));
@@ -189,8 +189,8 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockRolesService.Invocations.ShouldBeEmpty();
             testContext.MockRolesRepository.Invocations.ShouldBeEmpty();
@@ -222,8 +222,8 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockRolesService.ShouldHaveReceived(x => x
                 .DeleteAsync(roleId, currentUserId, testContext.CancellationToken));
@@ -256,8 +256,8 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockRolesService.Invocations.ShouldBeEmpty();
             testContext.MockRolesRepository.Invocations.ShouldBeEmpty();
@@ -292,8 +292,8 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockRolesRepository.ShouldHaveReceived(x => x
                 .ReadDetailAsync(roleId, false, testContext.CancellationToken));
@@ -324,8 +324,8 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockRolesService.Invocations.ShouldBeEmpty();
             testContext.MockRolesRepository.Invocations.ShouldBeEmpty();
@@ -352,8 +352,8 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockRolesService
                 .ShouldHaveReceived(x => x.GetCurrentIdentitiesAsync(testContext.CancellationToken));
@@ -389,8 +389,8 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockRolesService.Invocations.ShouldBeEmpty();
             testContext.MockRolesRepository.Invocations.ShouldBeEmpty();
@@ -425,8 +425,8 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockRolesService.ShouldHaveReceived(x => x
                 .UpdateAsync(roleId, updateModel, currentUserId, testContext.CancellationToken));

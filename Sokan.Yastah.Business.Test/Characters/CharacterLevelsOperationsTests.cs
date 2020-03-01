@@ -35,7 +35,7 @@ namespace Sokan.Yastah.Business.Test.Characters
 
                 MockAuthorizationService = new Mock<IAuthorizationService>();
                 MockAuthorizationService
-                    .Setup(x => x.RequirePermissionsAsync(It.IsAny<CancellationToken>(), It.IsAny<int[]>()))
+                    .Setup(x => x.RequirePermissionsAsync(It.IsAny<int[]>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(() => RequirePermissionsResult);
 
                 MockCharacterLevelsService = new Mock<ICharacterLevelsService>();
@@ -104,8 +104,8 @@ namespace Sokan.Yastah.Business.Test.Characters
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockCharacterLevelsService.Invocations.ShouldBeEmpty();
         }
@@ -131,8 +131,8 @@ namespace Sokan.Yastah.Business.Test.Characters
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockCharacterLevelsService
                 .ShouldHaveReceived(x => x.GetCurrentDefinitionsAsync(testContext.CancellationToken));
@@ -164,8 +164,8 @@ namespace Sokan.Yastah.Business.Test.Characters
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockCharacterLevelsService.Invocations.ShouldBeEmpty();
         }
@@ -200,8 +200,8 @@ namespace Sokan.Yastah.Business.Test.Characters
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockCharacterLevelsService.ShouldHaveReceived(x => x
                 .UpdateExperienceDiffsAsync(

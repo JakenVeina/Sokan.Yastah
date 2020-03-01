@@ -28,7 +28,7 @@ namespace Sokan.Yastah.Business.Test.Characters
         #region Test Context
 
         internal class TestContext
-            : AsyncMethodWithMemoryCacheTestContext
+            : AsyncMethodWithLoggerFactoryAndMemoryCacheTestContext
         {
             public TestContext()
             {

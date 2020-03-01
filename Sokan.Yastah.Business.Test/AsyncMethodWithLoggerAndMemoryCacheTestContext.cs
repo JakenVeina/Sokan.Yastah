@@ -5,8 +5,8 @@ using Sokan.Yastah.Common.Test;
 
 namespace Sokan.Yastah.Business
 {
-    public class AsyncMethodWithMemoryCacheTestContext
-        : AsyncMethodTestContext
+    public class AsyncMethodWithLoggerFactoryAndMemoryCacheTestContext
+        : AsyncMethodWithLoggerTestContext
     {
         public readonly MemoryCache MemoryCache
             = new MemoryCache(Options.Create(new MemoryCacheOptions()));

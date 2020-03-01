@@ -35,7 +35,7 @@ namespace Sokan.Yastah.Business.Test.Characters
 
                 MockAuthorizationService = new Mock<IAuthorizationService>();
                 MockAuthorizationService
-                    .Setup(x => x.RequirePermissionsAsync(It.IsAny<CancellationToken>(), It.IsAny<int[]>()))
+                    .Setup(x => x.RequirePermissionsAsync(It.IsAny<int[]>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(() => RequirePermissionsResult);
 
                 MockCharacterGuildDivisionsService = new Mock<ICharacterGuildDivisionsService>();
@@ -133,8 +133,8 @@ namespace Sokan.Yastah.Business.Test.Characters
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockCharacterGuildDivisionsService.Invocations.ShouldBeEmpty();
         }
@@ -171,8 +171,8 @@ namespace Sokan.Yastah.Business.Test.Characters
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockCharacterGuildDivisionsService
                 .ShouldHaveReceived(x => x.CreateAsync(guildId, creationModel, currentUserId, testContext.CancellationToken));
@@ -205,8 +205,8 @@ namespace Sokan.Yastah.Business.Test.Characters
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockCharacterGuildDivisionsService.Invocations.ShouldBeEmpty();
         }
@@ -243,8 +243,8 @@ namespace Sokan.Yastah.Business.Test.Characters
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockCharacterGuildDivisionsService.ShouldHaveReceived(x => x
                 .DeleteAsync(guildId, divisionId, currentUserId, testContext.CancellationToken));
@@ -275,8 +275,8 @@ namespace Sokan.Yastah.Business.Test.Characters
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockCharacterGuildDivisionsService.Invocations.ShouldBeEmpty();
         }
@@ -306,8 +306,8 @@ namespace Sokan.Yastah.Business.Test.Characters
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockCharacterGuildDivisionsService
                 .ShouldHaveReceived(x => x.GetCurrentIdentitiesAsync(guildId, testContext.CancellationToken));
@@ -343,8 +343,8 @@ namespace Sokan.Yastah.Business.Test.Characters
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockCharacterGuildDivisionsService.Invocations.ShouldBeEmpty();
         }
@@ -385,8 +385,8 @@ namespace Sokan.Yastah.Business.Test.Characters
 
             testContext.MockAuthorizationService.ShouldHaveReceived(x => x
                 .RequirePermissionsAsync(
-                    testContext.CancellationToken,
-                    It.Is<int[]>(y => (y != null) && (y.Length != 0))));
+                    It.Is<int[]>(y => (y != null) && (y.Length != 0)),
+                    testContext.CancellationToken));
 
             testContext.MockCharacterGuildDivisionsService.ShouldHaveReceived(x => x
                 .UpdateAsync(guildId, divisionId, updateModel, currentUserId, testContext.CancellationToken));
