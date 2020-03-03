@@ -6,7 +6,9 @@ using System.Transactions;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Logging;
 
+using Sokan.Yastah.Business.Administration;
 using Sokan.Yastah.Common.OperationModel;
 using Sokan.Yastah.Data;
 using Sokan.Yastah.Data.Administration;
@@ -48,12 +50,14 @@ namespace Sokan.Yastah.Business.Characters
             IAdministrationActionsRepository administrationActionsRepository,
             ICharacterGuildsRepository characterGuildsRepository,
             ICharacterGuildDivisionsRepository characterGuildDivisionsRepository,
+            ILogger<CharacterGuildDivisionsService> logger,
             ISystemClock systemClock,
             ITransactionScopeFactory transactionScopeFactory)
         {
             _administrationActionsRepository = administrationActionsRepository;
             _characterGuildsRepository = characterGuildsRepository;
             _characterGuildDivisionsRepository = characterGuildDivisionsRepository;
+            _logger = logger;
             _systemClock = systemClock;
             _transactionScopeFactory = transactionScopeFactory;
         }
@@ -64,29 +68,44 @@ namespace Sokan.Yastah.Business.Characters
             ulong performedById,
             CancellationToken cancellationToken)
         {
+            using var logScope = _logger.BeginMemberScope();
+            CharactersLogMessages.CharacterGuildDivisionCreating(_logger, guildId, creationModel, performedById);
+
             using var transactionScope = _transactionScopeFactory.CreateScope();
+            TransactionsLogMessages.TransactionScopeCreated(_logger);
 
             var guildIdValidationResult = await ValidateGuildIdAsync(guildId, cancellationToken);
             if (guildIdValidationResult.IsFailure)
+            {
+                CharactersLogMessages.CharacterGuildIdValidationFailed(_logger, guildId, guildIdValidationResult);
                 return guildIdValidationResult.Error;
+            }
+            CharactersLogMessages.CharacterGuildIdValidationSucceeded(_logger, guildId);
 
             var nameValidationResult = await ValidateDivisionNameAsync(guildId, creationModel.Name, null, cancellationToken);
             if (nameValidationResult.IsFailure)
+            {
+                CharactersLogMessages.CharacterGuildDivisionNameValidationFailed(_logger, creationModel.Name, nameValidationResult);
                 return nameValidationResult.Error;
+            }
+            CharactersLogMessages.CharacterGuildDivisionNameValidationSucceeded(_logger, creationModel.Name);
 
             var actionId = await _administrationActionsRepository.CreateAsync(
                 (int)CharacterManagementAdministrationActionType.DivisionCreated,
                 _systemClock.UtcNow,
                 performedById,
                 cancellationToken);
+            AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
 
             var divisionId = await _characterGuildDivisionsRepository.CreateAsync(
                 guildId,
                 creationModel.Name,
                 actionId,
                 cancellationToken);
+            CharactersLogMessages.CharacterGuildDivisionCreated(_logger, guildId, divisionId);
 
             transactionScope.Complete();
+            TransactionsLogMessages.TransactionScopeCommitted(_logger);
 
             return divisionId.ToSuccess();
         }
@@ -97,17 +116,26 @@ namespace Sokan.Yastah.Business.Characters
             ulong performedById,
             CancellationToken cancellationToken)
         {
+            using var logScope = _logger.BeginMemberScope();
+            CharactersLogMessages.CharacterGuildDivisionDeleting(_logger, guildId, divisionId, performedById);
+
             using var transactionScope = _transactionScopeFactory.CreateScope();
+            TransactionsLogMessages.TransactionScopeCreated(_logger);
 
             var guildIdValidationResult = await ValidateGuildIdAsync(guildId, cancellationToken);
             if (guildIdValidationResult.IsFailure)
+            {
+                CharactersLogMessages.CharacterGuildIdValidationFailed(_logger, guildId, guildIdValidationResult);
                 return guildIdValidationResult;
+            }
+            CharactersLogMessages.CharacterGuildIdValidationSucceeded(_logger, guildId);
 
             var actionId = await _administrationActionsRepository.CreateAsync(
                 (int)CharacterManagementAdministrationActionType.DivisionDeleted,
                 _systemClock.UtcNow,
                 performedById,
                 cancellationToken);
+            AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
 
             var updateResult = await _characterGuildDivisionsRepository.UpdateAsync(
                 divisionId: divisionId,
@@ -116,7 +144,13 @@ namespace Sokan.Yastah.Business.Characters
                 cancellationToken: cancellationToken);
 
             if (updateResult.IsSuccess)
+            {
+                CharactersLogMessages.CharacterGuildDivisionDeleted(_logger, guildId, divisionId);
                 transactionScope.Complete();
+                TransactionsLogMessages.TransactionScopeCommitted(_logger);
+            }
+            else
+                CharactersLogMessages.CharacterGuildDivisionDeleteFailed(_logger, guildId, divisionId, updateResult);
 
             return updateResult;
         }
@@ -124,10 +158,18 @@ namespace Sokan.Yastah.Business.Characters
         public async Task<IReadOnlyCollection<CharacterGuildDivisionIdentityViewModel>> GetCurrentIdentitiesAsync(
                 long guildId,
                 CancellationToken cancellationToken)
-            => await _characterGuildDivisionsRepository.AsyncEnumerateIdentities(
+        {
+            using var logScope = _logger.BeginMemberScope();
+            CharactersLogMessages.CharacterGuildDivisionIdentitiesFetchingCurrent(_logger, guildId);
+
+            var identities = await _characterGuildDivisionsRepository.AsyncEnumerateIdentities(
                     guildId: guildId,
                     isDeleted: false)
                 .ToArrayAsync(cancellationToken);
+            CharactersLogMessages.CharacterGuildDivisionIdentitiesFetchedCurrent(_logger, guildId);
+
+            return identities;
+        }
 
         public async Task<OperationResult> UpdateAsync(
             long guildId,
@@ -136,15 +178,27 @@ namespace Sokan.Yastah.Business.Characters
             ulong performedById,
             CancellationToken cancellationToken)
         {
+            using var logScope = _logger.BeginMemberScope();
+            CharactersLogMessages.CharacterGuildDivisionUpdating(_logger, guildId, divisionId, updateModel, performedById);
+
             using var transactionScope = _transactionScopeFactory.CreateScope();
+            TransactionsLogMessages.TransactionScopeCreated(_logger);
 
             var guildIdValidationResult = await ValidateGuildIdAsync(guildId, cancellationToken);
             if (guildIdValidationResult.IsFailure)
+            {
+                CharactersLogMessages.CharacterGuildIdValidationFailed(_logger, guildId, guildIdValidationResult);
                 return guildIdValidationResult;
+            }
+            CharactersLogMessages.CharacterGuildIdValidationSucceeded(_logger, guildId);
 
             var nameValidationResult = await ValidateDivisionNameAsync(guildId, updateModel.Name, divisionId, cancellationToken);
             if (nameValidationResult.IsFailure)
+            {
+                CharactersLogMessages.CharacterGuildDivisionNameValidationFailed(_logger, updateModel.Name, nameValidationResult);
                 return nameValidationResult;
+            }
+            CharactersLogMessages.CharacterGuildDivisionNameValidationSucceeded(_logger, updateModel.Name);
 
             var now = _systemClock.UtcNow;
 
@@ -153,16 +207,23 @@ namespace Sokan.Yastah.Business.Characters
                 now,
                 performedById,
                 cancellationToken);
+            AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
 
             var updateResult = await _characterGuildDivisionsRepository.UpdateAsync(
                 divisionId: divisionId,
                 actionId: actionId,
                 name: updateModel.Name,
                 cancellationToken: cancellationToken);
+
             if (updateResult.IsFailure)
+            {
+                CharactersLogMessages.CharacterGuildDivisionUpdateFailed(_logger, guildId, divisionId, updateResult);
                 return updateResult;
+            }
+            CharactersLogMessages.CharacterGuildDivisionUpdated(_logger, guildId, divisionId);
 
             transactionScope.Complete();
+            TransactionsLogMessages.TransactionScopeCommitted(_logger);
 
             return OperationResult.Success;
         }
@@ -204,6 +265,7 @@ namespace Sokan.Yastah.Business.Characters
         private readonly IAdministrationActionsRepository _administrationActionsRepository;
         private readonly ICharacterGuildsRepository _characterGuildsRepository;
         private readonly ICharacterGuildDivisionsRepository _characterGuildDivisionsRepository;
+        private readonly ILogger _logger;
         private readonly ISystemClock _systemClock;
         private readonly ITransactionScopeFactory _transactionScopeFactory;
     }

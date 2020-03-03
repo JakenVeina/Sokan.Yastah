@@ -8,7 +8,9 @@ using System.Transactions;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Logging;
 
+using Sokan.Yastah.Business.Administration;
 using Sokan.Yastah.Common.OperationModel;
 using Sokan.Yastah.Data;
 using Sokan.Yastah.Data.Administration;
@@ -34,12 +36,14 @@ namespace Sokan.Yastah.Business.Characters
         public CharacterLevelsService(
             IAdministrationActionsRepository administrationActionsRepository,
             ICharacterLevelsRepository characterLevelsRepository,
+            ILogger<CharacterLevelsService> logger,
             IMemoryCache memoryCache,
             ISystemClock systemClock,
             ITransactionScopeFactory transactionScopeFactory)
         {
             _administrationActionsRepository = administrationActionsRepository;
             _characterLevelsRepository = characterLevelsRepository;
+            _logger = logger;
             _memoryCache = memoryCache;
             _systemClock = systemClock;
             _transactionScopeFactory = transactionScopeFactory;
@@ -49,12 +53,18 @@ namespace Sokan.Yastah.Business.Characters
                 CancellationToken cancellationToken)
             => _memoryCache.OptimisticGetOrCreateAsync(_getCurrentDefinitionsCacheKey, async entry =>
             {
+                using var logScope = _logger.BeginMemberScope(nameof(GetCurrentDefinitionsAsync));
+                CharactersLogMessages.CharacterLevelDefinitionsFetchingCurrent(_logger);
+
                 entry.Priority = CacheItemPriority.High;
 
-                return await _characterLevelsRepository.AsyncEnumerateDefinitions(
+                var definitions = await _characterLevelsRepository.AsyncEnumerateDefinitions(
                             isDeleted: false)
                         .ToArrayAsync(cancellationToken)
                     as IReadOnlyList<CharacterLevelDefinitionViewModel>;
+                CharactersLogMessages.CharacterLevelDefinitionsFetchedCurrent(_logger);
+
+                return definitions;
             });
 
         public async Task<OperationResult> UpdateExperienceDiffsAsync(
@@ -62,6 +72,9 @@ namespace Sokan.Yastah.Business.Characters
             ulong performedById,
             CancellationToken cancellationToken)
         {
+            using var logScope = _logger.BeginMemberScope();
+            CharactersLogMessages.CharacterLevelDefinitionsUpdating(_logger);
+
             var totalExperience = 0;
             var proposedDefinitions = experienceDiffs
                 .Select((experienceDiff, index) => (
@@ -75,15 +88,23 @@ namespace Sokan.Yastah.Business.Characters
                 .ToArray();
 
             foreach(var (level, previousExperienceThreshold, experienceThreshold) in proposedDefinitions)
+            {
+                CharactersLogMessages.CharacterLevelDefinitionProposed(_logger, level, experienceThreshold, previousExperienceThreshold);
                 if (experienceThreshold <= previousExperienceThreshold)
+                {
+                    CharactersLogMessages.CharacterLevelDefinitionValidationFailed(_logger, level, experienceThreshold, previousExperienceThreshold);
                     return new InvalidLevelDefinitionError(
                         level,
                         experienceThreshold,
                         previousExperienceThreshold);
+                }
+            }
 
             using var transactionScope = _transactionScopeFactory.CreateScope();
+            TransactionsLogMessages.TransactionScopeCreated(_logger);
 
             var currentDefinitions = await GetCurrentDefinitionsAsync(cancellationToken);
+            CharactersLogMessages.CharacterLevelDefinitionsFetchedCurrent(_logger);
 
             var sequenceLength = Math.Max(experienceDiffs.Count + 1, currentDefinitions.Count);
             var pairwiseSequence = Enumerable.Zip(
@@ -99,6 +120,7 @@ namespace Sokan.Yastah.Business.Characters
                 _systemClock.UtcNow,
                 performedById,
                 cancellationToken);
+            AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
 
             var anyChangesMade = false;
 
@@ -106,46 +128,50 @@ namespace Sokan.Yastah.Business.Characters
             {
                 if (proposed is null)
                 {
+                    CharactersLogMessages.CharacterLevelDefinitionDeleting(_logger, current!.Level);
                     await _characterLevelsRepository.MergeDefinitionAsync(
                         current!.Level,
                         current!.ExperienceThreshold,
                         true,
                         actionId,
                         cancellationToken);
+                    CharactersLogMessages.CharacterLevelDefinitionDeleted(_logger, current!.Level);
 
                     anyChangesMade = true;
                 }
                 else if ((current is null) || (current.ExperienceThreshold != proposed.Value.experienceThreshold))
                 {
-                    if (proposed.Value.experienceThreshold <= proposed.Value.previousExperienceThreshold)
-                        return new InvalidLevelDefinitionError(
-                            proposed.Value.level,
-                            proposed.Value.experienceThreshold,
-                            proposed.Value.previousExperienceThreshold);
-
+                    CharactersLogMessages.CharacterLevelDefinitionUpdating(_logger, proposed!.Value.level, proposed!.Value.experienceThreshold);
                     await _characterLevelsRepository.MergeDefinitionAsync(
                         proposed!.Value.level,
                         proposed!.Value.experienceThreshold,
                         false,
                         actionId,
                         cancellationToken);
+                    CharactersLogMessages.CharacterLevelDefinitionUpdated(_logger, proposed!.Value.level, proposed!.Value.experienceThreshold);
 
                     anyChangesMade = true;
                 }
             }
 
             if (!anyChangesMade)
+            {
+                CharactersLogMessages.CharacterLevelDefinitionsNoChangesGiven(_logger);
                 return new NoChangesGivenError("Character Level Definitions");
+            }
 
             transactionScope.Complete();
+            TransactionsLogMessages.TransactionScopeCommitted(_logger);
 
             _memoryCache.Remove(_getCurrentDefinitionsCacheKey);
+            CharactersLogMessages.CharacterLevelDefinitionsCacheCleared(_logger);
 
             return OperationResult.Success;
         }
 
         private readonly IAdministrationActionsRepository _administrationActionsRepository;
         private readonly ICharacterLevelsRepository _characterLevelsRepository;
+        private readonly ILogger _logger;
         private readonly IMemoryCache _memoryCache;
         private readonly ISystemClock _systemClock;
         private readonly ITransactionScopeFactory _transactionScopeFactory;

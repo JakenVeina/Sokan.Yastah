@@ -27,7 +27,7 @@ namespace Sokan.Yastah.Business.Test.Characters
         #region Test Context
 
         internal class TestContext
-            : AsyncMethodTestContext
+            : AsyncMethodWithLoggerTestContext
         {
             public TestContext()
             {
@@ -84,6 +84,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                     MockAdministrationActionsRepository.Object,
                     MockCharacterGuildsRepository.Object,
                     MockCharacterGuildDivisionsRepository.Object,
+                    LoggerFactory.CreateLogger<CharacterGuildDivisionsService>(),
                     MockSystemClock.Object,
                     MockTransactionScopeFactory.Object);
 

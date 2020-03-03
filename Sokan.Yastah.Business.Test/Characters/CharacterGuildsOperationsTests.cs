@@ -22,7 +22,7 @@ namespace Sokan.Yastah.Business.Test.Characters
         #region Test Context
 
         internal class TestContext
-            : AsyncMethodTestContext
+            : AsyncMethodWithLoggerTestContext
         {
             public TestContext()
             {
@@ -53,7 +53,8 @@ namespace Sokan.Yastah.Business.Test.Characters
                 => new CharacterGuildsOperations(
                     MockAuthenticationService.Object,
                     MockAuthorizationService.Object,
-                    MockCharacterGuildsService.Object);
+                    MockCharacterGuildsService.Object,
+                    LoggerFactory.CreateLogger<CharacterGuildsOperations>());
 
             public void SetCurrentUserId(ulong userId)
                 => CurrentTicket = new AuthenticationTicket(

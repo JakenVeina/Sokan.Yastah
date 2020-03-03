@@ -72,6 +72,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                 => new CharacterLevelsService(
                     MockAdministrationActionsRepository.Object,
                     MockCharacterLevelsRepository.Object,
+                    LoggerFactory.CreateLogger<CharacterLevelsService>(),
                     MemoryCache,
                     MockSystemClock.Object,
                     MockTransactionScopeFactory.Object);

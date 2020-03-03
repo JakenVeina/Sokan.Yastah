@@ -28,6 +28,17 @@ namespace Sokan.Yastah.Data
                     $"{nameof(YastahDbContext)} migrations applied")
                 .WithoutException();
 
+        public static void ContextMigrationAwaiting(
+                ILogger logger)
+            => _contextMigrationAwaiting.Invoke(
+                logger);
+        private static readonly Action<ILogger> _contextMigrationAwaiting
+            = LoggerMessage.Define(
+                    LogLevel.Information,
+                    new EventId(4201, nameof(ContextMigrationAwaiting)),
+                    $"Waiting for {nameof(YastahDbContext)} migrations")
+                .WithoutException();
+
         public static void ContextSavingChanges(
                 ILogger logger)
             => _contextSavingChanges.Invoke(
@@ -35,7 +46,7 @@ namespace Sokan.Yastah.Data
         private static readonly Action<ILogger> _contextSavingChanges
             = LoggerMessage.Define(
                     LogLevel.Debug,
-                    new EventId(4201, nameof(ContextSavingChanges)),
+                    new EventId(4202, nameof(ContextSavingChanges)),
                     $"{nameof(YastahDbContext)} saving changes")
                 .WithoutException();
     }

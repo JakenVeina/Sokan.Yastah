@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using Sokan.Yastah.Business.Authentication;
 using Sokan.Yastah.Business.Authorization;
@@ -28,47 +29,73 @@ namespace Sokan.Yastah.Business.Characters
         public CharacterLevelsOperations(
             IAuthenticationService authenticationService,
             IAuthorizationService authorizationService,
-            ICharacterLevelsService characterLevelsService)
+            ICharacterLevelsService characterLevelsService,
+            ILogger<CharacterLevelsOperations> logger)
         {
             _authenticationService = authenticationService;
             _authorizationService = authorizationService;
             _characterLevelsService = characterLevelsService;
+            _logger = logger;
         }
 
         public async Task<OperationResult<IReadOnlyList<CharacterLevelDefinitionViewModel>>> GetDefinitionsAsync(
             CancellationToken cancellationToken)
         {
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            OperationLogMessages.OperationPerforming(_logger);
+
+            OperationLogMessages.OperationAuthorizing(_logger);
             var authResult = await _authorizationService.RequirePermissionsAsync(
                 new[] { (int)CharacterAdministrationPermission.ManageLevels },
                 cancellationToken);
 
-            return authResult.IsFailure
-                ? authResult.Error
-                : (await _characterLevelsService.GetCurrentDefinitionsAsync(cancellationToken))
-                    .ToSuccess();
+            if (authResult.IsFailure)
+            {
+                OperationLogMessages.OperationNotAuthorized(_logger);
+                return authResult.Error;
+            }
+            OperationLogMessages.OperationAuthorized(_logger);
+
+            var result = (await _characterLevelsService.GetCurrentDefinitionsAsync(cancellationToken))
+                .ToSuccess();
+            OperationLogMessages.OperationPerformed(_logger, result);
+
+            return result;
         }
 
         public async Task<OperationResult> UpdateExperienceDiffsAsync(
             IReadOnlyList<int> experienceDiffs,
             CancellationToken cancellationToken)
         {
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            OperationLogMessages.OperationPerforming(_logger);
+
+            OperationLogMessages.OperationAuthorizing(_logger);
             var authResult = await _authorizationService.RequirePermissionsAsync(
                 new[] { (int)CharacterAdministrationPermission.ManageLevels },
                 cancellationToken);
 
             if (authResult.IsFailure)
-                return authResult;
+            {
+                OperationLogMessages.OperationNotAuthorized(_logger);
+                return authResult.Error;
+            }
+            OperationLogMessages.OperationAuthorized(_logger);
 
             var performedById = _authenticationService.CurrentTicket!.UserId;
 
-            return await _characterLevelsService.UpdateExperienceDiffsAsync(
+            var result = await _characterLevelsService.UpdateExperienceDiffsAsync(
                 experienceDiffs,
                 performedById,
                 cancellationToken);
+            OperationLogMessages.OperationPerformed(_logger, result);
+
+            return result;
         }
 
         private readonly IAuthenticationService _authenticationService;
         private readonly IAuthorizationService _authorizationService;
         private readonly ICharacterLevelsService _characterLevelsService;
+        private readonly ILogger _logger;
     }
 }
