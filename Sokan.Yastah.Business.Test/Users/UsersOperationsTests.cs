@@ -24,7 +24,7 @@ namespace Sokan.Yastah.Business.Test.Users
         #region Test Context
 
         internal class TestContext
-            : AsyncMethodTestContext
+            : AsyncMethodWithLoggerTestContext
         {
             public TestContext()
             {
@@ -58,6 +58,7 @@ namespace Sokan.Yastah.Business.Test.Users
                 => new UsersOperations(
                     MockAuthenticationService.Object,
                     MockAuthorizationService.Object,
+                    LoggerFactory.CreateLogger<UsersOperations>(),
                     MockUsersRepository.Object,
                     MockUsersService.Object);
 

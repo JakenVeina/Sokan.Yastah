@@ -7,7 +7,9 @@ using System.Transactions;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Logging;
 
+using Sokan.Yastah.Business.Administration;
 using Sokan.Yastah.Business.Permissions;
 using Sokan.Yastah.Common.Messaging;
 using Sokan.Yastah.Common.OperationModel;
@@ -49,6 +51,7 @@ namespace Sokan.Yastah.Business.Roles
     {
         public RolesService(
             IAdministrationActionsRepository administrationActionsRepository,
+            ILogger<RolesService> logger,
             IMemoryCache memoryCache,
             IMessenger messenger,
             IPermissionsService permissionsService,
@@ -57,6 +60,7 @@ namespace Sokan.Yastah.Business.Roles
             ITransactionScopeFactory transactionScopeFactory)
         {
             _administrationActionsRepository = administrationActionsRepository;
+            _logger = logger;
             _memoryCache = memoryCache;
             _messenger = messenger;
             _permissionsService = permissionsService;
@@ -70,36 +74,53 @@ namespace Sokan.Yastah.Business.Roles
             ulong performedById,
             CancellationToken cancellationToken)
         {
+            using var logScope = _logger.BeginMemberScope();
+            RolesLogMessages.RoleCreating(_logger, creationModel, performedById);
+
             using var transactionScope = _transactionScopeFactory.CreateScope();
+            TransactionsLogMessages.TransactionScopeCreated(_logger);
 
             var nameValidationResult = await ValidateNameAsync(creationModel.Name, null, cancellationToken);
             if (nameValidationResult.IsFailure)
+            {
+                RolesLogMessages.RoleNameValidationFailed(_logger, creationModel.Name, nameValidationResult);
                 return nameValidationResult.Error;
+            }
+            RolesLogMessages.RoleNameValidationSucceeded(_logger, creationModel.Name);
 
             var grantedPermissionIdsValidationResult = await _permissionsService.ValidateIdsAsync(creationModel.GrantedPermissionIds, cancellationToken);
             if (grantedPermissionIdsValidationResult.IsFailure)
+            {
+                RolesLogMessages.PermissionIdsValidationFailed(_logger, creationModel.GrantedPermissionIds, grantedPermissionIdsValidationResult);
                 return grantedPermissionIdsValidationResult.Error;
+            }
+            RolesLogMessages.PermissionIdsValidationSucceeded(_logger, creationModel.GrantedPermissionIds);
 
             var actionId = await _administrationActionsRepository.CreateAsync(
                 (int)RoleManagementAdministrationActionType.RoleCreated,
                 _systemClock.UtcNow,
                 performedById,
                 cancellationToken);
+            AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
 
             var roleId = await _rolesRepository.CreateAsync(
                 creationModel.Name,
                 actionId,
                 cancellationToken);
+            RolesLogMessages.RoleCreated(_logger, roleId);
 
-            await _rolesRepository.CreatePermissionMappingsAsync(
+            var mappingIds = await _rolesRepository.CreatePermissionMappingsAsync(
                 roleId,
                 creationModel.GrantedPermissionIds,
                 actionId,
                 cancellationToken);
+            RolesLogMessages.RolePermissionMappingsCreated(_logger, roleId, mappingIds);
 
             _memoryCache.Remove(_getCurrentIdentitiesCacheKey);
+            RolesLogMessages.RoleIdentitiesCacheCleared(_logger);
 
             transactionScope.Complete();
+            TransactionsLogMessages.TransactionScopeCommitted(_logger);
 
             return roleId.ToSuccess();
         }
@@ -109,39 +130,56 @@ namespace Sokan.Yastah.Business.Roles
             ulong performedById,
             CancellationToken cancellationToken)
         {
+            using var logScope = _logger.BeginMemberScope();
+            RolesLogMessages.RoleDeleting(_logger, roleId, performedById);
+
             using var transactionScope = _transactionScopeFactory.CreateScope();
+            TransactionsLogMessages.TransactionScopeCreated(_logger);
 
             var actionId = await _administrationActionsRepository.CreateAsync(
                 (int)RoleManagementAdministrationActionType.RoleDeleted,
                 _systemClock.UtcNow,
                 performedById,
                 cancellationToken);
+            AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
 
-            var updateResult = await _rolesRepository.UpdateAsync(
+            var deleteResult = await _rolesRepository.UpdateAsync(
                 roleId: roleId,
                 actionId: actionId,
                 isDeleted: true,
                 cancellationToken: cancellationToken);
 
-            if(updateResult.IsSuccess)
+            if (deleteResult.IsSuccess)
             {
-                transactionScope.Complete();
-                _memoryCache.Remove(_getCurrentIdentitiesCacheKey);
-            }
+                RolesLogMessages.RoleDeleted(_logger, roleId, deleteResult.Value);
 
-            return updateResult;
+                _memoryCache.Remove(_getCurrentIdentitiesCacheKey);
+                RolesLogMessages.RoleIdentitiesCacheCleared(_logger);
+
+                transactionScope.Complete();
+                TransactionsLogMessages.TransactionScopeCommitted(_logger);
+            }
+            else
+                RolesLogMessages.RoleDeleteFailed(_logger, roleId, deleteResult);
+
+            return deleteResult;
         }
 
         public ValueTask<IReadOnlyCollection<RoleIdentityViewModel>> GetCurrentIdentitiesAsync(
                 CancellationToken cancellationToken)
-            => _memoryCache.OptimisticGetOrCreateAsync(_getCurrentIdentitiesCacheKey, async entry =>
+            => _memoryCache.OptimisticGetOrCreateAsync<IReadOnlyCollection<RoleIdentityViewModel>>(_getCurrentIdentitiesCacheKey, async entry =>
             {
+                using var logScope = _logger.BeginMemberScope(nameof(GetCurrentIdentitiesAsync));
+                RolesLogMessages.RoleIdentitiesFetchingCurrent(_logger);
+
                 entry.Priority = CacheItemPriority.High;
 
-                return await _rolesRepository.AsyncEnumerateIdentities(
-                            isDeleted: false)
-                        .ToArrayAsync(cancellationToken)
-                    as IReadOnlyCollection<RoleIdentityViewModel>;
+                var result = await _rolesRepository.AsyncEnumerateIdentities(
+                        isDeleted: false)
+                    .ToArrayAsync(cancellationToken);
+                RolesLogMessages.RoleIdentitiesFetchedCurrent(_logger);
+
+                return result;
             });
 
         public async Task<OperationResult> UpdateAsync(
@@ -150,15 +188,27 @@ namespace Sokan.Yastah.Business.Roles
             ulong performedById,
             CancellationToken cancellationToken)
         {
+            using var logScope = _logger.BeginMemberScope();
+            RolesLogMessages.RoleUpdating(_logger, roleId, updateModel, performedById);
+
             using var transactionScope = _transactionScopeFactory.CreateScope();
+            TransactionsLogMessages.TransactionScopeCreated(_logger);
 
             var nameValidationResult = await ValidateNameAsync(updateModel.Name, roleId, cancellationToken);
             if (nameValidationResult.IsFailure)
+            {
+                RolesLogMessages.RoleNameValidationFailed(_logger, updateModel.Name, nameValidationResult);
                 return nameValidationResult;
+            }
+            RolesLogMessages.RoleNameValidationSucceeded(_logger, updateModel.Name);
 
             var grantedPermissionIdsValidationResult = await _permissionsService.ValidateIdsAsync(updateModel.GrantedPermissionIds, cancellationToken);
             if (grantedPermissionIdsValidationResult.IsFailure)
+            {
+                RolesLogMessages.PermissionIdsValidationFailed(_logger, updateModel.GrantedPermissionIds, grantedPermissionIdsValidationResult);
                 return grantedPermissionIdsValidationResult;
+            }
+            RolesLogMessages.PermissionIdsValidationSucceeded(_logger, updateModel.GrantedPermissionIds);
 
             var now = _systemClock.UtcNow;
 
@@ -167,14 +217,20 @@ namespace Sokan.Yastah.Business.Roles
                 now,
                 performedById,
                 cancellationToken);
+            AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
 
             var updateResult = await _rolesRepository.UpdateAsync(
                 roleId: roleId,
                 actionId: actionId,
                 name: updateModel.Name,
                 cancellationToken: cancellationToken);
+            
             if (updateResult.IsFailure && !(updateResult.Error is NoChangesGivenError))
+            {
+                RolesLogMessages.RoleUpdateFailed(_logger, roleId, updateResult);
                 return updateResult;
+            }
+            RolesLogMessages.RoleUpdated(_logger, roleId, updateResult);
 
             var anyChanges = updateResult.IsSuccess;
 
@@ -182,8 +238,10 @@ namespace Sokan.Yastah.Business.Roles
                     roleId: roleId,
                     isDeleted: false)
                 .ToArrayAsync(cancellationToken);
+            RolesLogMessages.RolePermissionMappingIdentitiesFetched(_logger, roleId);
 
             anyChanges |= await HandleRemovedPermissionMappings(
+                roleId,
                 permissionMappings,
                 updateModel.GrantedPermissionIds,
                 actionId,
@@ -197,17 +255,24 @@ namespace Sokan.Yastah.Business.Roles
                 cancellationToken);
 
             if (!anyChanges)
+            {
+                RolesLogMessages.RoleUpdateNoChangesGiven(_logger, roleId);
                 return new NoChangesGivenError($"Role ID {roleId}");
+            }
 
+            RolesLogMessages.RoleUpdatingNotificationPublishing(_logger, roleId);
             await _messenger.PublishNotificationAsync(
                 new RoleUpdatingNotification(
                     roleId,
                     actionId),
                 cancellationToken);
+            RolesLogMessages.RoleUpdatingNotificationPublished(_logger, roleId);
 
             transactionScope.Complete();
+            TransactionsLogMessages.TransactionScopeCommitted(_logger);
 
             _memoryCache.Remove(_getCurrentIdentitiesCacheKey);
+            RolesLogMessages.RoleIdentitiesCacheCleared(_logger);
 
             return OperationResult.Success;
         }
@@ -216,18 +281,35 @@ namespace Sokan.Yastah.Business.Roles
             IReadOnlyCollection<long> roleIds,
             CancellationToken cancellationToken)
         {
+            using var logScope = _logger.BeginMemberScope();
+            RolesLogMessages.RoleIdsValidating(_logger, roleIds);
+
             if (!roleIds.Any())
+            {
+                RolesLogMessages.RoleIdsValidationSucceeded(_logger);
                 return OperationResult.Success;
+            }
 
             var invalidRoleIds = roleIds
                 .Except((await GetCurrentIdentitiesAsync(cancellationToken))
-                .Select(x => x.Id)).ToArray();
+                .Select(x => x.Id))
+                .ToArray();
 
-            return invalidRoleIds.Any()
-                ? ((invalidRoleIds.Length == 1)
-                    ? new DataNotFoundError($"Role ID {invalidRoleIds.First()}")
-                    : new DataNotFoundError($"Role IDs {string.Join(", ", invalidRoleIds)}"))
-                : OperationResult.Success;
+            if (invalidRoleIds.Length == 0)
+            {
+                RolesLogMessages.RoleIdsValidationSucceeded(_logger);
+                return OperationResult.Success;
+            }
+            else if (invalidRoleIds.Length == 1)
+            {
+                RolesLogMessages.RoleIdsValidationFailed(_logger, invalidRoleIds);
+                return new DataNotFoundError($"Role ID {invalidRoleIds.First()}");
+            }
+            else
+            {
+                RolesLogMessages.RoleIdsValidationFailed(_logger, invalidRoleIds);
+                return new DataNotFoundError($"Role IDs {string.Join(", ", invalidRoleIds)}");
+            }
         }
 
         private async Task<bool> HandleAddedPermissions(
@@ -238,21 +320,25 @@ namespace Sokan.Yastah.Business.Roles
             CancellationToken cancellationToken)
         {
             var addedPermissionIds = grantedPermissionIds
-                .Except(permissionMappings.Select(x => x.PermissionId));
+                .Except(permissionMappings.Select(x => x.PermissionId))
+                .ToArray();
 
             if (!addedPermissionIds.Any())
                 return false;
 
-            await _rolesRepository.CreatePermissionMappingsAsync(
+            RolesLogMessages.RolePermissionMappingsCreating(_logger, roleId, addedPermissionIds);
+            var mappingIds = await _rolesRepository.CreatePermissionMappingsAsync(
                 roleId,
                 addedPermissionIds,
                 actionId,
                 cancellationToken);
+            RolesLogMessages.RolePermissionMappingsCreated(_logger, roleId, mappingIds);
 
             return true;
         }
 
         private async Task<bool> HandleRemovedPermissionMappings(
+            long roleId,
             IEnumerable<RolePermissionMappingIdentityViewModel> permissionMappings,
             IEnumerable<int> grantedPermissionIds,
             long actionId,
@@ -260,15 +346,18 @@ namespace Sokan.Yastah.Business.Roles
         {
             var removedPermissionMappingIds = permissionMappings
                 .Where(x => !grantedPermissionIds.Contains(x.PermissionId))
-                .Select(x => x.Id);
+                .Select(x => x.Id)
+                .ToArray();
 
             if (!removedPermissionMappingIds.Any())
                 return false;
 
+            RolesLogMessages.RolePermissionMappingsDeleting(_logger, roleId, removedPermissionMappingIds);
             await _rolesRepository.UpdatePermissionMappingsAsync(
                 removedPermissionMappingIds,
                 deletionId: actionId,
                 cancellationToken);
+            RolesLogMessages.RolePermissionMappingsDeleted(_logger, roleId);
 
             return true;
         }
@@ -291,6 +380,7 @@ namespace Sokan.Yastah.Business.Roles
         }
 
         private readonly IAdministrationActionsRepository _administrationActionsRepository;
+        private readonly ILogger _logger;
         private readonly IMemoryCache _memoryCache;
         private readonly IMessenger _messenger;
         private readonly IPermissionsService _permissionsService;

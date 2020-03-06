@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using Sokan.Yastah.Business.Authentication;
 using Sokan.Yastah.Business.Authorization;
@@ -42,11 +43,13 @@ namespace Sokan.Yastah.Business.Roles
         public RolesOperations(
             IAuthenticationService authenticationService,
             IAuthorizationService authorizationService,
+            ILogger<RolesOperations> logger,
             IRolesRepository rolesRepository,
             IRolesService rolesService)
         {
             _authenticationService = authenticationService;
             _authorizationService = authorizationService;
+            _logger = logger;
             _rolesRepository = rolesRepository;
             _rolesService = rolesService;
         }
@@ -55,61 +58,107 @@ namespace Sokan.Yastah.Business.Roles
             RoleCreationModel creationModel,
             CancellationToken cancellationToken)
         {
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            OperationLogMessages.OperationPerforming(_logger);
+
+            OperationLogMessages.OperationAuthorizing(_logger);
             var authResult = await _authorizationService.RequirePermissionsAsync(
                 new[] { (int)AdministrationPermission.ManageRoles },
                 cancellationToken);
 
             if (authResult.IsFailure)
+            {
+                OperationLogMessages.OperationNotAuthorized(_logger);
                 return authResult.Error;
+            }
+            OperationLogMessages.OperationAuthorized(_logger);
 
             var performedById = _authenticationService.CurrentTicket!.UserId;
 
-            return await _rolesService.CreateAsync(creationModel, performedById, cancellationToken);
+            var result = await _rolesService.CreateAsync(creationModel, performedById, cancellationToken);
+            OperationLogMessages.OperationPerformed(_logger, result);
+
+            return result;
         }
 
         public async Task<OperationResult> DeleteAsync(
             long roleId,
             CancellationToken cancellationToken)
         {
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            OperationLogMessages.OperationPerforming(_logger);
+
+            OperationLogMessages.OperationAuthorizing(_logger);
             var authResult = await _authorizationService.RequirePermissionsAsync(
                 new[] { (int)AdministrationPermission.ManageRoles },
                 cancellationToken);
 
             if (authResult.IsFailure)
-                return authResult;
+            {
+                OperationLogMessages.OperationNotAuthorized(_logger);
+                return authResult.Error;
+            }
+            OperationLogMessages.OperationAuthorized(_logger);
 
             var performedById = _authenticationService.CurrentTicket!.UserId;
 
-            return await _rolesService.DeleteAsync(roleId, performedById, cancellationToken);
+            var result = await _rolesService.DeleteAsync(roleId, performedById, cancellationToken);
+            OperationLogMessages.OperationPerformed(_logger, result);
+
+            return result;
         }
 
         public async Task<OperationResult<RoleDetailViewModel>> GetDetailAsync(
             long roleId,
             CancellationToken cancellationToken)
         {
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            OperationLogMessages.OperationPerforming(_logger);
+
+            OperationLogMessages.OperationAuthorizing(_logger);
             var authResult = await _authorizationService.RequirePermissionsAsync(
                 new[] { (int)AdministrationPermission.ManageRoles },
                 cancellationToken);
 
-            return authResult.IsFailure
-                ? authResult.Error
-                : await _rolesRepository.ReadDetailAsync(
+            if (authResult.IsFailure)
+            {
+                OperationLogMessages.OperationNotAuthorized(_logger);
+                return authResult.Error;
+            }
+            OperationLogMessages.OperationAuthorized(_logger);
+
+            var result = await _rolesRepository.ReadDetailAsync(
                     roleId: roleId,
                     isDeleted: false,
                     cancellationToken: cancellationToken);
+            OperationLogMessages.OperationPerformed(_logger, result);
+
+            return result;
         }
 
         public async Task<OperationResult<IReadOnlyCollection<RoleIdentityViewModel>>> GetIdentitiesAsync(
             CancellationToken cancellationToken)
         {
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            OperationLogMessages.OperationPerforming(_logger);
+
+            OperationLogMessages.OperationAuthorizing(_logger);
             var authResult = await _authorizationService.RequirePermissionsAsync(
                 new[] { (int)AdministrationPermission.ManageRoles },
                 cancellationToken);
 
-            return authResult.IsFailure
-                ? authResult.Error
-                : (await _rolesService.GetCurrentIdentitiesAsync(cancellationToken))
-                    .ToSuccess();
+            if (authResult.IsFailure)
+            {
+                OperationLogMessages.OperationNotAuthorized(_logger);
+                return authResult.Error;
+            }
+            OperationLogMessages.OperationAuthorized(_logger);
+
+            var result =(await _rolesService.GetCurrentIdentitiesAsync(cancellationToken))
+                .ToSuccess();
+            OperationLogMessages.OperationPerformed(_logger, result);
+
+            return result;
         }
 
         public async Task<OperationResult> UpdateAsync(
@@ -117,20 +166,32 @@ namespace Sokan.Yastah.Business.Roles
             RoleUpdateModel updateModel,
             CancellationToken cancellationToken)
         {
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            OperationLogMessages.OperationPerforming(_logger);
+
+            OperationLogMessages.OperationAuthorizing(_logger);
             var authResult = await _authorizationService.RequirePermissionsAsync(
                 new[] { (int)AdministrationPermission.ManageRoles },
                 cancellationToken);
 
             if (authResult.IsFailure)
-                return authResult;
+            {
+                OperationLogMessages.OperationNotAuthorized(_logger);
+                return authResult.Error;
+            }
+            OperationLogMessages.OperationAuthorized(_logger);
 
             var performedById = _authenticationService.CurrentTicket!.UserId;
 
-            return await _rolesService.UpdateAsync(roleId, updateModel, performedById, cancellationToken);
+            var result = await _rolesService.UpdateAsync(roleId, updateModel, performedById, cancellationToken);
+            OperationLogMessages.OperationPerformed(_logger, result);
+
+            return result;
         }
 
         private readonly IAuthenticationService _authenticationService;
         private readonly IAuthorizationService _authorizationService;
+        private readonly ILogger _logger;
         private readonly IRolesRepository _rolesRepository;
         private readonly IRolesService _rolesService;
     }

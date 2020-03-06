@@ -7,8 +7,10 @@ using System.Transactions;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using Sokan.Yastah.Business.Administration;
 using Sokan.Yastah.Business.Authorization;
 using Sokan.Yastah.Business.Permissions;
 using Sokan.Yastah.Business.Roles;
@@ -52,6 +54,7 @@ namespace Sokan.Yastah.Business.Users
         public UsersService(
             IAdministrationActionsRepository administrationActionsRepository,
             IOptions<AuthorizationConfiguration> authorizationConfigurationOptions,
+            ILogger<UsersService> logger,
             IMemoryCache memoryCache,
             IMessenger messenger,
             IPermissionsService permissionsService,
@@ -62,6 +65,7 @@ namespace Sokan.Yastah.Business.Users
         {
             _administrationActionsRepository = administrationActionsRepository;
             _authorizationConfigurationOptions = authorizationConfigurationOptions;
+            _logger = logger;
             _memoryCache = memoryCache;
             _messenger = messenger;
             _permissionsService = permissionsService;
@@ -75,36 +79,53 @@ namespace Sokan.Yastah.Business.Users
             ulong userId,
             CancellationToken cancellationToken)
         {
+            using var logScope = _logger.BeginMemberScope();
+            UsersLogMessages.GrantedPermissionIdentitiesFetching(_logger, userId);
+
             using var transactionScope = _transactionScopeFactory.CreateScope();
+            TransactionsLogMessages.TransactionScopeCreated(_logger);
 
             if (_authorizationConfigurationOptions.Value.AdminUserIds.Contains(userId))
+            {
+                UsersLogMessages.UserIsAdmin(_logger, userId);
                 return (await _permissionsService.GetIdentitiesAsync(cancellationToken))
                     .ToSuccess();
+            }
 
             var userExists = await _usersRepository.AnyAsync(
                 userId: userId,
                 cancellationToken: cancellationToken);
 
             if (!userExists)
+            {
+                UsersLogMessages.UserNotFound(_logger, userId);
                 return new DataNotFoundError($"User ID {userId}");
+            }
 
-            return (await _usersRepository.AsyncEnumerateGrantedPermissionIdentities(userId)
-                        .ToArrayAsync(cancellationToken)
-                    as IReadOnlyCollection<PermissionIdentityViewModel>)
-                .ToSuccess();
+            UsersLogMessages.UserFound(_logger, userId);
+            var identities = await _usersRepository.AsyncEnumerateGrantedPermissionIdentities(userId)
+                .ToArrayAsync(cancellationToken);
+            UsersLogMessages.GrantedPermissionIdentitiesFetched(_logger, userId);
+            
+            return identities
+                .ToSuccess<IReadOnlyCollection<PermissionIdentityViewModel>>();
         }
 
         public ValueTask<IReadOnlyCollection<ulong>> GetRoleMemberIdsAsync(
                 long roleId,
                 CancellationToken cancellationToken)
-            => _memoryCache.OptimisticGetOrCreateAsync(MakeRoleMemberIdsCacheKey(roleId), async entry =>
+            => _memoryCache.OptimisticGetOrCreateAsync<IReadOnlyCollection<ulong>>(MakeRoleMemberIdsCacheKey(roleId), async entry =>
             {
+                using var logScope = _logger.BeginMemberScope(nameof(GetRoleMemberIdsAsync));
+                UsersLogMessages.RoleMemberIdsFetching(_logger, roleId);
                 entry.Priority = CacheItemPriority.High;
 
-                return await _usersRepository.AsyncEnumerateIds(
-                            roleId: roleId)
-                        .ToArrayAsync(cancellationToken)
-                    as IReadOnlyCollection<ulong>;
+                var memberIds = await _usersRepository.AsyncEnumerateIds(
+                        roleId: roleId)
+                    .ToArrayAsync(cancellationToken);
+                UsersLogMessages.RoleMemberIdsFetched(_logger, memberIds);
+
+                return memberIds;
             });
 
         public async Task TrackUserAsync(
@@ -114,11 +135,15 @@ namespace Sokan.Yastah.Business.Users
             string avatarHash,
             CancellationToken cancellationToken)
         {
+            using var logScope = _logger.BeginMemberScope();
+            UsersLogMessages.UserTracking(_logger, userId, username, discriminator, avatarHash);
+
             using var transactionScope = _transactionScopeFactory.CreateScope();
+            TransactionsLogMessages.TransactionScopeCreated(_logger);
             
             var now = _systemClock.UtcNow;
 
-            var result = await _usersRepository.MergeAsync(
+            var mergeResult = await _usersRepository.MergeAsync(
                 userId,
                 username,
                 discriminator,
@@ -127,45 +152,65 @@ namespace Sokan.Yastah.Business.Users
                 lastSeen: now,
                 cancellationToken);
 
-            if (result.RowsInserted > 0)
+            if (mergeResult.RowsInserted > 0)
             {
+                UsersLogMessages.UserCreated(_logger, userId);
+
                 var actionId = await _administrationActionsRepository.CreateAsync(
                     (int)UserManagementAdministrationActionType.UserCreated,
                     now,
                     userId,
                     cancellationToken);
+                AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
 
                 var defaultPermissionIds = await _usersRepository
                         .AsyncEnumerateDefaultPermissionIds()
                     .ToArrayAsync(cancellationToken);
+                UsersLogMessages.DefaultPermissionIdsFetched(_logger, defaultPermissionIds);
 
                 if (defaultPermissionIds.Any())
-                    await _usersRepository.CreatePermissionMappingsAsync(
+                {
+                    UsersLogMessages.UserPermissionMappingsCreating(_logger, userId, defaultPermissionIds, PermissionMappingType.Granted);
+                    var mappingIds = await _usersRepository.CreatePermissionMappingsAsync(
                         userId,
                         defaultPermissionIds,
                         PermissionMappingType.Granted,
                         actionId,
                         cancellationToken);
+                    UsersLogMessages.UserPermissionMappingsCreated(_logger, userId, mappingIds);
+                }
 
                 var defaultRoleIds = await _usersRepository
                         .AsyncEnumerateDefaultRoleIds()
                     .ToArrayAsync(cancellationToken);
+                UsersLogMessages.DefaultRoleIdsFetched(_logger, defaultRoleIds);
 
                 if (defaultRoleIds.Any())
-                    await _usersRepository.CreateRoleMappingsAsync(
+                {
+                    UsersLogMessages.UserRoleMappingsCreating(_logger, userId, defaultRoleIds);
+                    var mappingIds = await _usersRepository.CreateRoleMappingsAsync(
                         userId,
                         defaultRoleIds,
                         actionId,
                         cancellationToken);
+                    UsersLogMessages.UserRoleMappingsCreated(_logger, userId, mappingIds);
+                }
 
+                UsersLogMessages.UserInitializingNotificationPublishing(_logger, userId);
                 await _messenger.PublishNotificationAsync(
                     new UserInitializingNotification(
                         userId,
                         actionId),
                     cancellationToken);
+                UsersLogMessages.UserInitializingNotificationPublished(_logger, userId);
             }
+            else
+                UsersLogMessages.UserUpdated(_logger, userId);
 
+            TransactionsLogMessages.TransactionScopeCommitting(_logger);
             transactionScope.Complete();
+
+            UsersLogMessages.UserTracked(_logger, userId);
         }
 
         public async Task<OperationResult> UpdateAsync(
@@ -174,19 +219,35 @@ namespace Sokan.Yastah.Business.Users
             ulong performedById,
             CancellationToken cancellationToken)
         {
-            using var transactionScope = _transactionScopeFactory.CreateScope();
+            using var logScope = _logger.BeginMemberScope();
+            UsersLogMessages.UserUpdating(_logger, userId, updateModel, performedById);
 
+            using var transactionScope = _transactionScopeFactory.CreateScope();
+            TransactionsLogMessages.TransactionScopeCreated(_logger);
+
+            var permissionIds = Enumerable.Union(
+                    updateModel.GrantedPermissionIds,
+                    updateModel.DeniedPermissionIds)
+                .ToArray();
+            UsersLogMessages.PermissionIdsValidating(_logger, permissionIds);
             var permissionIdsValidationResult = await _permissionsService.ValidateIdsAsync(
-                updateModel.GrantedPermissionIds
-                    .Union(updateModel.DeniedPermissionIds)
-                    .ToArray(),
+                permissionIds,
                 cancellationToken);
             if (permissionIdsValidationResult.IsFailure)
+            {
+                UsersLogMessages.PermissionIdsValidationFailed(_logger, permissionIdsValidationResult);
                 return permissionIdsValidationResult;
+            }
+            UsersLogMessages.PermissionIdsValidationSucceeded(_logger);
 
+            UsersLogMessages.RoleIdsValidating(_logger, updateModel.AssignedRoleIds);
             var assignedRoleIdsValidationResult = await _rolesService.ValidateIdsAsync(updateModel.AssignedRoleIds, cancellationToken);
             if (assignedRoleIdsValidationResult.IsFailure)
+            {
+                UsersLogMessages.RoleIdsValidationFailed(_logger, assignedRoleIdsValidationResult);
                 return assignedRoleIdsValidationResult;
+            }
+            UsersLogMessages.RoleIdsValidationSucceeded(_logger);
 
             var now = _systemClock.UtcNow;
 
@@ -195,6 +256,7 @@ namespace Sokan.Yastah.Business.Users
                 now,
                 performedById,
                 cancellationToken);
+            AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
 
             var anyChanges = false;
 
@@ -202,8 +264,10 @@ namespace Sokan.Yastah.Business.Users
                     userId: userId,
                     isDeleted: false)
                 .ToArrayAsync(cancellationToken);
+            UsersLogMessages.UserPermissionMappingIdentitiesFetched(_logger, userId);
 
             anyChanges |= await HandleRemovedPermissionMappings(
+                userId,
                 permissionMappings,
                 updateModel.GrantedPermissionIds,
                 updateModel.DeniedPermissionIds,
@@ -228,8 +292,10 @@ namespace Sokan.Yastah.Business.Users
                     userId: userId,
                     isDeleted: false)
                 .ToArrayAsync(cancellationToken);
+            UsersLogMessages.UserRoleMappingIdentitiesFetched(_logger, userId);
 
             anyChanges |= await HandleRemovedRoleMappings(
+                userId,
                 roleMappings,
                 updateModel.AssignedRoleIds,
                 actionId,
@@ -243,16 +309,23 @@ namespace Sokan.Yastah.Business.Users
                 cancellationToken);
 
             if (!anyChanges)
+            {
+                UsersLogMessages.UserUpdateNoChangesGiven(_logger, userId);
                 return new NoChangesGivenError($"User ID {userId}");
+            }
 
+            UsersLogMessages.UserUpdatingNotificationPublishing(_logger, userId);
             await _messenger.PublishNotificationAsync(
                 new UserUpdatingNotification(
                     userId,
                     actionId),
                 cancellationToken);
-
+            UsersLogMessages.UserUpdatingNotificationPublished(_logger, userId);
+            
+            TransactionsLogMessages.TransactionScopeCommitting(_logger);
             transactionScope.Complete();
 
+            UsersLogMessages.UserUpdated(_logger, userId);
             return OperationResult.Success;
         }
 
@@ -270,12 +343,14 @@ namespace Sokan.Yastah.Business.Users
             if (!addedDeniedPermissionIds.Any())
                 return false;
 
-            await _usersRepository.CreatePermissionMappingsAsync(
+            UsersLogMessages.UserPermissionMappingsCreating(_logger, userId, addedDeniedPermissionIds, PermissionMappingType.Denied);
+            var mappingIds = await _usersRepository.CreatePermissionMappingsAsync(
                 userId,
                 addedDeniedPermissionIds,
                 PermissionMappingType.Denied,
                 actionId,
                 cancellationToken);
+            UsersLogMessages.UserPermissionMappingsCreated(_logger, userId, mappingIds);
 
             return true;
         }
@@ -294,12 +369,14 @@ namespace Sokan.Yastah.Business.Users
             if (!addedGrantedPermissionIds.Any())
                 return false;
 
-            await _usersRepository.CreatePermissionMappingsAsync(
+            UsersLogMessages.UserPermissionMappingsCreating(_logger, userId, addedGrantedPermissionIds, PermissionMappingType.Granted);
+            var mappingIds = await _usersRepository.CreatePermissionMappingsAsync(
                 userId,
                 addedGrantedPermissionIds,
                 PermissionMappingType.Granted,
                 actionId,
                 cancellationToken);
+            UsersLogMessages.UserPermissionMappingsCreated(_logger, userId, mappingIds);
 
             return true;
         }
@@ -318,19 +395,25 @@ namespace Sokan.Yastah.Business.Users
             if (!addedRoleIds.Any())
                 return false;
 
-            await _usersRepository.CreateRoleMappingsAsync(
+            UsersLogMessages.UserRoleMappingsCreating(_logger, userId, addedRoleIds);
+            var mappingIds = await _usersRepository.CreateRoleMappingsAsync(
                 userId,
                 addedRoleIds,
                 actionId,
                 cancellationToken);
+            UsersLogMessages.UserRoleMappingsCreated(_logger, userId, mappingIds);
 
             foreach (var roleId in addedRoleIds)
+            {
                 _memoryCache.Remove(MakeRoleMemberIdsCacheKey(roleId));
+                UsersLogMessages.RoleMemberIdsCacheCleared(_logger, roleId);
+            }
 
             return true;
         }
 
         private async Task<bool> HandleRemovedPermissionMappings(
+            ulong userId,
             IEnumerable<UserPermissionMappingIdentityViewModel> permissionMappings,
             IEnumerable<int> grantedPermissionIds,
             IEnumerable<int> deniedPermissionIds,
@@ -345,15 +428,18 @@ namespace Sokan.Yastah.Business.Users
             if (!removedPermissionMappingIds.Any())
                 return false;
 
+            UsersLogMessages.UserPermissionMappingsDeleting(_logger, userId, removedPermissionMappingIds);
             await _usersRepository.UpdatePermissionMappingsAsync(
                 removedPermissionMappingIds,
                 actionId,
                 cancellationToken);
+            UsersLogMessages.UserPermissionMappingsDeleted(_logger, userId, removedPermissionMappingIds);
 
             return true;
         }
 
         private async Task<bool> HandleRemovedRoleMappings(
+            ulong userId,
             IEnumerable<UserRoleMappingIdentityViewModel> roleMappings,
             IEnumerable<long> assignedRoleIds,
             long actionId,
@@ -366,14 +452,21 @@ namespace Sokan.Yastah.Business.Users
             if (!removedRoleMappings.Any())
                 return false;
 
+            var mappingIds = removedRoleMappings
+                .Select(x => x.Id);
+
+            UsersLogMessages.UserRoleMappingsDeleting(_logger, userId, mappingIds);
             await _usersRepository.UpdateRoleMappingsAsync(
-                removedRoleMappings
-                    .Select(x => x.Id),
+                mappingIds,
                 actionId,
                 cancellationToken);
+            UsersLogMessages.UserRoleMappingsDeleted(_logger, userId, mappingIds);
 
             foreach (var mapping in removedRoleMappings)
+            {
                 _memoryCache.Remove(MakeRoleMemberIdsCacheKey(mapping.RoleId));
+                UsersLogMessages.RoleMemberIdsCacheCleared(_logger, mapping.RoleId);
+            }
 
             return true;
         }
@@ -383,6 +476,7 @@ namespace Sokan.Yastah.Business.Users
 
         private readonly IAdministrationActionsRepository _administrationActionsRepository;
         private readonly IOptions<AuthorizationConfiguration> _authorizationConfigurationOptions;
+        private readonly ILogger _logger;
         private readonly IMemoryCache _memoryCache;
         private readonly IMessenger _messenger;
         private readonly IPermissionsService _permissionsService;

@@ -34,6 +34,7 @@ namespace Sokan.Yastah.Business.Test.Permissions
 
             public PermissionsService BuildUut()
                 => new PermissionsService(
+                    LoggerFactory.CreateLogger<PermissionsService>(),
                     MemoryCache,
                     MockPermissionsRepository.Object);
 

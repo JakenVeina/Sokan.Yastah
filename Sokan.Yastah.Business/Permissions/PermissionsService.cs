@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using Sokan.Yastah.Common.OperationModel;
 using Sokan.Yastah.Data;
@@ -30,53 +31,82 @@ namespace Sokan.Yastah.Business.Permissions
         : IPermissionsService
     {
         public PermissionsService(
+            ILogger<PermissionsService> logger,
             IMemoryCache memoryCache,
             IPermissionsRepository permissionsRepository)
         {
+            _logger = logger;
             _memoryCache = memoryCache;
             _permissionsRepository = permissionsRepository;
         }
 
         public ValueTask<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>> GetDescriptionsAsync(
                 CancellationToken cancellationToken)
-            => _memoryCache.OptimisticGetOrCreateAsync(_getDescriptionsCacheKey, async entry =>
+            => _memoryCache.OptimisticGetOrCreateAsync<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>>(_getDescriptionsCacheKey, async entry =>
             {
+                using var logScope = _logger.BeginMemberScope(nameof(GetDescriptionsAsync));
+                PermissionsLogMessages.PermissionCategoryDescriptionsFetching(_logger);
+
                 entry.Priority = CacheItemPriority.NeverRemove;
 
-                return await _permissionsRepository.AsyncEnumerateDescriptions()
-                        .ToArrayAsync(cancellationToken)
-                    as IReadOnlyCollection<PermissionCategoryDescriptionViewModel>;
+                var descriptions = await _permissionsRepository.AsyncEnumerateDescriptions()
+                    .ToArrayAsync(cancellationToken);
+                PermissionsLogMessages.PermissionCategoryDescriptionsFetched(_logger);
+
+                return descriptions;
             });
 
         public ValueTask<IReadOnlyCollection<PermissionIdentityViewModel>> GetIdentitiesAsync(
                 CancellationToken cancellationToken)
-            => _memoryCache.OptimisticGetOrCreateAsync(_getIdentitiesCacheKey, async entry =>
+            => _memoryCache.OptimisticGetOrCreateAsync<IReadOnlyCollection<PermissionIdentityViewModel>>(_getIdentitiesCacheKey, async entry =>
             {
+                using var logScope = _logger.BeginMemberScope(nameof(GetIdentitiesAsync));
+                PermissionsLogMessages.PermissionIdentitiesFetching(_logger);
+                
                 entry.Priority = CacheItemPriority.NeverRemove;
 
-                return await _permissionsRepository.AsyncEnumerateIdentities()
-                        .ToArrayAsync(cancellationToken)
-                    as IReadOnlyCollection<PermissionIdentityViewModel>;
+                var identities = await _permissionsRepository.AsyncEnumerateIdentities()
+                    .ToArrayAsync(cancellationToken);
+                PermissionsLogMessages.PermissionIdentitiesFetched(_logger);
+
+                return identities;
             });
 
         public async ValueTask<OperationResult> ValidateIdsAsync(
             IReadOnlyCollection<int> permissionIds,
             CancellationToken cancellationToken)
         {
+            using var logScope = _logger.BeginMemberScope();
+            PermissionsLogMessages.PermissionIdsValidating(_logger, permissionIds);
+
             if (!permissionIds.Any())
+            {
+                PermissionsLogMessages.PermissionIdsValidationSucceeded(_logger, permissionIds);
                 return OperationResult.Success;
+            }
 
             var invalidPermissionIds = permissionIds
                 .Except((await GetIdentitiesAsync(cancellationToken))
                 .Select(x => x.Id)).ToArray();
             
-            return invalidPermissionIds.Any()
-                ? ((invalidPermissionIds.Length == 1)
-                    ? new DataNotFoundError($"Permission ID {invalidPermissionIds.First()}")
-                    : new DataNotFoundError($"Permission IDs {string.Join(", ", invalidPermissionIds)}"))
-                : OperationResult.Success;
+            if (invalidPermissionIds.Length == 0)
+            {
+                PermissionsLogMessages.PermissionIdsValidationSucceeded(_logger, permissionIds);
+                return OperationResult.Success;
+            }
+            else if (invalidPermissionIds.Length == 1)
+            {
+                PermissionsLogMessages.PermissionIdsValidationFailed(_logger, invalidPermissionIds);
+                return new DataNotFoundError($"Permission ID {invalidPermissionIds.First()}");
+            }
+            else
+            {
+                PermissionsLogMessages.PermissionIdsValidationFailed(_logger, invalidPermissionIds);
+                return new DataNotFoundError($"Permission IDs {string.Join(", ", invalidPermissionIds)}");
+            }
         }
 
+        private readonly ILogger _logger;
         private readonly IMemoryCache _memoryCache;
         private readonly IPermissionsRepository _permissionsRepository;
 

@@ -20,7 +20,7 @@ namespace Sokan.Yastah.Business.Test.Permissions
         #region Test Context
 
         internal class TestContext
-            : AsyncMethodTestContext
+            : AsyncMethodWithLoggerTestContext
         {
             public TestContext()
             {
@@ -35,6 +35,7 @@ namespace Sokan.Yastah.Business.Test.Permissions
             public PermissionsOperations BuildUut()
                 => new PermissionsOperations(
                     MockAuthorizationService.Object,
+                    LoggerFactory.CreateLogger<PermissionsOperations>(),
                     MockPermissionsService.Object);
         }
 

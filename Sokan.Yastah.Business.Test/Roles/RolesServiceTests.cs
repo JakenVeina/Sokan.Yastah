@@ -83,6 +83,7 @@ namespace Sokan.Yastah.Business.Test.Roles
             public RolesService BuildUut()
                 => new RolesService(
                     MockAdministrationActionsRepository.Object,
+                    LoggerFactory.CreateLogger<RolesService>(),
                     MemoryCache,
                     MockMessenger.Object,
                     MockPermissionsService.Object,

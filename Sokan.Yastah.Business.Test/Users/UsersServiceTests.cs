@@ -97,6 +97,7 @@ namespace Sokan.Yastah.Business.Test.Users
                 => new UsersService(
                     MockAdministrationActionsRepository.Object,
                     MockAuthorizationConfigurationOptions.Object,
+                    LoggerFactory.CreateLogger<UsersService>(),
                     MemoryCache,
                     MockMessenger.Object,
                     MockPermissionsService.Object,

@@ -23,7 +23,7 @@ namespace Sokan.Yastah.Business.Test.Roles
         #region Test Context
 
         internal class TestContext
-            : AsyncMethodTestContext
+            : AsyncMethodWithLoggerTestContext
         {
             public TestContext()
             {
@@ -57,6 +57,7 @@ namespace Sokan.Yastah.Business.Test.Roles
                 => new RolesOperations(
                     MockAuthenticationService.Object,
                     MockAuthorizationService.Object,
+                    LoggerFactory.CreateLogger<RolesOperations>(),
                     MockRolesRepository.Object,
                     MockRolesService.Object);
 
