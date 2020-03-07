@@ -8,7 +8,7 @@ using Sokan.Yastah.Data.Permissions;
 
 namespace Sokan.Yastah.Business.Users
 {
-    public static class UsersLogMessages
+    internal static class UsersLogMessages
     {
         public static void UserNotFound(
                 ILogger logger,
