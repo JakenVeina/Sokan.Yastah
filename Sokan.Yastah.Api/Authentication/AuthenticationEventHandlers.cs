@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Newtonsoft.Json;
@@ -24,24 +25,39 @@ namespace Sokan.Yastah.Api.Authentication
 {
     public static class AuthenticationEventHandlers
     {
+        #region Publis Methods
+
         public static Task OnAuthenticationFailed(AuthenticationFailedContext context)
         {
+            var logger = GetLogger(context.HttpContext.RequestServices);
+            using var logScope = logger.BeginMemberScope();
+            AuthenticationLogMessages.AuthenticationFailureHandling(logger);
+
             var options = context.HttpContext.RequestServices.GetRequiredService<IOptions<ApiAuthenticationOptions>>().Value;
 
             context.Response.Cookies.Delete(options.TokenHeaderAndPayloadCookieKey);
+            AuthenticationLogMessages.AuthenticationTokenHeaderAndPayloadDetached(logger, options.TokenSignatureCookieKey);
             context.Response.Cookies.Delete(options.TokenSignatureCookieKey);
+            AuthenticationLogMessages.AuthenticationTokenSignatureDetached(logger, options.TokenSignatureCookieKey);
 
+            AuthenticationLogMessages.AuthenticationFailureHandled(logger);
             return Task.CompletedTask;
         }
 
         public static async Task OnCreatingTicket(OAuthCreatingTicketContext context)
         {
+            var logger = GetLogger(context.HttpContext.RequestServices);
+            using var logScope = logger.BeginMemberScope();
+            AuthenticationLogMessages.AuthenticationTicketCreationHandling(logger);
+
+            var userId = ulong.Parse(context.Identity.Claims
+                .First(x => x.Type == ClaimTypes.NameIdentifier)
+                .Value);
+
             var ticket = await context.HttpContext.RequestServices
                 .GetRequiredService<IAuthenticationService>()
                 .OnSignInAsync(
-                    userId: ulong.Parse(context.Identity.Claims
-                        .First(x => x.Type == ClaimTypes.NameIdentifier)
-                        .Value),
+                    userId: userId,
                     username: context.Identity.Claims
                         .First(x => x.Type == ClaimTypes.Name)
                         .Value,
@@ -55,37 +71,59 @@ namespace Sokan.Yastah.Api.Authentication
                     context.HttpContext.RequestAborted);
 
             if (ticket is null)
+            {
+                AuthenticationLogMessages.AuthenticationTicketNotIssued(logger, userId);
                 return;
+            }
+            AuthenticationLogMessages.AuthenticationTicketCreated(logger, ticket);
 
             context.Identity.AddClaim(new Claim(
                 ApiAuthenticationDefaults.TicketIdClaimType,
                 ticket.Id.ToString(),
                 ClaimValueTypes.Integer64));
+            AuthenticationLogMessages.AuthenticationTicketIdClaimAdded(logger, ticket.Id);
 
             context.Identity.AddClaim(new Claim(
                 ApiAuthenticationDefaults.PermissionsClaimType,
                 JsonConvert.SerializeObject(ticket.GrantedPermissions, _jsonSerializerSettings),
                 JsonClaimValueTypes.Json));
+            AuthenticationLogMessages.GrantedPermissionsClaimAdded(logger, ticket.GrantedPermissions);
+
+            AuthenticationLogMessages.AuthenticationTicketCreationHandled(logger);
         }
 
         public static Task OnMessageReceived(MessageReceivedContext context)
         {
+            var logger = GetLogger(context.HttpContext.RequestServices);
+            using var logScope = logger.BeginMemberScope();
+            AuthenticationLogMessages.HttpMessageReceiptHandling(logger);
+
             var options = context.HttpContext.RequestServices.GetRequiredService<IOptions<ApiAuthenticationOptions>>().Value;
             var cookies = context.Request.Cookies;
 
             if(cookies.TryGetValue(options.TokenHeaderAndPayloadCookieKey, out var tokenHeaderAndPayload)
                     && cookies.TryGetValue(options.TokenSignatureCookieKey, out var tokenSignature))
+            {
                 context.Token = $"{tokenHeaderAndPayload}.{tokenSignature}";
+                AuthenticationLogMessages.AuthenticationTokenExtracted(logger, context.Token);
+            }
+            AuthenticationLogMessages.AuthenticationTokenNotFound(logger, options.TokenHeaderAndPayloadCookieKey, options.TokenSignatureCookieKey);
 
+            AuthenticationLogMessages.HttpMessageReceiptHandled(logger);
             return Task.CompletedTask;
         }
 
         public static async Task OnTokenValidated(TokenValidatedContext context)
         {
+            var logger = GetLogger(context.HttpContext.RequestServices);
+            using var logScope = logger.BeginMemberScope();
+            AuthenticationLogMessages.AuthenticationTokenValidationHandling(logger, context.SecurityToken);
+
             var jwtSecurityToken = (JwtSecurityToken)context.SecurityToken;
 
             var ticketId = (long)jwtSecurityToken.Payload[ApiAuthenticationDefaults.TicketIdClaimType];
 
+            AuthenticationLogMessages.AuthenticationPerforming(logger, ticketId);
             var ticket = await context.HttpContext.RequestServices
                 .GetRequiredService<IAuthenticationService>()
                 .OnAuthenticatedAsync(
@@ -98,11 +136,14 @@ namespace Sokan.Yastah.Api.Authentication
                     grantedPermissions: ((JObject)jwtSecurityToken.Payload[ApiAuthenticationDefaults.PermissionsClaimType])
                         .ToObject<Dictionary<int, string>>(),
                     context.HttpContext.RequestAborted);
+            AuthenticationLogMessages.AuthenticationPerformed(logger, ticket);
 
             var renewSignIn = ticket.Id != ticketId;
 
             if(!renewSignIn)
             {
+                AuthenticationLogMessages.AuthenticationTokenExpirationValidating(logger, jwtSecurityToken.ValidFrom);
+                
                 var options = context.HttpContext.RequestServices.GetRequiredService<IOptions<ApiAuthenticationOptions>>().Value;
                 var now = context.HttpContext.RequestServices.GetRequiredService<ISystemClock>().UtcNow;
 
@@ -111,6 +152,8 @@ namespace Sokan.Yastah.Api.Authentication
 
             if (renewSignIn)
             {
+                AuthenticationLogMessages.AuthenticationTokenRenewing(logger);
+
                 var identity = context.Principal.Identities.First();
                 identity.RemoveClaim(identity.FindFirst(ApiAuthenticationDefaults.TicketIdClaimType));
                 identity.AddClaim(new Claim(
@@ -119,8 +162,20 @@ namespace Sokan.Yastah.Api.Authentication
                     ClaimValueTypes.Integer64));
 
                 await context.HttpContext.SignInAsync(ApiAuthenticationDefaults.AuthenticationScheme, context.Principal);
+                AuthenticationLogMessages.AuthenticationTokenRenewed(logger);
             }
+
+            AuthenticationLogMessages.AuthenticationTokenValidationHandled(logger);
         }
+
+        #endregion Publis Methods
+
+        #region Private Methods
+
+        private static ILogger GetLogger(
+                IServiceProvider serviceProvider)
+            => serviceProvider.GetRequiredService<ILoggerFactory>()
+                .CreateLogger(nameof(AuthenticationEventHandlers));
 
         private static async Task<IEnumerable<ulong>> GetGuildIds(
             OAuthCreatingTicketContext context,
@@ -141,10 +196,16 @@ namespace Sokan.Yastah.Api.Authentication
                     .Property("id").Value.ToString()));
         }
 
+        #endregion Private Methods
+
+        #region State
+
         private static readonly JsonSerializerSettings _jsonSerializerSettings
             = new JsonSerializerSettings()
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             };
+
+        #endregion State
     }
 }

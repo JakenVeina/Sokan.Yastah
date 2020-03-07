@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 using Sokan.Yastah.Business.Roles;
 
@@ -9,10 +10,18 @@ namespace Sokan.Yastah.Api.Admin
     public class RolesController
         : AdminControllerBase
     {
+        #region Construction
+
         public RolesController(
-                IRolesOperations rolesOperations)
+                    ILogger<RolesController> logger,
+                    IRolesOperations rolesOperations)
+                : base(logger)
             => _rolesOperations = rolesOperations;
 
+        #endregion Construction
+
+        #region Actions
+        
         [HttpPost(DefaultAreaActionRouteTemplate)]
         public async Task<IActionResult> New(
                 [FromBody]RoleCreationModel body)
@@ -48,6 +57,12 @@ namespace Sokan.Yastah.Api.Admin
                 updateModel: body,
                 cancellationToken: HttpContext.RequestAborted));
 
+        #endregion Actions
+        
+        #region State
+        
         private readonly IRolesOperations _rolesOperations;
+
+        #endregion State
     }
 }

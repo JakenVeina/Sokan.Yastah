@@ -1,12 +1,23 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 
 namespace Sokan.Yastah.Api.Authentication
 {
-    public class AuthenticationController
+    public sealed class AuthenticationController
         : ApiControllerBase
     {
+        #region Construction
+
+        public AuthenticationController(
+                ILogger<AuthenticationController> logger)
+            : base(logger) { }
+
+        #endregion Construction
+
+        #region Actions
+
         [HttpGet(DefaultActionRouteTemplate)]
         new public IActionResult Challenge()
         {
@@ -26,5 +37,7 @@ namespace Sokan.Yastah.Api.Authentication
 
             return SignOut(properties, ApiAuthenticationDefaults.AuthenticationScheme);
         }
+
+        #endregion Actions
     }
 }

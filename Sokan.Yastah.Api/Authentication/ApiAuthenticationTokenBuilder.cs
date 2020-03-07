@@ -4,6 +4,7 @@ using System.Text;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -18,10 +19,14 @@ namespace Sokan.Yastah.Api.Authentication
     public class ApiAuthenticationTokenBuilder
         : IApiAuthenticationTokenBuilder
     {
+        #region Construction
+
         public ApiAuthenticationTokenBuilder(
+            ILogger<ApiAuthenticationTokenBuilder> logger,
             IOptions<ApiAuthenticationOptions> options,
             ISystemClock systemClock)
         {
+            _logger = logger;
             _options = options;
             _systemClock = systemClock;
 
@@ -33,21 +38,38 @@ namespace Sokan.Yastah.Api.Authentication
                 SecurityAlgorithms.HmacSha256Signature);
         }
 
+        #endregion Construction
+
+        #region IApiAuthenticationTokenBuilder
+
         public JwtSecurityToken BuildToken(ClaimsIdentity identity)
         {
+            var expires = _systemClock.UtcNow.UtcDateTime + _options.Value.TokenLifetime;
+
+            AuthenticationLogMessages.AuthenticationTokenBuilding(_logger, identity, expires);
             var descriptor = new SecurityTokenDescriptor()
             {
                 Subject = identity,
                 SigningCredentials = _signingCredentials,
-                Expires = _systemClock.UtcNow.UtcDateTime + _options.Value.TokenLifetime
+                Expires = expires
             };
 
-            return _tokenHandler.CreateJwtSecurityToken(descriptor);
+            var token = _tokenHandler.CreateJwtSecurityToken(descriptor);
+            AuthenticationLogMessages.AuthenticationTokenBuilt(_logger, token);
+
+            return token;
         }
 
+        #endregion IApiAuthenticationTokenBuilder
+
+        #region State
+
         private readonly JwtSecurityTokenHandler _tokenHandler;
+        private readonly ILogger _logger;
         private readonly IOptions<ApiAuthenticationOptions> _options;
         private readonly SigningCredentials _signingCredentials;
         private readonly ISystemClock _systemClock;
+
+        #endregion State
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 using Sokan.Yastah.Business.Characters;
 
@@ -9,9 +10,17 @@ namespace Sokan.Yastah.Api.Characters
     public class DivisionsController
         : CharactersControllerBase
     {
+        #region Construction
+
         public DivisionsController(
-                ICharacterGuildDivisionsOperations characterGuildDivisionsOperations)
+                    ICharacterGuildDivisionsOperations characterGuildDivisionsOperations,
+                    ILogger<DivisionsController> logger)
+                : base(logger)
             => _characterGuildDivisionsOperations = characterGuildDivisionsOperations;
+
+        #endregion Construction
+
+        #region Actions
 
         [HttpPost("{prefix}/[area]/guilds/{guildId}/[controller]/[action]")]
         public async Task<IActionResult> New(
@@ -49,6 +58,12 @@ namespace Sokan.Yastah.Api.Characters
                 updateModel: body,
                 cancellationToken: HttpContext.RequestAborted));
 
+        #endregion Actions
+
+        #region State
+
         private readonly ICharacterGuildDivisionsOperations _characterGuildDivisionsOperations;
+
+        #endregion State
     }
 }
