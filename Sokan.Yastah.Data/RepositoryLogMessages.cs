@@ -7,18 +7,14 @@ namespace Sokan.Yastah.Data
 {
     internal static class RepositoryLogMessages
     {
-        public static void QueryInitializing<T>(
-                ILogger logger,
-                IQueryable<T> query)
-            => _queryInitializing.Invoke(
-                logger,
-                query);
-        private static readonly Action<ILogger, IQueryable> _queryInitializing
-            = LoggerMessage.Define<IQueryable>(
-                    LogLevel.Debug,
-                    new EventId(4101, nameof(QueryInitializing)),
-                    "Initializing query: {Query}")
-                .WithoutException();
+        public enum EventType
+        {
+            QueryInitializing       = DataLogEventType.Repositories + 0x0001,
+            QueryAddingWhereClause  = DataLogEventType.Repositories + 0x0002,
+            QueryTerminating        = DataLogEventType.Repositories + 0x0003,
+            QueryBuilt              = DataLogEventType.Repositories + 0x0004,
+            QueryExecuting          = DataLogEventType.Repositories + 0x0005
+        }
 
         public static void QueryAddingWhereClause(
                 ILogger logger,
@@ -29,19 +25,8 @@ namespace Sokan.Yastah.Data
         private static readonly Action<ILogger, string> _queryAddingWhereClause
             = LoggerMessage.Define<string>(
                     LogLevel.Debug,
-                    new EventId(4102, nameof(QueryAddingWhereClause)),
+                    EventType.QueryAddingWhereClause.ToEventId(),
                     $"Adding {nameof(Queryable.Where)} clause: {{ClauseName}}")
-                .WithoutException();
-
-        public static void QueryTerminating(
-                ILogger logger)
-            => _queryTerminating.Invoke(
-                logger);
-        private static readonly Action<ILogger> _queryTerminating
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    new EventId(4103, nameof(QueryTerminating)),
-                    "Terminating query")
                 .WithoutException();
 
         public static void QueryBuilt(
@@ -51,7 +36,7 @@ namespace Sokan.Yastah.Data
         private static readonly Action<ILogger> _queryBuilt
             = LoggerMessage.Define(
                     LogLevel.Debug,
-                    new EventId(4104, nameof(QueryBuilt)),
+                    EventType.QueryBuilt.ToEventId(),
                     "Query built successfully")
                 .WithoutException();
 
@@ -62,8 +47,32 @@ namespace Sokan.Yastah.Data
         private static readonly Action<ILogger> _queryExecuting
             = LoggerMessage.Define(
                     LogLevel.Debug,
-                    new EventId(4105, nameof(QueryExecuting)),
+                    EventType.QueryExecuting.ToEventId(),
                     "Executing query")
+                .WithoutException();
+
+        public static void QueryInitializing<T>(
+                ILogger logger,
+                IQueryable<T> query)
+            => _queryInitializing.Invoke(
+                logger,
+                query);
+        private static readonly Action<ILogger, IQueryable> _queryInitializing
+            = LoggerMessage.Define<IQueryable>(
+                    LogLevel.Debug,
+                    EventType.QueryInitializing.ToEventId(),
+                    "Initializing query: {Query}")
+                .WithoutException();
+
+        public static void QueryTerminating(
+                ILogger logger)
+            => _queryTerminating.Invoke(
+                logger);
+        private static readonly Action<ILogger> _queryTerminating
+            = LoggerMessage.Define(
+                    LogLevel.Debug,
+                    EventType.QueryTerminating.ToEventId(),
+                    "Terminating query")
                 .WithoutException();
     }
 }

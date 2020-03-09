@@ -10,30 +10,136 @@ namespace Sokan.Yastah.Business.Users
 {
     internal static class UsersLogMessages
     {
-        public static void UserNotFound(
+        public enum EventType
+        {
+            GrantedPermissionIdentitiesFetching     = BusinessLogEventType.Users + 0x0001,
+            GrantedPermissionIdentitiesFetched      = BusinessLogEventType.Users + 0x0002,
+            UserIsAdmin                             = BusinessLogEventType.Users + 0x0003,
+            UserNotFound                            = BusinessLogEventType.Users + 0x0004,
+            UserFound                               = BusinessLogEventType.Users + 0x0005,
+            RoleMemberIdsFetching                   = BusinessLogEventType.Users + 0x0006,
+            RoleMemberIdsFetched                    = BusinessLogEventType.Users + 0x0007,
+            UserTracking                            = BusinessLogEventType.Users + 0x0008,
+            UserTracked                             = BusinessLogEventType.Users + 0x0009,
+            UserCreated                             = BusinessLogEventType.Users + 0x000A,
+            DefaultPermissionIdsFetching            = BusinessLogEventType.Users + 0x000B,
+            DefaultPermissionIdsFetched             = BusinessLogEventType.Users + 0x000C,
+            DefaultRoleIdsFetching                  = BusinessLogEventType.Users + 0x000D,
+            DefaultRoleIdsFetched                   = BusinessLogEventType.Users + 0x000E,
+            UserInitializingNotificationPublishing  = BusinessLogEventType.Users + 0x000F,
+            UserInitializingNotificationPublished   = BusinessLogEventType.Users + 0x0010,
+            UserUpdating                            = BusinessLogEventType.Users + 0x0011,
+            UserUpdateNoChangesGiven                = BusinessLogEventType.Users + 0x0012,
+            UserUpdated                             = BusinessLogEventType.Users + 0x0013,
+            PermissionIdsValidating                 = BusinessLogEventType.Users + 0x0014,
+            PermissionIdsValidationFailed           = BusinessLogEventType.Users + 0x0015,
+            PermissionIdsValidationSucceeded        = BusinessLogEventType.Users + 0x0016,
+            RoleIdsValidating                       = BusinessLogEventType.Users + 0x0017,
+            RoleIdsValidationFailed                 = BusinessLogEventType.Users + 0x0018,
+            RoleIdsValidationSucceeded              = BusinessLogEventType.Users + 0x0019,
+            UserPermissionMappingIdentitiesFetching = BusinessLogEventType.Users + 0x001A,
+            UserPermissionMappingIdentitiesFetched  = BusinessLogEventType.Users + 0x001B,
+            UserRoleMappingIdentitiesFetching       = BusinessLogEventType.Users + 0x001C,
+            UserRoleMappingIdentitiesFetched        = BusinessLogEventType.Users + 0x001D,
+            RoleMemberIdsCacheCleared               = BusinessLogEventType.Users + 0x001E,
+            UserUpdatingNotificationPublishing      = BusinessLogEventType.Users + 0x001F,
+            UserPermissionMappingsCreating          = BusinessLogEventType.Users + 0x0021,
+            UserUpdatingNotificationPublished       = BusinessLogEventType.Users + 0x0020,
+            UserPermissionMappingsCreated           = BusinessLogEventType.Users + 0x0022,
+            UserPermissionMappingsDeleting          = BusinessLogEventType.Users + 0x0023,
+            UserPermissionMappingsDeleted           = BusinessLogEventType.Users + 0x0024,
+            UserRoleMappingsCreating                = BusinessLogEventType.Users + 0x0025,
+            UserRoleMappingsCreated                 = BusinessLogEventType.Users + 0x0026,
+            UserRoleMappingsDeleting                = BusinessLogEventType.Users + 0x0027,
+            UserRoleMappingsDeleted                 = BusinessLogEventType.Users + 0x0028
+        }
+
+
+        public static void DefaultPermissionIdsFetched(
                 ILogger logger,
-                ulong userId)
-            => _userNotFound.Invoke(
+                IEnumerable<int> permissionIds)
+            => _defaultPermissionIdsFetched.Invoke(
                 logger,
-                userId);
-        private static readonly Action<ILogger, ulong> _userNotFound
-            = LoggerMessage.Define<ulong>(
-                    LogLevel.Warning,
-                    new EventId(2001, nameof(UserNotFound)),
-                    "User not found: {UserId}")
+                permissionIds);
+        private static readonly Action<ILogger, IEnumerable<int>> _defaultPermissionIdsFetched
+            = LoggerMessage.Define<IEnumerable<int>>(
+                    LogLevel.Debug,
+                    EventType.DefaultPermissionIdsFetched.ToEventId(),
+                    "DefaultPermissionMapping IDs fetched:\r\n\tPermissionIds: {PermissionIds}")
                 .WithoutException();
 
-        public static void UserUpdateNoChangesGiven(
+        public static void DefaultPermissionIdsFetching(
+                ILogger logger)
+            => _defaultPermissionIdsFetching.Invoke(
+                logger);
+        private static readonly Action<ILogger> _defaultPermissionIdsFetching
+            = LoggerMessage.Define(
+                    LogLevel.Debug,
+                    EventType.DefaultPermissionIdsFetching.ToEventId(),
+                    "Fetching DefaultPermissionMapping IDs")
+                .WithoutException();
+
+        public static void DefaultRoleIdsFetched(
+                ILogger logger,
+                IEnumerable<long> roleIds)
+            => _defaultRoleIdsFetched.Invoke(
+                logger,
+                roleIds);
+        private static readonly Action<ILogger, IEnumerable<long>> _defaultRoleIdsFetched
+            = LoggerMessage.Define<IEnumerable<long>>(
+                    LogLevel.Debug,
+                    EventType.DefaultRoleIdsFetched.ToEventId(),
+                    "DefaultRoleMapping IDs fetched:\r\n\tRoleIds: {RoleIds}")
+                .WithoutException();
+
+        public static void DefaultRoleIdsFetching(
+                ILogger logger)
+            => _defaultRoleIdsFetching.Invoke(
+                logger);
+        private static readonly Action<ILogger> _defaultRoleIdsFetching
+            = LoggerMessage.Define(
+                    LogLevel.Debug,
+                    EventType.DefaultRoleIdsFetching.ToEventId(),
+                    "Fetching DefaultRoleMapping IDs")
+                .WithoutException();
+
+        public static void GrantedPermissionIdentitiesFetched(
                 ILogger logger,
                 ulong userId)
-            => _userUpdateNoChangesGiven.Invoke(
+            => _grantedPermissionIdentitiesFetched.Invoke(
                 logger,
                 userId);
-        private static readonly Action<ILogger, ulong> _userUpdateNoChangesGiven
+        private static readonly Action<ILogger, ulong> _grantedPermissionIdentitiesFetched
             = LoggerMessage.Define<ulong>(
-                    LogLevel.Warning,
-                    new EventId(2002, nameof(UserUpdateNoChangesGiven)),
-                    "User update failed: No changes given:\r\n\tUserId: {UserId}")
+                    LogLevel.Debug,
+                    EventType.GrantedPermissionIdentitiesFetched.ToEventId(),
+                    "Granted Permission IDs fetched:\r\n\tUserId: {UserId}")
+                .WithoutException();
+
+        public static void GrantedPermissionIdentitiesFetching(
+                ILogger logger,
+                ulong userId)
+            => _grantedPermissionIdentitiesFetching.Invoke(
+                logger,
+                userId);
+        private static readonly Action<ILogger, ulong> _grantedPermissionIdentitiesFetching
+            = LoggerMessage.Define<ulong>(
+                    LogLevel.Debug,
+                    EventType.GrantedPermissionIdentitiesFetching.ToEventId(),
+                    "Fetching Granted Permission IDs:\r\n\tRoleId: {RoleId}")
+                .WithoutException();
+
+        public static void PermissionIdsValidating(
+                ILogger logger,
+                IEnumerable<int> permissionIds)
+            => _permissionIdsValidating.Invoke(
+                logger,
+                permissionIds);
+        private static readonly Action<ILogger, IEnumerable<int>> _permissionIdsValidating
+            = LoggerMessage.Define<IEnumerable<int>>(
+                    LogLevel.Debug,
+                    EventType.PermissionIdsValidating.ToEventId(),
+                    "Permission IDs validation succeded:\r\n\tPermissionIds: {PermissionIds}")
                 .WithoutException();
 
         public static void PermissionIdsValidationFailed(
@@ -45,8 +151,32 @@ namespace Sokan.Yastah.Business.Users
         private static readonly Action<ILogger, OperationResult> _permissionIdsValidationFailed
             = LoggerMessage.Define<OperationResult>(
                     LogLevel.Warning,
-                    new EventId(2003, nameof(PermissionIdsValidationFailed)),
+                    EventType.PermissionIdsValidationFailed.ToEventId(),
                     "Permission IDs validation failed:\r\n\tValidationResult: {ValidationResult}")
+                .WithoutException();
+
+        public static void PermissionIdsValidationSucceeded(
+                ILogger logger)
+            => _permissionIdsValidationSucceeded.Invoke(
+                logger);
+        private static readonly Action<ILogger> _permissionIdsValidationSucceeded
+            = LoggerMessage.Define(
+                    LogLevel.Debug,
+                    EventType.PermissionIdsValidationSucceeded.ToEventId(),
+                    "Permission IDs validation succeded")
+                .WithoutException();
+
+        public static void RoleIdsValidating(
+                ILogger logger,
+                IEnumerable<long> roleIds)
+            => _roleIdsValidating.Invoke(
+                logger,
+                roleIds);
+        private static readonly Action<ILogger, IEnumerable<long>> _roleIdsValidating
+            = LoggerMessage.Define<IEnumerable<long>>(
+                    LogLevel.Debug,
+                    EventType.RoleIdsValidating.ToEventId(),
+                    "Role IDs validation succeded:\r\n\tRoleIds: {RoleIds}")
                 .WithoutException();
 
         public static void RoleIdsValidationFailed(
@@ -58,8 +188,322 @@ namespace Sokan.Yastah.Business.Users
         private static readonly Action<ILogger, OperationResult> _roleIdsValidationFailed
             = LoggerMessage.Define<OperationResult>(
                     LogLevel.Warning,
-                    new EventId(2004, nameof(RoleIdsValidationFailed)),
+                    EventType.RoleIdsValidationFailed.ToEventId(),
                     "Role IDs validation failed:\r\n\tValidationResult: {ValidationResult}")
+                .WithoutException();
+
+        public static void RoleIdsValidationSucceeded(
+                ILogger logger)
+            => _roleIdsValidationSucceeded.Invoke(
+                logger);
+        private static readonly Action<ILogger> _roleIdsValidationSucceeded
+            = LoggerMessage.Define(
+                    LogLevel.Debug,
+                    EventType.RoleIdsValidationSucceeded.ToEventId(),
+                    "Role IDs validation succeded")
+                .WithoutException();
+
+        public static void RoleMemberIdsCacheCleared(
+                ILogger logger,
+                long roleId)
+            => _roleMemberIdsCacheCleared.Invoke(
+                logger,
+                roleId);
+        private static readonly Action<ILogger, long> _roleMemberIdsCacheCleared
+            = LoggerMessage.Define<long>(
+                    LogLevel.Debug,
+                    EventType.RoleMemberIdsCacheCleared.ToEventId(),
+                    "Role member IDs cache cleared:\r\n\tRoleId: {RoleId}")
+                .WithoutException();
+
+        public static void RoleMemberIdsFetched(
+                ILogger logger,
+                IEnumerable<ulong> memberIds)
+            => _roleMemberIdsFetched.Invoke(
+                logger,
+                memberIds);
+        private static readonly Action<ILogger, IEnumerable<ulong>> _roleMemberIdsFetched
+            = LoggerMessage.Define<IEnumerable<ulong>>(
+                    LogLevel.Debug,
+                    EventType.RoleMemberIdsFetched.ToEventId(),
+                    "Role member IDs fetched:\r\n\tMemberIds: {MemberIds}")
+                .WithoutException();
+
+        public static void RoleMemberIdsFetching(
+                ILogger logger,
+                long roleId)
+            => _roleMemberIdsFetching.Invoke(
+                logger,
+                roleId);
+        private static readonly Action<ILogger, long> _roleMemberIdsFetching
+            = LoggerMessage.Define<long>(
+                    LogLevel.Debug,
+                    EventType.RoleMemberIdsFetching.ToEventId(),
+                    "Fetching Role member IDs:\r\n\tRoleId: {RoleId}")
+                .WithoutException();
+
+        public static void UserCreated(
+                ILogger logger,
+                ulong userId)
+            => _userCreated.Invoke(
+                logger,
+                userId);
+        private static readonly Action<ILogger, ulong> _userCreated
+            = LoggerMessage.Define<ulong>(
+                    LogLevel.Debug,
+                    EventType.UserCreated.ToEventId(),
+                    "User created: {UserId}")
+                .WithoutException();
+        public static void UserFound(
+                ILogger logger,
+                ulong userId)
+            => _userFound.Invoke(
+                logger,
+                userId);
+        private static readonly Action<ILogger, ulong> _userFound
+            = LoggerMessage.Define<ulong>(
+                    LogLevel.Debug,
+                    EventType.UserFound.ToEventId(),
+                    "User found: {UserId}")
+                .WithoutException();
+
+        public static void UserInitializingNotificationPublished(
+                ILogger logger,
+                ulong userId)
+            => _userInitializingNotificationPublished.Invoke(
+                logger,
+                userId);
+        private static readonly Action<ILogger, ulong> _userInitializingNotificationPublished
+            = LoggerMessage.Define<ulong>(
+                    LogLevel.Debug,
+                    EventType.UserInitializingNotificationPublished.ToEventId(),
+                    $"{nameof(UserInitializingNotification)} published:\r\n\tUserId: {{UserId}}")
+                .WithoutException();
+
+        public static void UserInitializingNotificationPublishing(
+                ILogger logger,
+                ulong userId)
+            => _userInitializingNotificationPublishing.Invoke(
+                logger,
+                userId);
+        private static readonly Action<ILogger, ulong> _userInitializingNotificationPublishing
+            = LoggerMessage.Define<ulong>(
+                    LogLevel.Debug,
+                    EventType.UserInitializingNotificationPublishing.ToEventId(),
+                    $"Publishing {nameof(UserInitializingNotification)}:\r\n\tUserId: {{UserId}}")
+                .WithoutException();
+
+        public static void UserIsAdmin(
+                ILogger logger,
+                ulong userId)
+            => _userIsAdmin.Invoke(
+                logger,
+                userId);
+        private static readonly Action<ILogger, ulong> _userIsAdmin
+            = LoggerMessage.Define<ulong>(
+                    LogLevel.Debug,
+                    EventType.UserIsAdmin.ToEventId(),
+                    "User is administrator: skipping permissions lookup:\r\n\tUserId: {UserId}")
+                .WithoutException();
+
+        public static void UserNotFound(
+                ILogger logger,
+                ulong userId)
+            => _userNotFound.Invoke(
+                logger,
+                userId);
+        private static readonly Action<ILogger, ulong> _userNotFound
+            = LoggerMessage.Define<ulong>(
+                    LogLevel.Warning,
+                    EventType.UserNotFound.ToEventId(),
+                    "User not found: {UserId}")
+                .WithoutException();
+
+        public static void UserPermissionMappingIdentitiesFetched(
+                ILogger logger,
+                ulong userId)
+            => _userPermissionMappingIdentitiesFetched.Invoke(
+                logger,
+                userId);
+        private static readonly Action<ILogger, ulong> _userPermissionMappingIdentitiesFetched
+            = LoggerMessage.Define<ulong>(
+                    LogLevel.Debug,
+                    EventType.UserPermissionMappingIdentitiesFetched.ToEventId(),
+                    "UserPermissionMapping Identities fetched:\r\n\tUserId: {UserId}")
+                .WithoutException();
+
+        public static void UserPermissionMappingIdentitiesFetching(
+                ILogger logger,
+                ulong userId)
+            => _userPermissionMappingIdentitiesFetching.Invoke(
+                logger,
+                userId);
+        private static readonly Action<ILogger, ulong> _userPermissionMappingIdentitiesFetching
+            = LoggerMessage.Define<ulong>(
+                    LogLevel.Debug,
+                    EventType.UserPermissionMappingIdentitiesFetching.ToEventId(),
+                    "Fetching UserPermissionMapping Identities:\r\n\tUserId: {UserId}")
+                .WithoutException();
+
+        public static void UserPermissionMappingsCreated(
+                ILogger logger,
+                ulong userId,
+                IEnumerable<long> mappingIds)
+            => _userPermissionMappingsCreated.Invoke(
+                logger,
+                userId,
+                mappingIds);
+        private static readonly Action<ILogger, ulong, IEnumerable<long>> _userPermissionMappingsCreated
+            = LoggerMessage.Define<ulong, IEnumerable<long>>(
+                    LogLevel.Debug,
+                    EventType.UserPermissionMappingsCreated.ToEventId(),
+                    "UserPermissionMapping range created:\r\n\tUserId: {UserId}\r\n\tMappingIds: {MappingIds}")
+                .WithoutException();
+
+        public static void UserPermissionMappingsCreating(
+                ILogger logger,
+                ulong userId,
+                IEnumerable<int> permissionIds,
+                PermissionMappingType mappingType)
+            => _userPermissionMappingsCreating.Invoke(
+                logger,
+                userId,
+                permissionIds,
+                mappingType);
+        private static readonly Action<ILogger, ulong, IEnumerable<int>, PermissionMappingType> _userPermissionMappingsCreating
+            = LoggerMessage.Define<ulong, IEnumerable<int>, PermissionMappingType>(
+                    LogLevel.Debug,
+                    EventType.UserPermissionMappingsCreating.ToEventId(),
+                    "Creating UserPermissionMapping range:\r\n\tUserId: {UserId}\r\n\tPermissionIds: {PermissionIds}\r\n\tMappingType: {MappingType}")
+                .WithoutException();
+
+        public static void UserPermissionMappingsDeleted(
+                ILogger logger,
+                ulong userId,
+                IEnumerable<long> mappingIds)
+            => _userPermissionMappingsDeleted.Invoke(
+                logger,
+                userId,
+                mappingIds);
+        private static readonly Action<ILogger, ulong, IEnumerable<long>> _userPermissionMappingsDeleted
+            = LoggerMessage.Define<ulong, IEnumerable<long>>(
+                    LogLevel.Debug,
+                    EventType.UserPermissionMappingsDeleted.ToEventId(),
+                    "UserPermissionMapping range deleted:\r\n\tUserId: {UserId}\r\n\tMappingIds: {MappingIds}")
+                .WithoutException();
+
+        public static void UserPermissionMappingsDeleting(
+                ILogger logger,
+                ulong userId,
+                IEnumerable<long> mappingIds)
+            => _userPermissionMappingsDeleting.Invoke(
+                logger,
+                userId,
+                mappingIds);
+        private static readonly Action<ILogger, ulong, IEnumerable<long>> _userPermissionMappingsDeleting
+            = LoggerMessage.Define<ulong, IEnumerable<long>>(
+                    LogLevel.Debug,
+                    EventType.UserPermissionMappingsDeleting.ToEventId(),
+                    "Deleting UserPermissionMapping range:\r\n\tUserId: {UserId}\r\n\tMappingIds: {MappingIds}")
+                .WithoutException();
+
+        public static void UserRoleMappingIdentitiesFetched(
+                ILogger logger,
+                ulong userId)
+            => _userRoleMappingIdentitiesFetched.Invoke(
+                logger,
+                userId);
+        private static readonly Action<ILogger, ulong> _userRoleMappingIdentitiesFetched
+            = LoggerMessage.Define<ulong>(
+                    LogLevel.Debug,
+                    EventType.UserRoleMappingIdentitiesFetched.ToEventId(),
+                    "UserRoleMapping Identities fetched:\r\n\tUserId: {UserId}")
+                .WithoutException();
+
+        public static void UserRoleMappingIdentitiesFetching(
+                ILogger logger,
+                ulong userId)
+            => _userRoleMappingIdentitiesFetching.Invoke(
+                logger,
+                userId);
+        private static readonly Action<ILogger, ulong> _userRoleMappingIdentitiesFetching
+            = LoggerMessage.Define<ulong>(
+                    LogLevel.Debug,
+                    EventType.UserRoleMappingIdentitiesFetching.ToEventId(),
+                    "Fetching UserRoleMapping Identities:\r\n\tUserId: {UserId}")
+                .WithoutException();
+
+        public static void UserRoleMappingsCreated(
+                ILogger logger,
+                ulong userId,
+                IEnumerable<long> mappingIds)
+            => _userRoleMappingsCreated.Invoke(
+                logger,
+                userId,
+                mappingIds);
+        private static readonly Action<ILogger, ulong, IEnumerable<long>> _userRoleMappingsCreated
+            = LoggerMessage.Define<ulong, IEnumerable<long>>(
+                    LogLevel.Debug,
+                    EventType.UserRoleMappingsCreated.ToEventId(),
+                    "UserRoleMapping range created:\r\n\tUserId: {UserId}\r\n\tMappingIds: {MappingIds}")
+                .WithoutException();
+
+        public static void UserRoleMappingsCreating(
+                ILogger logger,
+                ulong userId,
+                IEnumerable<long> roleIds)
+            => _userRoleMappingsCreating.Invoke(
+                logger,
+                userId,
+                roleIds);
+        private static readonly Action<ILogger, ulong, IEnumerable<long>> _userRoleMappingsCreating
+            = LoggerMessage.Define<ulong, IEnumerable<long>>(
+                    LogLevel.Debug,
+                    EventType.UserRoleMappingsCreating.ToEventId(),
+                    "Creating UserRoleMapping range:\r\n\tUserId: {UserId}\r\n\tRoleIds: {RoleIds}")
+                .WithoutException();
+
+        public static void UserRoleMappingsDeleted(
+                ILogger logger,
+                ulong userId,
+                IEnumerable<long> mappingIds)
+            => _userRoleMappingsDeleted.Invoke(
+                logger,
+                userId,
+                mappingIds);
+        private static readonly Action<ILogger, ulong, IEnumerable<long>> _userRoleMappingsDeleted
+            = LoggerMessage.Define<ulong, IEnumerable<long>>(
+                    LogLevel.Debug,
+                    EventType.UserRoleMappingsDeleted.ToEventId(),
+                    "UserRoleMapping range deleted:\r\n\tUserId: {UserId}\r\n\tMappingIds: {MappingIds}")
+                .WithoutException();
+
+        public static void UserRoleMappingsDeleting(
+                ILogger logger,
+                ulong userId,
+                IEnumerable<long> mappingIds)
+            => _userRoleMappingsDeleting.Invoke(
+                logger,
+                userId,
+                mappingIds);
+        private static readonly Action<ILogger, ulong, IEnumerable<long>> _userRoleMappingsDeleting
+            = LoggerMessage.Define<ulong, IEnumerable<long>>(
+                    LogLevel.Debug,
+                    EventType.UserRoleMappingsDeleting.ToEventId(),
+                    "Deleting UserRoleMapping range:\r\n\tUserId: {UserId}\r\n\tMappingIds: {MappingIds}")
+                .WithoutException();
+
+        public static void UserTracked(
+                ILogger logger,
+                ulong userId)
+            => _userTracked.Invoke(
+                logger,
+                userId);
+        private static readonly Action<ILogger, ulong> _userTracked
+            = LoggerMessage.Define<ulong>(
+                    LogLevel.Debug,
+                    EventType.UserUpdated.ToEventId(),
+                    "User tracked:\r\n\tUserId: {UserId}")
                 .WithoutException();
 
         public static void UserTracking(
@@ -77,21 +521,34 @@ namespace Sokan.Yastah.Business.Users
         private static readonly Action<ILogger, ulong, string, string, string> _userTracking
             = LoggerMessage.Define<ulong, string, string, string>(
                     LogLevel.Debug,
-                    new EventId(4001, nameof(UserTracking)),
+                    EventType.UserTracking.ToEventId(),
                     "Tracking User:\r\n\tUserId: {UserId}\r\n\tUsername: {Username}\r\n\tDiscriminator: {Discriminator}\r\n\tAvatarHash: {AvatarHash}")
                 .WithoutException();
 
-        public static void UserTracked(
+        public static void UserUpdated(
                 ILogger logger,
                 ulong userId)
-            => _userTracked.Invoke(
+            => _userUpdated.Invoke(
                 logger,
                 userId);
-        private static readonly Action<ILogger, ulong> _userTracked
+        private static readonly Action<ILogger, ulong> _userUpdated
             = LoggerMessage.Define<ulong>(
                     LogLevel.Debug,
-                    new EventId(4002, nameof(UserUpdated)),
-                    "User tracked:\r\n\tUserId: {UserId}")
+                    EventType.UserUpdated.ToEventId(),
+                    "User updated:\r\n\tUserId: {UserId}")
+                .WithoutException();
+
+        public static void UserUpdateNoChangesGiven(
+                ILogger logger,
+                ulong userId)
+            => _userUpdateNoChangesGiven.Invoke(
+                logger,
+                userId);
+        private static readonly Action<ILogger, ulong> _userUpdateNoChangesGiven
+            = LoggerMessage.Define<ulong>(
+                    LogLevel.Warning,
+                    EventType.UserUpdateNoChangesGiven.ToEventId(),
+                    "User update failed: No changes given:\r\n\tUserId: {UserId}")
                 .WithoutException();
 
         public static void UserUpdating(
@@ -107,182 +564,8 @@ namespace Sokan.Yastah.Business.Users
         private static readonly Action<ILogger, ulong, UserUpdateModel, ulong> _userUpdating
             = LoggerMessage.Define<ulong, UserUpdateModel, ulong>(
                     LogLevel.Debug,
-                    new EventId(4003, nameof(UserUpdating)),
+                    EventType.UserUpdating.ToEventId(),
                     "Updating User:\r\n\tUserId: {UserId}\r\n\tUpdateModel: {UpdateModel}\r\n\tPerformedById: {PerformedById}")
-                .WithoutException();
-
-        public static void UserUpdated(
-                ILogger logger,
-                ulong userId)
-            => _userUpdated.Invoke(
-                logger,
-                userId);
-        private static readonly Action<ILogger, ulong> _userUpdated
-            = LoggerMessage.Define<ulong>(
-                    LogLevel.Debug,
-                    new EventId(4004, nameof(UserUpdated)),
-                    "User updated:\r\n\tUserId: {UserId}")
-                .WithoutException();
-
-        public static void UserPermissionMappingsCreating(
-                ILogger logger,
-                ulong userId,
-                IEnumerable<int> permissionIds,
-                PermissionMappingType mappingType)
-            => _userPermissionMappingsCreating.Invoke(
-                logger,
-                userId,
-                permissionIds,
-                mappingType);
-        private static readonly Action<ILogger, ulong, IEnumerable<int>, PermissionMappingType> _userPermissionMappingsCreating
-            = LoggerMessage.Define<ulong, IEnumerable<int>, PermissionMappingType>(
-                    LogLevel.Debug,
-                    new EventId(4005, nameof(UserPermissionMappingsCreating)),
-                    "Creating UserPermissionMapping range:\r\n\tUserId: {UserId}\r\n\tPermissionIds: {PermissionIds}\r\n\tMappingType: {MappingType}")
-                .WithoutException();
-
-        public static void UserPermissionMappingsCreated(
-                ILogger logger,
-                ulong userId,
-                IEnumerable<long> mappingIds)
-            => _userPermissionMappingsCreated.Invoke(
-                logger,
-                userId,
-                mappingIds);
-        private static readonly Action<ILogger, ulong, IEnumerable<long>> _userPermissionMappingsCreated
-            = LoggerMessage.Define<ulong, IEnumerable<long>>(
-                    LogLevel.Debug,
-                    new EventId(4006, nameof(UserPermissionMappingsCreated)),
-                    "UserPermissionMapping range created:\r\n\tUserId: {UserId}\r\n\tMappingIds: {MappingIds}")
-                .WithoutException();
-
-        public static void UserPermissionMappingsDeleting(
-                ILogger logger,
-                ulong userId,
-                IEnumerable<long> mappingIds)
-            => _userPermissionMappingsDeleting.Invoke(
-                logger,
-                userId,
-                mappingIds);
-        private static readonly Action<ILogger, ulong, IEnumerable<long>> _userPermissionMappingsDeleting
-            = LoggerMessage.Define<ulong, IEnumerable<long>>(
-                    LogLevel.Debug,
-                    new EventId(4007, nameof(UserPermissionMappingsDeleting)),
-                    "Deleting UserPermissionMapping range:\r\n\tUserId: {UserId}\r\n\tMappingIds: {MappingIds}")
-                .WithoutException();
-
-        public static void UserPermissionMappingsDeleted(
-                ILogger logger,
-                ulong userId,
-                IEnumerable<long> mappingIds)
-            => _userPermissionMappingsDeleted.Invoke(
-                logger,
-                userId,
-                mappingIds);
-        private static readonly Action<ILogger, ulong, IEnumerable<long>> _userPermissionMappingsDeleted
-            = LoggerMessage.Define<ulong, IEnumerable<long>>(
-                    LogLevel.Debug,
-                    new EventId(4008, nameof(UserPermissionMappingsDeleted)),
-                    "UserPermissionMapping range deleted:\r\n\tUserId: {UserId}\r\n\tMappingIds: {MappingIds}")
-                .WithoutException();
-
-        public static void UserRoleMappingsCreating(
-                ILogger logger,
-                ulong userId,
-                IEnumerable<long> roleIds)
-            => _userRoleMappingsCreating.Invoke(
-                logger,
-                userId,
-                roleIds);
-        private static readonly Action<ILogger, ulong, IEnumerable<long>> _userRoleMappingsCreating
-            = LoggerMessage.Define<ulong, IEnumerable<long>>(
-                    LogLevel.Debug,
-                    new EventId(4009, nameof(UserRoleMappingsCreating)),
-                    "Creating UserRoleMapping range:\r\n\tUserId: {UserId}\r\n\tRoleIds: {RoleIds}")
-                .WithoutException();
-
-        public static void UserRoleMappingsCreated(
-                ILogger logger,
-                ulong userId,
-                IEnumerable<long> mappingIds)
-            => _userRoleMappingsCreated.Invoke(
-                logger,
-                userId,
-                mappingIds);
-        private static readonly Action<ILogger, ulong, IEnumerable<long>> _userRoleMappingsCreated
-            = LoggerMessage.Define<ulong, IEnumerable<long>>(
-                    LogLevel.Debug,
-                    new EventId(4010, nameof(UserRoleMappingsCreated)),
-                    "UserRoleMapping range created:\r\n\tUserId: {UserId}\r\n\tMappingIds: {MappingIds}")
-                .WithoutException();
-
-        public static void UserRoleMappingsDeleting(
-                ILogger logger,
-                ulong userId,
-                IEnumerable<long> mappingIds)
-            => _userRoleMappingsDeleting.Invoke(
-                logger,
-                userId,
-                mappingIds);
-        private static readonly Action<ILogger, ulong, IEnumerable<long>> _userRoleMappingsDeleting
-            = LoggerMessage.Define<ulong, IEnumerable<long>>(
-                    LogLevel.Debug,
-                    new EventId(4011, nameof(UserRoleMappingsDeleting)),
-                    "Deleting UserRoleMapping range:\r\n\tUserId: {UserId}\r\n\tMappingIds: {MappingIds}")
-                .WithoutException();
-
-        public static void UserRoleMappingsDeleted(
-                ILogger logger,
-                ulong userId,
-                IEnumerable<long> mappingIds)
-            => _userRoleMappingsDeleted.Invoke(
-                logger,
-                userId,
-                mappingIds);
-        private static readonly Action<ILogger, ulong, IEnumerable<long>> _userRoleMappingsDeleted
-            = LoggerMessage.Define<ulong, IEnumerable<long>>(
-                    LogLevel.Debug,
-                    new EventId(4012, nameof(UserRoleMappingsDeleted)),
-                    "UserRoleMapping range deleted:\r\n\tUserId: {UserId}\r\n\tMappingIds: {MappingIds}")
-                .WithoutException();
-
-        public static void UserInitializingNotificationPublishing(
-                ILogger logger,
-                ulong userId)
-            => _userInitializingNotificationPublishing.Invoke(
-                logger,
-                userId);
-        private static readonly Action<ILogger, ulong> _userInitializingNotificationPublishing
-            = LoggerMessage.Define<ulong>(
-                    LogLevel.Debug,
-                    new EventId(4013, nameof(UserInitializingNotificationPublishing)),
-                    $"Publishing {nameof(UserInitializingNotification)}:\r\n\tUserId: {{UserId}}")
-                .WithoutException();
-
-        public static void UserInitializingNotificationPublished(
-                ILogger logger,
-                ulong userId)
-            => _userInitializingNotificationPublished.Invoke(
-                logger,
-                userId);
-        private static readonly Action<ILogger, ulong> _userInitializingNotificationPublished
-            = LoggerMessage.Define<ulong>(
-                    LogLevel.Debug,
-                    new EventId(4014, nameof(UserInitializingNotificationPublished)),
-                    $"{nameof(UserInitializingNotification)} published:\r\n\tUserId: {{UserId}}")
-                .WithoutException();
-
-        public static void UserUpdatingNotificationPublishing(
-                ILogger logger,
-                ulong userId)
-            => _userUpdatingNotificationPublishing.Invoke(
-                logger,
-                userId);
-        private static readonly Action<ILogger, ulong> _userUpdatingNotificationPublishing
-            = LoggerMessage.Define<ulong>(
-                    LogLevel.Debug,
-                    new EventId(4015, nameof(UserUpdatingNotificationPublishing)),
-                    $"Publishing {nameof(UserUpdatingNotification)}:\r\n\tUserId: {{UserId}}")
                 .WithoutException();
 
         public static void UserUpdatingNotificationPublished(
@@ -294,212 +577,21 @@ namespace Sokan.Yastah.Business.Users
         private static readonly Action<ILogger, ulong> _userUpdatingNotificationPublished
             = LoggerMessage.Define<ulong>(
                     LogLevel.Debug,
-                    new EventId(4016, nameof(UserUpdatingNotificationPublished)),
+                    EventType.UserUpdatingNotificationPublished.ToEventId(),
                     $"{nameof(UserUpdatingNotification)} published:\r\n\tUserId: {{UserId}}")
                 .WithoutException();
 
-        public static void DefaultPermissionIdsFetched(
-                ILogger logger,
-                IEnumerable<int> permissionIds)
-            => _defaultPermissionIdsFetched.Invoke(
-                logger,
-                permissionIds);
-        private static readonly Action<ILogger, IEnumerable<int>> _defaultPermissionIdsFetched
-            = LoggerMessage.Define<IEnumerable<int>>(
-                    LogLevel.Debug,
-                    new EventId(4017, nameof(DefaultPermissionIdsFetched)),
-                    "DefaultPermissionMapping IDs fetched:\r\n\tPermissionIds: {PermissionIds}")
-                .WithoutException();
-
-        public static void DefaultRoleIdsFetched(
-                ILogger logger,
-                IEnumerable<long> roleIds)
-            => _userRoleIdsFetched.Invoke(
-                logger,
-                roleIds);
-        private static readonly Action<ILogger, IEnumerable<long>> _userRoleIdsFetched
-            = LoggerMessage.Define<IEnumerable<long>>(
-                    LogLevel.Debug,
-                    new EventId(4018, nameof(DefaultRoleIdsFetched)),
-                    "DefaultRoleMapping IDs fetched:\r\n\tRoleIds: {RoleIds}")
-                .WithoutException();
-
-        public static void UserPermissionMappingIdentitiesFetched(
+        public static void UserUpdatingNotificationPublishing(
                 ILogger logger,
                 ulong userId)
-            => _userPermissionMappingIdentitiesFetched.Invoke(
+            => _userUpdatingNotificationPublishing.Invoke(
                 logger,
                 userId);
-        private static readonly Action<ILogger, ulong> _userPermissionMappingIdentitiesFetched
+        private static readonly Action<ILogger, ulong> _userUpdatingNotificationPublishing
             = LoggerMessage.Define<ulong>(
                     LogLevel.Debug,
-                    new EventId(4019, nameof(UserPermissionMappingIdentitiesFetched)),
-                    "UserPermissionMapping Identities fetched:\r\n\tUserId: {UserId}")
-                .WithoutException();
-
-        public static void UserRoleMappingIdentitiesFetched(
-                ILogger logger,
-                ulong userId)
-            => _userRoleMappingIdentitiesFetched.Invoke(
-                logger,
-                userId);
-        private static readonly Action<ILogger, ulong> _userRoleMappingIdentitiesFetched
-            = LoggerMessage.Define<ulong>(
-                    LogLevel.Debug,
-                    new EventId(4021, nameof(UserRoleMappingIdentitiesFetched)),
-                    "UserRoleMapping Identities fetched:\r\n\tUserId: {UserId}")
-                .WithoutException();
-
-        public static void GrantedPermissionIdentitiesFetching(
-                ILogger logger,
-                ulong userId)
-            => _grantedPermissionIdentitiesFetching.Invoke(
-                logger,
-                userId);
-        private static readonly Action<ILogger, ulong> _grantedPermissionIdentitiesFetching
-            = LoggerMessage.Define<ulong>(
-                    LogLevel.Debug,
-                    new EventId(4022, nameof(GrantedPermissionIdentitiesFetching)),
-                    "Fetching Granted Permission IDs:\r\n\tRoleId: {RoleId}")
-                .WithoutException();
-
-        public static void GrantedPermissionIdentitiesFetched(
-                ILogger logger,
-                ulong userId)
-            => _grantedPermissionIdentitiesFetched.Invoke(
-                logger,
-                userId);
-        private static readonly Action<ILogger, ulong> _grantedPermissionIdentitiesFetched
-            = LoggerMessage.Define<ulong>(
-                    LogLevel.Debug,
-                    new EventId(4023, nameof(GrantedPermissionIdentitiesFetched)),
-                    "Granted Permission IDs fetched:\r\n\tUserId: {UserId}")
-                .WithoutException();
-
-        public static void RoleMemberIdsFetching(
-                ILogger logger,
-                long roleId)
-            => _roleMemberIdsFetching.Invoke(
-                logger,
-                roleId);
-        private static readonly Action<ILogger, long> _roleMemberIdsFetching
-            = LoggerMessage.Define<long>(
-                    LogLevel.Debug,
-                    new EventId(4019, nameof(RoleMemberIdsFetching)),
-                    "Fetching Role member IDs:\r\n\tRoleId: {RoleId}")
-                .WithoutException();
-
-        public static void RoleMemberIdsFetched(
-                ILogger logger,
-                IEnumerable<ulong> memberIds)
-            => _roleMemberIdsFetched.Invoke(
-                logger,
-                memberIds);
-        private static readonly Action<ILogger, IEnumerable<ulong>> _roleMemberIdsFetched
-            = LoggerMessage.Define<IEnumerable<ulong>>(
-                    LogLevel.Debug,
-                    new EventId(4020, nameof(RoleMemberIdsFetched)),
-                    "Role member IDs fetched:\r\n\tMemberIds: {MemberIds}")
-                .WithoutException();
-
-        public static void RoleMemberIdsCacheCleared(
-                ILogger logger,
-                long roleId)
-            => _roleMemberIdsCacheCleared.Invoke(
-                logger,
-                roleId);
-        private static readonly Action<ILogger, long> _roleMemberIdsCacheCleared
-            = LoggerMessage.Define<long>(
-                    LogLevel.Debug,
-                    new EventId(4020, nameof(RoleMemberIdsCacheCleared)),
-                    "Role member IDs cache cleared:\r\n\tRoleId: {RoleId}")
-                .WithoutException();
-
-        public static void PermissionIdsValidating(
-                ILogger logger,
-                IEnumerable<int> permissionIds)
-            => _permissionIdsValidating.Invoke(
-                logger,
-                permissionIds);
-        private static readonly Action<ILogger, IEnumerable<int>> _permissionIdsValidating
-            = LoggerMessage.Define<IEnumerable<int>>(
-                    LogLevel.Debug,
-                    new EventId(4021, nameof(PermissionIdsValidating)),
-                    "Permission IDs validation succeded:\r\n\tPermissionIds: {PermissionIds}")
-                .WithoutException();
-
-        public static void PermissionIdsValidationSucceeded(
-                ILogger logger)
-            => _permissionIdsValidationSucceeded.Invoke(
-                logger);
-        private static readonly Action<ILogger> _permissionIdsValidationSucceeded
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    new EventId(4022, nameof(PermissionIdsValidationSucceeded)),
-                    "Permission IDs validation succeded")
-                .WithoutException();
-
-        public static void RoleIdsValidating(
-                ILogger logger,
-                IEnumerable<long> roleIds)
-            => _roleIdsValidating.Invoke(
-                logger,
-                roleIds);
-        private static readonly Action<ILogger, IEnumerable<long>> _roleIdsValidating
-            = LoggerMessage.Define<IEnumerable<long>>(
-                    LogLevel.Debug,
-                    new EventId(4023, nameof(RoleIdsValidating)),
-                    "Role IDs validation succeded:\r\n\tRoleIds: {RoleIds}")
-                .WithoutException();
-
-        public static void RoleIdsValidationSucceeded(
-                ILogger logger)
-            => _roleIdsValidationSucceeded.Invoke(
-                logger);
-        private static readonly Action<ILogger> _roleIdsValidationSucceeded
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    new EventId(4024, nameof(RoleIdsValidationSucceeded)),
-                    "Role IDs validation succeded")
-                .WithoutException();
-
-        public static void UserIsAdmin(
-                ILogger logger,
-                ulong userId)
-            => _userIsAdmin.Invoke(
-                logger,
-                userId);
-        private static readonly Action<ILogger, ulong> _userIsAdmin
-            = LoggerMessage.Define<ulong>(
-                    LogLevel.Debug,
-                    new EventId(4025, nameof(UserIsAdmin)),
-                    "User is administrator: skipping permissions lookup:\r\n\tUserId: {UserId}")
-                .WithoutException();
-
-        public static void UserFound(
-                ILogger logger,
-                ulong userId)
-            => _userFound.Invoke(
-                logger,
-                userId);
-        private static readonly Action<ILogger, ulong> _userFound
-            = LoggerMessage.Define<ulong>(
-                    LogLevel.Debug,
-                    new EventId(4026, nameof(UserFound)),
-                    "User found: {UserId}")
-                .WithoutException();
-
-        public static void UserCreated(
-                ILogger logger,
-                ulong userId)
-            => _userCreated.Invoke(
-                logger,
-                userId);
-        private static readonly Action<ILogger, ulong> _userCreated
-            = LoggerMessage.Define<ulong>(
-                    LogLevel.Debug,
-                    new EventId(4027, nameof(UserCreated)),
-                    "User created: {UserId}")
+                    EventType.UserUpdatingNotificationPublishing.ToEventId(),
+                    $"Publishing {nameof(UserUpdatingNotification)}:\r\n\tUserId: {{UserId}}")
                 .WithoutException();
     }
 }

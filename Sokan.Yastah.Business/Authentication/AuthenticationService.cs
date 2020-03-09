@@ -76,19 +76,21 @@ namespace Sokan.Yastah.Business.Authentication
             CancellationToken cancellationToken)
         {
             using var logScope = _logger.BeginMemberScope();
-            AuthenticationLogMessages.AuthenticationTicketAssembling(_logger, ticketId, userId, username, discriminator, avatarHash, grantedPermissions);
+            AuthenticationLogMessages.AuthenticationPerforming(_logger, ticketId, userId, username, discriminator, avatarHash, grantedPermissions);
 
+            AuthenticationLogMessages.AuthenticationTicketActiveIdFetching(_logger, userId);
             var activeTicketId = await GetActiveTicketIdAsync(userId, cancellationToken);
-            AuthenticationLogMessages.AuthenticationTicketActiveIdFetched(_logger, userId, activeTicketId);
+            AuthenticationLogMessages.AuthenticationTicketActiveIdFetched(_logger, activeTicketId);
 
             if (activeTicketId != ticketId)
             {
-                AuthenticationLogMessages.AuthenticationTicketRebuilding(_logger, activeTicketId, ticketId);
+                AuthenticationLogMessages.GrantedPermissionsFetching(_logger, userId);
                 grantedPermissions = (await _usersService.GetGrantedPermissionsAsync(
                         userId,
                         cancellationToken))
                     .Value
                     .ToDictionary(x => x.Id, x => x.Name);
+                AuthenticationLogMessages.GrantedPermissionsFetched(_logger, grantedPermissions);
             }
 
             _currentTicket = new AuthenticationTicket(
@@ -98,7 +100,7 @@ namespace Sokan.Yastah.Business.Authentication
                 discriminator,
                 avatarHash,
                 grantedPermissions);
-            AuthenticationLogMessages.AuthenticationTicketAssembled(_logger, activeTicketId);
+            AuthenticationLogMessages.AuthenticationPerformed(_logger, activeTicketId);
 
             return _currentTicket;
         }
@@ -130,13 +132,18 @@ namespace Sokan.Yastah.Business.Authentication
                 cancellationToken);
             AuthenticationLogMessages.UserTracked(_logger, userId);
 
+            AuthenticationLogMessages.AuthenticationTicketActiveIdFetching(_logger, userId);
             var ticketId = await GetActiveTicketIdAsync(userId, cancellationToken);
-            AuthenticationLogMessages.AuthenticationTicketActiveIdFetched(_logger, userId, ticketId);
+            AuthenticationLogMessages.AuthenticationTicketActiveIdFetched(_logger, ticketId);
 
-            var grantedPermissions = await _usersService.GetGrantedPermissionsAsync(
-                userId,
-                cancellationToken);
-            AuthenticationLogMessages.GrantedPermissionsFetched(_logger, userId);
+            AuthenticationLogMessages.GrantedPermissionsFetching(_logger, userId);
+            var grantedPermissions = (await _usersService.GetGrantedPermissionsAsync(
+                    userId,
+                    cancellationToken))
+                .Value
+                .ToDictionary(x => x.Id, x => x.Name);
+
+            AuthenticationLogMessages.GrantedPermissionsFetched(_logger, grantedPermissions);
 
             var ticket = new AuthenticationTicket(
                 ticketId,
@@ -144,8 +151,7 @@ namespace Sokan.Yastah.Business.Authentication
                 username,
                 discriminator,
                 avatarHash,
-                grantedPermissions.Value
-                    .ToDictionary(x => x.Id, x => x.Name));
+                grantedPermissions);
 
             AuthenticationLogMessages.UserSignedIn(_logger, ticketId, userId, username, discriminator);
             return ticket;
@@ -216,8 +222,9 @@ namespace Sokan.Yastah.Business.Authentication
             {
                 entry.Priority = CacheItemPriority.High;
 
+                AuthenticationLogMessages.AuthenticationTicketActiveIdFetching(_logger, userId);
                 var result = await _authenticationTicketsRepository.ReadActiveIdAsync(userId, cancellationToken);
-                AuthenticationLogMessages.AuthenticationTicketActiveIdFetched(_logger, userId, result.Value);
+                AuthenticationLogMessages.AuthenticationTicketActiveIdFetched(_logger, result.Value);
 
                 return result.Value;
             });
@@ -232,11 +239,12 @@ namespace Sokan.Yastah.Business.Authentication
             using var transactionScope = _transactionScopeFactory.CreateScope();
             TransactionsLogMessages.TransactionScopeCreated(_logger);
 
+                AuthenticationLogMessages.AuthenticationTicketActiveIdFetching(_logger, userId);
             var activeTicketIdResult = await _authenticationTicketsRepository.ReadActiveIdAsync(userId, cancellationToken);
 
             if (activeTicketIdResult.IsSuccess)
             {
-                AuthenticationLogMessages.AuthenticationTicketActiveIdFetched(_logger, userId, activeTicketIdResult.Value);
+                AuthenticationLogMessages.AuthenticationTicketActiveIdFetched(_logger, activeTicketIdResult.Value);
                 AuthenticationLogMessages.AuthenticationTicketDeleting(_logger, userId, activeTicketIdResult.Value);
                 await _authenticationTicketsRepository.DeleteAsync(
                     activeTicketIdResult.Value,
@@ -246,7 +254,7 @@ namespace Sokan.Yastah.Business.Authentication
             }
             else
             {
-                AuthenticationLogMessages.AuthenticationTicketActiveIdFetched(_logger, userId, null);
+                AuthenticationLogMessages.AuthenticationTicketActiveIdFetched(_logger, null);
             }
 
             AuthenticationLogMessages.AuthenticationTicketCreating(_logger, userId);

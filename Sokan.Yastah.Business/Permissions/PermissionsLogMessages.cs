@@ -7,17 +7,59 @@ namespace Sokan.Yastah.Business.Permissions
 {
     internal static class PermissionsLogMessages
     {
-        public static void PermissionIdsValidationFailed(
-                ILogger logger,
-                IReadOnlyCollection<int> invalidPermissionIds)
-            => _permissionIdsValidationFailed.Invoke(
-                logger,
-                invalidPermissionIds);
-        private static readonly Action<ILogger, IReadOnlyCollection<int>> _permissionIdsValidationFailed
-            = LoggerMessage.Define<IReadOnlyCollection<int>>(
-                    LogLevel.Warning,
-                    new EventId(2001, nameof(PermissionIdsValidationFailed)),
-                    "Permission IDs were invalid: {InvalidPermissionIds}")
+        public enum EventType
+        {
+            PermissionCategoryDescriptionsFetching  = BusinessLogEventType.Permissions + 0x0001,
+            PermissionCategoryDescriptionsFetched   = BusinessLogEventType.Permissions + 0x0002,
+            PermissionIdentitiesFetching            = BusinessLogEventType.Permissions + 0x0003,
+            PermissionIdentitiesFetched             = BusinessLogEventType.Permissions + 0x0004,
+            PermissionIdsValidating                 = BusinessLogEventType.Permissions + 0x0005,
+            PermissionIdsValidationFailed           = BusinessLogEventType.Permissions + 0x0006,
+            PermissionIdsValidationSucceeded        = BusinessLogEventType.Permissions + 0x0007
+        }
+
+        public static void PermissionCategoryDescriptionsFetched(
+                ILogger logger)
+            => _permissionCategoryDescriptionsFetched.Invoke(
+                logger);
+        private static readonly Action<ILogger> _permissionCategoryDescriptionsFetched
+            = LoggerMessage.Define(
+                    LogLevel.Information,
+                    EventType.PermissionCategoryDescriptionsFetched.ToEventId(),
+                    "PermissionCategory Descriptions fetched")
+                .WithoutException();
+
+        public static void PermissionCategoryDescriptionsFetching(
+                ILogger logger)
+            => _permissionCategoryDescriptionsFetching.Invoke(
+                logger);
+        private static readonly Action<ILogger> _permissionCategoryDescriptionsFetching
+            = LoggerMessage.Define(
+                    LogLevel.Information,
+                    EventType.PermissionCategoryDescriptionsFetching.ToEventId(),
+                    "Fetching PermissionCategory Descriptions")
+                .WithoutException();
+
+        public static void PermissionIdentitiesFetched(
+                ILogger logger)
+            => _permissionIdentitiesFetched.Invoke(
+                logger);
+        private static readonly Action<ILogger> _permissionIdentitiesFetched
+            = LoggerMessage.Define(
+                    LogLevel.Information,
+                    EventType.PermissionIdentitiesFetched.ToEventId(),
+                    "Permission Identities fetched")
+                .WithoutException();
+
+        public static void PermissionIdentitiesFetching(
+                ILogger logger)
+            => _permissionIdentitiesFetching.Invoke(
+                logger);
+        private static readonly Action<ILogger> _permissionIdentitiesFetching
+            = LoggerMessage.Define(
+                    LogLevel.Information,
+                    EventType.PermissionIdentitiesFetching.ToEventId(),
+                    "Fetching Permission Identities")
                 .WithoutException();
 
         public static void PermissionIdsValidating(
@@ -29,8 +71,21 @@ namespace Sokan.Yastah.Business.Permissions
         private static readonly Action<ILogger, IReadOnlyCollection<int>> _permissionIdsValidating
             = LoggerMessage.Define<IReadOnlyCollection<int>>(
                     LogLevel.Information,
-                    new EventId(4001, nameof(PermissionIdsValidationFailed)),
+                    EventType.PermissionIdsValidationFailed.ToEventId(),
                     "Validating Permission IDs: {PermissionIds}")
+                .WithoutException();
+
+        public static void PermissionIdsValidationFailed(
+                ILogger logger,
+                IReadOnlyCollection<int> invalidPermissionIds)
+            => _permissionIdsValidationFailed.Invoke(
+                logger,
+                invalidPermissionIds);
+        private static readonly Action<ILogger, IReadOnlyCollection<int>> _permissionIdsValidationFailed
+            = LoggerMessage.Define<IReadOnlyCollection<int>>(
+                    LogLevel.Warning,
+                    EventType.PermissionIdsValidationFailed.ToEventId(),
+                    "Permission IDs were invalid: {InvalidPermissionIds}")
                 .WithoutException();
 
         public static void PermissionIdsValidationSucceeded(
@@ -42,52 +97,8 @@ namespace Sokan.Yastah.Business.Permissions
         private static readonly Action<ILogger, IReadOnlyCollection<int>> _permissionIdsValidationSucceeded
             = LoggerMessage.Define<IReadOnlyCollection<int>>(
                     LogLevel.Information,
-                    new EventId(4002, nameof(PermissionIdsValidationSucceeded)),
+                    EventType.PermissionIdsValidationSucceeded.ToEventId(),
                     "Permission IDs validated: {PermisionIds}")
-                .WithoutException();
-
-        public static void PermissionCategoryDescriptionsFetching(
-                ILogger logger)
-            => _permissionCategoryDescriptionsFetching.Invoke(
-                logger);
-        private static readonly Action<ILogger> _permissionCategoryDescriptionsFetching
-            = LoggerMessage.Define(
-                    LogLevel.Information,
-                    new EventId(4003, nameof(PermissionCategoryDescriptionsFetching)),
-                    "Fetching PermissionCategory Descriptions")
-                .WithoutException();
-
-        public static void PermissionCategoryDescriptionsFetched(
-                ILogger logger)
-            => _permissionCategoryDescriptionsFetched.Invoke(
-                logger);
-        private static readonly Action<ILogger> _permissionCategoryDescriptionsFetched
-            = LoggerMessage.Define(
-                    LogLevel.Information,
-                    new EventId(4004, nameof(PermissionCategoryDescriptionsFetched)),
-                    "PermissionCategory Descriptions fetched")
-                .WithoutException();
-
-        public static void PermissionIdentitiesFetching(
-                ILogger logger)
-            => _permissionIdentitiesFetching.Invoke(
-                logger);
-        private static readonly Action<ILogger> _permissionIdentitiesFetching
-            = LoggerMessage.Define(
-                    LogLevel.Information,
-                    new EventId(4005, nameof(PermissionIdentitiesFetching)),
-                    "Fetching Permission Identities")
-                .WithoutException();
-
-        public static void PermissionIdentitiesFetched(
-                ILogger logger)
-            => _permissionIdentitiesFetched.Invoke(
-                logger);
-        private static readonly Action<ILogger> _permissionIdentitiesFetched
-            = LoggerMessage.Define(
-                    LogLevel.Information,
-                    new EventId(4006, nameof(PermissionIdentitiesFetched)),
-                    "Permission Identities fetched")
                 .WithoutException();
     }
 }

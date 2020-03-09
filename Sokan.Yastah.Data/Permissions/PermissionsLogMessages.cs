@@ -9,6 +9,13 @@ namespace Sokan.Yastah.Data.Permissions
 {
     public static class PermissionsLogMessages
     {
+        public enum EventType
+        {
+            CategoryDescriptionsEnumerating = DataLogEventType.Permissions + 0x0001,
+            PermissionIdentitiesEnumerating = DataLogEventType.Permissions + 0x0002,
+            PermissionIdsEnumerating        = DataLogEventType.Permissions + 0x0003
+        }
+
         public static void CategoryDescriptionsEnumerating(
                 ILogger logger)
             => _categoryDescriptionsEnumerating.Invoke(
@@ -16,7 +23,7 @@ namespace Sokan.Yastah.Data.Permissions
         private static readonly Action<ILogger> _categoryDescriptionsEnumerating
             = LoggerMessage.Define(
                     LogLevel.Debug,
-                    new EventId(4001, nameof(CategoryDescriptionsEnumerating)),
+                    EventType.CategoryDescriptionsEnumerating.ToEventId(),
                     $"Enumerating {nameof(PermissionCategoryDescriptionViewModel)}")
                 .WithoutException();
 
@@ -27,7 +34,7 @@ namespace Sokan.Yastah.Data.Permissions
         private static readonly Action<ILogger> _permissionIdentitiesEnumerating
             = LoggerMessage.Define(
                     LogLevel.Debug,
-                    new EventId(4002, nameof(PermissionIdentitiesEnumerating)),
+                    EventType.PermissionIdentitiesEnumerating.ToEventId(),
                     $"Enumerating {nameof(PermissionCategoryDescriptionViewModel)}")
                 .WithoutException();
 
@@ -40,7 +47,7 @@ namespace Sokan.Yastah.Data.Permissions
         private static readonly Action<ILogger, Optional<IReadOnlyCollection<int>>> _permissionIdsEnumerating
             = LoggerMessage.Define<Optional<IReadOnlyCollection<int>>>(
                     LogLevel.Debug,
-                    new EventId(4003, nameof(PermissionIdsEnumerating)),
+                    EventType.PermissionIdsEnumerating.ToEventId(),
                     $"Enumerating {nameof(PermissionEntity)} IDs\r\n\tPermissionIds: {{PermissionIds}}")
                 .WithoutException();
     }

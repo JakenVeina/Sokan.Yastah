@@ -4,8 +4,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Sokan.Yastah.Business.Administration
 {
-    public static class AdministrationLogMessages
+    internal static class AdministrationLogMessages
     {
+        public enum EventType
+        {
+            AdministrationActionCreated = BusinessLogEventType.Administration + 0x0001
+        }
+
         public static void AdministrationActionCreated(
                 ILogger logger,
                 long actionId)
@@ -15,7 +20,7 @@ namespace Sokan.Yastah.Business.Administration
         private static readonly Action<ILogger, long> _administrationActionCreated
             = LoggerMessage.Define<long>(
                     LogLevel.Debug,
-                    new EventId(4201, nameof(AdministrationActionCreated)),
+                    EventType.AdministrationActionCreated.ToEventId(),
                     "AdministrationAction created: {ActionId}")
                 .WithoutException();
     }

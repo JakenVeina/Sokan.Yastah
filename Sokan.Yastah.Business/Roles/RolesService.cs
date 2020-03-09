@@ -234,6 +234,7 @@ namespace Sokan.Yastah.Business.Roles
 
             var anyChanges = updateResult.IsSuccess;
 
+            RolesLogMessages.RolePermissionMappingIdentitiesFetching(_logger, roleId);
             var permissionMappings = await _rolesRepository.AsyncEnumeratePermissionMappingIdentities(
                     roleId: roleId,
                     isDeleted: false)

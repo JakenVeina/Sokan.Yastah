@@ -8,17 +8,46 @@ namespace Sokan.Yastah.Data.Authentication
 {
     internal static class AuthenticationLogMessages
     {
-        public static void AuthenticationTicketNotFound(
+        public enum EventType
+        {
+            IdentitiesEnumerating               = DataLogEventType.Authentication + 0x0001,
+            AuthenticationTicketCreating        = DataLogEventType.Authentication + 0x0002,
+            AuthenticationTicketCreated         = DataLogEventType.Authentication + 0x0003,
+            AuthenticationTicketDeleting        = DataLogEventType.Authentication + 0x0004,
+            AuthenticationTicketDeleted         = DataLogEventType.Authentication + 0x0005,
+            AuthenticationTicketAlreadyDeleted  = DataLogEventType.Authentication + 0x0006,
+            ActiveIdReading                     = DataLogEventType.Authentication + 0x0007,
+            ActiveIdRead                        = DataLogEventType.Authentication + 0x0008,
+            AuthenticationTicketNotFound        = DataLogEventType.Authentication + 0x0009,
+            AuthenticationTicketNotFoundForUser = DataLogEventType.Authentication + 0x000A
+        }
+
+        public static void ActiveIdRead(
                 ILogger logger,
+                ulong userId,
                 long ticketId)
-            => _authenticationTicketNotFound(
+            => _activeIdRead.Invoke(
                 logger,
+                userId,
                 ticketId);
-        private static readonly Action<ILogger, long> _authenticationTicketNotFound
-            = LoggerMessage.Define<long>(
-                    LogLevel.Warning,
-                    new EventId(2001, nameof(AuthenticationTicketNotFound)),
-                    $"{nameof(AuthenticationTicketEntity)} not found: {{TicketId}}")
+        private static readonly Action<ILogger, ulong, long> _activeIdRead
+            = LoggerMessage.Define<ulong, long>(
+                    LogLevel.Debug,
+                    EventType.ActiveIdRead.ToEventId(),
+                    $"Active {nameof(AuthenticationTicketEntity)} found: \r\n\tUserId: {{UserId}}\r\n\tTicketId: {{TicketId}}")
+                .WithoutException();
+
+        public static void ActiveIdReading(
+                ILogger logger,
+                ulong userId)
+            => _activeIdReading.Invoke(
+                logger,
+                userId);
+        private static readonly Action<ILogger, ulong> _activeIdReading
+            = LoggerMessage.Define<ulong>(
+                    LogLevel.Debug,
+                    EventType.ActiveIdReading.ToEventId(),
+                    $"Reading {nameof(AuthenticationTicketEntity)} Active Id: \r\n\tUserId: {{UserId}}")
                 .WithoutException();
 
         public static void AuthenticationTicketAlreadyDeleted(
@@ -30,21 +59,21 @@ namespace Sokan.Yastah.Data.Authentication
         private static readonly Action<ILogger, long> _authenticationTicketAlreadyDeleted
             = LoggerMessage.Define<long>(
                     LogLevel.Warning,
-                    new EventId(2002, nameof(AuthenticationTicketAlreadyDeleted)),
+                    EventType.AuthenticationTicketAlreadyDeleted.ToEventId(),
                     $"{nameof(AuthenticationTicketEntity)} already deleted: {{TicketId}}")
                 .WithoutException();
 
-        public static void AuthenticationTicketNotFoundForUser(
+        public static void AuthenticationTicketCreated(
                 ILogger logger,
-                ulong userId)
-            => _authenticationTicketNotFoundForUser(
+                long ticketId)
+            => _authenticationTicketCreated.Invoke(
                 logger,
-                userId);
-        private static readonly Action<ILogger, ulong> _authenticationTicketNotFoundForUser
-            = LoggerMessage.Define<ulong>(
-                    LogLevel.Warning,
-                    new EventId(2003, nameof(AuthenticationTicketNotFoundForUser)),
-                    $"{nameof(AuthenticationTicketEntity)} not found for user: {{UserId}}")
+                ticketId);
+        private static readonly Action<ILogger, long> _authenticationTicketCreated
+            = LoggerMessage.Define<long>(
+                    LogLevel.Information,
+                    EventType.AuthenticationTicketCreated.ToEventId(),
+                    $"{nameof(AuthenticationTicketEntity)} created: {{TicketId}}")
                 .WithoutException();
 
         public static void AuthenticationTicketCreating(
@@ -58,21 +87,21 @@ namespace Sokan.Yastah.Data.Authentication
         private static readonly Action<ILogger, ulong, long> _authenticationTicketCreating
             = LoggerMessage.Define<ulong, long>(
                     LogLevel.Information,
-                    new EventId(3001, nameof(AuthenticationTicketCreating)),
+                    EventType.AuthenticationTicketCreating.ToEventId(),
                     $"Creating {nameof(AuthenticationTicketEntity)}: \r\n\tUserId: {{UserId}}\r\n\tActionId: {{ActionId}}")
                 .WithoutException();
 
-        public static void AuthenticationTicketCreated(
+        public static void AuthenticationTicketDeleted(
                 ILogger logger,
                 long ticketId)
-            => _authenticationTicketCreated.Invoke(
+            => _authenticationTicketAlreadyDeleted.Invoke(
                 logger,
                 ticketId);
-        private static readonly Action<ILogger, long> _authenticationTicketCreated
+        private static readonly Action<ILogger, long> _authenticationTicketDeleted
             = LoggerMessage.Define<long>(
                     LogLevel.Information,
-                    new EventId(3002, nameof(AuthenticationTicketCreated)),
-                    $"{nameof(AuthenticationTicketEntity)} created: {{TicketId}}")
+                    EventType.AuthenticationTicketDeleted.ToEventId(),
+                    $"{nameof(AuthenticationTicketEntity)} deleted: {{TicketId}}")
                 .WithoutException();
 
         public static void AuthenticationTicketDeleting(
@@ -86,21 +115,34 @@ namespace Sokan.Yastah.Data.Authentication
         private static readonly Action<ILogger, long, long> _authenticationTicketDeleting
             = LoggerMessage.Define<long, long>(
                     LogLevel.Information,
-                    new EventId(3003, nameof(AuthenticationTicketDeleting)),
+                    EventType.AuthenticationTicketDeleting.ToEventId(),
                     $"Deleting {nameof(AuthenticationTicketEntity)}: \r\n\tTicketId: {{TicketId}}\r\n\tActionId: {{ActionId}}")
                 .WithoutException();
 
-        public static void AuthenticationTicketDeleted(
+        public static void AuthenticationTicketNotFound(
                 ILogger logger,
                 long ticketId)
-            => _authenticationTicketAlreadyDeleted.Invoke(
+            => _authenticationTicketNotFound(
                 logger,
                 ticketId);
-        private static readonly Action<ILogger, long> _authenticationTicketDeleted
+        private static readonly Action<ILogger, long> _authenticationTicketNotFound
             = LoggerMessage.Define<long>(
-                    LogLevel.Information,
-                    new EventId(3004, nameof(AuthenticationTicketDeleted)),
-                    $"{nameof(AuthenticationTicketEntity)} deleted: {{TicketId}}")
+                    LogLevel.Warning,
+                    EventType.AuthenticationTicketNotFound.ToEventId(),
+                    $"{nameof(AuthenticationTicketEntity)} not found: {{TicketId}}")
+                .WithoutException();
+
+        public static void AuthenticationTicketNotFoundForUser(
+                ILogger logger,
+                ulong userId)
+            => _authenticationTicketNotFoundForUser(
+                logger,
+                userId);
+        private static readonly Action<ILogger, ulong> _authenticationTicketNotFoundForUser
+            = LoggerMessage.Define<ulong>(
+                    LogLevel.Warning,
+                    EventType.AuthenticationTicketNotFoundForUser.ToEventId(),
+                    $"{nameof(AuthenticationTicketEntity)} not found for user: {{UserId}}")
                 .WithoutException();
 
         public static void IdentitiesEnumerating(
@@ -112,36 +154,8 @@ namespace Sokan.Yastah.Data.Authentication
         private static readonly Action<ILogger, Optional<bool>> _identitiesEnumerating
             = LoggerMessage.Define<Optional<bool>>(
                     LogLevel.Debug,
-                    new EventId(4001, nameof(IdentitiesEnumerating)),
+                    EventType.IdentitiesEnumerating.ToEventId(),
                     $"Enumerating {nameof(AuthenticationTicketIdentityViewModel)}: \r\n\tIsDeleted: {{IsDeleted}}")
-                .WithoutException();
-
-        public static void ActiveIdReading(
-                ILogger logger,
-                ulong userId)
-            => _activeIdReading.Invoke(
-                logger,
-                userId);
-        private static readonly Action<ILogger, ulong> _activeIdReading
-            = LoggerMessage.Define<ulong>(
-                    LogLevel.Debug,
-                    new EventId(4002, nameof(ActiveIdReading)),
-                    $"Reading {nameof(AuthenticationTicketEntity)} Active Id: \r\n\tUserId: {{UserId}}")
-                .WithoutException();
-
-        public static void ActiveIdRead(
-                ILogger logger,
-                ulong userId,
-                long ticketId)
-            => _activeIdRead.Invoke(
-                logger,
-                userId,
-                ticketId);
-        private static readonly Action<ILogger, ulong, long> _activeIdRead
-            = LoggerMessage.Define<ulong, long>(
-                    LogLevel.Debug,
-                    new EventId(4002, nameof(ActiveIdRead)),
-                    $"Active {nameof(AuthenticationTicketEntity)} found: \r\n\tUserId: {{UserId}}\r\n\tTicketId: {{TicketId}}")
                 .WithoutException();
     }
 }

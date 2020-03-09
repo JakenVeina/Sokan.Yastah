@@ -9,6 +9,25 @@ namespace Sokan.Yastah.Api
 {
     internal static class ApiControllerLogMessages
     {
+        public enum EventType
+        {
+            OperationResultTranslating  = ApiLogEventType.Controller + 0x0001,
+            OperationResultTranslated   = ApiLogEventType.Controller + 0x0002
+        }
+
+        public static void OperationResultTranslated(
+                ILogger logger,
+                IActionResult actionResult)
+            => _operationResultTranslated.Invoke(
+                logger,
+                actionResult);
+        private static readonly Action<ILogger, IActionResult> _operationResultTranslated
+            = LoggerMessage.Define<IActionResult>(
+                    LogLevel.Debug,
+                    EventType.OperationResultTranslated.ToEventId(),
+                    $"{nameof(OperationResult)} translated: {{ActionResult}}")
+                .WithoutException();
+
         public static void OperationResultTranslating(
                 ILogger logger,
                 OperationResult operationResult)
@@ -18,7 +37,7 @@ namespace Sokan.Yastah.Api
         private static readonly Action<ILogger, OperationResult> _operationResultTranslating
             = LoggerMessage.Define<OperationResult>(
                     LogLevel.Debug,
-                    new EventId(4001, nameof(OperationResultTranslating)),
+                    EventType.OperationResultTranslating.ToEventId(),
                     $"Translating {nameof(OperationResult)}: {{OperationResult}}")
                 .WithoutException();
 
@@ -33,22 +52,9 @@ namespace Sokan.Yastah.Api
             public static readonly Action<ILogger, OperationResult<T>> Instance
                 = LoggerMessage.Define<OperationResult<T>>(
                         LogLevel.Debug,
-                        new EventId(4002, nameof(OperationResultTranslating)),
+                        EventType.OperationResultTranslating.ToEventId(),
                         $"Translating {nameof(OperationResult)}: {{OperationResult}}")
                     .WithoutException();
         }
-
-        public static void OperationResultTranslated(
-                ILogger logger,
-                IActionResult actionResult)
-            => _operationResultTranslated.Invoke(
-                logger,
-                actionResult);
-        private static readonly Action<ILogger, IActionResult> _operationResultTranslated
-            = LoggerMessage.Define<IActionResult>(
-                    LogLevel.Debug,
-                    new EventId(4003, nameof(OperationResultTranslated)),
-                    $"{nameof(OperationResult)} translated: {{ActionResult}}")
-                .WithoutException();
     }
 }

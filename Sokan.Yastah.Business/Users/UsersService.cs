@@ -163,6 +163,7 @@ namespace Sokan.Yastah.Business.Users
                     cancellationToken);
                 AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
 
+                UsersLogMessages.DefaultPermissionIdsFetching(_logger);
                 var defaultPermissionIds = await _usersRepository
                         .AsyncEnumerateDefaultPermissionIds()
                     .ToArrayAsync(cancellationToken);
@@ -180,6 +181,7 @@ namespace Sokan.Yastah.Business.Users
                     UsersLogMessages.UserPermissionMappingsCreated(_logger, userId, mappingIds);
                 }
 
+                UsersLogMessages.DefaultRoleIdsFetching(_logger);
                 var defaultRoleIds = await _usersRepository
                         .AsyncEnumerateDefaultRoleIds()
                     .ToArrayAsync(cancellationToken);
@@ -260,6 +262,7 @@ namespace Sokan.Yastah.Business.Users
 
             var anyChanges = false;
 
+            UsersLogMessages.UserPermissionMappingIdentitiesFetching(_logger, userId);
             var permissionMappings = await _usersRepository.AsyncEnumeratePermissionMappingIdentities(
                     userId: userId,
                     isDeleted: false)
@@ -288,6 +291,7 @@ namespace Sokan.Yastah.Business.Users
                 actionId,
                 cancellationToken);
 
+            UsersLogMessages.UserRoleMappingIdentitiesFetching(_logger, userId);
             var roleMappings = await _usersRepository.AsyncEnumerateRoleMappingIdentities(
                     userId: userId,
                     isDeleted: false)
