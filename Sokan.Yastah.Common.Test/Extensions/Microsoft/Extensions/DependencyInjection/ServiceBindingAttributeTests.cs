@@ -55,6 +55,16 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.DependencyInj
                 IFakeAbstractService2,
                 IFakeAbstractService3 { }
 
+        [ServiceBinding(ServiceLifetime.Transient)]
+        private sealed class FakeDisposableService
+            : IFakeAbstractService1,
+                IFakeAbstractService2,
+                IFakeAbstractService3,
+                IDisposable
+        {
+            public void Dispose() { }
+        }
+
         #endregion Fakes
 
         #region Constructor Tests
@@ -164,12 +174,25 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.DependencyInj
 
                     new TestCaseData(
                             MakeFakeAssembly(
+                                typeof(FakeDisposableService).GetTypeInfo()),
+                            ImmutableArray.Create(
+                                /*                                  serviceType,                    implementationType,             implementationFactoryServiceType,   lifetime                    */
+                                new ServiceDescriptorExpectation(   typeof(FakeDisposableService),  typeof(FakeDisposableService),  null,                               ServiceLifetime.Transient   ),
+                                new ServiceDescriptorExpectation(   typeof(IFakeAbstractService1),  null,                           typeof(FakeDisposableService),      ServiceLifetime.Transient   ),
+                                new ServiceDescriptorExpectation(   typeof(IFakeAbstractService2),  null,                           typeof(FakeDisposableService),      ServiceLifetime.Transient   ),
+                                new ServiceDescriptorExpectation(   typeof(IFakeAbstractService3),  null,                           typeof(FakeDisposableService),      ServiceLifetime.Transient   )
+                            ))
+                        .SetName("{m}(Service is Disposable)"),
+
+                    new TestCaseData(
+                            MakeFakeAssembly(
                                 typeof(FakeType).GetTypeInfo(),
                                 typeof(FakeSimpleSingletonService).GetTypeInfo(),
                                 typeof(FakeSimpleScopedService).GetTypeInfo(),
                                 typeof(FakeSimpleTransientService).GetTypeInfo(),
                                 typeof(FakeAbstractService).GetTypeInfo(),
-                                typeof(FakeSharedAbstractService).GetTypeInfo()),
+                                typeof(FakeSharedAbstractService).GetTypeInfo(),
+                                typeof(FakeDisposableService).GetTypeInfo()),
                             ImmutableArray.Create(
                                 /*                                  serviceType,                        implementationType,                 implementationFactoryServiceType,   lifetime                    */
                                 new ServiceDescriptorExpectation(   typeof(FakeSimpleSingletonService), typeof(FakeSimpleSingletonService), null,                               ServiceLifetime.Singleton   ),
@@ -179,7 +202,11 @@ namespace Sokan.Yastah.Common.Test.Extensions.Microsoft.Extensions.DependencyInj
                                 new ServiceDescriptorExpectation(   typeof(FakeSharedAbstractService),  typeof(FakeSharedAbstractService),  null,                               ServiceLifetime.Scoped      ),
                                 new ServiceDescriptorExpectation(   typeof(IFakeAbstractService1),      null,                               typeof(FakeSharedAbstractService),  ServiceLifetime.Scoped      ),
                                 new ServiceDescriptorExpectation(   typeof(IFakeAbstractService2),      null,                               typeof(FakeSharedAbstractService),  ServiceLifetime.Scoped      ),
-                                new ServiceDescriptorExpectation(   typeof(IFakeAbstractService3),      null,                               typeof(FakeSharedAbstractService),  ServiceLifetime.Scoped      )
+                                new ServiceDescriptorExpectation(   typeof(IFakeAbstractService3),      null,                               typeof(FakeSharedAbstractService),  ServiceLifetime.Scoped      ),
+                                new ServiceDescriptorExpectation(   typeof(FakeDisposableService),      typeof(FakeDisposableService),      null,                               ServiceLifetime.Transient   ),
+                                new ServiceDescriptorExpectation(   typeof(IFakeAbstractService1),      null,                               typeof(FakeDisposableService),      ServiceLifetime.Transient   ),
+                                new ServiceDescriptorExpectation(   typeof(IFakeAbstractService2),      null,                               typeof(FakeDisposableService),      ServiceLifetime.Transient   ),
+                                new ServiceDescriptorExpectation(   typeof(IFakeAbstractService3),      null,                               typeof(FakeDisposableService),      ServiceLifetime.Transient   )
                             ))
                         .SetName("{m}(Many ServiceBindings present)")
                 );

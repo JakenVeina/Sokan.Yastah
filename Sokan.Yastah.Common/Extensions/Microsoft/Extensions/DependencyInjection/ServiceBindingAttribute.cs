@@ -20,7 +20,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     var attribute = mapping.attribute!;
                     var implementationType = mapping.typeInfo.AsType();
-                    var interfaces = mapping.typeInfo.ImplementedInterfaces.ToArray();
+                    var interfaces = mapping.typeInfo.ImplementedInterfaces
+                        .Where(x => x != typeof(IDisposable))
+                        .ToArray();
 
                     return interfaces switch
                     {
