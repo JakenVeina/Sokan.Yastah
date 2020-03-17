@@ -37,7 +37,7 @@ namespace Sokan.Yastah.Data.Roles
                 logger,
                 roleId,
                 versionId);
-        private static Action<ILogger, long, long> _roleCreated
+        private static readonly Action<ILogger, long, long> _roleCreated
             = LoggerMessage.Define<long, long>(
                     LogLevel.Information,
                     EventType.RoleCreated.ToEventId(),
@@ -52,7 +52,7 @@ namespace Sokan.Yastah.Data.Roles
                 logger,
                 name,
                 actionId);
-        private static Action<ILogger, string, long> _roleCreating
+        private static readonly Action<ILogger, string, long> _roleCreating
             = LoggerMessage.Define<string, long>(
                     LogLevel.Information,
                     EventType.RoleCreating.ToEventId(),
@@ -106,7 +106,7 @@ namespace Sokan.Yastah.Data.Roles
             => _roleNoChangesGiven.Invoke(
                 logger,
                 roleId);
-        private static Action<ILogger, long> _roleNoChangesGiven
+        private static readonly Action<ILogger, long> _roleNoChangesGiven
             = LoggerMessage.Define<long>(
                     LogLevel.Warning,
                     EventType.RoleNoChangesGiven.ToEventId(),
@@ -119,7 +119,7 @@ namespace Sokan.Yastah.Data.Roles
             => _rolePermissionMappingCreated.Invoke(
                 logger,
                 mappingId);
-        private static Action<ILogger, long> _rolePermissionMappingCreated
+        private static readonly Action<ILogger, long> _rolePermissionMappingCreated
             = LoggerMessage.Define<long>(
                     LogLevel.Information,
                     EventType.RolePermissionMappingCreated.ToEventId(),
@@ -136,7 +136,7 @@ namespace Sokan.Yastah.Data.Roles
                 roleId,
                 permissionId,
                 actionId);
-        private static Action<ILogger, long, int, long> _rolePermissionMappingCreating
+        private static readonly Action<ILogger, long, int, long> _rolePermissionMappingCreating
             = LoggerMessage.Define<long, int, long>(
                     LogLevel.Information,
                     EventType.RolePermissionMappingCreating.ToEventId(),
@@ -162,7 +162,7 @@ namespace Sokan.Yastah.Data.Roles
                 ILogger logger)
             => _rolePermissionMappingsCreated.Invoke(
                 logger);
-        private static Action<ILogger> _rolePermissionMappingsCreated
+        private static readonly Action<ILogger> _rolePermissionMappingsCreated
             = LoggerMessage.Define(
                     LogLevel.Information,
                     EventType.RolePermissionMappingsCreated.ToEventId(),
@@ -179,7 +179,7 @@ namespace Sokan.Yastah.Data.Roles
                 roleId,
                 permissionIds,
                 actionId);
-        private static Action<ILogger, long, IEnumerable<int>, long> _rolePermissionMappingsCreating
+        private static readonly Action<ILogger, long, IEnumerable<int>, long> _rolePermissionMappingsCreating
             = LoggerMessage.Define<long, IEnumerable<int>, long>(
                     LogLevel.Information,
                     EventType.RolePermissionMappingsCreating.ToEventId(),
@@ -190,7 +190,7 @@ namespace Sokan.Yastah.Data.Roles
                 ILogger logger)
             => _rolePermissionMappingsUpdated.Invoke(
                 logger);
-        private static Action<ILogger> _rolePermissionMappingsUpdated
+        private static readonly Action<ILogger> _rolePermissionMappingsUpdated
             = LoggerMessage.Define(
                     LogLevel.Information,
                     EventType.RolePermissionMappingsUpdated.ToEventId(),
@@ -205,7 +205,7 @@ namespace Sokan.Yastah.Data.Roles
                 logger,
                 mappingId,
                 deletionId);
-        private static Action<ILogger, long, long> _rolePermissionMappingUpdating
+        private static readonly Action<ILogger, long, long> _rolePermissionMappingUpdating
             = LoggerMessage.Define<long, long>(
                     LogLevel.Information,
                     EventType.RolePermissionMappingUpdating.ToEventId(),
@@ -220,7 +220,7 @@ namespace Sokan.Yastah.Data.Roles
                 logger,
                 mappingId,
                 versionId);
-        private static Action<ILogger, long, long> _roleUpdated
+        private static readonly Action<ILogger, long, long> _roleUpdated
             = LoggerMessage.Define<long, long>(
                     LogLevel.Information,
                     EventType.RoleUpdated.ToEventId(),
@@ -239,7 +239,7 @@ namespace Sokan.Yastah.Data.Roles
                 actionId,
                 name,
                 isDeleted);
-        private static Action<ILogger, long, long, Optional<string>, Optional<bool>> _roleUpdating
+        private static readonly Action<ILogger, long, long, Optional<string>, Optional<bool>> _roleUpdating
             = LoggerMessage.Define<long, long, Optional<string>, Optional<bool>>(
                     LogLevel.Information,
                     EventType.RoleUpdating.ToEventId(),
@@ -252,7 +252,7 @@ namespace Sokan.Yastah.Data.Roles
             => _roleVersionNotFound.Invoke(
                 logger,
                 roleId);
-        private static Action<ILogger, long> _roleVersionNotFound
+        private static readonly Action<ILogger, long> _roleVersionNotFound
             = LoggerMessage.Define<long>(
                     LogLevel.Warning,
                     EventType.RoleVersionNotFound.ToEventId(),
@@ -267,7 +267,7 @@ namespace Sokan.Yastah.Data.Roles
                 logger,
                 mappingIds,
                 deletionId);
-        private static Action<ILogger, IEnumerable<long>, long> _rolePermissionMappingsUpdating
+        private static readonly Action<ILogger, IEnumerable<long>, long> _rolePermissionMappingsUpdating
             = LoggerMessage.Define<IEnumerable<long>, long>(
                     LogLevel.Information,
                     EventType.RolePermissionMappingsUpdating.ToEventId(),

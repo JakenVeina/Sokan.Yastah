@@ -94,7 +94,7 @@ namespace Sokan.Yastah.Data.Users
                 avatarHash,
                 firstSeen,
                 lastSeen);
-        private static Action<ILogger, ulong, string, string, string?, DateTimeOffset, DateTimeOffset> _userCreating
+        private static readonly Action<ILogger, ulong, string, string, string?, DateTimeOffset, DateTimeOffset> _userCreating
             = LoggerMessage.Define<ulong, string, string, string?, DateTimeOffset, DateTimeOffset>(
                     LogLevel.Information,
                     EventType.UserCreating.ToEventId(),
@@ -146,7 +146,7 @@ namespace Sokan.Yastah.Data.Users
             => _userMerged.Invoke(
                 logger,
                 id);
-        private static Action<ILogger, ulong> _userMerged
+        private static readonly Action<ILogger, ulong> _userMerged
             = LoggerMessage.Define<ulong>(
                     LogLevel.Information,
                     EventType.UserMerged.ToEventId(),
@@ -169,7 +169,7 @@ namespace Sokan.Yastah.Data.Users
                 avatarHash,
                 firstSeen,
                 lastSeen);
-        private static Action<ILogger, ulong, string, string, string?, DateTimeOffset, DateTimeOffset> _userMerging
+        private static readonly Action<ILogger, ulong, string, string, string?, DateTimeOffset, DateTimeOffset> _userMerging
             = LoggerMessage.Define<ulong, string, string, string?, DateTimeOffset, DateTimeOffset>(
                     LogLevel.Information,
                     EventType.UserMerging.ToEventId(),
@@ -182,7 +182,7 @@ namespace Sokan.Yastah.Data.Users
             => _userNotFound.Invoke(
                 logger,
                 userId);
-        private static Action<ILogger, ulong> _userNotFound
+        private static readonly Action<ILogger, ulong> _userNotFound
             = LoggerMessage.Define<ulong>(
                     LogLevel.Warning,
                     EventType.UserNotFound.ToEventId(),
@@ -206,7 +206,7 @@ namespace Sokan.Yastah.Data.Users
             => _userPermissionMappingCreated.Invoke(
                 logger,
                 mappingId);
-        private static Action<ILogger, long> _userPermissionMappingCreated
+        private static readonly Action<ILogger, long> _userPermissionMappingCreated
             = LoggerMessage.Define<long>(
                     LogLevel.Information,
                     EventType.UserPermissionMappingCreated.ToEventId(),
@@ -225,7 +225,7 @@ namespace Sokan.Yastah.Data.Users
                 permissionId,
                 type,
                 actionId);
-        private static Action<ILogger, ulong, int, PermissionMappingType, long> _userPermissionMappingCreating
+        private static readonly Action<ILogger, ulong, int, PermissionMappingType, long> _userPermissionMappingCreating
             = LoggerMessage.Define<ulong, int, PermissionMappingType, long>(
                     LogLevel.Information,
                     EventType.UserPermissionMappingCreating.ToEventId(),
@@ -251,7 +251,7 @@ namespace Sokan.Yastah.Data.Users
                 ILogger logger)
             => _userPermissionMappingsCreated.Invoke(
                 logger);
-        private static Action<ILogger> _userPermissionMappingsCreated
+        private static readonly Action<ILogger> _userPermissionMappingsCreated
             = LoggerMessage.Define(
                     LogLevel.Information,
                     EventType.UserPermissionMappingsCreated.ToEventId(),
@@ -270,7 +270,7 @@ namespace Sokan.Yastah.Data.Users
                 permissionIds,
                 type,
                 actionId);
-        private static Action<ILogger, ulong, IEnumerable<int>, PermissionMappingType, long> _userPermissionMappingsCreating
+        private static readonly Action<ILogger, ulong, IEnumerable<int>, PermissionMappingType, long> _userPermissionMappingsCreating
             = LoggerMessage.Define<ulong, IEnumerable<int>, PermissionMappingType, long>(
                     LogLevel.Information,
                     EventType.UserPermissionMappingsCreating.ToEventId(),
@@ -281,7 +281,7 @@ namespace Sokan.Yastah.Data.Users
                 ILogger logger)
             => _userPermissionMappingsUpdated.Invoke(
                 logger);
-        private static Action<ILogger> _userPermissionMappingsUpdated
+        private static readonly Action<ILogger> _userPermissionMappingsUpdated
             = LoggerMessage.Define(
                     LogLevel.Information,
                     EventType.UserPermissionMappingsUpdated.ToEventId(),
@@ -296,7 +296,7 @@ namespace Sokan.Yastah.Data.Users
                 logger,
                 mappingIds,
                 deletionId);
-        private static Action<ILogger, IEnumerable<long>, long> _userPermissionMappingsUpdating
+        private static readonly Action<ILogger, IEnumerable<long>, long> _userPermissionMappingsUpdating
             = LoggerMessage.Define<IEnumerable<long>, long>(
                     LogLevel.Information,
                     EventType.UserPermissionMappingsUpdating.ToEventId(),
@@ -311,7 +311,7 @@ namespace Sokan.Yastah.Data.Users
                 logger,
                 mappingId,
                 deletionId);
-        private static Action<ILogger, long, long> _userPermissionMappingUpdating
+        private static readonly Action<ILogger, long, long> _userPermissionMappingUpdating
             = LoggerMessage.Define<long, long>(
                     LogLevel.Information,
                     EventType.UserPermissionMappingUpdating.ToEventId(),
@@ -324,7 +324,7 @@ namespace Sokan.Yastah.Data.Users
             => _userRoleMappingCreated.Invoke(
                 logger,
                 mappingId);
-        private static Action<ILogger, long> _userRoleMappingCreated
+        private static readonly Action<ILogger, long> _userRoleMappingCreated
             = LoggerMessage.Define<long>(
                     LogLevel.Information,
                     EventType.UserRoleMappingCreated.ToEventId(),
@@ -341,7 +341,7 @@ namespace Sokan.Yastah.Data.Users
                 userId,
                 roleId,
                 actionId);
-        private static Action<ILogger, ulong, long, long> _userRoleMappingCreating
+        private static readonly Action<ILogger, ulong, long, long> _userRoleMappingCreating
             = LoggerMessage.Define<ulong, long, long>(
                     LogLevel.Information,
                     EventType.UserRoleMappingCreating.ToEventId(),
@@ -367,7 +367,7 @@ namespace Sokan.Yastah.Data.Users
                 ILogger logger)
             => _userRoleMappingsCreated.Invoke(
                 logger);
-        private static Action<ILogger> _userRoleMappingsCreated
+        private static readonly Action<ILogger> _userRoleMappingsCreated
             = LoggerMessage.Define(
                     LogLevel.Information,
                     EventType.UserRoleMappingsCreated.ToEventId(),
@@ -384,7 +384,7 @@ namespace Sokan.Yastah.Data.Users
                 userId,
                 roleIds,
                 actionId);
-        private static Action<ILogger, ulong, IEnumerable<long>, long> _userRoleMappingsCreating
+        private static readonly Action<ILogger, ulong, IEnumerable<long>, long> _userRoleMappingsCreating
             = LoggerMessage.Define<ulong, IEnumerable<long>, long>(
                     LogLevel.Information,
                     EventType.UserRoleMappingsCreating.ToEventId(),
@@ -395,7 +395,7 @@ namespace Sokan.Yastah.Data.Users
                 ILogger logger)
             => _userRoleMappingsUpdated.Invoke(
                 logger);
-        private static Action<ILogger> _userRoleMappingsUpdated
+        private static readonly Action<ILogger> _userRoleMappingsUpdated
             = LoggerMessage.Define(
                     LogLevel.Information,
                     EventType.UserRoleMappingsUpdated.ToEventId(),
@@ -410,7 +410,7 @@ namespace Sokan.Yastah.Data.Users
                 logger,
                 mappingIds,
                 deletionId);
-        private static Action<ILogger, IEnumerable<long>, long> _userRoleMappingsUpdating
+        private static readonly Action<ILogger, IEnumerable<long>, long> _userRoleMappingsUpdating
             = LoggerMessage.Define<IEnumerable<long>, long>(
                     LogLevel.Information,
                     EventType.UserRoleMappingsUpdating.ToEventId(),
@@ -425,7 +425,7 @@ namespace Sokan.Yastah.Data.Users
                 logger,
                 mappingId,
                 deletionId);
-        private static Action<ILogger, long, long> _userRoleMappingUpdating
+        private static readonly Action<ILogger, long, long> _userRoleMappingUpdating
             = LoggerMessage.Define<long, long>(
                     LogLevel.Information,
                     EventType.UserRoleMappingUpdating.ToEventId(),
@@ -459,7 +459,7 @@ namespace Sokan.Yastah.Data.Users
                 discriminator,
                 avatarHash,
                 lastSeen);
-        private static Action<ILogger, ulong, string, string, string?, DateTimeOffset> _userUpdating
+        private static readonly Action<ILogger, ulong, string, string, string?, DateTimeOffset> _userUpdating
             = LoggerMessage.Define<ulong, string, string, string?, DateTimeOffset>(
                     LogLevel.Information,
                     EventType.UserUpdating.ToEventId(),
