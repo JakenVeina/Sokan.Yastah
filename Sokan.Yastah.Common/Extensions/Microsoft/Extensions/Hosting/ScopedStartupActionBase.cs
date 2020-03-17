@@ -7,8 +7,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Extensions.Hosting
 {
-    public abstract class ScopedStartupActionBase
+    public interface IScopedStartupAction
         : IBehavior
+    {
+        Task WhenDone { get; }
+    }
+
+    public abstract class ScopedStartupActionBase
+        : IScopedStartupAction
     {
         #region Construction
 
@@ -34,6 +40,7 @@ namespace Microsoft.Extensions.Hosting
         public async Task StartAsync(
             CancellationToken cancellationToken)
         {
+            using var logScope = HostingLogMessages.BeginStartupActionScope(_logger, this);
             HostingLogMessages.StartupActionExecuting(_logger);
 
             using var serviceScope = _serviceScopeFactory.CreateScope();

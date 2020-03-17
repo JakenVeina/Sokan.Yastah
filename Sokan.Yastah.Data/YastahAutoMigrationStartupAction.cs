@@ -10,9 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Sokan.Yastah.Data
 {
     public interface IYastahAutoMigrationStartupAction
-    {
-        Task WhenDone { get; }
-    }
+        : IScopedStartupAction { }
 
     [ServiceBinding(ServiceLifetime.Singleton)]
     public class YastahAutoMigrationStartupAction
