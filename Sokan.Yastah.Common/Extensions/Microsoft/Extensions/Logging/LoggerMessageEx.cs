@@ -1,4 +1,6 @@
-﻿using System;
+﻿#pragma warning disable // Not my code, not my problem
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
