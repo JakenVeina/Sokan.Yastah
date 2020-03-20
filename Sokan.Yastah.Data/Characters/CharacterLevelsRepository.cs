@@ -51,7 +51,6 @@ namespace Sokan.Yastah.Data.Characters
             Optional<bool> isDeleted = default,
             CancellationToken cancellationToken = default)
         {
-            using var logScope = _logger.BeginMemberScope();
             CharactersLogMessages.CharacterLevelDefinitionsEnumeratingAny(_logger, level, experienceThreshold, isDeleted);
 
             var query = _context.Set<CharacterLevelDefinitionVersionEntity>()
@@ -87,7 +86,6 @@ namespace Sokan.Yastah.Data.Characters
         public IAsyncEnumerable<CharacterLevelDefinitionViewModel> AsyncEnumerateDefinitions(
             Optional<bool> isDeleted = default)
         {
-            using var logScope = _logger.BeginMemberScope();
             CharactersLogMessages.CharacterLevelDefinitionsEnumerating(_logger, isDeleted);
 
             var query = _context.Set<CharacterLevelDefinitionVersionEntity>()
@@ -118,7 +116,6 @@ namespace Sokan.Yastah.Data.Characters
             long actionId,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             CharactersLogMessages.CharacterLevelDefinitionMerging(_logger, level, experienceThreshold, isDeleted, actionId);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();

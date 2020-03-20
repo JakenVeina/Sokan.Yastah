@@ -37,7 +37,6 @@ namespace Sokan.Yastah.Business.Authorization
 
         public OperationResult RequireAuthentication()
         {
-            using var logScope = _logger.BeginMemberScope();
             AuthorizationLogMessages.AuthenticationRequired(_logger);
             
             if(_authenticationService.CurrentTicket is null)
@@ -56,7 +55,6 @@ namespace Sokan.Yastah.Business.Authorization
             IReadOnlyCollection<int> permissionIds,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             AuthorizationLogMessages.PermissionsRequired(_logger, permissionIds);
 
             var authenticationResult = RequireAuthentication();

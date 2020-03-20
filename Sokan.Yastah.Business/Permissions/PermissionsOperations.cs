@@ -35,7 +35,7 @@ namespace Sokan.Yastah.Business.Permissions
         public async ValueTask<OperationResult<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>>> GetDescriptionsAsync(
             CancellationToken cancellationToken)
         {
-            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger, this);
             OperationLogMessages.OperationPerforming(_logger);
 
             OperationLogMessages.OperationAuthorizing(_logger);

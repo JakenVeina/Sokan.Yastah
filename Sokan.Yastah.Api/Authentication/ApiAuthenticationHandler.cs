@@ -46,7 +46,6 @@ namespace Sokan.Yastah.Api.Authentication
 
         protected override Task HandleSignInAsync(ClaimsPrincipal user, AuthenticationProperties properties)
         {
-            using var logScope = Logger.BeginMemberScope();
             AuthenticationLogMessages.SignInHandling(Logger);
 
             var token = _apiAuthenticationTokenBuilder.BuildToken(user.Identities.First());
@@ -89,7 +88,6 @@ namespace Sokan.Yastah.Api.Authentication
         
         protected override Task HandleSignOutAsync(AuthenticationProperties properties)
         {
-            using var logScope = Logger.BeginMemberScope();
             AuthenticationLogMessages.SignOutHandling(Logger);
 
             Response.Cookies.Delete(Options.TokenHeaderAndPayloadCookieKey);

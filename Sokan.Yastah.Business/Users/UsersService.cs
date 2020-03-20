@@ -79,7 +79,6 @@ namespace Sokan.Yastah.Business.Users
             ulong userId,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             UsersLogMessages.GrantedPermissionIdentitiesFetching(_logger, userId);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();
@@ -116,7 +115,6 @@ namespace Sokan.Yastah.Business.Users
                 CancellationToken cancellationToken)
             => _memoryCache.OptimisticGetOrCreateAsync<IReadOnlyCollection<ulong>>(MakeRoleMemberIdsCacheKey(roleId), async entry =>
             {
-                using var logScope = _logger.BeginMemberScope(nameof(GetRoleMemberIdsAsync));
                 UsersLogMessages.RoleMemberIdsFetching(_logger, roleId);
                 entry.Priority = CacheItemPriority.High;
 
@@ -135,7 +133,6 @@ namespace Sokan.Yastah.Business.Users
             string avatarHash,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             UsersLogMessages.UserTracking(_logger, userId, username, discriminator, avatarHash);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();
@@ -221,7 +218,6 @@ namespace Sokan.Yastah.Business.Users
             ulong performedById,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             UsersLogMessages.UserUpdating(_logger, userId, updateModel, performedById);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();

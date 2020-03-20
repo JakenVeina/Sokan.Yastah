@@ -62,7 +62,6 @@ namespace Sokan.Yastah.Data.Characters
             Optional<bool> isLatestVersion = default,
             CancellationToken cancellationToken = default)
         {
-            using var logScope = _logger.BeginMemberScope();
             CharactersLogMessages.CharacterGuildDivisionVersionsEnumeratingAny(_logger, guildId, excludedDivisionIds, name, isDeleted, isLatestVersion);
 
             var query = _context.Set<CharacterGuildDivisionVersionEntity>()
@@ -112,7 +111,6 @@ namespace Sokan.Yastah.Data.Characters
                 Optional<long> guildId = default,
                 Optional<bool> isDeleted = default)
         {
-            using var logScope = _logger.BeginMemberScope();
             CharactersLogMessages.CharacterGuildDivisionIdentitiesEnumerating(_logger, guildId, isDeleted);
 
             var query = _context.Set<CharacterGuildDivisionVersionEntity>()
@@ -147,7 +145,6 @@ namespace Sokan.Yastah.Data.Characters
             long actionId,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             CharactersLogMessages.CharacterGuildDivisionCreating(_logger, guildId, name, actionId);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();
@@ -188,7 +185,6 @@ namespace Sokan.Yastah.Data.Characters
             Optional<bool> isDeleted = default,
             CancellationToken cancellationToken = default)
         {
-            using var logScope = _logger.BeginMemberScope();
             CharactersLogMessages.CharacterGuildDivisionUpdating(_logger, divisionId, actionId, name, isDeleted);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();

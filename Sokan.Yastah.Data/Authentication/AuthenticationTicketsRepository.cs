@@ -47,7 +47,6 @@ namespace Sokan.Yastah.Data.Authentication
         public IAsyncEnumerable<AuthenticationTicketIdentityViewModel> AsyncEnumerateIdentities(
             Optional<bool> isDeleted = default)
         {
-            using var logScope = _logger.BeginMemberScope();
             AuthenticationLogMessages.IdentitiesEnumerating(_logger, isDeleted);
 
             var query = _context.Set<AuthenticationTicketEntity>()
@@ -76,7 +75,6 @@ namespace Sokan.Yastah.Data.Authentication
             long actionId,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             AuthenticationLogMessages.AuthenticationTicketCreating(_logger, userId, actionId);
 
             var ticket = new AuthenticationTicketEntity(
@@ -98,7 +96,6 @@ namespace Sokan.Yastah.Data.Authentication
             long actionId,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             AuthenticationLogMessages.AuthenticationTicketDeleting(_logger, ticketId, actionId);
 
             var ticket = await _context
@@ -129,7 +126,6 @@ namespace Sokan.Yastah.Data.Authentication
                 ulong userId,
                 CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             AuthenticationLogMessages.ActiveIdReading(_logger, userId);
 
             var id = await _context.Set<AuthenticationTicketEntity>()

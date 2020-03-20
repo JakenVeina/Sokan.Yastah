@@ -58,7 +58,7 @@ namespace Sokan.Yastah.Business.Roles
             RoleCreationModel creationModel,
             CancellationToken cancellationToken)
         {
-            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger, this);
             OperationLogMessages.OperationPerforming(_logger);
 
             OperationLogMessages.OperationAuthorizing(_logger);
@@ -85,7 +85,7 @@ namespace Sokan.Yastah.Business.Roles
             long roleId,
             CancellationToken cancellationToken)
         {
-            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger, this);
             OperationLogMessages.OperationPerforming(_logger);
 
             OperationLogMessages.OperationAuthorizing(_logger);
@@ -112,7 +112,7 @@ namespace Sokan.Yastah.Business.Roles
             long roleId,
             CancellationToken cancellationToken)
         {
-            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger, this);
             OperationLogMessages.OperationPerforming(_logger);
 
             OperationLogMessages.OperationAuthorizing(_logger);
@@ -139,7 +139,7 @@ namespace Sokan.Yastah.Business.Roles
         public async Task<OperationResult<IReadOnlyCollection<RoleIdentityViewModel>>> GetIdentitiesAsync(
             CancellationToken cancellationToken)
         {
-            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger, this);
             OperationLogMessages.OperationPerforming(_logger);
 
             OperationLogMessages.OperationAuthorizing(_logger);
@@ -166,7 +166,7 @@ namespace Sokan.Yastah.Business.Roles
             RoleUpdateModel updateModel,
             CancellationToken cancellationToken)
         {
-            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger, this);
             OperationLogMessages.OperationPerforming(_logger);
 
             OperationLogMessages.OperationAuthorizing(_logger);

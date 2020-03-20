@@ -1,20 +1,9 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 
 namespace Microsoft.Extensions.Logging
 {
     public static class LoggerExtensions
     {
-        public static IDisposable BeginMemberScope(
-                this ILogger logger,
-                [CallerMemberName] string? memberName = default)
-            => _beginMemberScope.Invoke(
-                logger,
-                memberName ?? "[UNKNOWN]");
-        private static readonly Func<ILogger, string, IDisposable> _beginMemberScope
-            = LoggerMessage.DefineScope<string>(
-                "MemberName: {MemberName}");
-
         public static Action<ILogger> WithoutException(
                 this Action<ILogger, Exception?> action)
             => logger => action.Invoke(logger, null);

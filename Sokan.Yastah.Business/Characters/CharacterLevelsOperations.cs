@@ -41,7 +41,7 @@ namespace Sokan.Yastah.Business.Characters
         public async Task<OperationResult<IReadOnlyList<CharacterLevelDefinitionViewModel>>> GetDefinitionsAsync(
             CancellationToken cancellationToken)
         {
-            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger, this);
             OperationLogMessages.OperationPerforming(_logger);
 
             OperationLogMessages.OperationAuthorizing(_logger);
@@ -67,7 +67,7 @@ namespace Sokan.Yastah.Business.Characters
             IReadOnlyList<int> experienceDiffs,
             CancellationToken cancellationToken)
         {
-            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger, this);
             OperationLogMessages.OperationPerforming(_logger);
 
             OperationLogMessages.OperationAuthorizing(_logger);

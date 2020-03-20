@@ -34,7 +34,6 @@ namespace Sokan.Yastah.Data.Administration
             ulong? performedById,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             AdministrationLogMessages.AdministrationActionCreating(_logger, typeId, performed, performedById);
 
             var action = new AdministrationActionEntity(

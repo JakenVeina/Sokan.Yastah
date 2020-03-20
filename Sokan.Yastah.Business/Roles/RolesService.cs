@@ -74,7 +74,6 @@ namespace Sokan.Yastah.Business.Roles
             ulong performedById,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             RolesLogMessages.RoleCreating(_logger, creationModel, performedById);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();
@@ -130,7 +129,6 @@ namespace Sokan.Yastah.Business.Roles
             ulong performedById,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             RolesLogMessages.RoleDeleting(_logger, roleId, performedById);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();
@@ -169,7 +167,6 @@ namespace Sokan.Yastah.Business.Roles
                 CancellationToken cancellationToken)
             => _memoryCache.OptimisticGetOrCreateAsync<IReadOnlyCollection<RoleIdentityViewModel>>(_getCurrentIdentitiesCacheKey, async entry =>
             {
-                using var logScope = _logger.BeginMemberScope(nameof(GetCurrentIdentitiesAsync));
                 RolesLogMessages.RoleIdentitiesFetchingCurrent(_logger);
 
                 entry.Priority = CacheItemPriority.High;
@@ -188,7 +185,6 @@ namespace Sokan.Yastah.Business.Roles
             ulong performedById,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             RolesLogMessages.RoleUpdating(_logger, roleId, updateModel, performedById);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();
@@ -282,7 +278,6 @@ namespace Sokan.Yastah.Business.Roles
             IReadOnlyCollection<long> roleIds,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             RolesLogMessages.RoleIdsValidating(_logger, roleIds);
 
             if (!roleIds.Any())

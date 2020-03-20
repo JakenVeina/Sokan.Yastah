@@ -60,7 +60,6 @@ namespace Sokan.Yastah.Business.Characters
             ulong performedById,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             CharactersLogMessages.CharacterGuildCreating(_logger, creationModel, performedById);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();
@@ -98,7 +97,6 @@ namespace Sokan.Yastah.Business.Characters
             ulong performedById,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             CharactersLogMessages.CharacterGuildDeleting(_logger, guildId, performedById);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();
@@ -132,7 +130,6 @@ namespace Sokan.Yastah.Business.Characters
         public async Task<IReadOnlyCollection<CharacterGuildIdentityViewModel>> GetCurrentIdentitiesAsync(
                 CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             CharactersLogMessages.CharacterGuildIdentitiesFetchingCurrent(_logger);
 
             var identities = await _characterGuildsRepository.AsyncEnumerateIdentities(
@@ -149,7 +146,6 @@ namespace Sokan.Yastah.Business.Characters
             ulong performedById,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             CharactersLogMessages.CharacterGuildUpdating(_logger, guildId, updateModel, performedById);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();

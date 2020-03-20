@@ -53,7 +53,6 @@ namespace Sokan.Yastah.Business.Characters
                 CancellationToken cancellationToken)
             => _memoryCache.OptimisticGetOrCreateAsync(_getCurrentDefinitionsCacheKey, async entry =>
             {
-                using var logScope = _logger.BeginMemberScope(nameof(GetCurrentDefinitionsAsync));
                 CharactersLogMessages.CharacterLevelDefinitionsFetchingCurrent(_logger);
 
                 entry.Priority = CacheItemPriority.High;
@@ -72,7 +71,6 @@ namespace Sokan.Yastah.Business.Characters
             ulong performedById,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             CharactersLogMessages.CharacterLevelDefinitionsUpdating(_logger);
 
             var totalExperience = 0;

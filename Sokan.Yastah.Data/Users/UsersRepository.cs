@@ -96,7 +96,6 @@ namespace Sokan.Yastah.Data.Users
             Optional<ulong> userId = default,
             CancellationToken cancellationToken = default)
         {
-            using var logScope = _logger.BeginMemberScope();
             UsersLogMessages.UsersEnumeratingAny(_logger, userId);
 
             var query = _context.Set<UserEntity>()
@@ -118,7 +117,6 @@ namespace Sokan.Yastah.Data.Users
 
         public IAsyncEnumerable<int> AsyncEnumerateDefaultPermissionIds()
         {
-            using var logScope = _logger.BeginMemberScope();
             UsersLogMessages.DefaultPermissionIdsEnumerating(_logger);
 
             var result = _context.Set<DefaultPermissionMappingEntity>()
@@ -133,7 +131,6 @@ namespace Sokan.Yastah.Data.Users
 
         public IAsyncEnumerable<long> AsyncEnumerateDefaultRoleIds()
         {
-            using var logScope = _logger.BeginMemberScope();
             UsersLogMessages.DefaultRoleIdsEnumerating(_logger);
 
             var result = _context.Set<DefaultRoleMappingEntity>()
@@ -149,7 +146,6 @@ namespace Sokan.Yastah.Data.Users
         public IAsyncEnumerable<PermissionIdentityViewModel> AsyncEnumerateGrantedPermissionIdentities(
                 ulong userId)
         {
-            using var logScope = _logger.BeginMemberScope();
             UsersLogMessages.GrantedPermissionIdentitiesEnumerating(_logger, userId);
 
             var result = _context.Set<PermissionEntity>()
@@ -185,7 +181,6 @@ namespace Sokan.Yastah.Data.Users
         public IAsyncEnumerable<ulong> AsyncEnumerateIds(
             Optional<long> roleId = default)
         {
-            using var logScope = _logger.BeginMemberScope();
             UsersLogMessages.UserIdsEnumerating(_logger, roleId);
 
             var query = _context.Set<UserEntity>()
@@ -211,7 +206,6 @@ namespace Sokan.Yastah.Data.Users
 
         public IAsyncEnumerable<UserOverviewViewModel> AsyncEnumerateOverviews()
         {
-            using var logScope = _logger.BeginMemberScope();
             UsersLogMessages.UserOverviewsEnumerating(_logger);
 
             var result = _context.Set<UserEntity>()
@@ -226,7 +220,6 @@ namespace Sokan.Yastah.Data.Users
             ulong userId,
             Optional<bool> isDeleted = default)
         {
-            using var logScope = _logger.BeginMemberScope();
             UsersLogMessages.UserPermissionMappingIdentitiesEnumerating(_logger, userId, isDeleted);
 
             var query = _context.Set<UserPermissionMappingEntity>()
@@ -255,7 +248,6 @@ namespace Sokan.Yastah.Data.Users
             ulong userId,
             Optional<bool> isDeleted = default)
         {
-            using var logScope = _logger.BeginMemberScope();
             UsersLogMessages.UserRoleMappingIdentitiesEnumerating(_logger, userId, isDeleted);
 
             var query = _context.Set<UserRoleMappingEntity>()
@@ -287,7 +279,6 @@ namespace Sokan.Yastah.Data.Users
             long actionId,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             UsersLogMessages.UserPermissionMappingsCreating(_logger, userId, permissionIds, type, actionId);
 
             var entities = permissionIds
@@ -320,7 +311,6 @@ namespace Sokan.Yastah.Data.Users
             long actionId,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             UsersLogMessages.UserRoleMappingsCreating(_logger, userId, roleIds, actionId);
 
             var entities = roleIds
@@ -355,7 +345,6 @@ namespace Sokan.Yastah.Data.Users
             DateTimeOffset lastSeen,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             UsersLogMessages.UserMerging(_logger, id, username, discriminator, avatarHash, firstSeen, lastSeen);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();
@@ -404,7 +393,6 @@ namespace Sokan.Yastah.Data.Users
             ulong userId,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             UsersLogMessages.UserDetailReading(_logger, userId);
 
             var result = await _context.Set<UserEntity>()
@@ -431,7 +419,6 @@ namespace Sokan.Yastah.Data.Users
             long deletionId,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             UsersLogMessages.UserPermissionMappingsUpdating(_logger, mappingIds, deletionId);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();
@@ -459,7 +446,6 @@ namespace Sokan.Yastah.Data.Users
             long deletionId,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             UsersLogMessages.UserRoleMappingsUpdating(_logger, mappingIds, deletionId);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();

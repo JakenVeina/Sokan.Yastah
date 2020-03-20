@@ -30,7 +30,6 @@ namespace Sokan.Yastah.Api.Authentication
         public static Task OnAuthenticationFailed(AuthenticationFailedContext context)
         {
             var logger = GetLogger(context.HttpContext.RequestServices);
-            using var logScope = logger.BeginMemberScope();
             AuthenticationLogMessages.AuthenticationFailureHandling(logger);
 
             var options = context.HttpContext.RequestServices.GetRequiredService<IOptions<ApiAuthenticationOptions>>().Value;
@@ -47,7 +46,6 @@ namespace Sokan.Yastah.Api.Authentication
         public static async Task OnCreatingTicket(OAuthCreatingTicketContext context)
         {
             var logger = GetLogger(context.HttpContext.RequestServices);
-            using var logScope = logger.BeginMemberScope();
             AuthenticationLogMessages.AuthenticationTicketCreationHandling(logger);
 
             var userId = ulong.Parse(context.Identity.Claims
@@ -95,7 +93,6 @@ namespace Sokan.Yastah.Api.Authentication
         public static Task OnMessageReceived(MessageReceivedContext context)
         {
             var logger = GetLogger(context.HttpContext.RequestServices);
-            using var logScope = logger.BeginMemberScope();
             AuthenticationLogMessages.HttpMessageReceiptHandling(logger);
 
             var options = context.HttpContext.RequestServices.GetRequiredService<IOptions<ApiAuthenticationOptions>>().Value;
@@ -116,7 +113,6 @@ namespace Sokan.Yastah.Api.Authentication
         public static async Task OnTokenValidated(TokenValidatedContext context)
         {
             var logger = GetLogger(context.HttpContext.RequestServices);
-            using var logScope = logger.BeginMemberScope();
             AuthenticationLogMessages.AuthenticationTokenValidationHandling(logger, context.SecurityToken);
 
             var jwtSecurityToken = (JwtSecurityToken)context.SecurityToken;

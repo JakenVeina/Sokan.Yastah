@@ -33,7 +33,6 @@ namespace Sokan.Yastah.Data.Permissions
 
         public IAsyncEnumerable<PermissionCategoryDescriptionViewModel> AsyncEnumerateDescriptions()
         {
-            using var logScope = _logger.BeginMemberScope();
             PermissionsLogMessages.CategoryDescriptionsEnumerating(_logger);
 
             var result = _context
@@ -47,7 +46,6 @@ namespace Sokan.Yastah.Data.Permissions
 
         public IAsyncEnumerable<PermissionIdentityViewModel> AsyncEnumerateIdentities()
         {
-            using var logScope = _logger.BeginMemberScope();
             PermissionsLogMessages.PermissionIdentitiesEnumerating(_logger);
 
             var result = _context
@@ -62,7 +60,6 @@ namespace Sokan.Yastah.Data.Permissions
         public IAsyncEnumerable<int> AsyncEnumeratePermissionIds(
                 Optional<IReadOnlyCollection<int>> permissionIds = default)
         {
-            using var logScope = _logger.BeginMemberScope();
             PermissionsLogMessages.PermissionIdsEnumerating(_logger, permissionIds);
 
             var query = _context.Set<PermissionEntity>()

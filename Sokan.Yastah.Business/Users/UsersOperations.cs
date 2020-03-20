@@ -51,7 +51,7 @@ namespace Sokan.Yastah.Business.Users
             ulong userId,
             CancellationToken cancellationToken)
         {
-            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger, this);
             OperationLogMessages.OperationPerforming(_logger);
 
             OperationLogMessages.OperationAuthorizing(_logger);
@@ -75,7 +75,7 @@ namespace Sokan.Yastah.Business.Users
         public async Task<OperationResult<IReadOnlyCollection<UserOverviewViewModel>>> GetOverviewsAsync(
             CancellationToken cancellationToken)
         {
-            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger, this);
             OperationLogMessages.OperationPerforming(_logger);
 
             OperationLogMessages.OperationAuthorizing(_logger);
@@ -102,7 +102,7 @@ namespace Sokan.Yastah.Business.Users
             UserUpdateModel updateModel,
             CancellationToken cancellationToken)
         {
-            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger, this);
             OperationLogMessages.OperationPerforming(_logger);
 
             OperationLogMessages.OperationAuthorizing(_logger);

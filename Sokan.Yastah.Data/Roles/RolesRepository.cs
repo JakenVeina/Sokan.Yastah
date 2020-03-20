@@ -79,7 +79,6 @@ namespace Sokan.Yastah.Data.Roles
             Optional<bool> isLatestVersion = default,
             CancellationToken cancellationToken = default)
         {
-            using var logScope = _logger.BeginMemberScope();
             RolesLogMessages.RoleVersionsEnumeratingAny(_logger, excludedRoleIds, name, isDeleted, isLatestVersion);
 
             var query = _context.Set<RoleVersionEntity>()
@@ -122,7 +121,6 @@ namespace Sokan.Yastah.Data.Roles
         public IAsyncEnumerable<RoleIdentityViewModel> AsyncEnumerateIdentities(
                 Optional<bool> isDeleted = default)
         {
-            using var logScope = _logger.BeginMemberScope();
             RolesLogMessages.RoleIdentitiesEnumerating(_logger, isDeleted);
 
             var query = _context.Set<RoleVersionEntity>()
@@ -149,7 +147,6 @@ namespace Sokan.Yastah.Data.Roles
             long roleId,
             Optional<bool> isDeleted = default)
         {
-            using var logScope = _logger.BeginMemberScope();
             RolesLogMessages.RolePermissionMappingIdentitiesEnumerating(_logger, roleId, isDeleted);
 
             var query = _context.Set<RolePermissionMappingEntity>()
@@ -179,7 +176,6 @@ namespace Sokan.Yastah.Data.Roles
             long actionId,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             RolesLogMessages.RoleCreating(_logger, name, actionId);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();
@@ -218,7 +214,6 @@ namespace Sokan.Yastah.Data.Roles
             long actionId,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             RolesLogMessages.RolePermissionMappingsCreating(_logger, roleId, permissionIds, actionId);
 
             var mappings = permissionIds
@@ -249,7 +244,6 @@ namespace Sokan.Yastah.Data.Roles
             Optional<bool> isDeleted = default,
             CancellationToken cancellationToken = default)
         {
-            using var logScope = _logger.BeginMemberScope();
             RolesLogMessages.RoleDetailReading(_logger, roleId, isDeleted);
 
             var query = _context.Set<RoleVersionEntity>()
@@ -288,7 +282,6 @@ namespace Sokan.Yastah.Data.Roles
             Optional<bool> isDeleted = default,
             CancellationToken cancellationToken = default)
         {
-            using var logScope = _logger.BeginMemberScope();
             RolesLogMessages.RoleUpdating(_logger, roleId, actionId, name, isDeleted);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();
@@ -349,7 +342,6 @@ namespace Sokan.Yastah.Data.Roles
             long deletionId,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             RolesLogMessages.RolePermissionMappingsUpdating(_logger, mappingIds, deletionId);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();

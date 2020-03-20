@@ -44,7 +44,6 @@ namespace Sokan.Yastah.Business.Permissions
                 CancellationToken cancellationToken)
             => _memoryCache.OptimisticGetOrCreateAsync<IReadOnlyCollection<PermissionCategoryDescriptionViewModel>>(_getDescriptionsCacheKey, async entry =>
             {
-                using var logScope = _logger.BeginMemberScope(nameof(GetDescriptionsAsync));
                 PermissionsLogMessages.PermissionCategoryDescriptionsFetching(_logger);
 
                 entry.Priority = CacheItemPriority.NeverRemove;
@@ -60,7 +59,6 @@ namespace Sokan.Yastah.Business.Permissions
                 CancellationToken cancellationToken)
             => _memoryCache.OptimisticGetOrCreateAsync<IReadOnlyCollection<PermissionIdentityViewModel>>(_getIdentitiesCacheKey, async entry =>
             {
-                using var logScope = _logger.BeginMemberScope(nameof(GetIdentitiesAsync));
                 PermissionsLogMessages.PermissionIdentitiesFetching(_logger);
                 
                 entry.Priority = CacheItemPriority.NeverRemove;
@@ -76,7 +74,6 @@ namespace Sokan.Yastah.Business.Permissions
             IReadOnlyCollection<int> permissionIds,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             PermissionsLogMessages.PermissionIdsValidating(_logger, permissionIds);
 
             if (!permissionIds.Any())

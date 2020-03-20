@@ -75,7 +75,6 @@ namespace Sokan.Yastah.Business.Authentication
             IReadOnlyDictionary<int, string> grantedPermissions,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             AuthenticationLogMessages.AuthenticationPerforming(_logger, ticketId, userId, username, discriminator, avatarHash, grantedPermissions);
 
             AuthenticationLogMessages.AuthenticationTicketActiveIdFetching(_logger, userId);
@@ -113,7 +112,6 @@ namespace Sokan.Yastah.Business.Authentication
             Func<CancellationToken, Task<IEnumerable<ulong>>> getGuildIdsDelegate,
             CancellationToken cancellationToken = default)
         {
-            using var logScope = _logger.BeginMemberScope();
             AuthenticationLogMessages.UserSigningIn(_logger, userId, username, discriminator);
 
             // Don't bother tracking or retrieving permissions for users we don't care about.

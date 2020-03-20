@@ -11,13 +11,15 @@ namespace Sokan.Yastah.Business
     {
         public static IDisposable BeginOperationScope(
                 ILogger logger,
-                [CallerMemberName]string operationName = default!)
+                object operationClass,
+                [CallerMemberName]string operationMethodName = default!)
             => _beginOperationScope.Invoke(
                 logger,
-                operationName);
-        private static readonly Func<ILogger, string, IDisposable> _beginOperationScope
-            = LoggerMessage.DefineScope<string>(
-                "OperationName: {OperationName}");
+                operationClass,
+                operationMethodName);
+        private static readonly Func<ILogger, object, string, IDisposable> _beginOperationScope
+            = LoggerMessage.DefineScope<object, string>(
+                "Operation: {OperationClass}.{OperationMethodName}");
 
         public static void OperationNotAuthorized(
                 ILogger logger)

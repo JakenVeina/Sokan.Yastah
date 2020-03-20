@@ -22,7 +22,6 @@ namespace System.Transactions
         public ITransactionScope CreateScope(
                 IsolationLevel? isolationLevel = default)
         {
-            using var logScope = _logger.BeginMemberScope();
             TransactionsLogMessages.TransactionScopeCreating(_logger);
 
             var result = new TransactionScopeWrapper(_logger, new TransactionOptions()
@@ -55,8 +54,6 @@ namespace System.Transactions
 
             public void Complete()
             {
-                using var logScope = _logger.BeginMemberScope();
-
                 TransactionsLogMessages.TransactionScopeCommitting(_logger);
                 _scope.Complete();
                 TransactionsLogMessages.TransactionScopeCommitted(_logger);
@@ -64,8 +61,6 @@ namespace System.Transactions
 
             public void Dispose()
             {
-                using var logScope = _logger.BeginMemberScope();
-
                 TransactionsLogMessages.TransactionScopeDisposing(_logger);
                 _scope.Dispose();
                 TransactionsLogMessages.TransactionScopeDisposed(_logger);

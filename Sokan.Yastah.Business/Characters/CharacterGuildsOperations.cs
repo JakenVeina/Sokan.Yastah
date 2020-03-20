@@ -51,7 +51,7 @@ namespace Sokan.Yastah.Business.Characters
             CharacterGuildCreationModel creationModel,
             CancellationToken cancellationToken)
         {
-            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger, this);
             OperationLogMessages.OperationPerforming(_logger);
 
             OperationLogMessages.OperationAuthorizing(_logger);
@@ -78,7 +78,7 @@ namespace Sokan.Yastah.Business.Characters
             long guildId,
             CancellationToken cancellationToken)
         {
-            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger, this);
             OperationLogMessages.OperationPerforming(_logger);
 
             OperationLogMessages.OperationAuthorizing(_logger);
@@ -104,7 +104,7 @@ namespace Sokan.Yastah.Business.Characters
         public async Task<OperationResult<IReadOnlyCollection<CharacterGuildIdentityViewModel>>> GetIdentitiesAsync(
             CancellationToken cancellationToken)
         {
-            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger, this);
             OperationLogMessages.OperationPerforming(_logger);
 
             OperationLogMessages.OperationAuthorizing(_logger);
@@ -130,7 +130,7 @@ namespace Sokan.Yastah.Business.Characters
             CharacterGuildUpdateModel updateModel,
             CancellationToken cancellationToken)
         {
-            using var logScope = OperationLogMessages.BeginOperationScope(_logger);
+            using var logScope = OperationLogMessages.BeginOperationScope(_logger, this);
             OperationLogMessages.OperationPerforming(_logger);
 
             OperationLogMessages.OperationAuthorizing(_logger);

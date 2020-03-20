@@ -57,7 +57,6 @@ namespace Sokan.Yastah.Data.Characters
             long actionId,
             CancellationToken cancellationToken)
         {
-            using var logScope = _logger.BeginMemberScope();
             CharactersLogMessages.CharacterCreating(_logger, ownerId, name, divisionId, experiencePoints, goldAmount, insanityValue, actionId);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();
@@ -106,7 +105,6 @@ namespace Sokan.Yastah.Data.Characters
             Optional<bool> isDeleted = default,
             CancellationToken cancellationToken = default)
         {
-            using var logScope = _logger.BeginMemberScope();
             CharactersLogMessages.CharacterUpdating(_logger, characterId, actionId, name, divisionId, experiencePoints, goldAmount, insanityValue, isDeleted);
 
             using var transactionScope = _transactionScopeFactory.CreateScope();

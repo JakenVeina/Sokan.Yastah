@@ -15,12 +15,12 @@ namespace Sokan.Yastah.Api
     {
         #region Constants
 
-        public const string DefaultAreaIdActionRouteTemplate = "{prefix}/[area]/[controller]/{id?}/[action]";
-        public const string DefaultAreaRouteTemplate = "{prefix}/[area]/[controller]/{id?}";
-        public const string DefaultAreaActionRouteTemplate = "{prefix}/[area]/[controller]/[action]/{id?}";
-        public const string DefaultIdActionRouteTemplate = "{prefix}/[controller]/{id?}/[action]";
-        public const string DefaultRouteTemplate = "{prefix}/[controller]/{id?}";
-        public const string DefaultActionRouteTemplate = "{prefix}/[controller]/[action]/{id?}";
+        public const string DefaultAreaIdActionRouteTemplate    = "{prefix}/[area]/[controller]/{id?}/[action]";
+        public const string DefaultAreaRouteTemplate            = "{prefix}/[area]/[controller]/{id?}";
+        public const string DefaultAreaActionRouteTemplate      = "{prefix}/[area]/[controller]/[action]/{id?}";
+        public const string DefaultIdActionRouteTemplate        = "{prefix}/[controller]/{id?}/[action]";
+        public const string DefaultRouteTemplate                = "{prefix}/[controller]/{id?}";
+        public const string DefaultActionRouteTemplate          = "{prefix}/[controller]/[action]/{id?}";
 
         #endregion Constants
 
@@ -38,11 +38,8 @@ namespace Sokan.Yastah.Api
             => _logger;
 
         internal protected IActionResult TranslateOperation(
-            OperationResult result,
-            [CallerMemberName] string operationName = default!)
+            OperationResult result)
         {
-            using var logScope = OperationLogMessages.BeginOperationScope(_logger, operationName);
-
             ApiControllerLogMessages.OperationResultTranslating(_logger, result);
             var actionResult = result.IsSuccess
                 ? Ok()
@@ -53,11 +50,8 @@ namespace Sokan.Yastah.Api
         }
 
         internal protected IActionResult TranslateOperation<T>(
-            OperationResult<T> result,
-            [CallerMemberName] string operationName = default!)
+            OperationResult<T> result)
         {
-            using var logScope = OperationLogMessages.BeginOperationScope(_logger, operationName);
-
             ApiControllerLogMessages.OperationResultTranslating(_logger, result);
             var actionResult = result.IsSuccess
                 ? Ok(result.Value)
