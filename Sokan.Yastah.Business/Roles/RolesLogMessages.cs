@@ -20,24 +20,26 @@ namespace Sokan.Yastah.Business.Roles
             RoleDeleting                            = BusinessLogEventType.Roles + 0x0007,
             RoleDeleteFailed                        = BusinessLogEventType.Roles + 0x0008,
             RoleDeleted                             = BusinessLogEventType.Roles + 0x0009,
-            RoleIdentitiesFetchingCurrent           = BusinessLogEventType.Roles + 0x000A,
-            RoleIdentitiesFetchedCurrent            = BusinessLogEventType.Roles + 0x000B,
-            RoleIdentitiesCacheCleared              = BusinessLogEventType.Roles + 0x000C,
-            RoleUpdating                            = BusinessLogEventType.Roles + 0x000D,
-            RoleUpdateNoChangesGiven                = BusinessLogEventType.Roles + 0x000E,
-            RoleUpdateFailed                        = BusinessLogEventType.Roles + 0x000F,
-            RoleUpdated                             = BusinessLogEventType.Roles + 0x0010,
-            RoleUpdatingNotificationPublishing      = BusinessLogEventType.Roles + 0x0011,
-            RoleUpdatingNotificationPublished       = BusinessLogEventType.Roles + 0x0012,
-            RolePermissionMappingIdentitiesFetching = BusinessLogEventType.Roles + 0x0013,
-            RolePermissionMappingIdentitiesFetched  = BusinessLogEventType.Roles + 0x0014,
-            RolePermissionMappingsCreating          = BusinessLogEventType.Roles + 0x0015,
-            RolePermissionMappingsCreated           = BusinessLogEventType.Roles + 0x0016,
-            RolePermissionMappingsDeleting          = BusinessLogEventType.Roles + 0x0017,
-            RolePermissionMappingsDeleted           = BusinessLogEventType.Roles + 0x0018,
-            RoleIdsValidating                       = BusinessLogEventType.Roles + 0x0019,
-            RoleIdsValidationFailed                 = BusinessLogEventType.Roles + 0x001A,
-            RoleIdsValidationSucceeded              = BusinessLogEventType.Roles + 0x001B
+            RoleDeletingNotificationPublishing      = BusinessLogEventType.Roles + 0x000A,
+            RoleDeletingNotificationPublished       = BusinessLogEventType.Roles + 0x000B,
+            RoleIdentitiesFetchingCurrent           = BusinessLogEventType.Roles + 0x000C,
+            RoleIdentitiesFetchedCurrent            = BusinessLogEventType.Roles + 0x000D,
+            RoleIdentitiesCacheCleared              = BusinessLogEventType.Roles + 0x000E,
+            RoleUpdating                            = BusinessLogEventType.Roles + 0x000F,
+            RoleUpdateNoChangesGiven                = BusinessLogEventType.Roles + 0x0010,
+            RoleUpdateFailed                        = BusinessLogEventType.Roles + 0x0011,
+            RoleUpdated                             = BusinessLogEventType.Roles + 0x0012,
+            RoleUpdatingNotificationPublishing      = BusinessLogEventType.Roles + 0x0013,
+            RoleUpdatingNotificationPublished       = BusinessLogEventType.Roles + 0x0014,
+            RolePermissionMappingIdentitiesFetching = BusinessLogEventType.Roles + 0x0015,
+            RolePermissionMappingIdentitiesFetched  = BusinessLogEventType.Roles + 0x0016,
+            RolePermissionMappingsCreating          = BusinessLogEventType.Roles + 0x0017,
+            RolePermissionMappingsCreated           = BusinessLogEventType.Roles + 0x0018,
+            RolePermissionMappingsDeleting          = BusinessLogEventType.Roles + 0x0019,
+            RolePermissionMappingsDeleted           = BusinessLogEventType.Roles + 0x001A,
+            RoleIdsValidating                       = BusinessLogEventType.Roles + 0x001B,
+            RoleIdsValidationFailed                 = BusinessLogEventType.Roles + 0x001C,
+            RoleIdsValidationSucceeded              = BusinessLogEventType.Roles + 0x001D
         }
 
         public static void PermissionIdsValidationFailed(
@@ -139,6 +141,32 @@ namespace Sokan.Yastah.Business.Roles
                     LogLevel.Debug,
                     EventType.RoleDeleting.ToEventId(),
                     "Deleting Role:\r\n\tRoleId: {RoleId}\r\n\tPerformedById: {PerformedById}")
+                .WithoutException();
+
+        public static void RoleDeletingNotificationPublished(
+                ILogger logger,
+                long roleId)
+            => _roleDeletingNotificationPublished.Invoke(
+                logger,
+                roleId);
+        private static readonly Action<ILogger, long> _roleDeletingNotificationPublished
+            = LoggerMessage.Define<long>(
+                    LogLevel.Debug,
+                    EventType.RoleDeletingNotificationPublished.ToEventId(),
+                    $"{nameof(RoleDeletingNotification)} published:\r\n\tRoleId: {{RoleId}}")
+                .WithoutException();
+
+        public static void RoleDeletingNotificationPublishing(
+                ILogger logger,
+                long roleId)
+            => _roleDeletingNotificationPublishing.Invoke(
+                logger,
+                roleId);
+        private static readonly Action<ILogger, long> _roleDeletingNotificationPublishing
+            = LoggerMessage.Define<long>(
+                    LogLevel.Debug,
+                    EventType.RoleDeletingNotificationPublishing.ToEventId(),
+                    $"Publishing {nameof(RoleDeletingNotification)}:\r\n\tRoleId: {{RoleId}}")
                 .WithoutException();
 
         public static void RoleIdentitiesCacheCleared(

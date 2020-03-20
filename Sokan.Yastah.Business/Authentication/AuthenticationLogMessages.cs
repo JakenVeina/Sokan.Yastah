@@ -22,16 +22,17 @@ namespace Sokan.Yastah.Business.Authentication
             GrantedPermissionsFetching              = BusinessLogEventType.Authentication + 0x000B,
             GrantedPermissionsFetched               = BusinessLogEventType.Authentication + 0x000C,
             RoleUpdating                            = BusinessLogEventType.Authentication + 0x000D,
-            UserInitializing                        = BusinessLogEventType.Authentication + 0x000E,
-            UserUpdating                            = BusinessLogEventType.Authentication + 0x000F,
-            AuthenticationTicketsInvalidating       = BusinessLogEventType.Authentication + 0x0010,
-            AuthenticationTicketsInvalidated        = BusinessLogEventType.Authentication + 0x0011,
-            AuthenticationTicketInvalidating        = BusinessLogEventType.Authentication + 0x0012,
-            AuthenticationTicketInvalidated         = BusinessLogEventType.Authentication + 0x0013,
-            AuthenticationTicketCreating            = BusinessLogEventType.Authentication + 0x0014,
-            AuthenticationTicketCreated             = BusinessLogEventType.Authentication + 0x0015,
-            AuthenticationTicketDeleting            = BusinessLogEventType.Authentication + 0x0016,
-            AuthenticationTicketDeleted             = BusinessLogEventType.Authentication + 0x0017
+            RoleDeleting                            = BusinessLogEventType.Authentication + 0x000E,
+            UserInitializing                        = BusinessLogEventType.Authentication + 0x000F,
+            UserUpdating                            = BusinessLogEventType.Authentication + 0x0010,
+            AuthenticationTicketsInvalidating       = BusinessLogEventType.Authentication + 0x0011,
+            AuthenticationTicketsInvalidated        = BusinessLogEventType.Authentication + 0x0012,
+            AuthenticationTicketInvalidating        = BusinessLogEventType.Authentication + 0x0013,
+            AuthenticationTicketInvalidated         = BusinessLogEventType.Authentication + 0x0014,
+            AuthenticationTicketCreating            = BusinessLogEventType.Authentication + 0x0015,
+            AuthenticationTicketCreated             = BusinessLogEventType.Authentication + 0x0016,
+            AuthenticationTicketDeleting            = BusinessLogEventType.Authentication + 0x0017,
+            AuthenticationTicketDeleted             = BusinessLogEventType.Authentication + 0x0018
         }
 
         public static void AuthenticationPerformed(
@@ -260,6 +261,19 @@ namespace Sokan.Yastah.Business.Authentication
                     LogLevel.Debug,
                     EventType.GuildIdsFetching.ToEventId(),
                     "Fetching User Guild IDs: UserId: {UserId}")
+                .WithoutException();
+
+        public static void RoleDeleting(
+                ILogger logger,
+                long roleId)
+            => _roleDeleting.Invoke(
+                logger,
+                roleId);
+        private static readonly Action<ILogger, long> _roleDeleting
+            = LoggerMessage.Define<long>(
+                    LogLevel.Debug,
+                    EventType.RoleDeleting.ToEventId(),
+                    "Deleting role: {RoleId}")
                 .WithoutException();
 
         public static void RoleUpdating(

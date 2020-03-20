@@ -493,7 +493,10 @@ namespace Sokan.Yastah.Business.Test.Roles
                     true,
                     testContext.CancellationToken));
 
-            testContext.MockMessenger.Invocations.ShouldBeEmpty();
+            testContext.MockMessenger.ShouldHaveReceived(x => x
+                .PublishNotificationAsync(
+                    It.Is<RoleDeletingNotification>(y => (y != null) && (y.RoleId == roleId) && (y.ActionId == actionId)),
+                    testContext.CancellationToken));
 
             testContext.MemoryCache.TryGetValue(RolesService._getCurrentIdentitiesCacheKey, out _)
                 .ShouldBeFalse();

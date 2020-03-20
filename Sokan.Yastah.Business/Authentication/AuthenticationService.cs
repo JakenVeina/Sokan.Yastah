@@ -44,6 +44,7 @@ namespace Sokan.Yastah.Business.Authentication
     public class AuthenticationService
         : IAuthenticationService,
             INotificationHandler<RoleUpdatingNotification>,
+            INotificationHandler<RoleDeletingNotification>,
             INotificationHandler<UserInitializingNotification>,
             INotificationHandler<UserUpdatingNotification>
     {
@@ -160,19 +161,21 @@ namespace Sokan.Yastah.Business.Authentication
             CancellationToken cancellationToken)
         {
             AuthenticationLogMessages.RoleUpdating(_logger, notification.RoleId);
-            
-            var userIds = await _usersService.GetRoleMemberIdsAsync(
+            await InvalidateRoleMemberTicketsAsync(
                 notification.RoleId,
+                notification.ActionId,
                 cancellationToken);
-            AuthenticationLogMessages.AuthenticationTicketsInvalidating(_logger, notification.RoleId);
+        }
 
-            foreach(var userId in userIds)
-                await UpdateActiveTicketId(
-                    userId,
-                    notification.ActionId,
-                    cancellationToken);
-
-            AuthenticationLogMessages.AuthenticationTicketsInvalidated(_logger, notification.RoleId);
+        public async Task OnNotificationPublishedAsync(
+            RoleDeletingNotification notification,
+            CancellationToken cancellationToken)
+        {
+            AuthenticationLogMessages.RoleDeleting(_logger, notification.RoleId);
+            await InvalidateRoleMemberTicketsAsync(
+                notification.RoleId,
+                notification.ActionId,
+                cancellationToken);
         }
 
         public Task OnNotificationPublishedAsync(
@@ -197,6 +200,25 @@ namespace Sokan.Yastah.Business.Authentication
                 notification.UserId,
                 notification.ActionId,
                 cancellationToken);
+        }
+
+        private async Task InvalidateRoleMemberTicketsAsync(
+            long roleId,
+            long actionId,
+            CancellationToken cancellationToken)
+        {
+            var userIds = await _usersService.GetRoleMemberIdsAsync(
+                roleId,
+                cancellationToken);
+            AuthenticationLogMessages.AuthenticationTicketsInvalidating(_logger, roleId);
+
+            foreach (var userId in userIds)
+                await UpdateActiveTicketId(
+                    userId,
+                    actionId,
+                    cancellationToken);
+
+            AuthenticationLogMessages.AuthenticationTicketsInvalidated(_logger, roleId);
         }
 
         private async Task<bool> IsMemberAsync(

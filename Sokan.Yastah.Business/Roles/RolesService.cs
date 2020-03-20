@@ -154,6 +154,14 @@ namespace Sokan.Yastah.Business.Roles
                 _memoryCache.Remove(_getCurrentIdentitiesCacheKey);
                 RolesLogMessages.RoleIdentitiesCacheCleared(_logger);
 
+                RolesLogMessages.RoleDeletingNotificationPublishing(_logger, roleId);
+                await _messenger.PublishNotificationAsync(
+                    new RoleDeletingNotification(
+                        roleId,
+                        actionId),
+                    cancellationToken);
+                RolesLogMessages.RoleDeletingNotificationPublished(_logger, roleId);
+
                 transactionScope.Complete();
                 TransactionsLogMessages.TransactionScopeCommitted(_logger);
             }

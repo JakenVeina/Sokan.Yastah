@@ -712,6 +712,120 @@ namespace Sokan.Yastah.Business.Test.Authentication
 
         #endregion OnNotificationPublishedAsync(RoleUpdatingNotification) Tests
 
+        #region OnNotificationPublishedAsync(RoleDeletingNotification) Tests
+
+        public static readonly IReadOnlyList<TestCaseData> OnNotificationPublishedAsync_RoleDeletingNotification_RoleHasNoMembers_TestCaseData
+            = new[]
+            {
+                /*                  roleId,         actionId        */
+                new TestCaseData(   long.MinValue,  long.MinValue   ).SetName("{m}(Min Values)"),
+                new TestCaseData(   1L,             2L              ).SetName("{m}(Unique Value Set 1)"),
+                new TestCaseData(   3L,             4L              ).SetName("{m}(Unique Value Set 2)"),
+                new TestCaseData(   5L,             6L              ).SetName("{m}(Unique Value Set 3)"),
+                new TestCaseData(   long.MaxValue,  long.MaxValue   ).SetName("{m}(Max Values)")
+            };
+
+        [TestCaseSource(nameof(OnNotificationPublishedAsync_RoleDeletingNotification_RoleHasNoMembers_TestCaseData))]
+        public async Task OnNotificationPublishedAsync_RoleDeletingNotification_RoleHasNoMembers_DoesNothing(
+            long roleId,
+            long actionId)
+        {
+            using var testContext = new TestContext();
+
+            testContext.SetRoleMemberIds(Array.Empty<ulong>());
+
+            var uut = testContext.BuildUut();
+
+            var notification = new RoleDeletingNotification(roleId, actionId);
+
+            await uut.OnNotificationPublishedAsync(
+                notification,
+                testContext.CancellationToken);
+
+            testContext.MockUsersService.ShouldHaveReceived(x => x
+                .GetRoleMemberIdsAsync(roleId, testContext.CancellationToken));
+
+            testContext.MockTransactionScopeFactory.ShouldNotHaveReceived(x => x
+                .CreateScope(It.IsAny<IsolationLevel?>()));
+        }
+
+        public static readonly IReadOnlyList<TestCaseData> OnNotificationPublishedAsync_RoleDeletingNotification_RoleHasMembers_TestCaseData
+            = new[]
+            {
+                /*                  roleId,         actionId        userTickets                                                     */
+                new TestCaseData(   long.MinValue,  long.MinValue,  new[] { (ulong.MinValue, long.MinValue, long.MinValue) }        ).SetName("{m}(Min Values)"),
+                new TestCaseData(   1L,             2L,             new[] { (3UL, 4L, 5L) }                                         ).SetName("{m}(Unique Value Set 1)"),
+                new TestCaseData(   6L,             7L,             new[] { (8UL, 9L, 10L), (11UL, 12L, 13L) }                      ).SetName("{m}(Unique Value Set 2)"),
+                new TestCaseData(   14L,            15L,            new[] { (16UL, 17L, 18L), (19UL, 20L, 21L), (22UL, 23L, 24L) }  ).SetName("{m}(Unique Value Set 3)"),
+                new TestCaseData(   long.MaxValue,  long.MaxValue,  new[] { (ulong.MaxValue, long.MaxValue, long.MaxValue) }        ).SetName("{m}(Max Values)")
+            };
+
+        [TestCaseSource(nameof(OnNotificationPublishedAsync_RoleDeletingNotification_RoleHasMembers_TestCaseData))]
+        public async Task OnNotificationPublishedAsync_RoleDeletingNotification_RoleHasMembers_DeletesActiveTicketsAndCreatesNewTickets(
+            long roleId,
+            long actionId,
+            IReadOnlyList<(ulong userId, long activeTicketId, long newTicketId)> userTickets)
+        {
+            using var testContext = new TestContext();
+
+            testContext.SetRoleMemberIds(userTickets.Select(x => x.userId).ToArray());
+
+            foreach (var (userId, activeTicketId, newTicketId) in userTickets)
+            {
+                testContext.SetActiveTicketId(userId, activeTicketId);
+                testContext.SetNextTicketId(userId, newTicketId);
+            }
+
+            var uut = testContext.BuildUut();
+
+            var notification = new RoleDeletingNotification(roleId, actionId);
+
+            await uut.OnNotificationPublishedAsync(
+                notification,
+                testContext.CancellationToken);
+
+            testContext.MockUsersService.ShouldHaveReceived(x => x
+                .GetRoleMemberIdsAsync(roleId, testContext.CancellationToken));
+
+            testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
+                    .CreateScope(It.IsAny<IsolationLevel?>()),
+                Times.Exactly(userTickets.Count));
+
+            foreach (var (userId, activeTicketId, newTicketId) in userTickets)
+            {
+                testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
+                    .ReadActiveIdAsync(
+                        userId,
+                        testContext.CancellationToken));
+
+                testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
+                    .DeleteAsync(
+                        activeTicketId,
+                        actionId,
+                        testContext.CancellationToken));
+
+                testContext.MockAuthenticationTicketsRepository.ShouldHaveReceived(x => x
+                    .CreateAsync(
+                        userId,
+                        actionId,
+                        testContext.CancellationToken));
+
+                testContext.MemoryCache.TryGetValue(AuthenticationService.MakeUserActiveTicketIdCacheKey(userId), out var cacheValue)
+                    .ShouldBeTrue();
+                cacheValue.ShouldBe(newTicketId);
+            }
+
+            foreach (var mockTransactionScope in testContext.MockTransactionScopes)
+            {
+                mockTransactionScope.ShouldHaveReceived(x => x
+                    .Complete());
+                mockTransactionScope.ShouldHaveReceived(x => x
+                    .Dispose());
+            }
+        }
+
+        #endregion OnNotificationPublishedAsync(RoleDeletingNotification) Tests
+
         #region OnNotificationPublishedAsync(UserInitializingNotification) Tests
 
         public static readonly IReadOnlyList<TestCaseData> OnNotificationPublishedAsync_UserInitializingNotification_TestCaseData
