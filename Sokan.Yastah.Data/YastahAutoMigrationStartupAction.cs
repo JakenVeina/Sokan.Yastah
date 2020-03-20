@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -12,7 +13,6 @@ namespace Sokan.Yastah.Data
     public interface IYastahAutoMigrationStartupAction
         : IScopedStartupAction { }
 
-    [ServiceBinding(ServiceLifetime.Singleton)]
     public class YastahAutoMigrationStartupAction
         : ScopedStartupActionBase,
             IYastahAutoMigrationStartupAction
@@ -32,5 +32,15 @@ namespace Sokan.Yastah.Data
             await serviceProvider.GetRequiredService<YastahDbContext>().Database.MigrateAsync(cancellationToken);
             YastahDbContextLogMessages.ContextMigrated(_logger);
         }
+    }
+
+    [ServiceConfigurator]
+    public class YastahAutoMigrationStartupActionServiceConfigurator
+        : IServiceConfigurator
+    {
+        public void ConfigureServices(
+                IServiceCollection services,
+                IConfiguration configuration)
+            => services.AddSingleton<IYastahAutoMigrationStartupAction, IBehavior, YastahAutoMigrationStartupAction>();
     }
 }

@@ -19,5 +19,15 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return services;
         }
+
+        public static IServiceCollection AddSingleton<TService1, TService2, TImplementation>(
+                    this IServiceCollection services)
+                where TService1 : class
+                where TService2 : class
+                where TImplementation : class, TService1, TService2
+            => services
+                .AddSingleton<TImplementation>()
+                .AddSingleton<TService1>(serviceProvider => serviceProvider.GetRequiredService<TImplementation>())
+                .AddSingleton<TService2>(serviceProvider => serviceProvider.GetRequiredService<TImplementation>());
     }
 }
