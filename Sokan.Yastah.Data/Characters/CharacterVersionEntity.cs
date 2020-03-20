@@ -16,9 +16,9 @@ namespace Sokan.Yastah.Data.Characters
             long characterId,
             string name,
             long divisionId,
-            decimal experiencePoints,
-            decimal goldAmount,
-            decimal insanityValue,
+            int experiencePoints,
+            int goldAmount,
+            int insanityValue,
             bool isDeleted,
             long creationId,
             long? previousVersionId,
@@ -56,11 +56,11 @@ namespace Sokan.Yastah.Data.Characters
         public CharacterGuildDivisionEntity Division { get; internal set; }
             = null!;
 
-        public decimal ExperiencePoints { get; }
+        public int ExperiencePoints { get; }
 
-        public decimal GoldAmount { get; }
+        public int GoldAmount { get; }
 
-        public decimal InsanityValue { get; }
+        public int InsanityValue { get; }
 
         public bool IsDeleted { get; }
 

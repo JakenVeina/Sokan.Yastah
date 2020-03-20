@@ -16,9 +16,9 @@ namespace Sokan.Yastah.Data.Characters
             ulong ownerId,
             string name,
             long divisionId,
-            decimal experiencePoints,
-            decimal goldAmount,
-            decimal insanityValue,
+            int experiencePoints,
+            int goldAmount,
+            int insanityValue,
             long actionId,
             CancellationToken cancellationToken);
 
@@ -27,9 +27,9 @@ namespace Sokan.Yastah.Data.Characters
             long actionId,
             Optional<string> name = default,
             Optional<long> divisionId = default,
-            Optional<decimal> experiencePoints = default,
-            Optional<decimal> goldAmount = default,
-            Optional<decimal> insanityValue = default,
+            Optional<int> experiencePoints = default,
+            Optional<int> goldAmount = default,
+            Optional<int> insanityValue = default,
             Optional<bool> isDeleted = default,
             CancellationToken cancellationToken = default);
     }
@@ -51,9 +51,9 @@ namespace Sokan.Yastah.Data.Characters
             ulong ownerId,
             string name,
             long divisionId,
-            decimal experiencePoints,
-            decimal goldAmount,
-            decimal insanityValue,
+            int experiencePoints,
+            int goldAmount,
+            int insanityValue,
             long actionId,
             CancellationToken cancellationToken)
         {
@@ -99,9 +99,9 @@ namespace Sokan.Yastah.Data.Characters
             long actionId,
             Optional<string> name = default,
             Optional<long> divisionId = default,
-            Optional<decimal> experiencePoints = default,
-            Optional<decimal> goldAmount = default,
-            Optional<decimal> insanityValue = default,
+            Optional<int> experiencePoints = default,
+            Optional<int> goldAmount = default,
+            Optional<int> insanityValue = default,
             Optional<bool> isDeleted = default,
             CancellationToken cancellationToken = default)
         {

@@ -62,9 +62,9 @@ namespace Sokan.Yastah.Data.Characters
                 ulong ownerId,
                 string name,
                 long divisionId,
-                decimal experiencePoints,
-                decimal goldAmount,
-                decimal insanityValue,
+                int experiencePoints,
+                int goldAmount,
+                int insanityValue,
                 long actionId)
             => _characterCreating.Invoke(
                 logger,
@@ -75,8 +75,8 @@ namespace Sokan.Yastah.Data.Characters
                 goldAmount,
                 insanityValue,
                 actionId);
-        private static readonly Action<ILogger, ulong, string, long, decimal, decimal, decimal, long> _characterCreating
-            = LoggerMessageEx.Define<ulong, string, long, decimal, decimal, decimal, long>(
+        private static readonly Action<ILogger, ulong, string, long, int, int, int, long> _characterCreating
+            = LoggerMessageEx.Define<ulong, string, long, int, int, int, long>(
                     LogLevel.Information,
                     EventType.CharacterCreating.ToEventId(),
                     $"Creating {nameof(CharacterEntity)}: \r\n\tOwnerId: {{OwnerId}}\r\n\tName: {{Name}}\r\n\tDivisionId: {{DivisionId}}\r\n\tExperiencePoints: {{ExperiencePoints}}\r\n\tGoldAmount: {{GoldAmount}}\r\n\tInsanityValue: {{InsanityValue}}\r\n\tActionId: {{ActionId}}")
@@ -473,9 +473,9 @@ namespace Sokan.Yastah.Data.Characters
                 long actionId,
                 Optional<string> name,
                 Optional<long> divisionId,
-                Optional<decimal> experiencePoints,
-                Optional<decimal> goldAmount,
-                Optional<decimal> insanityValue,
+                Optional<int> experiencePoints,
+                Optional<int> goldAmount,
+                Optional<int> insanityValue,
                 Optional<bool> isDeleted)
             => _characterUpdating.Invoke(
                 logger,
@@ -487,8 +487,8 @@ namespace Sokan.Yastah.Data.Characters
                 goldAmount,
                 insanityValue,
                 isDeleted);
-        private static readonly Action<ILogger, long, long, Optional<string>, Optional<long>, Optional<decimal>, Optional<decimal>, Optional<decimal>, Optional<bool>> _characterUpdating
-            = LoggerMessageEx.Define<long, long, Optional<string>, Optional<long>, Optional<decimal>, Optional<decimal>, Optional<decimal>, Optional<bool>>(
+        private static readonly Action<ILogger, long, long, Optional<string>, Optional<long>, Optional<int>, Optional<int>, Optional<int>, Optional<bool>> _characterUpdating
+            = LoggerMessageEx.Define<long, long, Optional<string>, Optional<long>, Optional<int>, Optional<int>, Optional<int>, Optional<bool>>(
                     LogLevel.Information,
                     EventType.CharacterUpdating.ToEventId(),
                     $"Updating {nameof(CharacterEntity)}: \r\n\tCharacterId: {{CharacterId}}\r\n\tActionId: {{ActionId}}\r\n\tName: {{Name}}\r\n\tDivisionId: {{DivisionId}}\r\n\tExperiencePoints: {{ExperiencePoints}}\r\n\tGoldAmount: {{GoldAmount}}\r\n\tInsanityValue: {{InsanityValue}}\r\n\tIsDeleted: {{IsDeleted}}")
