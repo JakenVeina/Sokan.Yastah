@@ -1,9 +1,9 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-using Sokan.Yastah.Business;
 using Sokan.Yastah.Business.Authorization;
 using Sokan.Yastah.Common.OperationModel;
 using Sokan.Yastah.Data;
@@ -37,9 +37,21 @@ namespace Sokan.Yastah.Api
         internal protected ILogger Logger
             => _logger;
 
-        internal protected IActionResult TranslateOperation(
-            OperationResult result)
+        internal async protected Task<IActionResult> PerformOperationAsync(
+            Func<Task<OperationResult>> operation)
         {
+            ApiControllerLogMessages.OperationModelStateValidating(_logger, operation);
+            if (!ModelState.IsValid)
+            {
+                ApiControllerLogMessages.OperationModelStateValidationFailed(_logger, ModelState);
+                return TranslateOperationError(ApiValidationError.FromModelState(ModelState));
+            }
+            ApiControllerLogMessages.OperationModelStateValidationSucceeded(_logger);
+
+            ApiControllerLogMessages.OperationPerforming(_logger, operation);
+            var result = await operation.Invoke();
+            ApiControllerLogMessages.OperationPerformed(_logger, operation);
+
             ApiControllerLogMessages.OperationResultTranslating(_logger, result);
             var actionResult = result.IsSuccess
                 ? Ok()
@@ -49,9 +61,45 @@ namespace Sokan.Yastah.Api
             return actionResult;
         }
 
-        internal protected IActionResult TranslateOperation<T>(
-            OperationResult<T> result)
+        internal async protected Task<IActionResult> PerformOperationAsync<T>(
+            Func<Task<OperationResult<T>>> operation)
         {
+            ApiControllerLogMessages.OperationModelStateValidating(_logger, operation);
+            if (!ModelState.IsValid)
+            {
+                ApiControllerLogMessages.OperationModelStateValidationFailed(_logger, ModelState);
+                return TranslateOperationError(ApiValidationError.FromModelState(ModelState));
+            }
+            ApiControllerLogMessages.OperationModelStateValidationSucceeded(_logger);
+
+            ApiControllerLogMessages.OperationPerforming(_logger, operation);
+            var result = await operation.Invoke();
+            ApiControllerLogMessages.OperationPerformed(_logger, operation);
+
+            ApiControllerLogMessages.OperationResultTranslating(_logger, result);
+            var actionResult = result.IsSuccess
+                ? Ok(result.Value)
+                : TranslateOperationError(result.Error);
+            ApiControllerLogMessages.OperationResultTranslated(_logger, actionResult);
+
+            return actionResult;
+        }
+
+        internal async protected ValueTask<IActionResult> PerformOperationAsync<T>(
+            Func<ValueTask<OperationResult<T>>> operation)
+        {
+            ApiControllerLogMessages.OperationModelStateValidating(_logger, operation);
+            if (!ModelState.IsValid)
+            {
+                ApiControllerLogMessages.OperationModelStateValidationFailed(_logger, ModelState);
+                return TranslateOperationError(ApiValidationError.FromModelState(ModelState));
+            }
+            ApiControllerLogMessages.OperationModelStateValidationSucceeded(_logger);
+
+            ApiControllerLogMessages.OperationPerforming(_logger, operation);
+            var result = await operation.Invoke();
+            ApiControllerLogMessages.OperationPerformed(_logger, operation);
+
             ApiControllerLogMessages.OperationResultTranslating(_logger, result);
             var actionResult = result.IsSuccess
                 ? Ok(result.Value)

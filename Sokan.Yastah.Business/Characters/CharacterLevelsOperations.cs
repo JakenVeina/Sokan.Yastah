@@ -14,7 +14,7 @@ namespace Sokan.Yastah.Business.Characters
 {
     public interface ICharacterLevelsOperations
     {
-        Task<OperationResult<IReadOnlyList<CharacterLevelDefinitionViewModel>>> GetDefinitionsAsync(
+        ValueTask<OperationResult<IReadOnlyList<CharacterLevelDefinitionViewModel>>> GetDefinitionsAsync(
             CancellationToken cancellationToken);
 
         Task<OperationResult> UpdateExperienceDiffsAsync(
@@ -38,7 +38,7 @@ namespace Sokan.Yastah.Business.Characters
             _logger = logger;
         }
 
-        public async Task<OperationResult<IReadOnlyList<CharacterLevelDefinitionViewModel>>> GetDefinitionsAsync(
+        public async ValueTask<OperationResult<IReadOnlyList<CharacterLevelDefinitionViewModel>>> GetDefinitionsAsync(
             CancellationToken cancellationToken)
         {
             using var logScope = OperationLogMessages.BeginOperationScope(_logger, this);

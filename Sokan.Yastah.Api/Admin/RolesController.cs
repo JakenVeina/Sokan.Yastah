@@ -21,38 +21,38 @@ namespace Sokan.Yastah.Api.Admin
         #endregion Construction
 
         #region Actions
-        
+
         [HttpPost(DefaultAreaActionRouteTemplate)]
-        public async Task<IActionResult> New(
+        public Task<IActionResult> New(
                 [FromBody]RoleCreationModel body)
-            => TranslateOperation(await _rolesOperations.CreateAsync(
+            => PerformOperationAsync(() => _rolesOperations.CreateAsync(
                 creationModel: body,
                 cancellationToken: HttpContext.RequestAborted));
 
         [HttpDelete(DefaultAreaRouteTemplate)]
-        public async Task<IActionResult> Delete(
+        public Task<IActionResult> Delete(
                 long id)
-            => TranslateOperation(await _rolesOperations.DeleteAsync(
+            => PerformOperationAsync(() => _rolesOperations.DeleteAsync(
                 roleId: id,
                 cancellationToken: HttpContext.RequestAborted));
 
         [HttpGet(DefaultAreaIdActionRouteTemplate)]
-        public async Task<IActionResult> Detail(
+        public Task<IActionResult> Detail(
                 long id)
-            => TranslateOperation(await _rolesOperations.GetDetailAsync(
+            => PerformOperationAsync(() => _rolesOperations.GetDetailAsync(
                 roleId: id,
                 cancellationToken: HttpContext.RequestAborted));
 
         [HttpGet(DefaultAreaActionRouteTemplate)]
-        public async Task<IActionResult> Identities()
-            => TranslateOperation(await _rolesOperations.GetIdentitiesAsync(
+        public ValueTask<IActionResult> Identities()
+            => PerformOperationAsync(() => _rolesOperations.GetIdentitiesAsync(
                 cancellationToken: HttpContext.RequestAborted));
 
         [HttpPut(DefaultAreaRouteTemplate)]
-        public async Task<IActionResult> Update(
+        public Task<IActionResult> Update(
                 long id,
                 [FromBody]RoleUpdateModel body)
-            => TranslateOperation(await _rolesOperations.UpdateAsync(
+            => PerformOperationAsync(() => _rolesOperations.UpdateAsync(
                 roleId: id,
                 updateModel: body,
                 cancellationToken: HttpContext.RequestAborted));

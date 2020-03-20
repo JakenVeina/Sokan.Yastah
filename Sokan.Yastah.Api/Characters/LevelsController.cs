@@ -25,14 +25,14 @@ namespace Sokan.Yastah.Api.Characters
         #region Actions
 
         [HttpGet(DefaultAreaActionRouteTemplate)]
-        public async Task<IActionResult> Definitions()
-            => TranslateOperation(await _characterLevelsOperations.GetDefinitionsAsync(
+        public ValueTask<IActionResult> Definitions()
+            => PerformOperationAsync(() => _characterLevelsOperations.GetDefinitionsAsync(
                 cancellationToken: HttpContext.RequestAborted));
 
         [HttpPut(DefaultAreaActionRouteTemplate)]
-        public async Task<IActionResult> ExperienceDiffs(
+        public Task<IActionResult> ExperienceDiffs(
                 [FromBody]IReadOnlyList<int> body)
-            => TranslateOperation(await _characterLevelsOperations.UpdateExperienceDiffsAsync(
+            => PerformOperationAsync(() => _characterLevelsOperations.UpdateExperienceDiffsAsync(
                 experienceDiffs: body,
                 cancellationToken: HttpContext.RequestAborted));
 

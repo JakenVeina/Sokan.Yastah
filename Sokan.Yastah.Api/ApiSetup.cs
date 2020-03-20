@@ -21,8 +21,9 @@ namespace Sokan.Yastah.Api
         {
             services.AddMvcCore()
                 .AddAuthorization()
-                .AddFormatterMappings()
-                .AddCors();
+                .AddCors()
+                .AddDataAnnotations()
+                .AddFormatterMappings();
 
             services.AddAuthentication(ApiAuthenticationDefaults.AuthenticationScheme)
                 .AddScheme<ApiAuthenticationOptions, ApiAuthenticationHandler>(ApiAuthenticationDefaults.AuthenticationScheme, null)

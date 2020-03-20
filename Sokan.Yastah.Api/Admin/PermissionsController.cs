@@ -19,12 +19,12 @@ namespace Sokan.Yastah.Api.Admin
             => _permissionsOperations = permissionsOperations;
 
         #endregion Construction
-        
+
         #region Actions
-        
+
         [HttpGet(DefaultAreaActionRouteTemplate)]
-        public async Task<IActionResult> Descriptions()
-            => TranslateOperation(await _permissionsOperations.GetDescriptionsAsync(
+        public ValueTask<IActionResult> Descriptions()
+            => PerformOperationAsync(() => _permissionsOperations.GetDescriptionsAsync(
                 HttpContext.RequestAborted));
 
         #endregion Actions

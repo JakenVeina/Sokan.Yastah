@@ -23,36 +23,36 @@ namespace Sokan.Yastah.Api.Characters
         #region Actions
 
         [HttpPost("{prefix}/[area]/guilds/{guildId}/[controller]/[action]")]
-        public async Task<IActionResult> New(
+        public Task<IActionResult> New(
                 long guildId,
                 [FromBody]CharacterGuildDivisionCreationModel body)
-            => TranslateOperation(await _characterGuildDivisionsOperations.CreateAsync(
+            => PerformOperationAsync(() => _characterGuildDivisionsOperations.CreateAsync(
                 guildId: guildId,
                 creationModel: body,
                 cancellationToken: HttpContext.RequestAborted));
 
         [HttpDelete("{prefix}/[area]/guilds/{guildId}/[controller]/{id}")]
-        public async Task<IActionResult> Delete(
+        public Task<IActionResult> Delete(
                 long guildId,
                 long id)
-            => TranslateOperation(await _characterGuildDivisionsOperations.DeleteAsync(
+            => PerformOperationAsync(() => _characterGuildDivisionsOperations.DeleteAsync(
                 guildId: guildId,
                 divisionId: id,
                 cancellationToken: HttpContext.RequestAborted));
 
         [HttpGet("{prefix}/[area]/guilds/{guildId}/[controller]/[action]")]
-        public async Task<IActionResult> Identities(
+        public Task<IActionResult> Identities(
                 long guildId)
-            => TranslateOperation(await _characterGuildDivisionsOperations.GetIdentitiesAsync(
+            => PerformOperationAsync(() => _characterGuildDivisionsOperations.GetIdentitiesAsync(
                 guildId: guildId,
                 cancellationToken: HttpContext.RequestAborted));
 
         [HttpPut("{prefix}/[area]/guilds/{guildId}/[controller]/{id}")]
-        public async Task<IActionResult> Update(
+        public Task<IActionResult> Update(
                 long guildId,
                 long id,
                 [FromBody]CharacterGuildDivisionUpdateModel body)
-            => TranslateOperation(await _characterGuildDivisionsOperations.UpdateAsync(
+            => PerformOperationAsync(() => _characterGuildDivisionsOperations.UpdateAsync(
                 guildId: guildId,
                 divisionId: id,
                 updateModel: body,

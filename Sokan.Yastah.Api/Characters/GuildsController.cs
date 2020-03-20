@@ -23,29 +23,29 @@ namespace Sokan.Yastah.Api.Characters
         #region Actions
 
         [HttpPost(DefaultAreaActionRouteTemplate)]
-        public async Task<IActionResult> New(
+        public Task<IActionResult> New(
                 [FromBody]CharacterGuildCreationModel body)
-            => TranslateOperation(await _characterGuildsOperations.CreateAsync(
+            => PerformOperationAsync(() => _characterGuildsOperations.CreateAsync(
                 creationModel: body,
                 cancellationToken: HttpContext.RequestAborted));
 
         [HttpDelete(DefaultAreaRouteTemplate)]
-        public async Task<IActionResult> Delete(
+        public Task<IActionResult> Delete(
                 long id)
-            => TranslateOperation(await _characterGuildsOperations.DeleteAsync(
+            => PerformOperationAsync(() => _characterGuildsOperations.DeleteAsync(
                 guildId: id,
                 cancellationToken: HttpContext.RequestAborted));
 
         [HttpGet(DefaultAreaActionRouteTemplate)]
-        public async Task<IActionResult> Identities()
-            => TranslateOperation(await _characterGuildsOperations.GetIdentitiesAsync(
+        public Task<IActionResult> Identities()
+            => PerformOperationAsync(() => _characterGuildsOperations.GetIdentitiesAsync(
                 cancellationToken: HttpContext.RequestAborted));
 
         [HttpPut(DefaultAreaRouteTemplate)]
-        public async Task<IActionResult> Update(
+        public Task<IActionResult> Update(
                 long id,
                 [FromBody]CharacterGuildUpdateModel body)
-            => TranslateOperation(await _characterGuildsOperations.UpdateAsync(
+            => PerformOperationAsync(() => _characterGuildsOperations.UpdateAsync(
                 guildId: id,
                 updateModel: body,
                 cancellationToken: HttpContext.RequestAborted));

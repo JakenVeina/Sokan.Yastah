@@ -23,22 +23,22 @@ namespace Sokan.Yastah.Api.Admin
         #region Actions
         
         [HttpGet(DefaultAreaIdActionRouteTemplate)]
-        public async Task<IActionResult> Detail(
+        public Task<IActionResult> Detail(
                 ulong id)
-            => TranslateOperation(await _usersOperations.GetDetailAsync(
+            => PerformOperationAsync(() => _usersOperations.GetDetailAsync(
                 userId: id,
                 cancellationToken: HttpContext.RequestAborted));
 
         [HttpGet(DefaultAreaActionRouteTemplate)]
-        public async Task<IActionResult> Overviews()
-            => TranslateOperation(await _usersOperations.GetOverviewsAsync(
+        public Task<IActionResult> Overviews()
+            => PerformOperationAsync(() => _usersOperations.GetOverviewsAsync(
                 cancellationToken: HttpContext.RequestAborted));
 
         [HttpPut(DefaultAreaRouteTemplate)]
-        public async Task<IActionResult> Update(
+        public Task<IActionResult> Update(
                 ulong id,
                 [FromBody]UserUpdateModel body)
-            => TranslateOperation(await _usersOperations.UpdateAsync(
+            => PerformOperationAsync(() => _usersOperations.UpdateAsync(
                 userId: id,
                 updateModel: body,
                 cancellationToken: HttpContext.RequestAborted));

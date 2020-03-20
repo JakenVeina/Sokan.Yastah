@@ -27,7 +27,7 @@ namespace Sokan.Yastah.Business.Roles
             long roleId,
             CancellationToken cancellationToken);
 
-        Task<OperationResult<IReadOnlyCollection<RoleIdentityViewModel>>> GetIdentitiesAsync(
+        ValueTask<OperationResult<IReadOnlyCollection<RoleIdentityViewModel>>> GetIdentitiesAsync(
             CancellationToken cancellationToken);
 
         Task<OperationResult> UpdateAsync(
@@ -136,7 +136,7 @@ namespace Sokan.Yastah.Business.Roles
             return result;
         }
 
-        public async Task<OperationResult<IReadOnlyCollection<RoleIdentityViewModel>>> GetIdentitiesAsync(
+        public async ValueTask<OperationResult<IReadOnlyCollection<RoleIdentityViewModel>>> GetIdentitiesAsync(
             CancellationToken cancellationToken)
         {
             using var logScope = OperationLogMessages.BeginOperationScope(_logger, this);

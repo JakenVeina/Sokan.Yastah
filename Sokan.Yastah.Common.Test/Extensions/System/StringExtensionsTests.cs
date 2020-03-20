@@ -40,5 +40,20 @@ namespace Sokan.Yastah.Common.Test.Extensions.System
         }
 
         #endregion ParseUInt64() Tests
+
+        #region ToCamelCaseFromPascalCase() Tests
+
+        [TestCase("",           "")]
+        [TestCase("test",       "test")]
+        [TestCase("Test",       "test")]
+        [TestCase("testValue",  "testValue")]
+        [TestCase("TestValue",  "testValue")]
+        public void ToCamelCaseFromPascalCase_Always_ReturnsExpected(
+                string value,
+                string expectedResult)
+            => value.ToCamelCaseFromPascalCase()
+                .ShouldBe(expectedResult);
+
+        #endregion ToCamelCaseFromPascalCase() Tests
     }
 }
