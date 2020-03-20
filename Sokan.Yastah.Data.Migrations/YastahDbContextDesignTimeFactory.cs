@@ -10,6 +10,7 @@ namespace Sokan.Yastah.Data.Migrations
         public YastahDbContext CreateDbContext(string[] args)
             #pragma warning disable IDISP004 // Don't ignore created IDisposable.
             => new ServiceCollection()
+                .AddLogging()
                 .AddYastahData(new ConfigurationBuilder()
                     .AddUserSecrets<YastahDbContext>()
                     .Build())
