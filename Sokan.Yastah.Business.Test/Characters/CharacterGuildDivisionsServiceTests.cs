@@ -14,7 +14,7 @@ using Microsoft.Extensions.Internal;
 using Sokan.Yastah.Business.Characters;
 using Sokan.Yastah.Common.OperationModel;
 using Sokan.Yastah.Data;
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 using Sokan.Yastah.Data.Characters;
 
 using Sokan.Yastah.Common.Test;
@@ -35,8 +35,8 @@ namespace Sokan.Yastah.Business.Test.Characters
                 NextAdministrationActionId = default;
                 NextDivisionId = default;
 
-                MockAdministrationActionsRepository = new Mock<IAdministrationActionsRepository>();
-                MockAdministrationActionsRepository
+                MockAuditableActionsRepository = new Mock<IAuditableActionsRepository>();
+                MockAuditableActionsRepository
                     .Setup(x => x.CreateAsync(
                         It.IsAny<int>(),
                         It.IsAny<DateTimeOffset>(),
@@ -72,7 +72,7 @@ namespace Sokan.Yastah.Business.Test.Characters
             public long NextAdministrationActionId;
             public long NextDivisionId;
 
-            public readonly Mock<IAdministrationActionsRepository> MockAdministrationActionsRepository;
+            public readonly Mock<IAuditableActionsRepository> MockAuditableActionsRepository;
             public readonly Mock<ICharacterGuildsRepository> MockCharacterGuildsRepository;
             public readonly Mock<ICharacterGuildDivisionsRepository> MockCharacterGuildDivisionsRepository;
             public readonly Mock<ISystemClock> MockSystemClock;
@@ -81,7 +81,7 @@ namespace Sokan.Yastah.Business.Test.Characters
 
             public CharacterGuildDivisionsService BuildUut()
                 => new CharacterGuildDivisionsService(
-                    MockAdministrationActionsRepository.Object,
+                    MockAuditableActionsRepository.Object,
                     MockCharacterGuildsRepository.Object,
                     MockCharacterGuildDivisionsRepository.Object,
                     LoggerFactory.CreateLogger<CharacterGuildDivisionsService>(),
@@ -324,7 +324,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                     true,
                     testContext.CancellationToken));
 
-            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldHaveReceived(x => x
                 .CreateAsync(
                     (int)CharacterManagementAdministrationActionType.DivisionCreated,
                     performed,
@@ -384,7 +384,7 @@ namespace Sokan.Yastah.Business.Test.Characters
             testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
                 .CreateScope(default));
 
-            testContext.MockAdministrationActionsRepository.ShouldNotHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldNotHaveReceived(x => x
                 .CreateAsync(
                     It.IsAny<int>(),
                     It.IsAny<DateTimeOffset>(),
@@ -451,7 +451,7 @@ namespace Sokan.Yastah.Business.Test.Characters
             testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
                 .CreateScope(default));
 
-            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldHaveReceived(x => x
                 .CreateAsync(
                     (int)CharacterManagementAdministrationActionType.DivisionDeleted,
                     performed,
@@ -516,7 +516,7 @@ namespace Sokan.Yastah.Business.Test.Characters
             testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
                 .CreateScope(default));
 
-            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldHaveReceived(x => x
                 .CreateAsync(
                     (int)CharacterManagementAdministrationActionType.DivisionDeleted,
                     performed,
@@ -766,7 +766,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                     true,
                     testContext.CancellationToken));
 
-            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldHaveReceived(x => x
                 .CreateAsync(
                     (int)CharacterManagementAdministrationActionType.DivisionModified,
                     performed,
@@ -857,7 +857,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                     true,
                     testContext.CancellationToken));
 
-            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldHaveReceived(x => x
                 .CreateAsync(
                     (int)CharacterManagementAdministrationActionType.DivisionModified,
                     performed,

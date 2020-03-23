@@ -2,26 +2,26 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace Sokan.Yastah.Business.Administration
+namespace Sokan.Yastah.Business.Auditing
 {
-    internal static class AdministrationLogMessages
+    internal static class AuditingLogMessages
     {
         public enum EventType
         {
-            AdministrationActionCreated = BusinessLogEventType.Administration + 0x0001
+            AuditingActionCreated = BusinessLogEventType.Auditing + 0x0001
         }
 
-        public static void AdministrationActionCreated(
+        public static void AuditingActionCreated(
                 ILogger logger,
                 long actionId)
-            => _administrationActionCreated.Invoke(
+            => _auditingActionCreated.Invoke(
                 logger,
                 actionId);
-        private static readonly Action<ILogger, long> _administrationActionCreated
+        private static readonly Action<ILogger, long> _auditingActionCreated
             = LoggerMessage.Define<long>(
                     LogLevel.Debug,
-                    EventType.AdministrationActionCreated.ToEventId(),
-                    "AdministrationAction created: {ActionId}")
+                    EventType.AuditingActionCreated.ToEventId(),
+                    "AuditingAction created: {ActionId}")
                 .WithoutException();
     }
 }

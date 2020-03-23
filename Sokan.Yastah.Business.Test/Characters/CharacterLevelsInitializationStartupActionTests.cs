@@ -13,7 +13,7 @@ using Shouldly;
 using Sokan.Yastah.Business.Characters;
 using Sokan.Yastah.Common.OperationModel;
 using Sokan.Yastah.Data;
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 using Sokan.Yastah.Data.Characters;
 
 using Sokan.Yastah.Common.Test;
@@ -34,8 +34,8 @@ namespace Sokan.Yastah.Business.Test.Characters
                 UtcNow = default;
                 NextAdministrationActionId = default;
 
-                MockAdministrationActionsRepository = new Mock<IAdministrationActionsRepository>();
-                MockAdministrationActionsRepository
+                MockAuditableActionsRepository = new Mock<IAuditableActionsRepository>();
+                MockAuditableActionsRepository
                     .Setup(x => x.CreateAsync(
                         It.IsAny<int>(),
                         It.IsAny<DateTimeOffset>(),
@@ -47,8 +47,8 @@ namespace Sokan.Yastah.Business.Test.Characters
 
                 MockServiceProvider = new Mock<IServiceProvider>();
                 MockServiceProvider
-                    .Setup(x => x.GetService(typeof(IAdministrationActionsRepository)))
-                    .Returns(() => MockAdministrationActionsRepository.Object);
+                    .Setup(x => x.GetService(typeof(IAuditableActionsRepository)))
+                    .Returns(() => MockAuditableActionsRepository.Object);
                 MockServiceProvider
                     .Setup(x => x.GetService(typeof(ICharacterLevelsRepository)))
                     .Returns(() => MockCharacterLevelsRepository.Object);
@@ -84,7 +84,7 @@ namespace Sokan.Yastah.Business.Test.Characters
             public DateTimeOffset UtcNow;
             public long NextAdministrationActionId;
 
-            public readonly Mock<IAdministrationActionsRepository> MockAdministrationActionsRepository;
+            public readonly Mock<IAuditableActionsRepository> MockAuditableActionsRepository;
             public readonly Mock<ICharacterLevelsRepository> MockCharacterLevelsRepository;
             public readonly Mock<IServiceProvider> MockServiceProvider;
             public readonly Mock<IServiceScope> MockServiceScope;
@@ -165,7 +165,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                     false,
                     testContext.CancellationToken));
 
-            testContext.MockAdministrationActionsRepository.ShouldNotHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldNotHaveReceived(x => x
                 .CreateAsync(
                     It.IsAny<int>(),
                     It.IsAny<DateTimeOffset>(),
@@ -226,7 +226,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                     false,
                     testContext.CancellationToken));
 
-            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldHaveReceived(x => x
                 .CreateAsync(
                     (int)CharacterManagementAdministrationActionType.LevelDefinitionsInitialized,
                     performed,

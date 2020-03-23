@@ -11,13 +11,13 @@ namespace Sokan.Yastah.Data.Administration
     public enum AdministrationPermission
     {
         [Description("Allows management of application permissions")]
-        ManagePermissions = 1,
+        ManagePermissions   = PermissionCategory.Administration + 0x010000,
 
         [Description("Allows management of application roles")]
-        ManageRoles = 2,
+        ManageRoles         = PermissionCategory.Administration + 0x020000,
 
         [Description("Allows management of application users")]
-        ManageUsers = 3
+        ManageUsers         = PermissionCategory.Administration + 0x030000
     }
 
     internal class AdministrationPermissionDataConfiguration

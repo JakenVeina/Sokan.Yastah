@@ -11,10 +11,10 @@ namespace Sokan.Yastah.Data.Characters
     public enum CharacterAdministrationPermission
     {
         [Description("Allows management of character guilds")]
-        ManageGuilds = 100,
+        ManageGuilds    = PermissionCategory.CharacterManagement + 0x010000,
 
         [Description("Allows management of character level definitions")]
-        ManageLevels = 101,
+        ManageLevels    = PermissionCategory.CharacterManagement + 0x020000,
     }
 
     internal class CharacterAdministrationPermissionDataConfiguration
@@ -25,7 +25,7 @@ namespace Sokan.Yastah.Data.Characters
         {
             foreach (var (value, description) in EnumEx.EnumerateValuesWithDescriptions<CharacterAdministrationPermission>())
                 entityBuilder.HasData(new PermissionEntity(
-                    categoryId:     (int)PermissionCategory.CharacterAdministration,
+                    categoryId:     (int)PermissionCategory.CharacterManagement,
                     permissionId:   (int)value,
                     name:           value.ToString(),
                     description:    description));

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 
 namespace Sokan.Yastah.Data.Characters
 {
@@ -67,7 +67,7 @@ namespace Sokan.Yastah.Data.Characters
         [ForeignKey(nameof(Creation))]
         public long CreationId { get; }
 
-        public AdministrationActionEntity Creation { get; internal set; }
+        public AuditableActionEntity Creation { get; internal set; }
             = null!;
 
         public long? PreviousVersionId { get; set; }

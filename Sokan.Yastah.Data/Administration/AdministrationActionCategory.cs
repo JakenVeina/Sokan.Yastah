@@ -3,23 +3,23 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Sokan.Yastah.Data.Administration
+namespace Sokan.Yastah.Data.Auditing
 {
-    public enum AdministrationActionCategory
+    public enum AuditingActionCategory
     {
-        RoleManagement = 1,
-        UserManagement = 2,
-        CharacterManagement = 3
+        RoleManagement      = 0x01000000,
+        UserManagement      = 0x02000000,
+        CharacterManagement = 0x03000000
     }
 
     internal class AdministrationActionCategoryDataConfiguration
-        : IEntityTypeConfiguration<AdministrationActionCategoryEntity>
+        : IEntityTypeConfiguration<AuditableActionCategoryEntity>
     {
         public void Configure(
-            EntityTypeBuilder<AdministrationActionCategoryEntity> entityBuilder)
+            EntityTypeBuilder<AuditableActionCategoryEntity> entityBuilder)
         {
-            foreach (var category in EnumEx.EnumerateValues<AdministrationActionCategory>())
-                entityBuilder.HasData(new AdministrationActionCategoryEntity(
+            foreach (var category in EnumEx.EnumerateValues<AuditingActionCategory>())
+                entityBuilder.HasData(new AuditableActionCategoryEntity(
                     id:     (int)category,
                     name:   category.ToString()));
         }

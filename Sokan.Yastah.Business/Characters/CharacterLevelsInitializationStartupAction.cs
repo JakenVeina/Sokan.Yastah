@@ -8,9 +8,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Logging;
 
-using Sokan.Yastah.Business.Administration;
+using Sokan.Yastah.Business.Auditing;
 using Sokan.Yastah.Data;
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 using Sokan.Yastah.Data.Characters;
 
 namespace Sokan.Yastah.Business.Characters
@@ -44,7 +44,7 @@ namespace Sokan.Yastah.Business.Characters
 
             CharactersLogMessages.CharacterLevelDefinitionsInitializing(_logger);
 
-            var administrationActionsRepository = serviceProvider.GetRequiredService<IAdministrationActionsRepository>();
+            var auditableActionsRepository = serviceProvider.GetRequiredService<IAuditableActionsRepository>();
             var characterLevelsRepository = serviceProvider.GetRequiredService<ICharacterLevelsRepository>();
 
             using var transactionScope = _transactionScopeFactory.CreateScope();
@@ -60,12 +60,12 @@ namespace Sokan.Yastah.Business.Characters
             {
                 CharactersLogMessages.CharacterLevelsNotInitialized(_logger);
                 
-                var actionId = await administrationActionsRepository.CreateAsync(
+                var actionId = await auditableActionsRepository.CreateAsync(
                     (int)CharacterManagementAdministrationActionType.LevelDefinitionsInitialized,
                     _systemClock.UtcNow,
                     null,
                     cancellationToken);
-                AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
+                AuditingLogMessages.AuditingActionCreated(_logger, actionId);
 
                 await characterLevelsRepository.MergeDefinitionAsync(
                     1,

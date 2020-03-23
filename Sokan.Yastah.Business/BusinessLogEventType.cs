@@ -5,7 +5,7 @@ namespace Sokan.Yastah.Business
     internal enum BusinessLogEventType
     {
         Operations      = ApplicationLogEventType.Business + 0x010000,
-        Administration  = ApplicationLogEventType.Business + 0x020000,
+        Auditing        = ApplicationLogEventType.Business + 0x020000,
         Authentication  = ApplicationLogEventType.Business + 0x030000,
         Authorization   = ApplicationLogEventType.Business + 0x040000,
         Characters      = ApplicationLogEventType.Business + 0x050000,

@@ -19,7 +19,7 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 .HasAnnotation("ProductVersion", "3.1.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            modelBuilder.Entity("Sokan.Yastah.Data.Administration.AdministrationActionCategoryEntity", b =>
+            modelBuilder.Entity("Sokan.Yastah.Data.Auditing.AuditableActionCategoryEntity", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -33,27 +33,27 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("AdministrationActionCategories","Administration");
+                    b.ToTable("AuditableActionCategories","Auditing");
 
                     b.HasData(
                         new
                         {
-                            Id = 1,
+                            Id = 16777216,
                             Name = "RoleManagement"
                         },
                         new
                         {
-                            Id = 2,
+                            Id = 33554432,
                             Name = "UserManagement"
                         },
                         new
                         {
-                            Id = 3,
+                            Id = 50331648,
                             Name = "CharacterManagement"
                         });
                 });
 
-            modelBuilder.Entity("Sokan.Yastah.Data.Administration.AdministrationActionEntity", b =>
+            modelBuilder.Entity("Sokan.Yastah.Data.Auditing.AuditableActionEntity", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -75,10 +75,10 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
 
                     b.HasIndex("TypeId");
 
-                    b.ToTable("AdministrationActions","Administration");
+                    b.ToTable("AuditableActions","Auditing");
                 });
 
-            modelBuilder.Entity("Sokan.Yastah.Data.Administration.AdministrationActionTypeEntity", b =>
+            modelBuilder.Entity("Sokan.Yastah.Data.Auditing.AuditableActionTypeEntity", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -97,133 +97,133 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("AdministrationActionTypes","Administration");
+                    b.ToTable("AuditableActionTypes","Auditing");
 
                     b.HasData(
                         new
                         {
-                            Id = 20,
-                            CategoryId = 2,
+                            Id = 33619968,
+                            CategoryId = 33554432,
                             Name = "UserCreated"
                         },
                         new
                         {
-                            Id = 21,
-                            CategoryId = 2,
+                            Id = 33685504,
+                            CategoryId = 33554432,
                             Name = "UserModified"
                         },
                         new
                         {
-                            Id = 22,
-                            CategoryId = 2,
+                            Id = 33751040,
+                            CategoryId = 33554432,
                             Name = "DefaultsModified"
                         },
                         new
                         {
-                            Id = 1,
-                            CategoryId = 1,
+                            Id = 16842752,
+                            CategoryId = 16777216,
                             Name = "RoleCreated"
                         },
                         new
                         {
-                            Id = 2,
-                            CategoryId = 1,
+                            Id = 16908288,
+                            CategoryId = 16777216,
                             Name = "RoleModified"
                         },
                         new
                         {
-                            Id = 3,
-                            CategoryId = 1,
+                            Id = 16973824,
+                            CategoryId = 16777216,
                             Name = "RoleDeleted"
                         },
                         new
                         {
-                            Id = 4,
-                            CategoryId = 1,
+                            Id = 17039360,
+                            CategoryId = 16777216,
                             Name = "RoleRestored"
                         },
                         new
                         {
-                            Id = 400,
-                            CategoryId = 3,
+                            Id = 50397440,
+                            CategoryId = 50331648,
                             Name = "GuildCreated"
                         },
                         new
                         {
-                            Id = 401,
-                            CategoryId = 3,
+                            Id = 50397696,
+                            CategoryId = 50331648,
                             Name = "GuildModified"
                         },
                         new
                         {
-                            Id = 402,
-                            CategoryId = 3,
+                            Id = 50397952,
+                            CategoryId = 50331648,
                             Name = "GuildDeleted"
                         },
                         new
                         {
-                            Id = 403,
-                            CategoryId = 3,
+                            Id = 50398208,
+                            CategoryId = 50331648,
                             Name = "GuildRestored"
                         },
                         new
                         {
-                            Id = 420,
-                            CategoryId = 3,
+                            Id = 50462976,
+                            CategoryId = 50331648,
                             Name = "DivisionCreated"
                         },
                         new
                         {
-                            Id = 421,
-                            CategoryId = 3,
+                            Id = 50463232,
+                            CategoryId = 50331648,
                             Name = "DivisionModified"
                         },
                         new
                         {
-                            Id = 422,
-                            CategoryId = 3,
+                            Id = 50463488,
+                            CategoryId = 50331648,
                             Name = "DivisionDeleted"
                         },
                         new
                         {
-                            Id = 423,
-                            CategoryId = 3,
+                            Id = 50463744,
+                            CategoryId = 50331648,
                             Name = "DivisionRestored"
                         },
                         new
                         {
-                            Id = 440,
-                            CategoryId = 3,
+                            Id = 50528512,
+                            CategoryId = 50331648,
                             Name = "LevelDefinitionsInitialized"
                         },
                         new
                         {
-                            Id = 441,
-                            CategoryId = 3,
+                            Id = 50528768,
+                            CategoryId = 50331648,
                             Name = "LevelDefinitionsUpdated"
                         },
                         new
                         {
-                            Id = 460,
-                            CategoryId = 3,
+                            Id = 50594048,
+                            CategoryId = 50331648,
                             Name = "CharacterCreated"
                         },
                         new
                         {
-                            Id = 461,
-                            CategoryId = 3,
+                            Id = 50594304,
+                            CategoryId = 50331648,
                             Name = "CharacterModified"
                         },
                         new
                         {
-                            Id = 462,
-                            CategoryId = 3,
+                            Id = 50594560,
+                            CategoryId = 50331648,
                             Name = "CharacterDeleted"
                         },
                         new
                         {
-                            Id = 463,
-                            CategoryId = 3,
+                            Id = 50594816,
+                            CategoryId = 50331648,
                             Name = "CharacterRestored"
                         });
                 });
@@ -511,15 +511,15 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
+                            Id = 16777216,
                             Description = "Permissions related to administration of the application",
                             Name = "Administration"
                         },
                         new
                         {
-                            Id = 2,
-                            Description = "Permissions related to administration of game characters",
-                            Name = "CharacterAdministration"
+                            Id = 33554432,
+                            Description = "Permissions related to management of game characters",
+                            Name = "CharacterManagement"
                         });
                 });
 
@@ -549,36 +549,36 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                     b.HasData(
                         new
                         {
-                            PermissionId = 100,
-                            CategoryId = 2,
+                            PermissionId = 33619968,
+                            CategoryId = 33554432,
                             Description = "Allows management of character guilds",
                             Name = "ManageGuilds"
                         },
                         new
                         {
-                            PermissionId = 101,
-                            CategoryId = 2,
+                            PermissionId = 33685504,
+                            CategoryId = 33554432,
                             Description = "Allows management of character level definitions",
                             Name = "ManageLevels"
                         },
                         new
                         {
-                            PermissionId = 1,
-                            CategoryId = 1,
+                            PermissionId = 16842752,
+                            CategoryId = 16777216,
                             Description = "Allows management of application permissions",
                             Name = "ManagePermissions"
                         },
                         new
                         {
-                            PermissionId = 2,
-                            CategoryId = 1,
+                            PermissionId = 16908288,
+                            CategoryId = 16777216,
                             Description = "Allows management of application roles",
                             Name = "ManageRoles"
                         },
                         new
                         {
-                            PermissionId = 3,
-                            CategoryId = 1,
+                            PermissionId = 16973824,
+                            CategoryId = 16777216,
                             Description = "Allows management of application users",
                             Name = "ManageUsers"
                         });
@@ -817,22 +817,22 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                     b.ToTable("UserRoleMappings","Users");
                 });
 
-            modelBuilder.Entity("Sokan.Yastah.Data.Administration.AdministrationActionEntity", b =>
+            modelBuilder.Entity("Sokan.Yastah.Data.Auditing.AuditableActionEntity", b =>
                 {
                     b.HasOne("Sokan.Yastah.Data.Users.UserEntity", "PerformedBy")
                         .WithMany()
                         .HasForeignKey("PerformedById");
 
-                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionTypeEntity", "Type")
+                    b.HasOne("Sokan.Yastah.Data.Auditing.AuditableActionTypeEntity", "Type")
                         .WithMany()
                         .HasForeignKey("TypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Sokan.Yastah.Data.Administration.AdministrationActionTypeEntity", b =>
+            modelBuilder.Entity("Sokan.Yastah.Data.Auditing.AuditableActionTypeEntity", b =>
                 {
-                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionCategoryEntity", "Category")
+                    b.HasOne("Sokan.Yastah.Data.Auditing.AuditableActionCategoryEntity", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -841,13 +841,13 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
 
             modelBuilder.Entity("Sokan.Yastah.Data.Authentication.AuthenticationTicketEntity", b =>
                 {
-                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
+                    b.HasOne("Sokan.Yastah.Data.Auditing.AuditableActionEntity", "Creation")
                         .WithMany()
                         .HasForeignKey("CreationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Deletion")
+                    b.HasOne("Sokan.Yastah.Data.Auditing.AuditableActionEntity", "Deletion")
                         .WithMany()
                         .HasForeignKey("DeletionId");
 
@@ -878,7 +878,7 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
 
             modelBuilder.Entity("Sokan.Yastah.Data.Characters.CharacterGuildDivisionVersionEntity", b =>
                 {
-                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
+                    b.HasOne("Sokan.Yastah.Data.Auditing.AuditableActionEntity", "Creation")
                         .WithMany()
                         .HasForeignKey("CreationId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -903,7 +903,7 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
 
             modelBuilder.Entity("Sokan.Yastah.Data.Characters.CharacterGuildVersionEntity", b =>
                 {
-                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
+                    b.HasOne("Sokan.Yastah.Data.Auditing.AuditableActionEntity", "Creation")
                         .WithMany()
                         .HasForeignKey("CreationId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -926,7 +926,7 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
 
             modelBuilder.Entity("Sokan.Yastah.Data.Characters.CharacterLevelDefinitionVersionEntity", b =>
                 {
-                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
+                    b.HasOne("Sokan.Yastah.Data.Auditing.AuditableActionEntity", "Creation")
                         .WithMany()
                         .HasForeignKey("CreationId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -957,7 +957,7 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
+                    b.HasOne("Sokan.Yastah.Data.Auditing.AuditableActionEntity", "Creation")
                         .WithMany()
                         .HasForeignKey("CreationId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -989,13 +989,13 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
 
             modelBuilder.Entity("Sokan.Yastah.Data.Roles.RolePermissionMappingEntity", b =>
                 {
-                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
+                    b.HasOne("Sokan.Yastah.Data.Auditing.AuditableActionEntity", "Creation")
                         .WithMany()
                         .HasForeignKey("CreationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Deletion")
+                    b.HasOne("Sokan.Yastah.Data.Auditing.AuditableActionEntity", "Deletion")
                         .WithMany()
                         .HasForeignKey("DeletionId");
 
@@ -1014,7 +1014,7 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
 
             modelBuilder.Entity("Sokan.Yastah.Data.Roles.RoleVersionEntity", b =>
                 {
-                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
+                    b.HasOne("Sokan.Yastah.Data.Auditing.AuditableActionEntity", "Creation")
                         .WithMany()
                         .HasForeignKey("CreationId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1037,13 +1037,13 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
 
             modelBuilder.Entity("Sokan.Yastah.Data.Users.DefaultPermissionMappingEntity", b =>
                 {
-                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
+                    b.HasOne("Sokan.Yastah.Data.Auditing.AuditableActionEntity", "Creation")
                         .WithMany()
                         .HasForeignKey("CreationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Deletion")
+                    b.HasOne("Sokan.Yastah.Data.Auditing.AuditableActionEntity", "Deletion")
                         .WithMany()
                         .HasForeignKey("DeletionId");
 
@@ -1056,13 +1056,13 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
 
             modelBuilder.Entity("Sokan.Yastah.Data.Users.DefaultRoleMappingEntity", b =>
                 {
-                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
+                    b.HasOne("Sokan.Yastah.Data.Auditing.AuditableActionEntity", "Creation")
                         .WithMany()
                         .HasForeignKey("CreationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Deletion")
+                    b.HasOne("Sokan.Yastah.Data.Auditing.AuditableActionEntity", "Deletion")
                         .WithMany()
                         .HasForeignKey("DeletionId");
 
@@ -1075,13 +1075,13 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
 
             modelBuilder.Entity("Sokan.Yastah.Data.Users.UserPermissionMappingEntity", b =>
                 {
-                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
+                    b.HasOne("Sokan.Yastah.Data.Auditing.AuditableActionEntity", "Creation")
                         .WithMany()
                         .HasForeignKey("CreationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Deletion")
+                    b.HasOne("Sokan.Yastah.Data.Auditing.AuditableActionEntity", "Deletion")
                         .WithMany()
                         .HasForeignKey("DeletionId");
 
@@ -1100,13 +1100,13 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
 
             modelBuilder.Entity("Sokan.Yastah.Data.Users.UserRoleMappingEntity", b =>
                 {
-                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Creation")
+                    b.HasOne("Sokan.Yastah.Data.Auditing.AuditableActionEntity", "Creation")
                         .WithMany()
                         .HasForeignKey("CreationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Sokan.Yastah.Data.Administration.AdministrationActionEntity", "Deletion")
+                    b.HasOne("Sokan.Yastah.Data.Auditing.AuditableActionEntity", "Deletion")
                         .WithMany()
                         .HasForeignKey("DeletionId");
 

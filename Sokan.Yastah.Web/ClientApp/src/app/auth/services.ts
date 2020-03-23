@@ -105,9 +105,9 @@ export class AuthorizationService {
         this._observeHasAdminManageRoles = appState.select(AuthenticationSelectors.hasAdminManageRoles);
         this._observeHasAdminManageUsers = appState.select(AuthenticationSelectors.hasAdminManageUsers);
         this._observeHasAnyPermissions = appState.select(AuthenticationSelectors.hasAnyPermissions);
-        this._observeHasCharacterAdmin = appState.select(AuthenticationSelectors.hasCharacterAdmin);
-        this._observeHasCharacterAdminManageGuilds = appState.select(AuthenticationSelectors.hasCharacterAdminManageGuilds);
-        this._observeHasCharacterAdminManageLevels = appState.select(AuthenticationSelectors.hasCharacterAdminManageLevels);
+        this._observeHasCharacterManage = appState.select(AuthenticationSelectors.hasCharacterManage);
+        this._observeHasCharacterManageGuilds = appState.select(AuthenticationSelectors.hasCharacterManageGuilds);
+        this._observeHasCharacterManageLevels = appState.select(AuthenticationSelectors.hasCharacterManageLevels);
     }
 
     public get observeHasAdmin(): Observable<boolean> {
@@ -125,14 +125,14 @@ export class AuthorizationService {
     public get observeHasAnyPermissions(): Observable<boolean> {
         return this._observeHasAnyPermissions;
     }
-    public get observeHasCharacterAdmin(): Observable<boolean> {
-        return this._observeHasCharacterAdmin;
+    public get observeHasCharacterManage(): Observable<boolean> {
+        return this._observeHasCharacterManage;
     }
-    public get observeHasCharacterAdminManageGuilds(): Observable<boolean> {
-        return this._observeHasCharacterAdminManageGuilds;
+    public get observeHasCharacterManageGuilds(): Observable<boolean> {
+        return this._observeHasCharacterManageGuilds;
     }
-    public get observeHasCharacterAdminManageLevels(): Observable<boolean> {
-        return this._observeHasCharacterAdminManageLevels;
+    public get observeHasCharacterManageLevels(): Observable<boolean> {
+        return this._observeHasCharacterManageLevels;
     }
 
     private readonly _observeHasAdmin: Observable<boolean>;
@@ -140,7 +140,7 @@ export class AuthorizationService {
     private readonly _observeHasAdminManageRoles: Observable<boolean>;
     private readonly _observeHasAdminManageUsers: Observable<boolean>;
     private readonly _observeHasAnyPermissions: Observable<boolean>;
-    private readonly _observeHasCharacterAdmin: Observable<boolean>;
-    private readonly _observeHasCharacterAdminManageGuilds: Observable<boolean>;
-    private readonly _observeHasCharacterAdminManageLevels: Observable<boolean>;
+    private readonly _observeHasCharacterManage: Observable<boolean>;
+    private readonly _observeHasCharacterManageGuilds: Observable<boolean>;
+    private readonly _observeHasCharacterManageLevels: Observable<boolean>;
 }

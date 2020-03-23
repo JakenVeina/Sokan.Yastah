@@ -8,15 +8,15 @@ using NUnit.Framework;
 using Moq;
 using Shouldly;
 
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 
 using Sokan.Yastah.Common.Test;
 using Sokan.Yastah.Data.Concurrency;
 
-namespace Sokan.Yastah.Data.Test.Administration
+namespace Sokan.Yastah.Data.Test.Auditing
 {
     [TestFixture]
-    public class AdministrationActionsRepositoryTests
+    public class AuditableActionsRepositoryTests
     {
         #region CreateAsync() Tests
 
@@ -44,12 +44,12 @@ namespace Sokan.Yastah.Data.Test.Administration
             var mockContext = new Mock<YastahDbContext>(
                 new Mock<IConcurrencyResolutionService>().Object);
             mockContext
-                .Setup(x => x.AddAsync(It.IsAny<AdministrationActionEntity>(), It.IsAny<CancellationToken>()))
-                .Callback<AdministrationActionEntity, CancellationToken>((x, y) => x.Id = id);
+                .Setup(x => x.AddAsync(It.IsAny<AuditableActionEntity>(), It.IsAny<CancellationToken>()))
+                .Callback<AuditableActionEntity, CancellationToken>((x, y) => x.Id = id);
 
-            var uut = new AdministrationActionsRepository(
+            var uut = new AuditableActionsRepository(
                 mockContext.Object,
-                testContext.LoggerFactory.CreateLogger<AdministrationActionsRepository>());
+                testContext.LoggerFactory.CreateLogger<AuditableActionsRepository>());
 
             var result = await uut.CreateAsync(
                 typeId,
@@ -58,14 +58,14 @@ namespace Sokan.Yastah.Data.Test.Administration
                 testContext.CancellationToken);
 
             mockContext
-                .ShouldHaveReceived(x => x.AddAsync(It.IsNotNull<AdministrationActionEntity>(), testContext.CancellationToken));
+                .ShouldHaveReceived(x => x.AddAsync(It.IsNotNull<AuditableActionEntity>(), testContext.CancellationToken));
             mockContext
                 .ShouldHaveReceived(x => x.SaveChangesAsync(testContext.CancellationToken));
 
             var entity = mockContext
                 .Invocations
                 .Where(x => x.Method.Name == nameof(YastahDbContext.AddAsync))
-                .Select(x => (AdministrationActionEntity)x.Arguments[0])
+                .Select(x => (AuditableActionEntity)x.Arguments[0])
                 .First();
 
             entity.TypeId.ShouldBe(typeId);

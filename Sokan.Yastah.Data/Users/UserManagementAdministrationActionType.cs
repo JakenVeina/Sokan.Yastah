@@ -4,30 +4,30 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 
 namespace Sokan.Yastah.Data.Users
 {
     public enum UserManagementAdministrationActionType
     {
-        UserCreated = 20,
-        UserModified = 21,
-        DefaultsModified = 22
+        UserCreated         = AuditingActionCategory.UserManagement + 0x010000,
+        UserModified        = AuditingActionCategory.UserManagement + 0x020000,
+        DefaultsModified    = AuditingActionCategory.UserManagement + 0x030000
     }
 
     internal class UserManagementAdministrationActionTypeDataConfiguration
-        : IEntityTypeConfiguration<AdministrationActionTypeEntity>
+        : IEntityTypeConfiguration<AuditableActionTypeEntity>
     {
         public void Configure(
-            EntityTypeBuilder<AdministrationActionTypeEntity> entityBuilder)
+            EntityTypeBuilder<AuditableActionTypeEntity> entityBuilder)
         {
             var types = Enum.GetValues(typeof(UserManagementAdministrationActionType))
                 .Cast<UserManagementAdministrationActionType>();
 
             foreach (var type in types)
-                entityBuilder.HasData(new AdministrationActionTypeEntity(
+                entityBuilder.HasData(new AuditableActionTypeEntity(
                     id:         (int)type,
-                    categoryId: (int)AdministrationActionCategory.UserManagement,
+                    categoryId: (int)AuditingActionCategory.UserManagement,
                     name:       type.ToString()));
         }
     }

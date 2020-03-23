@@ -8,10 +8,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Logging;
 
-using Sokan.Yastah.Business.Administration;
+using Sokan.Yastah.Business.Auditing;
 using Sokan.Yastah.Common.OperationModel;
 using Sokan.Yastah.Data;
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 using Sokan.Yastah.Data.Characters;
 
 namespace Sokan.Yastah.Business.Characters
@@ -47,14 +47,14 @@ namespace Sokan.Yastah.Business.Characters
         : ICharacterGuildDivisionsService
     {
         public CharacterGuildDivisionsService(
-            IAdministrationActionsRepository administrationActionsRepository,
+            IAuditableActionsRepository auditableActionsRepository,
             ICharacterGuildsRepository characterGuildsRepository,
             ICharacterGuildDivisionsRepository characterGuildDivisionsRepository,
             ILogger<CharacterGuildDivisionsService> logger,
             ISystemClock systemClock,
             ITransactionScopeFactory transactionScopeFactory)
         {
-            _administrationActionsRepository = administrationActionsRepository;
+            _auditableActionsRepository = auditableActionsRepository;
             _characterGuildsRepository = characterGuildsRepository;
             _characterGuildDivisionsRepository = characterGuildDivisionsRepository;
             _logger = logger;
@@ -89,12 +89,12 @@ namespace Sokan.Yastah.Business.Characters
             }
             CharactersLogMessages.CharacterGuildDivisionNameValidationSucceeded(_logger, creationModel.Name);
 
-            var actionId = await _administrationActionsRepository.CreateAsync(
+            var actionId = await _auditableActionsRepository.CreateAsync(
                 (int)CharacterManagementAdministrationActionType.DivisionCreated,
                 _systemClock.UtcNow,
                 performedById,
                 cancellationToken);
-            AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
+            AuditingLogMessages.AuditingActionCreated(_logger, actionId);
 
             var divisionId = await _characterGuildDivisionsRepository.CreateAsync(
                 guildId,
@@ -128,12 +128,12 @@ namespace Sokan.Yastah.Business.Characters
             }
             CharactersLogMessages.CharacterGuildIdValidationSucceeded(_logger, guildId);
 
-            var actionId = await _administrationActionsRepository.CreateAsync(
+            var actionId = await _auditableActionsRepository.CreateAsync(
                 (int)CharacterManagementAdministrationActionType.DivisionDeleted,
                 _systemClock.UtcNow,
                 performedById,
                 cancellationToken);
-            AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
+            AuditingLogMessages.AuditingActionCreated(_logger, actionId);
 
             var updateResult = await _characterGuildDivisionsRepository.UpdateAsync(
                 divisionId: divisionId,
@@ -198,12 +198,12 @@ namespace Sokan.Yastah.Business.Characters
 
             var now = _systemClock.UtcNow;
 
-            var actionId = await _administrationActionsRepository.CreateAsync(
+            var actionId = await _auditableActionsRepository.CreateAsync(
                 (int)CharacterManagementAdministrationActionType.DivisionModified,
                 now,
                 performedById,
                 cancellationToken);
-            AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
+            AuditingLogMessages.AuditingActionCreated(_logger, actionId);
 
             var updateResult = await _characterGuildDivisionsRepository.UpdateAsync(
                 divisionId: divisionId,
@@ -258,7 +258,7 @@ namespace Sokan.Yastah.Business.Characters
                 : OperationResult.Success;
         }
 
-        private readonly IAdministrationActionsRepository _administrationActionsRepository;
+        private readonly IAuditableActionsRepository _auditableActionsRepository;
         private readonly ICharacterGuildsRepository _characterGuildsRepository;
         private readonly ICharacterGuildDivisionsRepository _characterGuildDivisionsRepository;
         private readonly ILogger _logger;

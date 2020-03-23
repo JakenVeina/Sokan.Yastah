@@ -10,14 +10,14 @@ using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using Sokan.Yastah.Business.Administration;
+using Sokan.Yastah.Business.Auditing;
 using Sokan.Yastah.Business.Authorization;
 using Sokan.Yastah.Business.Permissions;
 using Sokan.Yastah.Business.Roles;
 using Sokan.Yastah.Common.Messaging;
 using Sokan.Yastah.Common.OperationModel;
 using Sokan.Yastah.Data;
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 using Sokan.Yastah.Data.Permissions;
 using Sokan.Yastah.Data.Users;
 
@@ -52,7 +52,7 @@ namespace Sokan.Yastah.Business.Users
         : IUsersService
     {
         public UsersService(
-            IAdministrationActionsRepository administrationActionsRepository,
+            IAuditableActionsRepository auditableActionsRepository,
             IOptions<AuthorizationConfiguration> authorizationConfigurationOptions,
             ILogger<UsersService> logger,
             IMemoryCache memoryCache,
@@ -63,7 +63,7 @@ namespace Sokan.Yastah.Business.Users
             ITransactionScopeFactory transactionScopeFactory,
             IUsersRepository usersRepository)
         {
-            _administrationActionsRepository = administrationActionsRepository;
+            _auditableActionsRepository = auditableActionsRepository;
             _authorizationConfigurationOptions = authorizationConfigurationOptions;
             _logger = logger;
             _memoryCache = memoryCache;
@@ -153,12 +153,12 @@ namespace Sokan.Yastah.Business.Users
             {
                 UsersLogMessages.UserCreated(_logger, userId);
 
-                var actionId = await _administrationActionsRepository.CreateAsync(
+                var actionId = await _auditableActionsRepository.CreateAsync(
                     (int)UserManagementAdministrationActionType.UserCreated,
                     now,
                     userId,
                     cancellationToken);
-                AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
+                AuditingLogMessages.AuditingActionCreated(_logger, actionId);
 
                 UsersLogMessages.DefaultPermissionIdsFetching(_logger);
                 var defaultPermissionIds = await _usersRepository
@@ -249,12 +249,12 @@ namespace Sokan.Yastah.Business.Users
 
             var now = _systemClock.UtcNow;
 
-            var actionId = await _administrationActionsRepository.CreateAsync(
+            var actionId = await _auditableActionsRepository.CreateAsync(
                 (int)UserManagementAdministrationActionType.UserModified,
                 now,
                 performedById,
                 cancellationToken);
-            AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
+            AuditingLogMessages.AuditingActionCreated(_logger, actionId);
 
             var anyChanges = false;
 
@@ -474,7 +474,7 @@ namespace Sokan.Yastah.Business.Users
         internal static string MakeRoleMemberIdsCacheKey(long roleId)
             => $"{nameof(UsersService)}.RoleMemberIds.{roleId}";
 
-        private readonly IAdministrationActionsRepository _administrationActionsRepository;
+        private readonly IAuditableActionsRepository _auditableActionsRepository;
         private readonly IOptions<AuthorizationConfiguration> _authorizationConfigurationOptions;
         private readonly ILogger _logger;
         private readonly IMemoryCache _memoryCache;

@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Shouldly;
 
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 
-namespace Sokan.Yastah.Data.Test.Administration
+namespace Sokan.Yastah.Data.Test.Auditing
 {
     [TestFixture]
-    public class AdministrationActionEntityTests
+    public class AuditableActionEntityTests
     {
         #region Constructor() Tests
 
@@ -32,7 +32,7 @@ namespace Sokan.Yastah.Data.Test.Administration
             DateTimeOffset performed,
             ulong? performedById)
         {
-            var result = new AdministrationActionEntity(
+            var result = new AuditableActionEntity(
                 id,
                 typeId,
                 performed,

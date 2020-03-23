@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Sokan.Yastah.Data.Administration
+namespace Sokan.Yastah.Data.Auditing
 {
-    public interface IAdministrationActionsRepository
+    public interface IAuditableActionsRepository
     {
         Task<long> CreateAsync(
             int typeId,
@@ -17,12 +17,12 @@ namespace Sokan.Yastah.Data.Administration
     }
 
     [ServiceBinding(ServiceLifetime.Scoped)]
-    public class AdministrationActionsRepository
-        : IAdministrationActionsRepository
+    public class AuditableActionsRepository
+        : IAuditableActionsRepository
     {
-        public AdministrationActionsRepository(
+        public AuditableActionsRepository(
             YastahDbContext context,
-            ILogger<AdministrationActionsRepository> logger)
+            ILogger<AuditableActionsRepository> logger)
         {
             _context = context;
             _logger = logger;
@@ -34,9 +34,9 @@ namespace Sokan.Yastah.Data.Administration
             ulong? performedById,
             CancellationToken cancellationToken)
         {
-            AdministrationLogMessages.AdministrationActionCreating(_logger, typeId, performed, performedById);
+            AuditingLogMessages.AuditableActionCreating(_logger, typeId, performed, performedById);
 
-            var action = new AdministrationActionEntity(
+            var action = new AuditableActionEntity(
                 id:             default,
                 typeId:         typeId,
                 performed:      performed,
@@ -46,7 +46,7 @@ namespace Sokan.Yastah.Data.Administration
             YastahDbContextLogMessages.ContextSavingChanges(_logger);
             await _context.SaveChangesAsync(cancellationToken);
 
-            AdministrationLogMessages.AdministrationActionCreated(_logger, action.Id);
+            AuditingLogMessages.AuditableActionCreated(_logger, action.Id);
             return action.Id;
         }
 

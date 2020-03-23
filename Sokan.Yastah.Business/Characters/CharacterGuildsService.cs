@@ -8,9 +8,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Logging;
 
-using Sokan.Yastah.Business.Administration;
+using Sokan.Yastah.Business.Auditing;
 using Sokan.Yastah.Common.OperationModel;
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 using Sokan.Yastah.Data.Characters;
 
 namespace Sokan.Yastah.Business.Characters
@@ -42,13 +42,13 @@ namespace Sokan.Yastah.Business.Characters
         : ICharacterGuildsService
     {
         public CharacterGuildsService(
-            IAdministrationActionsRepository administrationActionsRepository,
+            IAuditableActionsRepository auditableActionsRepository,
             ICharacterGuildsRepository characterGuildsRepository,
             ILogger<CharacterGuildsService> logger,
             ISystemClock systemClock,
             ITransactionScopeFactory transactionScopeFactory)
         {
-            _administrationActionsRepository = administrationActionsRepository;
+            _auditableActionsRepository = auditableActionsRepository;
             _characterGuildsRepository = characterGuildsRepository;
             _logger = logger;
             _systemClock = systemClock;
@@ -73,12 +73,12 @@ namespace Sokan.Yastah.Business.Characters
             }
             CharactersLogMessages.CharacterGuildNameValidationSucceeded(_logger, creationModel.Name);
 
-            var actionId = await _administrationActionsRepository.CreateAsync(
+            var actionId = await _auditableActionsRepository.CreateAsync(
                 (int)CharacterManagementAdministrationActionType.GuildCreated,
                 _systemClock.UtcNow,
                 performedById,
                 cancellationToken);
-            AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
+            AuditingLogMessages.AuditingActionCreated(_logger, actionId);
 
             var guildId = await _characterGuildsRepository.CreateAsync(
                 creationModel.Name,
@@ -102,12 +102,12 @@ namespace Sokan.Yastah.Business.Characters
             using var transactionScope = _transactionScopeFactory.CreateScope();
             TransactionsLogMessages.TransactionScopeCreated(_logger);
 
-            var actionId = await _administrationActionsRepository.CreateAsync(
+            var actionId = await _auditableActionsRepository.CreateAsync(
                 (int)CharacterManagementAdministrationActionType.GuildDeleted,
                 _systemClock.UtcNow,
                 performedById,
                 cancellationToken);
-            AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
+            AuditingLogMessages.AuditingActionCreated(_logger, actionId);
 
             var updateResult = await _characterGuildsRepository.UpdateAsync(
                 guildId: guildId,
@@ -161,12 +161,12 @@ namespace Sokan.Yastah.Business.Characters
 
             var now = _systemClock.UtcNow;
 
-            var actionId = await _administrationActionsRepository.CreateAsync(
+            var actionId = await _auditableActionsRepository.CreateAsync(
                 (int)CharacterManagementAdministrationActionType.GuildModified,
                 now,
                 performedById,
                 cancellationToken);
-            AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
+            AuditingLogMessages.AuditingActionCreated(_logger, actionId);
 
             var updateResult = await _characterGuildsRepository.UpdateAsync(
                 guildId: guildId,
@@ -204,7 +204,7 @@ namespace Sokan.Yastah.Business.Characters
                 : OperationResult.Success;
         }
 
-        private readonly IAdministrationActionsRepository _administrationActionsRepository;
+        private readonly IAuditableActionsRepository _auditableActionsRepository;
         private readonly ICharacterGuildsRepository _characterGuildsRepository;
         private readonly ILogger _logger;
         private readonly ISystemClock _systemClock;

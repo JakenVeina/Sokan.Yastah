@@ -17,7 +17,7 @@ using Sokan.Yastah.Business.Roles;
 using Sokan.Yastah.Common.Messaging;
 using Sokan.Yastah.Common.OperationModel;
 using Sokan.Yastah.Data;
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 using Sokan.Yastah.Data.Roles;
 
 using Sokan.Yastah.Common.Test;
@@ -34,8 +34,8 @@ namespace Sokan.Yastah.Business.Test.Roles
         {
             public TestContext()
             {
-                MockAdministrationActionsRepository = new Mock<IAdministrationActionsRepository>();
-                MockAdministrationActionsRepository
+                MockAuditableActionsRepository = new Mock<IAuditableActionsRepository>();
+                MockAuditableActionsRepository
                     .Setup(x => x.CreateAsync(
                         It.IsAny<int>(),
                         It.IsAny<DateTimeOffset>(),
@@ -72,7 +72,7 @@ namespace Sokan.Yastah.Business.Test.Roles
             public long NextAdministrationActionId;
             public long NextRoleId;
 
-            public readonly Mock<IAdministrationActionsRepository> MockAdministrationActionsRepository;
+            public readonly Mock<IAuditableActionsRepository> MockAuditableActionsRepository;
             public readonly Mock<IMessenger> MockMessenger;
             public readonly Mock<IPermissionsService> MockPermissionsService;
             public readonly Mock<IRolesRepository> MockRolesRepository;
@@ -82,7 +82,7 @@ namespace Sokan.Yastah.Business.Test.Roles
 
             public RolesService BuildUut()
                 => new RolesService(
-                    MockAdministrationActionsRepository.Object,
+                    MockAuditableActionsRepository.Object,
                     LoggerFactory.CreateLogger<RolesService>(),
                     MemoryCache,
                     MockMessenger.Object,
@@ -333,7 +333,7 @@ namespace Sokan.Yastah.Business.Test.Roles
                     true,
                     testContext.CancellationToken));
 
-            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldHaveReceived(x => x
                 .CreateAsync(
                     (int)RoleManagementAdministrationActionType.RoleCreated,
                     performed,
@@ -411,7 +411,7 @@ namespace Sokan.Yastah.Business.Test.Roles
             testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
                 .CreateScope(default));
 
-            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldHaveReceived(x => x
                 .CreateAsync(
                     (int)RoleManagementAdministrationActionType.RoleDeleted,
                     performed,
@@ -478,7 +478,7 @@ namespace Sokan.Yastah.Business.Test.Roles
             testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
                 .CreateScope(default));
 
-            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldHaveReceived(x => x
                 .CreateAsync(
                     (int)RoleManagementAdministrationActionType.RoleDeleted,
                     performed,
@@ -766,7 +766,7 @@ namespace Sokan.Yastah.Business.Test.Roles
                     It.Is<IReadOnlyCollection<int>>(y => (y != null) && y.SetEquals(grantedPermissionIds)),
                     testContext.CancellationToken));
 
-            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldHaveReceived(x => x
                 .CreateAsync(
                     (int)RoleManagementAdministrationActionType.RoleModified,
                     performed,
@@ -857,7 +857,7 @@ namespace Sokan.Yastah.Business.Test.Roles
                     It.Is<IReadOnlyCollection<int>>(y => (y != null) && y.SetEquals(updateModel.GrantedPermissionIds)),
                     testContext.CancellationToken));
 
-            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldHaveReceived(x => x
                 .CreateAsync(
                     (int)RoleManagementAdministrationActionType.RoleModified,
                     performed,
@@ -955,7 +955,7 @@ namespace Sokan.Yastah.Business.Test.Roles
                     It.Is<IReadOnlyCollection<int>>(y => (y != null) && y.SetEquals(updateModel.GrantedPermissionIds)),
                     testContext.CancellationToken));
 
-            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldHaveReceived(x => x
                 .CreateAsync(
                     (int)RoleManagementAdministrationActionType.RoleModified,
                     performed,
@@ -1071,7 +1071,7 @@ namespace Sokan.Yastah.Business.Test.Roles
                     It.Is<IReadOnlyCollection<int>>(y => (y != null) && y.SetEquals(updateModel.GrantedPermissionIds)),
                     testContext.CancellationToken));
 
-            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldHaveReceived(x => x
                 .CreateAsync(
                     (int)RoleManagementAdministrationActionType.RoleModified,
                     performed,

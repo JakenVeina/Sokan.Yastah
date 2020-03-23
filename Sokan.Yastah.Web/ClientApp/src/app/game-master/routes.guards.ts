@@ -18,7 +18,7 @@ export class GuildsGuard
     }
 
     public canActivate(): Observable<boolean> {
-        return this._authorizationService.observeHasCharacterAdminManageGuilds;
+        return this._authorizationService.observeHasCharacterManageGuilds;
     }
 
     private readonly _authorizationService: AuthorizationService;
@@ -36,7 +36,7 @@ export class LevelsGuard
     }
 
     public canActivate(): Observable<boolean> {
-        return this._authorizationService.observeHasCharacterAdminManageLevels;
+        return this._authorizationService.observeHasCharacterManageLevels;
     }
 
     private readonly _authorizationService: AuthorizationService;

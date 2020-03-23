@@ -3,12 +3,12 @@
 using NUnit.Framework;
 using Shouldly;
 
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 
-namespace Sokan.Yastah.Data.Test.Administration
+namespace Sokan.Yastah.Data.Test.Auditing
 {
     [TestFixture]
-    public class AdministrationActionCategoryEntityTests
+    public class AuditableActionCategoryEntityTests
     {
         #region Constructor() Tests
 
@@ -29,7 +29,7 @@ namespace Sokan.Yastah.Data.Test.Administration
             int id,
             string name)
         {
-            var result = new AdministrationActionCategoryEntity(
+            var result = new AuditableActionCategoryEntity(
                 id,
                 name);
 

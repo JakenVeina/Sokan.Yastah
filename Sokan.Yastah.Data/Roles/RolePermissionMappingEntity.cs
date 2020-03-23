@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 using Sokan.Yastah.Data.Permissions;
 
 namespace Sokan.Yastah.Data.Roles
@@ -44,13 +44,13 @@ namespace Sokan.Yastah.Data.Roles
         [ForeignKey(nameof(Creation))]
         public long CreationId { get; }
 
-        public AdministrationActionEntity Creation { get; internal set; }
+        public AuditableActionEntity Creation { get; internal set; }
             = null!;
 
         [ForeignKey(nameof(Deletion))]
         public long? DeletionId { get; set; }
 
-        public AdministrationActionEntity? Deletion { get; set; }
+        public AuditableActionEntity? Deletion { get; set; }
     }
 
     internal class RolePermissionMappingEntityTypeConfiguration

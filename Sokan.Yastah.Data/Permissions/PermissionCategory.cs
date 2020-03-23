@@ -9,10 +9,10 @@ namespace Sokan.Yastah.Data.Permissions
     public enum PermissionCategory
     {
         [Description("Permissions related to administration of the application")]
-        Administration = 1,
+        Administration      = 0x01000000,
         
-        [Description("Permissions related to administration of game characters")]
-        CharacterAdministration = 2,
+        [Description("Permissions related to management of game characters")]
+        CharacterManagement = 0x02000000,
     }
 
     internal class PermissionCategoryDataConfiguration

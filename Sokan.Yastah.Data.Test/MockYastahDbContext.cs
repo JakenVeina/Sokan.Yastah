@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using MockQueryable.Moq;
 using Moq;
 
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 using Sokan.Yastah.Data.Authentication;
 using Sokan.Yastah.Data.Characters;
 using Sokan.Yastah.Data.Concurrency;
@@ -94,17 +94,17 @@ namespace Sokan.Yastah.Data.Test
 
         #region Administration
 
-        public Mock<DbSet<AdministrationActionCategoryEntity>> MockAdministrationActionCategorySet
+        public Mock<DbSet<AuditableActionCategoryEntity>> MockAdministrationActionCategorySet
             => _lazyMockAdministrationActionCategorySet.Value;
-        private readonly Lazy<Mock<DbSet<AdministrationActionCategoryEntity>>> _lazyMockAdministrationActionCategorySet;
+        private readonly Lazy<Mock<DbSet<AuditableActionCategoryEntity>>> _lazyMockAdministrationActionCategorySet;
 
-        public Mock<DbSet<AdministrationActionTypeEntity>> MockAdministrationActionTypeSet
+        public Mock<DbSet<AuditableActionTypeEntity>> MockAdministrationActionTypeSet
             => _lazyMockAdministrationActionTypeSet.Value;
-        private readonly Lazy<Mock<DbSet<AdministrationActionTypeEntity>>> _lazyMockAdministrationActionTypeSet;
+        private readonly Lazy<Mock<DbSet<AuditableActionTypeEntity>>> _lazyMockAdministrationActionTypeSet;
 
-        public Mock<DbSet<AdministrationActionEntity>> MockAdministrationActionSet
+        public Mock<DbSet<AuditableActionEntity>> MockAdministrationActionSet
             => _lazyMockAdministrationActionSet.Value;
-        private readonly Lazy<Mock<DbSet<AdministrationActionEntity>>> _lazyMockAdministrationActionSet;
+        private readonly Lazy<Mock<DbSet<AuditableActionEntity>>> _lazyMockAdministrationActionSet;
 
         #endregion Administration
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 using Sokan.Yastah.Data.Authentication;
 using Sokan.Yastah.Data.Characters;
 using Sokan.Yastah.Data.Permissions;
@@ -357,9 +357,9 @@ namespace Sokan.Yastah.Data.Test
                 }
 
             return new YastahTestEntitySet(
-                administrationActionCategories      ?? Array.Empty<AdministrationActionCategoryEntity>(),
-                administrationActionTypes           ?? Array.Empty<AdministrationActionTypeEntity>(),
-                administrationActions               ?? Array.Empty<AdministrationActionEntity>(),
+                administrationActionCategories      ?? Array.Empty<AuditableActionCategoryEntity>(),
+                administrationActionTypes           ?? Array.Empty<AuditableActionTypeEntity>(),
+                administrationActions               ?? Array.Empty<AuditableActionEntity>(),
                 authenticationTickets               ?? Array.Empty<AuthenticationTicketEntity>(),
                 characterGuilds                     ?? Array.Empty<CharacterGuildEntity>(),
                 characterGuildDivisions             ?? Array.Empty<CharacterGuildDivisionEntity>(),
@@ -385,13 +385,13 @@ namespace Sokan.Yastah.Data.Test
 
         #region Administration
 
-        protected virtual IReadOnlyList<AdministrationActionCategoryEntity>? CreateAdministrationActionCategories()
+        protected virtual IReadOnlyList<AuditableActionCategoryEntity>? CreateAdministrationActionCategories()
             => null;
 
-        protected virtual IReadOnlyList<AdministrationActionTypeEntity>? CreateAdministrationActionTypes()
+        protected virtual IReadOnlyList<AuditableActionTypeEntity>? CreateAdministrationActionTypes()
             => null;
 
-        protected virtual IReadOnlyList<AdministrationActionEntity>? CreateAdministrationActions()
+        protected virtual IReadOnlyList<AuditableActionEntity>? CreateAdministrationActions()
             => null;
 
         #endregion Administration

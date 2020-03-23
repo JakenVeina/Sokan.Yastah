@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using Microsoft.EntityFrameworkCore.Storage;
 
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 using Sokan.Yastah.Data.Authentication;
 using Sokan.Yastah.Data.Characters;
 using Sokan.Yastah.Data.Permissions;
@@ -17,9 +17,9 @@ namespace Sokan.Yastah.Data.Test
         #region Construction
 
         public YastahTestEntitySet(
-            IReadOnlyList<AdministrationActionCategoryEntity> administrationActionCategories,
-            IReadOnlyList<AdministrationActionTypeEntity> administrationActionTypes,
-            IReadOnlyList<AdministrationActionEntity> administrationActions,
+            IReadOnlyList<AuditableActionCategoryEntity> administrationActionCategories,
+            IReadOnlyList<AuditableActionTypeEntity> administrationActionTypes,
+            IReadOnlyList<AuditableActionEntity> administrationActions,
             IReadOnlyList<AuthenticationTicketEntity> authenticationTickets,
             IReadOnlyList<CharacterGuildEntity> characterGuilds,
             IReadOnlyList<CharacterGuildDivisionEntity> characterGuildDivisions,
@@ -68,11 +68,11 @@ namespace Sokan.Yastah.Data.Test
 
         #region Administration
 
-        public IReadOnlyList<AdministrationActionCategoryEntity> AdministrationActionCategories { get; }
+        public IReadOnlyList<AuditableActionCategoryEntity> AdministrationActionCategories { get; }
 
-        public IReadOnlyList<AdministrationActionTypeEntity> AdministrationActionTypes { get; }
+        public IReadOnlyList<AuditableActionTypeEntity> AdministrationActionTypes { get; }
 
-        public IReadOnlyList<AdministrationActionEntity> AdministrationActions { get; }
+        public IReadOnlyList<AuditableActionEntity> AdministrationActions { get; }
 
         #endregion Administration
 

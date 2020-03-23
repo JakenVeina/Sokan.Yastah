@@ -10,10 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Logging;
 
-using Sokan.Yastah.Business.Administration;
+using Sokan.Yastah.Business.Auditing;
 using Sokan.Yastah.Common.OperationModel;
 using Sokan.Yastah.Data;
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 using Sokan.Yastah.Data.Characters;
 
 namespace Sokan.Yastah.Business.Characters
@@ -34,14 +34,14 @@ namespace Sokan.Yastah.Business.Characters
         : ICharacterLevelsService
     {
         public CharacterLevelsService(
-            IAdministrationActionsRepository administrationActionsRepository,
+            IAuditableActionsRepository auditableActionsRepository,
             ICharacterLevelsRepository characterLevelsRepository,
             ILogger<CharacterLevelsService> logger,
             IMemoryCache memoryCache,
             ISystemClock systemClock,
             ITransactionScopeFactory transactionScopeFactory)
         {
-            _administrationActionsRepository = administrationActionsRepository;
+            _auditableActionsRepository = auditableActionsRepository;
             _characterLevelsRepository = characterLevelsRepository;
             _logger = logger;
             _memoryCache = memoryCache;
@@ -113,12 +113,12 @@ namespace Sokan.Yastah.Business.Characters
                     .PadEnd(sequenceLength, null),
                 (current, proposed) => (current, proposed));
 
-            var actionId = await _administrationActionsRepository.CreateAsync(
+            var actionId = await _auditableActionsRepository.CreateAsync(
                 (int)CharacterManagementAdministrationActionType.LevelDefinitionsUpdated,
                 _systemClock.UtcNow,
                 performedById,
                 cancellationToken);
-            AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
+            AuditingLogMessages.AuditingActionCreated(_logger, actionId);
 
             var anyChangesMade = false;
 
@@ -167,7 +167,7 @@ namespace Sokan.Yastah.Business.Characters
             return OperationResult.Success;
         }
 
-        private readonly IAdministrationActionsRepository _administrationActionsRepository;
+        private readonly IAuditableActionsRepository _auditableActionsRepository;
         private readonly ICharacterLevelsRepository _characterLevelsRepository;
         private readonly ILogger _logger;
         private readonly IMemoryCache _memoryCache;

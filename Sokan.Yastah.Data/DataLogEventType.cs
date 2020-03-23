@@ -5,7 +5,7 @@ namespace Sokan.Yastah.Data
     public enum DataLogEventType
     {
         Repositories    = ApplicationLogEventType.Data + 0x010000,
-        Administration  = ApplicationLogEventType.Data + 0x020000,
+        Auditable       = ApplicationLogEventType.Data + 0x020000,
         Authentication  = ApplicationLogEventType.Data + 0x030000,
         Characters      = ApplicationLogEventType.Data + 0x040000,
         Concurrency     = ApplicationLogEventType.Data + 0x050000,

@@ -4,31 +4,31 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 
 namespace Sokan.Yastah.Data.Roles
 {
     public enum RoleManagementAdministrationActionType
     {
-        RoleCreated = 1,
-        RoleModified = 2,
-        RoleDeleted = 3,
-        RoleRestored = 4
+        RoleCreated     = AuditingActionCategory.RoleManagement + 0x010000,
+        RoleModified    = AuditingActionCategory.RoleManagement + 0x020000,
+        RoleDeleted     = AuditingActionCategory.RoleManagement + 0x030000,
+        RoleRestored    = AuditingActionCategory.RoleManagement + 0x040000
     }
 
     internal class RoleManagementAdministrationActionTypeDataConfiguration
-        : IEntityTypeConfiguration<AdministrationActionTypeEntity>
+        : IEntityTypeConfiguration<AuditableActionTypeEntity>
     {
         public void Configure(
-            EntityTypeBuilder<AdministrationActionTypeEntity> entityBuilder)
+            EntityTypeBuilder<AuditableActionTypeEntity> entityBuilder)
         {
             var types = Enum.GetValues(typeof(RoleManagementAdministrationActionType))
                 .Cast<RoleManagementAdministrationActionType>();
 
             foreach (var type in types)
-                entityBuilder.HasData(new AdministrationActionTypeEntity(
+                entityBuilder.HasData(new AuditableActionTypeEntity(
                     id:         (int)type,
-                    categoryId: (int)AdministrationActionCategory.RoleManagement,
+                    categoryId: (int)AuditingActionCategory.RoleManagement,
                     name:       type.ToString()));
         }
     }

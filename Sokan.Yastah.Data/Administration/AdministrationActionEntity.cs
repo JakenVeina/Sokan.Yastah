@@ -7,12 +7,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Sokan.Yastah.Data.Users;
 
-namespace Sokan.Yastah.Data.Administration
+namespace Sokan.Yastah.Data.Auditing
 {
-    [Table("AdministrationActions", Schema = "Administration")]
-    internal class AdministrationActionEntity
+    [Table("AuditableActions", Schema = "Auditing")]
+    internal class AuditableActionEntity
     {
-        public AdministrationActionEntity(
+        public AuditableActionEntity(
             long id,
             int typeId,
             DateTimeOffset performed,
@@ -31,7 +31,7 @@ namespace Sokan.Yastah.Data.Administration
         [ForeignKey(nameof(Type))]
         public int TypeId { get; }
 
-        public AdministrationActionTypeEntity Type { get; internal set; }
+        public AuditableActionTypeEntity Type { get; internal set; }
             = null!;
 
         public DateTimeOffset Performed { get; }
@@ -43,10 +43,10 @@ namespace Sokan.Yastah.Data.Administration
     }
 
     internal class AdministrationActionEntityTypeConfiguration
-        : IEntityTypeConfiguration<AdministrationActionEntity>
+        : IEntityTypeConfiguration<AuditableActionEntity>
     {
         public void Configure(
-            EntityTypeBuilder<AdministrationActionEntity> entityBuilder)
+            EntityTypeBuilder<AuditableActionEntity> entityBuilder)
         {
             entityBuilder
                 .Property(x => x.Performed);

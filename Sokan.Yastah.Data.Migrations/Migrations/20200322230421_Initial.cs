@@ -9,7 +9,7 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
-                name: "Administration");
+                name: "Auditing");
 
             migrationBuilder.EnsureSchema(
                 name: "Authentication");
@@ -27,8 +27,8 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 name: "Users");
 
             migrationBuilder.CreateTable(
-                name: "AdministrationActionCategories",
-                schema: "Administration",
+                name: "AuditableActionCategories",
+                schema: "Auditing",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
@@ -36,7 +36,7 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AdministrationActionCategories", x => x.Id);
+                    table.PrimaryKey("PK_AuditableActionCategories", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -109,8 +109,8 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AdministrationActionTypes",
-                schema: "Administration",
+                name: "AuditableActionTypes",
+                schema: "Auditing",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
@@ -119,12 +119,12 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AdministrationActionTypes", x => x.Id);
+                    table.PrimaryKey("PK_AuditableActionTypes", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AdministrationActionTypes_AdministrationActionCategories_Ca~",
+                        name: "FK_AuditableActionTypes_AuditableActionCategories_CategoryId",
                         column: x => x.CategoryId,
-                        principalSchema: "Administration",
-                        principalTable: "AdministrationActionCategories",
+                        principalSchema: "Auditing",
+                        principalTable: "AuditableActionCategories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -194,8 +194,8 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AdministrationActions",
-                schema: "Administration",
+                name: "AuditableActions",
+                schema: "Auditing",
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
@@ -206,19 +206,19 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AdministrationActions", x => x.Id);
+                    table.PrimaryKey("PK_AuditableActions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AdministrationActions_Users_PerformedById",
+                        name: "FK_AuditableActions_Users_PerformedById",
                         column: x => x.PerformedById,
                         principalSchema: "Users",
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_AdministrationActions_AdministrationActionTypes_TypeId",
+                        name: "FK_AuditableActions_AuditableActionTypes_TypeId",
                         column: x => x.TypeId,
-                        principalSchema: "Administration",
-                        principalTable: "AdministrationActionTypes",
+                        principalSchema: "Auditing",
+                        principalTable: "AuditableActionTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -238,17 +238,17 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 {
                     table.PrimaryKey("PK_AuthenticationTickets", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AuthenticationTickets_AdministrationActions_CreationId",
+                        name: "FK_AuthenticationTickets_AuditableActions_CreationId",
                         column: x => x.CreationId,
-                        principalSchema: "Administration",
-                        principalTable: "AdministrationActions",
+                        principalSchema: "Auditing",
+                        principalTable: "AuditableActions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_AuthenticationTickets_AdministrationActions_DeletionId",
+                        name: "FK_AuthenticationTickets_AuditableActions_DeletionId",
                         column: x => x.DeletionId,
-                        principalSchema: "Administration",
-                        principalTable: "AdministrationActions",
+                        principalSchema: "Auditing",
+                        principalTable: "AuditableActions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -278,10 +278,10 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 {
                     table.PrimaryKey("PK_CharacterGuildDivisionVersions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CharacterGuildDivisionVersions_AdministrationActions_Creati~",
+                        name: "FK_CharacterGuildDivisionVersions_AuditableActions_CreationId",
                         column: x => x.CreationId,
-                        principalSchema: "Administration",
-                        principalTable: "AdministrationActions",
+                        principalSchema: "Auditing",
+                        principalTable: "AuditableActions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -325,10 +325,10 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 {
                     table.PrimaryKey("PK_CharacterGuildVersions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CharacterGuildVersions_AdministrationActions_CreationId",
+                        name: "FK_CharacterGuildVersions_AuditableActions_CreationId",
                         column: x => x.CreationId,
-                        principalSchema: "Administration",
-                        principalTable: "AdministrationActions",
+                        principalSchema: "Auditing",
+                        principalTable: "AuditableActions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -372,10 +372,10 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 {
                     table.PrimaryKey("PK_CharacterLevelDefinitionVersions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CharacterLevelDefinitionVersions_AdministrationActions_Crea~",
+                        name: "FK_CharacterLevelDefinitionVersions_AuditableActions_CreationId",
                         column: x => x.CreationId,
-                        principalSchema: "Administration",
-                        principalTable: "AdministrationActions",
+                        principalSchema: "Auditing",
+                        principalTable: "AuditableActions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -430,10 +430,10 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CharacterVersions_AdministrationActions_CreationId",
+                        name: "FK_CharacterVersions_AuditableActions_CreationId",
                         column: x => x.CreationId,
-                        principalSchema: "Administration",
-                        principalTable: "AdministrationActions",
+                        principalSchema: "Auditing",
+                        principalTable: "AuditableActions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -475,17 +475,17 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 {
                     table.PrimaryKey("PK_RolePermissionMappings", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RolePermissionMappings_AdministrationActions_CreationId",
+                        name: "FK_RolePermissionMappings_AuditableActions_CreationId",
                         column: x => x.CreationId,
-                        principalSchema: "Administration",
-                        principalTable: "AdministrationActions",
+                        principalSchema: "Auditing",
+                        principalTable: "AuditableActions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_RolePermissionMappings_AdministrationActions_DeletionId",
+                        name: "FK_RolePermissionMappings_AuditableActions_DeletionId",
                         column: x => x.DeletionId,
-                        principalSchema: "Administration",
-                        principalTable: "AdministrationActions",
+                        principalSchema: "Auditing",
+                        principalTable: "AuditableActions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -522,10 +522,10 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 {
                     table.PrimaryKey("PK_RoleVersions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RoleVersions_AdministrationActions_CreationId",
+                        name: "FK_RoleVersions_AuditableActions_CreationId",
                         column: x => x.CreationId,
-                        principalSchema: "Administration",
-                        principalTable: "AdministrationActions",
+                        principalSchema: "Auditing",
+                        principalTable: "AuditableActions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -566,17 +566,17 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 {
                     table.PrimaryKey("PK_DefaultPermissionMappings", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DefaultPermissionMappings_AdministrationActions_CreationId",
+                        name: "FK_DefaultPermissionMappings_AuditableActions_CreationId",
                         column: x => x.CreationId,
-                        principalSchema: "Administration",
-                        principalTable: "AdministrationActions",
+                        principalSchema: "Auditing",
+                        principalTable: "AuditableActions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_DefaultPermissionMappings_AdministrationActions_DeletionId",
+                        name: "FK_DefaultPermissionMappings_AuditableActions_DeletionId",
                         column: x => x.DeletionId,
-                        principalSchema: "Administration",
-                        principalTable: "AdministrationActions",
+                        principalSchema: "Auditing",
+                        principalTable: "AuditableActions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -603,17 +603,17 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 {
                     table.PrimaryKey("PK_DefaultRoleMappings", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DefaultRoleMappings_AdministrationActions_CreationId",
+                        name: "FK_DefaultRoleMappings_AuditableActions_CreationId",
                         column: x => x.CreationId,
-                        principalSchema: "Administration",
-                        principalTable: "AdministrationActions",
+                        principalSchema: "Auditing",
+                        principalTable: "AuditableActions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_DefaultRoleMappings_AdministrationActions_DeletionId",
+                        name: "FK_DefaultRoleMappings_AuditableActions_DeletionId",
                         column: x => x.DeletionId,
-                        principalSchema: "Administration",
-                        principalTable: "AdministrationActions",
+                        principalSchema: "Auditing",
+                        principalTable: "AuditableActions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -642,17 +642,17 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 {
                     table.PrimaryKey("PK_UserPermissionMappings", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UserPermissionMappings_AdministrationActions_CreationId",
+                        name: "FK_UserPermissionMappings_AuditableActions_CreationId",
                         column: x => x.CreationId,
-                        principalSchema: "Administration",
-                        principalTable: "AdministrationActions",
+                        principalSchema: "Auditing",
+                        principalTable: "AuditableActions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserPermissionMappings_AdministrationActions_DeletionId",
+                        name: "FK_UserPermissionMappings_AuditableActions_DeletionId",
                         column: x => x.DeletionId,
-                        principalSchema: "Administration",
-                        principalTable: "AdministrationActions",
+                        principalSchema: "Auditing",
+                        principalTable: "AuditableActions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -687,17 +687,17 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 {
                     table.PrimaryKey("PK_UserRoleMappings", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UserRoleMappings_AdministrationActions_CreationId",
+                        name: "FK_UserRoleMappings_AuditableActions_CreationId",
                         column: x => x.CreationId,
-                        principalSchema: "Administration",
-                        principalTable: "AdministrationActions",
+                        principalSchema: "Auditing",
+                        principalTable: "AuditableActions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserRoleMappings_AdministrationActions_DeletionId",
+                        name: "FK_UserRoleMappings_AuditableActions_DeletionId",
                         column: x => x.DeletionId,
-                        principalSchema: "Administration",
-                        principalTable: "AdministrationActions",
+                        principalSchema: "Auditing",
+                        principalTable: "AuditableActions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -717,14 +717,14 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 });
 
             migrationBuilder.InsertData(
-                schema: "Administration",
-                table: "AdministrationActionCategories",
+                schema: "Auditing",
+                table: "AuditableActionCategories",
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { 1, "RoleManagement" },
-                    { 2, "UserManagement" },
-                    { 3, "CharacterManagement" }
+                    { 16777216, "RoleManagement" },
+                    { 33554432, "UserManagement" },
+                    { 50331648, "CharacterManagement" }
                 });
 
             migrationBuilder.InsertData(
@@ -733,37 +733,37 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 columns: new[] { "Id", "Description", "Name" },
                 values: new object[,]
                 {
-                    { 1, "Permissions related to administration of the application", "Administration" },
-                    { 2, "Permissions related to administration of game characters", "CharacterAdministration" }
+                    { 16777216, "Permissions related to administration of the application", "Administration" },
+                    { 33554432, "Permissions related to management of game characters", "CharacterManagement" }
                 });
 
             migrationBuilder.InsertData(
-                schema: "Administration",
-                table: "AdministrationActionTypes",
+                schema: "Auditing",
+                table: "AuditableActionTypes",
                 columns: new[] { "Id", "CategoryId", "Name" },
                 values: new object[,]
                 {
-                    { 1, 1, "RoleCreated" },
-                    { 463, 3, "CharacterRestored" },
-                    { 462, 3, "CharacterDeleted" },
-                    { 461, 3, "CharacterModified" },
-                    { 460, 3, "CharacterCreated" },
-                    { 441, 3, "LevelDefinitionsUpdated" },
-                    { 440, 3, "LevelDefinitionsInitialized" },
-                    { 423, 3, "DivisionRestored" },
-                    { 422, 3, "DivisionDeleted" },
-                    { 420, 3, "DivisionCreated" },
-                    { 421, 3, "DivisionModified" },
-                    { 402, 3, "GuildDeleted" },
-                    { 401, 3, "GuildModified" },
-                    { 400, 3, "GuildCreated" },
-                    { 22, 2, "DefaultsModified" },
-                    { 21, 2, "UserModified" },
-                    { 20, 2, "UserCreated" },
-                    { 4, 1, "RoleRestored" },
-                    { 3, 1, "RoleDeleted" },
-                    { 2, 1, "RoleModified" },
-                    { 403, 3, "GuildRestored" }
+                    { 16842752, 16777216, "RoleCreated" },
+                    { 50594816, 50331648, "CharacterRestored" },
+                    { 50594560, 50331648, "CharacterDeleted" },
+                    { 50594304, 50331648, "CharacterModified" },
+                    { 50594048, 50331648, "CharacterCreated" },
+                    { 50528768, 50331648, "LevelDefinitionsUpdated" },
+                    { 50528512, 50331648, "LevelDefinitionsInitialized" },
+                    { 50463744, 50331648, "DivisionRestored" },
+                    { 50463488, 50331648, "DivisionDeleted" },
+                    { 50462976, 50331648, "DivisionCreated" },
+                    { 50463232, 50331648, "DivisionModified" },
+                    { 50397952, 50331648, "GuildDeleted" },
+                    { 50397696, 50331648, "GuildModified" },
+                    { 50397440, 50331648, "GuildCreated" },
+                    { 33751040, 33554432, "DefaultsModified" },
+                    { 33685504, 33554432, "UserModified" },
+                    { 33619968, 33554432, "UserCreated" },
+                    { 17039360, 16777216, "RoleRestored" },
+                    { 16973824, 16777216, "RoleDeleted" },
+                    { 16908288, 16777216, "RoleModified" },
+                    { 50398208, 50331648, "GuildRestored" }
                 });
 
             migrationBuilder.InsertData(
@@ -772,42 +772,42 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 columns: new[] { "PermissionId", "CategoryId", "Description", "Name" },
                 values: new object[,]
                 {
-                    { 100, 2, "Allows management of character guilds", "ManageGuilds" },
-                    { 1, 1, "Allows management of application permissions", "ManagePermissions" },
-                    { 2, 1, "Allows management of application roles", "ManageRoles" },
-                    { 3, 1, "Allows management of application users", "ManageUsers" },
-                    { 101, 2, "Allows management of character level definitions", "ManageLevels" }
+                    { 33619968, 33554432, "Allows management of character guilds", "ManageGuilds" },
+                    { 16842752, 16777216, "Allows management of application permissions", "ManagePermissions" },
+                    { 16908288, 16777216, "Allows management of application roles", "ManageRoles" },
+                    { 16973824, 16777216, "Allows management of application users", "ManageUsers" },
+                    { 33685504, 33554432, "Allows management of character level definitions", "ManageLevels" }
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AdministrationActionCategories_Name",
-                schema: "Administration",
-                table: "AdministrationActionCategories",
+                name: "IX_AuditableActionCategories_Name",
+                schema: "Auditing",
+                table: "AuditableActionCategories",
                 column: "Name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_AdministrationActions_PerformedById",
-                schema: "Administration",
-                table: "AdministrationActions",
+                name: "IX_AuditableActions_PerformedById",
+                schema: "Auditing",
+                table: "AuditableActions",
                 column: "PerformedById");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AdministrationActions_TypeId",
-                schema: "Administration",
-                table: "AdministrationActions",
+                name: "IX_AuditableActions_TypeId",
+                schema: "Auditing",
+                table: "AuditableActions",
                 column: "TypeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AdministrationActionTypes_CategoryId",
-                schema: "Administration",
-                table: "AdministrationActionTypes",
+                name: "IX_AuditableActionTypes_CategoryId",
+                schema: "Auditing",
+                table: "AuditableActionTypes",
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AdministrationActionTypes_Name",
-                schema: "Administration",
-                table: "AdministrationActionTypes",
+                name: "IX_AuditableActionTypes_Name",
+                schema: "Auditing",
+                table: "AuditableActionTypes",
                 column: "Name",
                 unique: true);
 
@@ -1163,8 +1163,8 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 schema: "Permissions");
 
             migrationBuilder.DropTable(
-                name: "AdministrationActions",
-                schema: "Administration");
+                name: "AuditableActions",
+                schema: "Auditing");
 
             migrationBuilder.DropTable(
                 name: "Roles",
@@ -1183,12 +1183,12 @@ namespace Sokan.Yastah.Data.Migrations.Migrations
                 schema: "Users");
 
             migrationBuilder.DropTable(
-                name: "AdministrationActionTypes",
-                schema: "Administration");
+                name: "AuditableActionTypes",
+                schema: "Auditing");
 
             migrationBuilder.DropTable(
-                name: "AdministrationActionCategories",
-                schema: "Administration");
+                name: "AuditableActionCategories",
+                schema: "Auditing");
         }
     }
 }

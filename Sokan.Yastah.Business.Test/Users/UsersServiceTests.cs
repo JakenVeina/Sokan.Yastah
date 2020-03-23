@@ -20,7 +20,7 @@ using Sokan.Yastah.Business.Users;
 using Sokan.Yastah.Common.Messaging;
 using Sokan.Yastah.Common.OperationModel;
 using Sokan.Yastah.Data;
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 using Sokan.Yastah.Data.Permissions;
 using Sokan.Yastah.Data.Users;
 
@@ -44,8 +44,8 @@ namespace Sokan.Yastah.Business.Test.Users
                     MemberGuildIds = Array.Empty<ulong>()
                 };
 
-                MockAdministrationActionsRepository = new Mock<IAdministrationActionsRepository>();
-                MockAdministrationActionsRepository
+                MockAuditableActionsRepository = new Mock<IAuditableActionsRepository>();
+                MockAuditableActionsRepository
                     .Setup(x => x.CreateAsync(
                         It.IsAny<int>(),
                         It.IsAny<DateTimeOffset>(),
@@ -83,7 +83,7 @@ namespace Sokan.Yastah.Business.Test.Users
             public long NextAdministrationActionId;
             public DateTimeOffset UtcNow;
 
-            public readonly Mock<IAdministrationActionsRepository> MockAdministrationActionsRepository;
+            public readonly Mock<IAuditableActionsRepository> MockAuditableActionsRepository;
             public readonly Mock<IOptions<AuthorizationConfiguration>> MockAuthorizationConfigurationOptions;
             public readonly Mock<IMessenger> MockMessenger;
             public readonly Mock<IPermissionsService> MockPermissionsService;
@@ -95,7 +95,7 @@ namespace Sokan.Yastah.Business.Test.Users
 
             public UsersService BuildUut()
                 => new UsersService(
-                    MockAdministrationActionsRepository.Object,
+                    MockAuditableActionsRepository.Object,
                     MockAuthorizationConfigurationOptions.Object,
                     LoggerFactory.CreateLogger<UsersService>(),
                     MemoryCache,
@@ -846,7 +846,7 @@ namespace Sokan.Yastah.Business.Test.Users
             testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
                 .CreateScope(default));
 
-            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldHaveReceived(x => x
                 .CreateAsync(
                     (int)UserManagementAdministrationActionType.UserModified,
                     utcNow,

@@ -13,7 +13,7 @@ using Microsoft.Extensions.Internal;
 
 using Sokan.Yastah.Business.Characters;
 using Sokan.Yastah.Common.OperationModel;
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 using Sokan.Yastah.Data.Characters;
 
 using Sokan.Yastah.Common.Test;
@@ -34,8 +34,8 @@ namespace Sokan.Yastah.Business.Test.Characters
                 NextAdministrationActionId = default;
                 NextGuildId = default;
 
-                MockAdministrationActionsRepository = new Mock<IAdministrationActionsRepository>();
-                MockAdministrationActionsRepository
+                MockAuditableActionsRepository = new Mock<IAuditableActionsRepository>();
+                MockAuditableActionsRepository
                     .Setup(x => x.CreateAsync(
                         It.IsAny<int>(),
                         It.IsAny<DateTimeOffset>(),
@@ -70,7 +70,7 @@ namespace Sokan.Yastah.Business.Test.Characters
             public long NextAdministrationActionId;
             public long NextGuildId;
 
-            public readonly Mock<IAdministrationActionsRepository> MockAdministrationActionsRepository;
+            public readonly Mock<IAuditableActionsRepository> MockAuditableActionsRepository;
             public readonly Mock<ICharacterGuildsRepository> MockCharacterGuildsRepository;
             public readonly Mock<ISystemClock> MockSystemClock;
             public readonly Mock<ITransactionScopeFactory> MockTransactionScopeFactory;
@@ -78,7 +78,7 @@ namespace Sokan.Yastah.Business.Test.Characters
 
             public CharacterGuildsService BuildUut()
                 => new CharacterGuildsService(
-                    MockAdministrationActionsRepository.Object,
+                    MockAuditableActionsRepository.Object,
                     MockCharacterGuildsRepository.Object,
                     LoggerFactory.CreateLogger<CharacterGuildsService>(),
                     MockSystemClock.Object,
@@ -239,7 +239,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                     true,
                     testContext.CancellationToken));
 
-            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldHaveReceived(x => x
                 .CreateAsync(
                     (int)CharacterManagementAdministrationActionType.GuildCreated,
                     performed,
@@ -303,7 +303,7 @@ namespace Sokan.Yastah.Business.Test.Characters
             testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
                 .CreateScope(default));
 
-            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldHaveReceived(x => x
                 .CreateAsync(
                     (int)CharacterManagementAdministrationActionType.GuildDeleted,
                     performed,
@@ -365,7 +365,7 @@ namespace Sokan.Yastah.Business.Test.Characters
             testContext.MockTransactionScopeFactory.ShouldHaveReceived(x => x
                 .CreateScope(default));
 
-            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldHaveReceived(x => x
                 .CreateAsync(
                     (int)CharacterManagementAdministrationActionType.GuildDeleted,
                     performed,
@@ -537,7 +537,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                     true,
                     testContext.CancellationToken));
 
-            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldHaveReceived(x => x
                 .CreateAsync(
                     (int)CharacterManagementAdministrationActionType.GuildModified,
                     performed,
@@ -616,7 +616,7 @@ namespace Sokan.Yastah.Business.Test.Characters
                     true,
                     testContext.CancellationToken));
 
-            testContext.MockAdministrationActionsRepository.ShouldHaveReceived(x => x
+            testContext.MockAuditableActionsRepository.ShouldHaveReceived(x => x
                 .CreateAsync(
                     (int)CharacterManagementAdministrationActionType.GuildModified,
                     performed,

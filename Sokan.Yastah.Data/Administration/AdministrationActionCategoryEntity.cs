@@ -4,12 +4,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Sokan.Yastah.Data.Administration
+namespace Sokan.Yastah.Data.Auditing
 {
-    [Table("AdministrationActionCategories", Schema = "Administration")]
-    internal class AdministrationActionCategoryEntity
+    [Table("AuditableActionCategories", Schema = "Auditing")]
+    internal class AuditableActionCategoryEntity
     {
-        public AdministrationActionCategoryEntity(
+        public AuditableActionCategoryEntity(
             int id,
             string name)
         {
@@ -26,10 +26,10 @@ namespace Sokan.Yastah.Data.Administration
     }
 
     internal class AdministrationActionCategoryEntityTypeConfiguration
-        : IEntityTypeConfiguration<AdministrationActionCategoryEntity>
+        : IEntityTypeConfiguration<AuditableActionCategoryEntity>
     {
         public void Configure(
-            EntityTypeBuilder<AdministrationActionCategoryEntity> entityBuilder)
+            EntityTypeBuilder<AuditableActionCategoryEntity> entityBuilder)
         {
             entityBuilder
                 .Property(x => x.Id);

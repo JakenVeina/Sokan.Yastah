@@ -9,12 +9,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Logging;
 
-using Sokan.Yastah.Business.Administration;
+using Sokan.Yastah.Business.Auditing;
 using Sokan.Yastah.Business.Permissions;
 using Sokan.Yastah.Common.Messaging;
 using Sokan.Yastah.Common.OperationModel;
 using Sokan.Yastah.Data;
-using Sokan.Yastah.Data.Administration;
+using Sokan.Yastah.Data.Auditing;
 using Sokan.Yastah.Data.Roles;
 
 namespace Sokan.Yastah.Business.Roles
@@ -50,7 +50,7 @@ namespace Sokan.Yastah.Business.Roles
         : IRolesService
     {
         public RolesService(
-            IAdministrationActionsRepository administrationActionsRepository,
+            IAuditableActionsRepository auditableActionsRepository,
             ILogger<RolesService> logger,
             IMemoryCache memoryCache,
             IMessenger messenger,
@@ -59,7 +59,7 @@ namespace Sokan.Yastah.Business.Roles
             ISystemClock systemClock,
             ITransactionScopeFactory transactionScopeFactory)
         {
-            _administrationActionsRepository = administrationActionsRepository;
+            _auditableActionsRepository = auditableActionsRepository;
             _logger = logger;
             _memoryCache = memoryCache;
             _messenger = messenger;
@@ -95,12 +95,12 @@ namespace Sokan.Yastah.Business.Roles
             }
             RolesLogMessages.PermissionIdsValidationSucceeded(_logger, creationModel.GrantedPermissionIds);
 
-            var actionId = await _administrationActionsRepository.CreateAsync(
+            var actionId = await _auditableActionsRepository.CreateAsync(
                 (int)RoleManagementAdministrationActionType.RoleCreated,
                 _systemClock.UtcNow,
                 performedById,
                 cancellationToken);
-            AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
+            AuditingLogMessages.AuditingActionCreated(_logger, actionId);
 
             var roleId = await _rolesRepository.CreateAsync(
                 creationModel.Name,
@@ -134,12 +134,12 @@ namespace Sokan.Yastah.Business.Roles
             using var transactionScope = _transactionScopeFactory.CreateScope();
             TransactionsLogMessages.TransactionScopeCreated(_logger);
 
-            var actionId = await _administrationActionsRepository.CreateAsync(
+            var actionId = await _auditableActionsRepository.CreateAsync(
                 (int)RoleManagementAdministrationActionType.RoleDeleted,
                 _systemClock.UtcNow,
                 performedById,
                 cancellationToken);
-            AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
+            AuditingLogMessages.AuditingActionCreated(_logger, actionId);
 
             var deleteResult = await _rolesRepository.UpdateAsync(
                 roleId: roleId,
@@ -216,12 +216,12 @@ namespace Sokan.Yastah.Business.Roles
 
             var now = _systemClock.UtcNow;
 
-            var actionId = await _administrationActionsRepository.CreateAsync(
+            var actionId = await _auditableActionsRepository.CreateAsync(
                 (int)RoleManagementAdministrationActionType.RoleModified,
                 now,
                 performedById,
                 cancellationToken);
-            AdministrationLogMessages.AdministrationActionCreated(_logger, actionId);
+            AuditingLogMessages.AuditingActionCreated(_logger, actionId);
 
             var updateResult = await _rolesRepository.UpdateAsync(
                 roleId: roleId,
@@ -383,7 +383,7 @@ namespace Sokan.Yastah.Business.Roles
                 : OperationResult.Success;
         }
 
-        private readonly IAdministrationActionsRepository _administrationActionsRepository;
+        private readonly IAuditableActionsRepository _auditableActionsRepository;
         private readonly ILogger _logger;
         private readonly IMemoryCache _memoryCache;
         private readonly IMessenger _messenger;
