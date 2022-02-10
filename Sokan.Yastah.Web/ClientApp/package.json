@@ -45,7 +45,7 @@
     "webpack-cli": "3.3.10"
   },
   "optionalDependencies": {
-    "node-sass": "4.13.0",
+    "node-sass": "7.0.0",
     "protractor": "6.0.0",
     "ts-node": "8.6.1",
     "tslint": "5.20.1"
